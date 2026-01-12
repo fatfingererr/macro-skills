@@ -1,9 +1,9 @@
 import type { Skill, SkillFilters, SortOption } from '../types/skill';
 
-const API_BASE = '/data';
+const BASE_URL = import.meta.env.BASE_URL;
 
 export async function fetchSkills(): Promise<Skill[]> {
-  const response = await fetch(`${API_BASE}/skills.json`);
+  const response = await fetch(`${BASE_URL}data/skills.json`);
   if (!response.ok) {
     throw new Error('Failed to fetch skills');
   }
