@@ -12,7 +12,7 @@ export default function Footer() {
               <span className="font-bold text-lg text-gray-900">Macro Skills</span>
             </div>
             <p className="mt-2 text-sm text-gray-600">
-              專注於宏觀經濟分析的 <a href="https://claude.com/product/claude-code" className="text-blue-600 hover:text-blue-800" target="_blank">Claude Code</a> 技能市集
+              專注於宏觀經濟分析的技能市集 (Claude Code)
             </p>
           </div>
 
@@ -60,6 +60,16 @@ export default function Footer() {
                   className="text-sm text-gray-600 hover:text-gray-900"
                 >
                   Claude
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://discord.gg/zReHspPEzZ"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-gray-600 hover:text-gray-900"
+                >
+                  Discord
                 </a>
               </li>
             </ul>
