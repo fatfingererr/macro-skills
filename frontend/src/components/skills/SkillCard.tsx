@@ -27,15 +27,12 @@ export default function SkillCard({ skill, onInstall }: SkillCardProps) {
       </Link>
 
       <div className="flex flex-wrap gap-1 mb-4">
-        {skill.tools.map((tool) => (
-          <Badge key={tool} type="tool" value={tool} />
+        {skill.tags.slice(0, 3).map((tag) => (
+          <Badge key={tag} type="tag" value={tag} />
         ))}
       </div>
 
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-gray-500">
-          {skill.installCount.toLocaleString()} 次安裝
-        </span>
+      <div className="flex items-center justify-end">
         <Button
           size="sm"
           onClick={(e) => {
