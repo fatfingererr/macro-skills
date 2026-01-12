@@ -38,7 +38,7 @@ export default function HomePage() {
             Macro Skills
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            探索與安裝 Claude Code 的宏觀經濟分析技能，提升你的研究效率
+            投資理財之餘，想刷宏觀研究副本？把技能裝上熱鍵用起來！
           </p>
           <div className="flex justify-center space-x-4">
             <Link to="/skills">
@@ -94,7 +94,7 @@ export default function HomePage() {
             有好的技能想法？
           </h2>
           <p className="text-gray-600 mb-6">
-            歡迎提交你的技能到 Macro Skills 市集
+            歡迎提交你的技能到 Macro Skills
           </p>
           <Link to="/submit">
             <Button>提交技能</Button>
