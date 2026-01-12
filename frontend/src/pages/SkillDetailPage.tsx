@@ -9,11 +9,32 @@ import Badge from '../components/common/Badge';
 import Button from '../components/common/Button';
 import InstallModal from '../components/skills/InstallModal';
 
+function generateSkillSource(skill: Skill): string {
+  const frontmatter = `---
+name: ${skill.id}
+displayName: ${skill.displayName}
+description: ${skill.description}
+emoji: ${skill.emoji}
+version: ${skill.version}
+license: ${skill.license}
+author: ${skill.author}${skill.authorUrl ? `\nauthorUrl: ${skill.authorUrl}` : ''}
+tags:
+${skill.tags.map(t => `  - ${t}`).join('\n')}
+category: ${skill.category}
+riskLevel: ${skill.riskLevel}
+tools:
+${skill.tools.map(t => `  - ${t}`).join('\n')}
+featured: ${skill.featured}
+---`;
+  return `${frontmatter}\n\n${skill.content}`;
+}
+
 export default function SkillDetailPage() {
   const { skillId } = useParams<{ skillId: string }>();
   const [skill, setSkill] = useState<Skill | null>(null);
   const [loading, setLoading] = useState(true);
   const [showInstall, setShowInstall] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetchSkills()
@@ -76,9 +97,6 @@ export default function SkillDetailPage() {
 
               <div className="flex flex-wrap items-center gap-2 mb-4">
                 <Badge type="risk" value={skill.riskLevel} />
-                {skill.tools.map((tool) => (
-                  <Badge key={tool} type="tool" value={tool} />
-                ))}
                 <span className="text-sm text-gray-500">
                   {getCategoryName(skill.category)}
                 </span>
@@ -96,7 +114,7 @@ export default function SkillDetailPage() {
         </div>
 
         {/* Meta */}
-        <div className="mt-6 pt-6 border-t border-gray-200 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="mt-6 pt-6 border-t border-gray-200 grid grid-cols-3 gap-4">
           <div>
             <p className="text-sm text-gray-500">版本</p>
             <p className="font-medium">{skill.version}</p>
@@ -120,10 +138,6 @@ export default function SkillDetailPage() {
             <p className="text-sm text-gray-500">授權</p>
             <p className="font-medium">{skill.license}</p>
           </div>
-          <div>
-            <p className="text-sm text-gray-500">安裝次數</p>
-            <p className="font-medium">{skill.installCount.toLocaleString()}</p>
-          </div>
         </div>
       </div>
 
@@ -132,6 +146,42 @@ export default function SkillDetailPage() {
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {skill.content}
         </ReactMarkdown>
+      </div>
+
+      {/* Skill Source */}
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-gray-900">技能原文</h2>
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(generateSkillSource(skill));
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            }}
+            className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
+          >
+            {copied ? (
+              <>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                已複製
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                複製
+              </>
+            )}
+          </button>
+        </div>
+        <div className="bg-gray-900 rounded-xl overflow-hidden">
+          <pre className="p-4 overflow-x-auto text-sm">
+            <code className="text-gray-100 whitespace-pre">{generateSkillSource(skill)}</code>
+          </pre>
+        </div>
       </div>
 
       {/* Install Modal */}
