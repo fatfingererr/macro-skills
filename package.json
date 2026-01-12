@@ -1,0 +1,20 @@
+{
+  "name": "macro-skills",
+  "version": "1.0.0",
+  "description": "Claude Code 技能市集",
+  "private": true,
+  "workspaces": ["frontend"],
+  "scripts": {
+    "dev": "bun run --filter frontend dev",
+    "build": "bun run build:marketplace && bun run --filter frontend build",
+    "build:marketplace": "bun run scripts/build-marketplace.ts",
+    "preview": "bun run --filter frontend preview"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3",
+    "glob": "^10.3.10"
+  }
+}
