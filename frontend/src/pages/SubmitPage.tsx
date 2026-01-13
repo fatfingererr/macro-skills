@@ -121,7 +121,7 @@ tags:
   - 標籤1
   - 標籤2
 category: research
-riskLevel: safe
+dataLevel: free-nolimit
 tools:
   - claude-code
 featured: false
@@ -173,7 +173,7 @@ featured: false
               <svg className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              <span className="text-gray-600">風險等級必須如實標示</span>
+              <span className="text-gray-600">資料等級 (dataLevel) 必須如實標示</span>
             </div>
             <div className="flex items-start gap-3">
               <svg className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">

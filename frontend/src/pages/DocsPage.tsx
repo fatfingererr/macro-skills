@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
-import { categories } from '../data/categories';
+import { categories, dataLevels } from '../data/categories';
 
 export default function DocsPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">文件說明</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-2">使用說明</h1>
       <p className="text-gray-600 mb-8">了解如何使用 Macro Skills 技能市集</p>
 
       <div className="space-y-8">
@@ -52,52 +52,43 @@ export default function DocsPage() {
           </div>
         </section>
 
-        {/* Risk Levels */}
+        {/* Data Levels */}
         <section className="bg-white border border-gray-200 rounded-xl p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="text-2xl">🛡️</span>
-            技能風險等級
+            <span className="text-2xl">📊</span>
+            資料等級 (DataLevel)
           </h2>
-          <p className="text-gray-600 mb-4">每個技能都有對應的風險等級標示：</p>
+          <p className="text-gray-600 mb-4">每個技能都標示其資料來源的成本與限制等級：</p>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="bg-gray-50 border-b-2 border-gray-200">
                   <th className="px-4 py-3 text-left font-semibold text-gray-700">等級</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700">成本</th>
                   <th className="px-4 py-3 text-left font-semibold text-gray-700">說明</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                <tr className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <span className="px-2.5 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">安全</span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">僅執行分析與建議，不會修改任何檔案或系統</td>
-                </tr>
-                <tr className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <span className="px-2.5 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">低風險</span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">可能讀取本地檔案進行分析</td>
-                </tr>
-                <tr className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <span className="px-2.5 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">中風險</span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">可能修改本地檔案</td>
-                </tr>
-                <tr className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <span className="px-2.5 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-medium">高風險</span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">可能執行系統指令</td>
-                </tr>
-                <tr className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <span className="px-2.5 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">關鍵</span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">具有完整系統存取權限</td>
-                </tr>
+                {dataLevels.map((level) => {
+                  const colorMap: Record<string, string> = {
+                    green: 'bg-green-100 text-green-800',
+                    yellow: 'bg-yellow-100 text-yellow-800',
+                    blue: 'bg-blue-100 text-blue-800',
+                    purple: 'bg-purple-100 text-purple-800',
+                    red: 'bg-red-100 text-red-800',
+                  };
+                  return (
+                    <tr key={level.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3">
+                        <span className={`px-2.5 py-1 ${colorMap[level.color]} rounded-full text-sm font-medium`}>
+                          {level.emoji} {level.name}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-gray-700 font-mono text-sm">{level.cost}</td>
+                      <td className="px-4 py-3 text-gray-600">{level.description}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -125,7 +116,7 @@ tags:
   - 標籤1
   - 標籤2
 category: indicator-monitoring
-riskLevel: safe
+dataLevel: free-nolimit
 tools:
   - claude-code
 featured: false
@@ -196,7 +187,7 @@ featured: false
             </a>{' '}
             提出，或加入我們的{' '}
             <a
-              href="https://discord.gg/zReHspPEzZ"
+              href="https://discord.gg/SDWSGXrhYq"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary-600 hover:underline font-medium"

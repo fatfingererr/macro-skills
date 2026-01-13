@@ -21,7 +21,7 @@ author: ${skill.author}${skill.authorUrl ? `\nauthorUrl: ${skill.authorUrl}` : '
 tags:
 ${skill.tags.map(t => `  - ${t}`).join('\n')}
 category: ${skill.category}
-riskLevel: ${skill.riskLevel}
+dataLevel: ${skill.dataLevel}
 tools:
 ${skill.tools.map(t => `  - ${t}`).join('\n')}
 featured: ${skill.featured}
@@ -96,7 +96,7 @@ export default function SkillDetailPage() {
               <p className="text-gray-600 mb-4">{skill.description}</p>
 
               <div className="flex flex-wrap items-center gap-2 mb-4">
-                <Badge type="risk" value={skill.riskLevel} />
+                <Badge type="dataLevel" value={skill.dataLevel} />
                 <span className="text-sm text-gray-500">
                   {getCategoryName(skill.category)}
                 </span>
