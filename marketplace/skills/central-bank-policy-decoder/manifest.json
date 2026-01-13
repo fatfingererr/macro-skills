@@ -1,0 +1,8 @@
+{
+  "name": "central-bank-policy-decoder",
+  "description": "解讀央行聲明、會議紀要、政策訊號，預測貨幣政策走向",
+  "version": "1.0.0",
+  "author": {
+    "name": "Macro Skills Team"
+  }
+}
