@@ -5,7 +5,7 @@ description: 下載並解析 USDA 每月發布的 WASDE 報告，擷取所有主
 emoji: "\U0001F33E"
 version: v0.1.0
 license: MIT
-author: macro-skills
+author: Ricky Wang
 authorUrl: https://github.com/fatfingererr/macro-skills
 tags:
   - USDA
@@ -272,6 +272,17 @@ Ending Stocks = Beginning Stocks + Production + Imports - Total Use - Exports
 | validate_data.py     | 執行驗證檢查              |
 </scripts_index>
 
+<examples_index>
+**範例輸出** (`examples/`)
+
+| 文件                       | 內容                   |
+|----------------------------|------------------------|
+| corn_us_balance.json       | 美國玉米供需平衡表範例 |
+| wheat_world_balance.json   | 世界小麥供需平衡表範例 |
+| ingest_status_success.json | 成功執行的狀態報告範例 |
+| backfill_result.json       | 批量回補作業結果範例   |
+</examples_index>
+
 <quick_start>
 **CLI 快速開始：**
 
@@ -314,3 +325,118 @@ Skill 成功執行時：
 - [ ] 輸出標準化 parquet 數據集
 - [ ] 生成 ingest_status 報告
 </success_criteria>
+
+<detailed_usage_examples>
+**詳細使用範例**
+
+**範例 1：抓取最新玉米與大豆數據**
+```
+User: 幫我抓取最新 WASDE 的玉米和大豆供需數據
+
+Assistant 執行步驟:
+1. 讀取 workflows/ingest.md
+2. 呼叫 discover_releases.py 找到最新發布 (2025-01-10)
+3. 下載 PDF 報告
+4. 解析 corn_us, corn_world, soybeans_us, soybeans_world 表格
+5. 驗證平衡公式
+6. 輸出 parquet 檔案
+7. 回報 ingest_status
+
+預期輸出:
+- ./data/wasde/curated/corn_us_balance.parquet
+- ./data/wasde/curated/corn_world_balance.parquet
+- ./data/wasde/curated/soybeans_us_balance.parquet
+- ./data/wasde/curated/soybeans_world_balance.parquet
+```
+
+**範例 2：回補歷史小麥數據並追蹤修正**
+```
+User: 回補過去 12 個月的小麥數據，我想追蹤 USDA 的修正歷程
+
+Assistant 執行步驟:
+1. 讀取 workflows/backfill.md
+2. 確定日期範圍 (2024-01 至 2024-12)
+3. 依序處理 12 期報告
+4. 比對每期數據，標記修正值
+5. 輸出包含 revision_flag 的完整歷史數據
+
+預期輸出:
+- 12 期小麥數據
+- 修正追蹤報告
+```
+
+**範例 3：驗證現有數據一致性**
+```
+User: 檢查我現有的 WASDE 數據是否與最新報告一致
+
+Assistant 執行步驟:
+1. 讀取 workflows/validate.md
+2. 載入現有 parquet 檔案
+3. 抓取最新報告
+4. 逐欄位比對
+5. 標記差異與修正
+6. 輸出驗證報告
+
+預期輸出:
+- validation_report.json (差異列表)
+- 修正建議
+```
+</detailed_usage_examples>
+
+<data_pipeline_architecture>
+**數據流水線架構**
+
+```
+[USDA WASDE Website]
+         |
+         v
++-------------------+
+| discover_releases |  --> 找到 PDF URL 與發布日期
++-------------------+
+         |
+         v
++-------------------+
+|   fetch_report    |  --> 下載 PDF (fallback: HTML)
++-------------------+
+         |
+         v
++-------------------+
+|   parse_tables    |  --> 提取供需表格數據
++-------------------+
+         |
+         v
++-------------------+
+|   normalize_data  |  --> 標準化欄位與單位
++-------------------+
+         |
+         v
++-------------------+
+|   validate_data   |  --> 平衡公式與範圍檢查
++-------------------+
+         |
+         v
++-------------------+
+|   write_output    |  --> Parquet / JSON
++-------------------+
+         |
+         v
+[Curated Dataset]
+```
+
+**目錄結構：**
+```
+data/wasde/
+├── raw/                    # 原始 PDF 檔案
+│   └── 2025-01-10/
+│       └── wasde0125.pdf
+├── intermediate/           # 中間解析結果
+│   └── 2025-01-10/
+│       ├── tables.json
+│       └── ingest_status.json
+└── curated/                # 最終標準化數據
+    ├── corn_us_balance.parquet
+    ├── corn_world_balance.parquet
+    ├── wheat_us_balance.parquet
+    └── ...
+```
+</data_pipeline_architecture>
