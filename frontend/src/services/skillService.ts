@@ -73,7 +73,7 @@ export function getPopularSkills(skills: Skill[], limit = 6): Skill[] {
     .slice(0, limit);
 }
 
-export function generateInstallCommand(skill: Skill): string {
+export function generateInstallCommand(_skill: Skill): string {
   return '/plugin marketplace add fatfingererr/macro-skills';
 }
 
