@@ -1,0 +1,145 @@
+{
+  "analysis_title": "多主題趨勢共振分析",
+  "primary_topic": "Health Insurance",
+  "compare_topics": ["Unemployment", "Inflation", "Medicare", "Cost of Living"],
+  "geo": "US",
+  "timeframe": "2019-01-01 2025-12-31",
+  "analyzed_at": "2025-01-13T15:00:00Z",
+
+  "correlations": {
+    "Unemployment": {
+      "overall_correlation": 0.35,
+      "recent_correlation": 0.58,
+      "correlation_change": 0.23,
+      "interpretation": "近期相關性顯著上升"
+    },
+    "Inflation": {
+      "overall_correlation": 0.28,
+      "recent_correlation": 0.52,
+      "correlation_change": 0.24,
+      "interpretation": "近期相關性上升"
+    },
+    "Medicare": {
+      "overall_correlation": 0.72,
+      "recent_correlation": 0.68,
+      "correlation_change": -0.04,
+      "interpretation": "穩定高相關（同屬醫療保險領域）"
+    },
+    "Cost of Living": {
+      "overall_correlation": 0.31,
+      "recent_correlation": 0.61,
+      "correlation_change": 0.30,
+      "interpretation": "近期相關性大幅上升"
+    }
+  },
+
+  "lag_analysis": {
+    "Unemployment": {
+      "best_lag": -2,
+      "best_correlation": 0.62,
+      "interpretation": "Unemployment 領先 Health Insurance 約 2 週"
+    },
+    "Inflation": {
+      "best_lag": 0,
+      "best_correlation": 0.52,
+      "interpretation": "同步移動"
+    },
+    "Cost of Living": {
+      "best_lag": -1,
+      "best_correlation": 0.65,
+      "interpretation": "Cost of Living 領先約 1 週"
+    }
+  },
+
+  "recent_changes": {
+    "Health Insurance": {
+      "recent_4w_avg": 95,
+      "previous_4w_avg": 72,
+      "change_pct": 0.32,
+      "direction": "up"
+    },
+    "Unemployment": {
+      "recent_4w_avg": 68,
+      "previous_4w_avg": 52,
+      "change_pct": 0.31,
+      "direction": "up"
+    },
+    "Inflation": {
+      "recent_4w_avg": 78,
+      "previous_4w_avg": 65,
+      "change_pct": 0.20,
+      "direction": "up"
+    },
+    "Medicare": {
+      "recent_4w_avg": 82,
+      "previous_4w_avg": 75,
+      "change_pct": 0.09,
+      "direction": "up"
+    },
+    "Cost of Living": {
+      "recent_4w_avg": 85,
+      "previous_4w_avg": 62,
+      "change_pct": 0.37,
+      "direction": "up"
+    }
+  },
+
+  "resonance_pattern": {
+    "pattern": "systemic_anxiety",
+    "same_direction_ratio": 1.0,
+    "explanation": "所有對照主題（4/4）同向上升，表示廣泛的經濟焦慮而非單點問題",
+    "confidence": "high"
+  },
+
+  "interpretation": {
+    "summary": "Health Insurance 搜尋上升並非孤立現象，而是與更廣泛的經濟焦慮相關",
+    "key_findings": [
+      "所有經濟相關主題近期都在上升",
+      "Unemployment 和 Cost of Living 的相關性上升最顯著",
+      "Unemployment 領先 Health Insurance 約 2 週，可能是因果關係（失業→失去雇主保險→搜尋保險）",
+      "Medicare 一直保持高相關，是領域內的穩定關聯"
+    ],
+    "implications": [
+      "訊號反映的是整體經濟不安，不僅僅是醫療保險特定問題",
+      "失業焦慮可能是驅動因素之一（COBRA、失去保險覆蓋）",
+      "生活成本壓力也是重要因素"
+    ]
+  },
+
+  "testable_hypotheses_based_on_comparison": [
+    {
+      "id": "C1",
+      "hypothesis": "就業焦慮傳導至保險搜尋（失業→失去雇主保險）",
+      "evidence": "Unemployment 領先 Health Insurance 2 週，相關性從 0.35 升至 0.58",
+      "verify_with": [
+        "FRED: ICSA vs Health Insurance 搜尋的格蘭傑因果檢驗",
+        "COBRA 相關搜尋量"
+      ]
+    },
+    {
+      "id": "C2",
+      "hypothesis": "生活成本壓力導致保險費用關注上升",
+      "evidence": "Cost of Living 相關性上升最大（+0.30），領先 1 週",
+      "verify_with": [
+        "CPI vs Health Insurance 搜尋的時間序列分析",
+        "保費佔收入比例變化"
+      ]
+    },
+    {
+      "id": "C3",
+      "hypothesis": "系統性經濟焦慮導致多領域搜尋同步上升",
+      "evidence": "4/4 對照主題同向移動",
+      "verify_with": [
+        "Consumer Sentiment Index",
+        "Economic Policy Uncertainty Index"
+      ]
+    }
+  ],
+
+  "next_steps": [
+    "檢查 Initial Claims 和 Layoffs 數據，確認就業市場是否惡化",
+    "檢查 Consumer Sentiment，確認整體經濟信心",
+    "追蹤 Cost of Living 和 Health Insurance 的持續共振",
+    "如果就業數據惡化，預期 Health Insurance 搜尋將持續高位"
+  ]
+}

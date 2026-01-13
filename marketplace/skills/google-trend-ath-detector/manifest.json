@@ -1,0 +1,107 @@
+{
+  "name": "google-trend-ath-detector",
+  "version": "0.1.0",
+  "displayName": "Google Trend ATH Detector",
+  "description": "自動抓取 Google Trends 指標，判定是否出現「歷史新高（ATH）」或異常飆升，並把這個搜尋情緒訊號映射到可檢驗的宏觀驅動假說與後續驗證清單。",
+  "author": "macro-skills",
+  "license": "MIT",
+  "category": "indicator-monitoring",
+  "tags": [
+    "Google Trends",
+    "ATH",
+    "歷史新高",
+    "情緒指標",
+    "異常偵測",
+    "宏觀",
+    "搜尋趨勢",
+    "假說生成",
+    "季節性分析"
+  ],
+  "dataLevel": "free-nolimit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "pytrends>=4.9.0",
+      "pandas>=1.5.0",
+      "numpy>=1.23.0",
+      "statsmodels>=0.14.0",
+      "scipy>=1.10.0"
+    ],
+    "optional": [
+      "ruptures>=1.1.0",
+      "fredapi>=0.5.0",
+      "pandas-datareader>=0.10.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/trend_analyzer.py",
+    "hypothesisBuilder": "scripts/hypothesis_builder.py"
+  },
+  "workflows": [
+    {
+      "id": "detect",
+      "name": "快速偵測",
+      "description": "快速偵測 ATH 與異常分數",
+      "file": "workflows/detect.md"
+    },
+    {
+      "id": "analyze",
+      "name": "深度分析",
+      "description": "深度分析、假說生成、驗證清單",
+      "file": "workflows/analyze.md"
+    },
+    {
+      "id": "verify",
+      "name": "驗證主張",
+      "description": "驗證社群貼文/圖表主張",
+      "file": "workflows/verify.md"
+    },
+    {
+      "id": "compare",
+      "name": "趨勢比較",
+      "description": "多主題趨勢共振分析",
+      "file": "workflows/compare.md"
+    }
+  ],
+  "references": [
+    "references/input-schema.md",
+    "references/hypothesis-templates.md",
+    "references/data-sources.md",
+    "references/signal-types.md",
+    "references/seasonality-guide.md"
+  ],
+  "templates": [
+    "templates/output-schema.yaml",
+    "templates/hypothesis-output.yaml"
+  ],
+  "examples": [
+    "examples/health_insurance_ath.json",
+    "examples/seasonal_vs_anomaly.json",
+    "examples/multi_topic_comparison.json"
+  ],
+  "dataSources": [
+    {
+      "name": "Google Trends",
+      "type": "primary",
+      "url": "https://trends.google.com",
+      "api": "pytrends (unofficial)"
+    },
+    {
+      "name": "FRED",
+      "type": "verification",
+      "url": "https://fred.stlouisfed.org",
+      "api": "fredapi"
+    },
+    {
+      "name": "BLS",
+      "type": "verification",
+      "url": "https://www.bls.gov"
+    },
+    {
+      "name": "CMS",
+      "type": "verification",
+      "url": "https://www.cms.gov"
+    }
+  ]
+}

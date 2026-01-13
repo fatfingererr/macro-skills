@@ -1,0 +1,250 @@
+# Google Trend ATH Detector Output Schema
+# 標準輸出 JSON 格式定義
+
+version: "1.0"
+
+# 完整輸出 Schema
+full_output:
+  type: object
+  required:
+    - topic
+    - geo
+    - timeframe
+    - latest
+    - hist_max
+    - is_all_time_high
+    - signal_type
+  properties:
+    # 基本資訊
+    topic:
+      type: string
+      description: 分析的 Google Trends 主題
+      example: "Health Insurance"
+
+    geo:
+      type: string
+      description: 地區代碼
+      example: "US"
+
+    timeframe:
+      type: string
+      description: 分析時間範圍
+      example: "2004-01-01 2025-12-31"
+
+    granularity:
+      type: string
+      enum: [daily, weekly, monthly]
+      default: weekly
+
+    # 數值結果
+    latest:
+      type: number
+      description: 最新數據點的值 (0-100)
+      example: 100
+
+    hist_max:
+      type: number
+      description: 歷史最高值
+      example: 100
+
+    is_all_time_high:
+      type: boolean
+      description: 是否為歷史新高
+      example: true
+
+    # 訊號分析
+    signal_type:
+      type: string
+      enum: [seasonal_spike, event_driven_shock, regime_shift, normal]
+      description: 訊號類型分類
+      example: "regime_shift"
+
+    # 季節性分析
+    seasonality:
+      type: object
+      properties:
+        method:
+          type: string
+          enum: [none, stl, month_fixed_effects]
+        is_seasonal_pattern_detected:
+          type: boolean
+        seasonal_strength:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: 季節性強度 (0-1)
+
+    # 異常偵測
+    anomaly_detection:
+      type: object
+      properties:
+        method:
+          type: string
+          enum: [zscore, mad, changepoint]
+        threshold:
+          type: number
+        latest_score:
+          type: number
+          description: 最新數據點的異常分數
+        is_anomaly:
+          type: boolean
+
+    # 驅動因素
+    drivers_from_related_queries:
+      type: array
+      items:
+        type: object
+        properties:
+          term:
+            type: string
+          type:
+            type: string
+            enum: [rising, top]
+          value:
+            type: [number, string]
+            description: 上升百分比或 "Breakout"
+
+    # 可檢驗假說
+    testable_hypotheses:
+      type: array
+      maxItems: 4
+      items:
+        $ref: "#/hypothesis_schema"
+
+    # 下一步數據
+    next_data_to_pull:
+      type: array
+      items:
+        type: string
+      description: 建議查詢的驗證數據來源
+
+    # 元數據
+    metadata:
+      type: object
+      properties:
+        analyzed_at:
+          type: string
+          format: date-time
+        data_points:
+          type: integer
+        schema_version:
+          type: string
+
+# 假說 Schema
+hypothesis_schema:
+  type: object
+  required:
+    - id
+    - hypothesis
+    - verify_with
+  properties:
+    id:
+      type: string
+      pattern: "^H[0-9]+$"
+      example: "H1"
+
+    hypothesis:
+      type: string
+      description: 假說描述
+      example: "保費/自付額壓力上升造成注意力結構性抬升"
+
+    evidence_in_trends:
+      type: array
+      items:
+        type: string
+      description: 趨勢中支持此假說的證據
+
+    verify_with:
+      type: array
+      items:
+        type: string
+      description: 驗證數據來源
+
+    confidence:
+      type: string
+      enum: [high, medium, low]
+
+# 比較輸出 Schema
+comparison_output:
+  type: object
+  properties:
+    primary_topic:
+      type: string
+    compare_topics:
+      type: array
+      items:
+        type: string
+
+    correlations:
+      type: object
+      additionalProperties:
+        type: object
+        properties:
+          overall_correlation:
+            type: number
+          recent_correlation:
+            type: number
+          correlation_change:
+            type: number
+
+    lag_analysis:
+      type: object
+      properties:
+        best_lag:
+          type: integer
+        best_correlation:
+          type: number
+        interpretation:
+          type: string
+
+    resonance_pattern:
+      type: object
+      properties:
+        pattern:
+          type: string
+          enum: [systemic_anxiety, isolated_signal, mixed_signal]
+        same_direction_ratio:
+          type: number
+        explanation:
+          type: string
+
+# 驗證輸出 Schema
+verification_output:
+  type: object
+  properties:
+    claim_source:
+      type: string
+    topic:
+      type: string
+    claim_type:
+      type: string
+      enum: [ath, spike, trend_up]
+
+    verification_result:
+      type: object
+      properties:
+        is_verified:
+          type: boolean
+        confidence:
+          type: string
+          enum: [high, medium, low]
+        details:
+          type: object
+
+    context:
+      type: object
+      properties:
+        historical_percentile:
+          type: number
+        similar_peaks_in_history:
+          type: array
+        seasonal_explanation:
+          type: object
+
+    caveats:
+      type: array
+      items:
+        type: string
+
+    recommendation:
+      type: string

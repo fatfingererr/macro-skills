@@ -1,0 +1,151 @@
+{
+  "comparison_title": "季節性尖峰 vs 真正異常：判定範例",
+  "analysis_date": "2025-01-13",
+
+  "case_1_seasonal": {
+    "topic": "Tax Preparation",
+    "geo": "US",
+    "timeframe": "2020-01-01 2025-12-31",
+    "month_analyzed": "March 2025",
+
+    "raw_signal": {
+      "latest": 92,
+      "hist_max": 100,
+      "is_ath": false
+    },
+
+    "seasonality_analysis": {
+      "method": "stl",
+      "seasonal_strength": 0.78,
+      "is_seasonal_pattern_detected": true,
+      "peak_months": [2, 3, 4],
+      "interpretation": "強季節性（每年 2-4 月報稅季固定上升）"
+    },
+
+    "anomaly_detection": {
+      "method": "zscore",
+      "raw_zscore": 1.8,
+      "deseasonalized_zscore": 0.4,
+      "is_anomaly": false
+    },
+
+    "signal_type": "seasonal_spike",
+
+    "conclusion": {
+      "verdict": "預期的季節性尖峰",
+      "explanation": "去季節化後 z-score 僅 0.4，屬正常波動。每年報稅季都會出現類似上升。",
+      "action": "無需特別關注，等待季節結束即可"
+    }
+  },
+
+  "case_2_anomaly": {
+    "topic": "Silicon Valley Bank",
+    "geo": "US",
+    "timeframe": "2020-01-01 2025-12-31",
+    "month_analyzed": "March 2023",
+
+    "raw_signal": {
+      "latest": 100,
+      "hist_max": 100,
+      "is_ath": true
+    },
+
+    "seasonality_analysis": {
+      "method": "stl",
+      "seasonal_strength": 0.08,
+      "is_seasonal_pattern_detected": false,
+      "interpretation": "幾乎無季節性"
+    },
+
+    "anomaly_detection": {
+      "method": "zscore",
+      "raw_zscore": 8.5,
+      "deseasonalized_zscore": 8.3,
+      "is_anomaly": true
+    },
+
+    "signal_type": "event_driven_shock",
+
+    "drivers": [
+      {"term": "SVB collapse", "type": "rising", "value": "Breakout"},
+      {"term": "bank run", "type": "rising", "value": "+5000%"},
+      {"term": "FDIC", "type": "rising", "value": "+2500%"}
+    ],
+
+    "conclusion": {
+      "verdict": "真正的異常事件",
+      "explanation": "無季節性背景，z-score 極高（8.5），明顯是事件驅動。Related queries 顯示銀行倒閉相關詞彙。",
+      "action": "識別事件（SVB 倒閉），評估對金融市場的影響"
+    }
+  },
+
+  "case_3_mixed": {
+    "topic": "Health Insurance",
+    "geo": "US",
+    "timeframe": "2020-01-01 2025-12-31",
+    "month_analyzed": "November 2024",
+
+    "raw_signal": {
+      "latest": 100,
+      "hist_max": 100,
+      "is_ath": true
+    },
+
+    "seasonality_analysis": {
+      "method": "stl",
+      "seasonal_strength": 0.42,
+      "is_seasonal_pattern_detected": true,
+      "peak_months": [11, 12],
+      "interpretation": "中等季節性（Open Enrollment 期間）"
+    },
+
+    "anomaly_detection": {
+      "method": "zscore",
+      "raw_zscore": 3.5,
+      "deseasonalized_zscore": 2.8,
+      "is_anomaly": true
+    },
+
+    "signal_type": "regime_shift",
+
+    "same_period_comparison": {
+      "current_value": 100,
+      "historical_same_period_mean": 78,
+      "historical_same_period_max": 85,
+      "percentile_vs_same_period": 99,
+      "interpretation": "顯著高於歷史同期"
+    },
+
+    "conclusion": {
+      "verdict": "季節性 + 異常疊加",
+      "explanation": "雖然 11 月是 Open Enrollment 的季節性高峰，但今年的值（100）顯著高於歷史同期（最高 85）。去季節化後 z-score 仍達 2.8，表示有額外的異常因素。",
+      "action": "深入分析驅動因素，可能有保費上漲或政策變動的結構性影響"
+    }
+  },
+
+  "decision_matrix": {
+    "description": "如何判定季節性 vs 異常",
+    "rules": [
+      {
+        "condition": "seasonal_strength > 0.5 AND deseasonalized_zscore < 2.0",
+        "verdict": "seasonal_spike",
+        "action": "正常季節性，無需特別關注"
+      },
+      {
+        "condition": "seasonal_strength < 0.2 AND zscore > 2.5",
+        "verdict": "event_driven_shock",
+        "action": "事件驅動異常，識別事件"
+      },
+      {
+        "condition": "seasonal_strength 0.2-0.5 AND deseasonalized_zscore > 2.0",
+        "verdict": "mixed / regime_shift",
+        "action": "季節性 + 異常疊加，比較歷史同期"
+      },
+      {
+        "condition": "is_ath AND trend_elevated > 20%",
+        "verdict": "regime_shift",
+        "action": "結構性轉變，長期關注"
+      }
+    ]
+  }
+}

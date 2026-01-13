@@ -1,0 +1,155 @@
+# Hypothesis Output Template
+# 假說生成輸出格式
+
+version: "1.0"
+
+# 假說輸出結構
+hypothesis_report:
+  title: "Google Trends 訊號假說報告"
+
+  header:
+    topic: "{topic}"
+    geo: "{geo}"
+    analysis_date: "{date}"
+    signal_type: "{signal_type}"
+
+  signal_summary:
+    latest_value: "{latest}"
+    historical_max: "{hist_max}"
+    is_ath: "{is_ath}"
+    anomaly_score: "{zscore}"
+    is_anomaly: "{is_anomaly}"
+    seasonality_strength: "{seasonal_strength}"
+
+  hypotheses:
+    - id: "H1"
+      hypothesis: "{hypothesis_text}"
+      confidence: "{high|medium|low}"
+      evidence:
+        - "{evidence_1}"
+        - "{evidence_2}"
+      verification_data:
+        - source: "{data_source_1}"
+          description: "{what_to_look_for}"
+        - source: "{data_source_2}"
+          description: "{what_to_look_for}"
+
+    - id: "H2"
+      hypothesis: "{hypothesis_text}"
+      # ...
+
+  verification_checklist:
+    immediate:
+      - task: "檢查 {data_source}"
+        priority: "high"
+        expected_finding: "{description}"
+
+    short_term:
+      - task: "監控 {indicator}"
+        priority: "medium"
+        timeframe: "1-2 週"
+
+    ongoing:
+      - task: "追蹤 {trend}"
+        priority: "low"
+        frequency: "每月"
+
+  conclusion:
+    primary_hypothesis: "{most_likely_hypothesis_id}"
+    confidence_level: "{overall_confidence}"
+    next_action: "{recommended_action}"
+
+# 常用假說模板
+common_hypothesis_templates:
+  cost_pressure:
+    id: "COST"
+    template: "{topic} 搜尋上升可能反映成本壓力增加"
+    typical_evidence:
+      - "cost/price/expensive 類詞在 rising queries"
+      - "去季節化殘差顯著正向"
+    typical_verification:
+      - "CPI 相關分項"
+      - "企業定價公告"
+
+  employment_anxiety:
+    id: "EMP"
+    template: "{topic} 搜尋上升可能與就業變動相關"
+    typical_evidence:
+      - "layoff/job/unemployment 類詞"
+      - "與失業相關搜尋共振"
+    typical_verification:
+      - "Initial Claims"
+      - "JOLTS 數據"
+
+  policy_change:
+    id: "POL"
+    template: "{topic} 搜尋上升可能因政策變動引發"
+    typical_evidence:
+      - "政策/法規相關詞彙"
+      - "與政策公告時間對齊"
+    typical_verification:
+      - "官方政策公告"
+      - "監管機構更新"
+
+  seasonal_cycle:
+    id: "SEA"
+    template: "{topic} 搜尋上升為預期的季節性週期"
+    typical_evidence:
+      - "歷史同期重複出現"
+      - "去季節化後殘差不顯著"
+    typical_verification:
+      - "比較過去 5 年同期"
+      - "行業日曆對照"
+
+  event_driven:
+    id: "EVT"
+    template: "{topic} 搜尋上升因特定事件觸發"
+    typical_evidence:
+      - "尖峰形狀（快速上升）"
+      - "事件相關詞彙"
+    typical_verification:
+      - "新聞事件搜尋"
+      - "社群討論追蹤"
+
+# Markdown 輸出模板
+markdown_template: |
+  # Google Trends 訊號分析報告
+
+  ## 基本資訊
+  - **主題**: {topic}
+  - **地區**: {geo}
+  - **分析日期**: {date}
+  - **訊號類型**: {signal_type}
+
+  ## 訊號摘要
+  | 指標 | 值 |
+  |------|-----|
+  | 最新值 | {latest} |
+  | 歷史最高 | {hist_max} |
+  | 是否 ATH | {is_ath} |
+  | 異常分數 | {zscore} |
+  | 是否異常 | {is_anomaly} |
+
+  ## 可檢驗假說
+
+  ### H1: {hypothesis_1_title}
+  **假說**: {hypothesis_1_text}
+
+  **趨勢證據**:
+  {evidence_list_1}
+
+  **驗證數據**:
+  {verification_list_1}
+
+  ---
+
+  ### H2: {hypothesis_2_title}
+  ...
+
+  ## 下一步行動
+  1. {action_1}
+  2. {action_2}
+  3. {action_3}
+
+  ---
+  *報告由 Google Trend ATH Detector 生成*
