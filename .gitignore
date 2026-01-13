@@ -1,3 +1,6 @@
+# Notes
+thoughts/ricky/
+
 # Dependencies
 node_modules/
 
@@ -5,6 +8,9 @@ node_modules/
 dist/
 dist-node/
 *.tsbuildinfo
+
+# Auto-generated files
+marketplace/index.json
 
 # Bun
 bun.lock
