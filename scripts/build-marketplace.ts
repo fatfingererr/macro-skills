@@ -15,11 +15,12 @@ interface Skill {
   authorUrl?: string;
   tags: string[];
   category: string;
-  riskLevel: string;
+  dataLevel: string;
   tools: string[];
   featured: boolean;
   installCount: number;
   content: string;
+  path: string;
 }
 
 async function buildMarketplace() {
@@ -41,10 +42,11 @@ async function buildMarketplace() {
     try {
       const content = fs.readFileSync(file, 'utf-8');
       const { data, content: body } = matter(content);
+      const skillName = path.basename(path.dirname(file));
 
       const skill: Skill = {
-        id: data.name,
-        name: data.name,
+        id: data.name || skillName,
+        name: data.name || skillName,
         displayName: data.displayName || data.name,
         description: data.description || '',
         emoji: data.emoji || '📦',
@@ -54,11 +56,12 @@ async function buildMarketplace() {
         authorUrl: data.authorUrl,
         tags: data.tags || [],
         category: data.category || 'other',
-        riskLevel: data.riskLevel || 'safe',
+        dataLevel: data.dataLevel || 'free-nolimit',
         tools: data.tools || ['claude-code'],
         featured: data.featured || false,
         installCount: data.installCount || 0,
         content: body.trim(),
+        path: `skills/${skillName}/SKILL.md`,
       };
 
       skills.push(skill);
@@ -68,14 +71,41 @@ async function buildMarketplace() {
     }
   }
 
-  // 按安裝次數排序
-  skills.sort((a, b) => b.installCount - a.installCount);
+  // 排序：精選優先，然後按安裝次數
+  skills.sort((a, b) => {
+    if (a.featured !== b.featured) return b.featured ? 1 : -1;
+    return b.installCount - a.installCount;
+  });
 
-  // 寫入 skills.json
-  const outputPath = path.join(outputDir, 'skills.json');
-  fs.writeFileSync(outputPath, JSON.stringify(skills, null, 2), 'utf-8');
+  // 1. 生成前端用的 skills.json
+  const frontendOutput = path.join(outputDir, 'skills.json');
+  fs.writeFileSync(frontendOutput, JSON.stringify(skills, null, 2), 'utf-8');
 
-  console.log(`\n✓ 已產生 ${outputPath}`);
+  // 2. 生成 marketplace/index.json（技能索引）
+  const index = {
+    version: '1.0.0',
+    lastUpdated: new Date().toISOString(),
+    totalSkills: skills.length,
+    skills: skills.map(s => ({
+      id: s.id,
+      displayName: s.displayName,
+      description: s.description,
+      emoji: s.emoji,
+      version: s.version,
+      author: s.author,
+      category: s.category,
+      dataLevel: s.dataLevel,
+      tags: s.tags.slice(0, 5),
+      featured: s.featured,
+      path: s.path,
+    })),
+  };
+
+  const indexPath = path.join(process.cwd(), 'marketplace/index.json');
+  fs.writeFileSync(indexPath, JSON.stringify(index, null, 2), 'utf-8');
+
+  console.log(`\n✓ 已產生 ${frontendOutput}`);
+  console.log(`✓ 已產生 ${indexPath}`);
   console.log(`  共 ${skills.length} 個技能`);
 }
 
