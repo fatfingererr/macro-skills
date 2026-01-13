@@ -5,8 +5,8 @@ description: 根據經濟數據與市場指標判斷當前景氣循環階段，�
 emoji: 🔄
 version: v1.0.0
 license: MIT
-author: Macro Skills Team
-authorUrl: https://github.com/fatfingererr/macro-skills
+author: Ricky Wang
+authorUrl: https://github.com/fatfingererr
 tags:
   - 景氣循環
   - 資產配置

@@ -5,8 +5,8 @@ description: 分析 GDP、CPI、失業率、PMI 等經濟指標，提供專業�
 emoji: 📊
 version: v1.0.0
 license: MIT
-author: Macro Skills Team
-authorUrl: https://github.com/fatfingererr/macro-skills
+author: Ricky Wang
+authorUrl: https://github.com/fatfingererr
 tags:
   - 經濟指標
   - GDP
@@ -20,6 +20,160 @@ tools:
   - claude-code
 featured: true
 installCount: 1250
+testQuestions:
+  - question: '請分析最新公佈的美國 CPI 數據：整體 CPI 年增 3.2%、核心 CPI 年增 4.0%、月增 0.4%'
+    expectedResult: |
+      分析師會提供：
+      1. 數據解讀（與預期值、前值比較）
+      2. 趨勢分析（短期與長期趨勢判斷）
+      3. 結構分析（主要驅動因素拆解）
+      4. 市場影響評估（股市、債市、匯市）
+      5. 政策啟示（對 Fed 政策的潛在影響）
+  - question: '比較最新的 PMI 製造業與服務業指數，分析經濟景氣狀況'
+    expectedResult: '會分析兩個指數的相對強弱，判斷經濟擴張或收縮趨勢，並評估製造業與服務業的相對表現'
+  - question: '解讀上個月的非農就業報告，包括新增就業人數、失業率與薪資成長'
+    expectedResult: '會提供就業市場健康度評估，分析薪資通膨壓力，並探討對聯準會貨幣政策的潛在影響'
+
+# 質量評分
+qualityScore:
+  overall: 75
+  badge: 白銀
+  metrics:
+    architecture: 60
+    maintainability: 90
+    content: 95
+    community: 50
+    security: 100
+    compliance: 80
+  details: |
+    **架構（60/100）**
+    - ✅ 模組化設計良好
+    - ⚠️ 可進一步抽象化數據處理邏輯
+
+    **可維護性（90/100）**
+    - ✅ 程式碼清晰易讀
+    - ✅ 適當的註解與文件
+
+    **內容（95/100）**
+    - ✅ 涵蓋主要經濟指標
+    - ✅ 範例豐富實用
+
+    **社區（50/100）**
+    - ⚠️ 尚無社區貢獻
+    - ⚠️ 可增加討論區或 Wiki
+
+    **安全（100/100）**
+    - ✅ 無已知安全問題
+    - ✅ 無敏感資料處理
+
+    **規範符合性（80/100）**
+    - ✅ 遵循 Claude Code 規範
+    - ⚠️ 可補充更多元數據
+
+# 最佳實踐
+bestPractices:
+  - title: 確認數據來源時效性
+    description: 使用即時或近期數據以確保分析準確性，避免使用過期資料
+  - title: 比對多個數據源
+    description: 交叉驗證不同來源（如 FRED、Bloomberg、各國央行）的數據以提升可信度
+  - title: 考慮季節調整因素
+    description: 某些經濟指標有季節性波動（如零售銷售），應優先使用季調後（SA）數據
+  - title: 關注數據修正值
+    description: 經濟數據常有後續修正（如非農就業），應追蹤修正情況並更新分析
+  - title: 結合前瞻性指引
+    description: 解讀數據時需搭配央行的前瞻性指引與市場預期
+
+# 避免事項
+pitfalls:
+  - title: 忽略數據修正值
+    description: 經濟數據初值常有後續修正，僅依據初值可能得出錯誤結論
+    consequence: 可能導致分析結論偏差，影響投資決策
+  - title: 過度依賴單一指標
+    description: 單一指標無法反映經濟全貌，應綜合多項指標判斷
+    consequence: 可能錯失重要市場訊號或誤判經濟趨勢
+  - title: 忽略地緣政治因素
+    description: 經濟數據需搭配地緣政治環境解讀（如貿易戰、地區衝突）
+    consequence: 分析可能缺乏全面性，無法預測非經濟因素的影響
+
+# 常見問題
+faq:
+  - question: 此技能支援哪些國家的經濟數據？
+    answer: |
+      主要支援以下國家/地區的經濟數據：
+      - 🇺🇸 美國（GDP、CPI、非農、PMI、ISM 等）
+      - 🇪🇺 歐元區（GDP、CPI、PMI 等）
+      - 🇨🇳 中國（GDP、CPI、PMI、社會融資規模等）
+      - 🇯🇵 日本（GDP、CPI、Tankan 等）
+      - 🇬🇧 英國（GDP、CPI、PMI 等）
+
+      可根據需求擴充其他國家，歡迎提交 Issue 建議。
+
+  - question: 如何取得即時經濟數據？
+    answer: |
+      推薦以下數據來源：
+
+      **免費來源**：
+      - [FRED](https://fred.stlouisfed.org/) - 美國聖路易斯聯邦準備銀行資料庫
+      - 各國央行官網（Fed、ECB、BOJ、PBOC 等）
+      - [Trading Economics](https://tradingeconomics.com/) - 全球經濟指標
+
+      **付費來源**：
+      - Bloomberg Terminal
+      - Refinitiv Eikon
+      - FactSet
+
+      建議優先使用 FRED API，提供完整的歷史數據與 API 接口。
+
+  - question: 分析結果是否包含投資建議？
+    answer: |
+      **本技能僅提供數據解讀與市場影響分析，不構成投資建議。**
+
+      輸出內容包括：
+      - 數據解讀（與預期值、前值比較）
+      - 趨勢判斷（短期與長期）
+      - 市場影響評估（股市、債市、匯市）
+      - 政策啟示（央行可能的應對）
+
+      投資決策需自行評估風險承受能力、投資目標與市場環境，建議諮詢專業財務顧問。
+  - question: 如何判斷數據的可信度？
+    answer: |
+      評估數據可信度的關鍵要點：
+
+      1. **來源權威性** - 優先使用官方機構（央行、統計局）發布的數據
+      2. **統計方法** - 了解數據的統計方法、樣本範圍與調整方式
+      3. **修正歷史** - 檢查該指標是否常有大幅修正
+      4. **交叉驗證** - 比對多個來源的數據是否一致
+      5. **時效性** - 確認數據的發布時間與涵蓋期間
+
+      對於有爭議的數據（如中國 GDP），建議搭配其他間接指標（如電力消耗、貨運量）交叉驗證。
+
+# 關於資訊
+about:
+  repository: https://github.com/fatfingererr/macro-skills
+  branch: main
+  additionalInfo: |
+    ## 維護團隊
+
+    本技能由 **Ricky Wang** 開發與維護，持續更新以涵蓋最新的經濟分析方法與數據源。
+
+    ## 貢獻指南
+
+    歡迎社區貢獻！您可以透過以下方式參與：
+    - 提交 Bug Report 或 Feature Request
+    - 改進文件與範例
+    - 提交 Pull Request 改善技能邏輯
+    - 在 Discussions 分享使用心得
+
+    ## 授權說明
+
+    本技能採用 MIT 授權，可自由使用、修改與分發。
+
+    ## 致謝
+
+    感謝以下資源與社區的支持：
+    - FRED API 提供豐富的經濟數據
+    - Claude Code 團隊的技術支援
+    - 所有提供回饋與建議的使用者
 ---
 
 # 經濟指標分析師
