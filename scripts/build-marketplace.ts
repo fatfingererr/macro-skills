@@ -2,6 +2,51 @@ import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 import { glob } from 'glob';
+import { execSync } from 'child_process';
+
+interface TestQuestion {
+  question: string;
+  expectedResult?: string;
+}
+
+interface QualityScore {
+  overall: number;
+  badge: string;
+  metrics: {
+    architecture?: number;
+    maintainability?: number;
+    content?: number;
+    community?: number;
+    security?: number;
+    compliance?: number;
+  };
+  details?: string;
+}
+
+interface BestPractice {
+  title: string;
+  description?: string;
+}
+
+interface Pitfall {
+  title: string;
+  description?: string;
+  consequence?: string;
+}
+
+interface FAQ {
+  question: string;
+  answer: string;
+}
+
+interface About {
+  author: string;
+  authorUrl?: string;
+  license: string;
+  repository?: string;
+  branch?: string;
+  additionalInfo?: string;
+}
 
 interface Skill {
   id: string;
@@ -21,6 +66,63 @@ interface Skill {
   installCount: number;
   content: string;
   path: string;
+  directoryStructure?: string;
+  lastUpdated?: string;
+  rating?: number;
+  testQuestions?: TestQuestion[];
+  qualityScore?: QualityScore;
+  bestPractices?: BestPractice[];
+  pitfalls?: Pitfall[];
+  faq?: FAQ[];
+  about?: About;
+}
+
+// 取得檔案最新 commit 日期
+function getLastCommitDate(filePath: string): string | undefined {
+  try {
+    const result = execSync(`git log -1 --format=%ci "${filePath}"`, {
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    if (result) {
+      // 轉換為 ISO 日期格式
+      const date = new Date(result);
+      return date.toISOString().split('T')[0]; // 只取日期部分 YYYY-MM-DD
+    }
+  } catch {
+    // 如果 git 命令失敗，使用檔案修改時間
+    try {
+      const stats = fs.statSync(filePath);
+      return stats.mtime.toISOString().split('T')[0];
+    } catch {
+      return undefined;
+    }
+  }
+  return undefined;
+}
+
+// 生成目錄結構的函式
+function getDirectoryStructure(dirPath: string, prefix: string = ''): string {
+  const items = fs.readdirSync(dirPath, { withFileTypes: true });
+  const lines: string[] = [];
+
+  items.forEach((item, index) => {
+    const isLast = index === items.length - 1;
+    const connector = isLast ? '└── ' : '├── ';
+    const extension = isLast ? '    ' : '│   ';
+
+    lines.push(`${prefix}${connector}${item.name}`);
+
+    if (item.isDirectory()) {
+      const subPath = path.join(dirPath, item.name);
+      const subLines = getDirectoryStructure(subPath, `${prefix}${extension}`);
+      if (subLines) {
+        lines.push(subLines);
+      }
+    }
+  });
+
+  return lines.join('\n');
 }
 
 async function buildMarketplace() {
@@ -43,13 +145,20 @@ async function buildMarketplace() {
       const content = fs.readFileSync(file, 'utf-8');
       const { data, content: body } = matter(content);
       const skillName = path.basename(path.dirname(file));
+      const skillDir = path.dirname(file);
+
+      // 生成目錄結構
+      const dirStructure = getDirectoryStructure(skillDir);
+
+      // 取得最新更新日期
+      const lastUpdated = getLastCommitDate(file);
 
       const skill: Skill = {
         id: data.name || skillName,
         name: data.name || skillName,
         displayName: data.displayName || data.name,
         description: data.description || '',
-        emoji: data.emoji || '📦',
+        emoji: data.emoji || '🛠️',
         version: data.version || 'v1.0.0',
         license: data.license || 'MIT',
         author: data.author || 'Unknown',
@@ -62,6 +171,15 @@ async function buildMarketplace() {
         installCount: data.installCount || 0,
         content: body.trim(),
         path: `skills/${skillName}/SKILL.md`,
+        directoryStructure: `${skillName}/\n${dirStructure}`,
+        lastUpdated,
+        rating: data.rating || 3,
+        testQuestions: data.testQuestions,
+        qualityScore: data.qualityScore,
+        bestPractices: data.bestPractices,
+        pitfalls: data.pitfalls,
+        faq: data.faq,
+        about: data.about,
       };
 
       skills.push(skill);
