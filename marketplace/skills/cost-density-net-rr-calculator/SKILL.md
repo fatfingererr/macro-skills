@@ -5,7 +5,7 @@ description: 計算交易成本對風險報酬比的非線性衰減影響。將�
 emoji: "🧮"
 version: v0.1.0
 license: MIT
-author: macro-skills
+author: Ricky Wang
 authorUrl: https://github.com/fatfingererr/macro-skills
 tags:
   - 市場微結構
