@@ -1,4 +1,4 @@
-import type { Category, RiskLevelInfo } from '../types/skill';
+import type { Category, DataLevelInfo } from '../types/skill';
 
 export const categories: Category[] = [
   { id: 'data-processing', name: '資料處理', nameEn: 'Data Processing' },
@@ -21,12 +21,52 @@ export const categories: Category[] = [
   { id: 'event-scenario', name: '事件情境', nameEn: 'Event Risk & Scenario' },
 ];
 
-export const riskLevels: RiskLevelInfo[] = [
-  { id: 'safe', name: '安全', color: 'green' },
-  { id: 'low', name: '低風險', color: 'blue' },
-  { id: 'medium', name: '中風險', color: 'yellow' },
-  { id: 'high', name: '高風險', color: 'orange' },
-  { id: 'critical', name: '關鍵', color: 'red' },
+export const dataLevels: DataLevelInfo[] = [
+  {
+    id: 'free-nolimit',
+    name: '免費不限量',
+    nameEn: 'Free Unlimited',
+    color: 'green',
+    emoji: '🟢',
+    cost: '$0',
+    description: '無 key、寬鬆 rate limit、或可離線資料',
+  },
+  {
+    id: 'free-limit',
+    name: '免費有限制',
+    nameEn: 'Free Limited',
+    color: 'yellow',
+    emoji: '🟡',
+    cost: '$0',
+    description: 'API call/分鐘、日配額、延遲、資料範圍縮水',
+  },
+  {
+    id: 'low-cost',
+    name: '小額付費',
+    nameEn: 'Low Cost',
+    color: 'blue',
+    emoji: '🔵',
+    cost: '$5–$50/mo',
+    description: '較高配額、更少延遲、更多欄位',
+  },
+  {
+    id: 'high-cost',
+    name: '高額付費',
+    nameEn: 'High Cost',
+    color: 'purple',
+    emoji: '🟣',
+    cost: '$100–$1k+/mo',
+    description: '更完整覆蓋、即時/深度、SLA',
+  },
+  {
+    id: 'enterprise',
+    name: '企業/終端',
+    nameEn: 'Enterprise',
+    color: 'red',
+    emoji: '🔴',
+    cost: '合約/終端',
+    description: '合約授權、終端、企業級 SLA',
+  },
 ];
 
 export function getCategoryName(id: string): string {
@@ -39,6 +79,6 @@ export function getCategoryNameEn(id: string): string {
   return category ? category.nameEn : id;
 }
 
-export function getRiskLevelInfo(id: string): RiskLevelInfo | undefined {
-  return riskLevels.find(r => r.id === id);
+export function getDataLevelInfo(id: string): DataLevelInfo | undefined {
+  return dataLevels.find(d => d.id === id);
 }

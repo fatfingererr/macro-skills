@@ -1,26 +1,26 @@
-import type { RiskLevel } from '../../types/skill';
-import { getRiskLevelInfo } from '../../data/categories';
+import type { DataLevel } from '../../types/skill';
+import { getDataLevelInfo } from '../../data/categories';
 
 interface BadgeProps {
-  type: 'risk' | 'tool' | 'tag';
+  type: 'dataLevel' | 'tool' | 'tag';
   value: string;
 }
 
-const riskColors: Record<string, string> = {
-  safe: 'bg-green-100 text-green-800',
-  low: 'bg-blue-100 text-blue-800',
-  medium: 'bg-yellow-100 text-yellow-800',
-  high: 'bg-orange-100 text-orange-800',
-  critical: 'bg-red-100 text-red-800',
+const dataLevelColors: Record<string, string> = {
+  'free-nolimit': 'bg-green-100 text-green-800',
+  'free-limit': 'bg-yellow-100 text-yellow-800',
+  'low-cost': 'bg-blue-100 text-blue-800',
+  'high-cost': 'bg-purple-100 text-purple-800',
+  'enterprise': 'bg-red-100 text-red-800',
 };
 
 export default function Badge({ type, value }: BadgeProps) {
-  if (type === 'risk') {
-    const riskInfo = getRiskLevelInfo(value as RiskLevel);
-    const colorClass = riskColors[value] || 'bg-gray-100 text-gray-800';
+  if (type === 'dataLevel') {
+    const dataLevelInfo = getDataLevelInfo(value as DataLevel);
+    const colorClass = dataLevelColors[value] || 'bg-gray-100 text-gray-800';
     return (
       <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colorClass}`}>
-        {riskInfo?.name || value}
+        {dataLevelInfo?.name || value}
       </span>
     );
   }

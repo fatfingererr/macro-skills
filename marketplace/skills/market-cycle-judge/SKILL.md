@@ -13,7 +13,7 @@ tags:
   - 投資策略
   - 週期分析
 category: business-cycles
-riskLevel: low
+dataLevel: free-nolimit
 tools:
   - claude-code
 featured: true

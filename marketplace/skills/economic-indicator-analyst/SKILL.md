@@ -15,7 +15,7 @@ tags:
   - 失業率
   - 宏觀經濟
 category: indicator-monitoring
-riskLevel: safe
+dataLevel: free-nolimit
 tools:
   - claude-code
 featured: true

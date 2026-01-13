@@ -1,4 +1,4 @@
-export type RiskLevel = 'safe' | 'low' | 'medium' | 'high' | 'critical';
+export type DataLevel = 'free-nolimit' | 'free-limit' | 'low-cost' | 'high-cost' | 'enterprise';
 export type Tool = 'claude-code';
 
 export interface Skill {
@@ -13,7 +13,7 @@ export interface Skill {
   authorUrl?: string;
   tags: string[];
   category: string;
-  riskLevel: RiskLevel;
+  dataLevel: DataLevel;
   tools: Tool[];
   featured: boolean;
   installCount: number;
@@ -29,13 +29,17 @@ export interface Category {
 export interface SkillFilters {
   category?: string;
   search?: string;
-  riskLevel?: RiskLevel;
+  dataLevel?: DataLevel;
 }
 
 export type SortOption = 'recent' | 'popular' | 'recommended';
 
-export interface RiskLevelInfo {
-  id: RiskLevel;
+export interface DataLevelInfo {
+  id: DataLevel;
   name: string;
+  nameEn: string;
   color: string;
+  emoji: string;
+  cost: string;
+  description: string;
 }

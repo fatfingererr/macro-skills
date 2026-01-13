@@ -15,7 +15,7 @@ tags:
   - QE
   - QT
 category: central-bank-policy
-riskLevel: safe
+dataLevel: free-nolimit
 tools:
   - claude-code
 featured: true
