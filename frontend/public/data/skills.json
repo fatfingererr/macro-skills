@@ -1,21 +1,28 @@
 [
   {
-    "id": "economic-indicator-analyst",
-    "name": "economic-indicator-analyst",
-    "displayName": "經濟指標分析師",
-    "description": "分析 GDP、CPI、失業率、PMI 等經濟指標，提供專業解讀與市場影響評估",
-    "emoji": "📊",
-    "version": "v1.0.0",
+    "id": "wasde-ingestor",
+    "name": "wasde-ingestor",
+    "displayName": "WASDE 解析匯入器（USDA 月度供需錨點）",
+    "description": "下載並解析 USDA 每月發布的 WASDE 報告，擷取所有主要商品（穀物、油籽、棉花、畜產品、糖）的供需平衡表。輸出標準化、可版本化的資料集，作為即時預測（nowcasting）的錨定基準。",
+    "emoji": "🌾",
+    "version": "v0.1.0",
     "license": "MIT",
-    "author": "Ricky Wang",
-    "authorUrl": "https://github.com/fatfingererr",
+    "author": "macro-skills",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
     "tags": [
-      "經濟指標",
-      "GDP",
-      "CPI",
-      "PMI",
-      "失業率",
-      "宏觀經濟"
+      "USDA",
+      "WASDE",
+      "供給與需求",
+      "供需平衡表",
+      "宏觀",
+      "穀物",
+      "油籽",
+      "棉花",
+      "畜產品",
+      "小麥",
+      "玉米",
+      "黃豆",
+      "稻米"
     ],
     "category": "indicator-monitoring",
     "dataLevel": "free-nolimit",
@@ -23,160 +30,95 @@
       "claude-code"
     ],
     "featured": true,
-    "installCount": 1250,
-    "content": "# 經濟指標分析師\n\n專業的經濟指標分析助手，幫助你快速理解各類經濟數據的意義與市場影響。\n\n## 使用時機\n\n- 當新的經濟數據公佈時，需要快速解讀其意義\n- 分析多個經濟指標之間的關聯性\n- 評估經濟數據對金融市場的潛在影響\n- 撰寫經濟分析報告時需要專業解讀\n\n## 支援的經濟指標\n\n### 產出與成長\n- **GDP（國內生產毛額）** - 季度 GDP 成長率、年化成長率\n- **工業生產指數** - 製造業產出變化\n- **零售銷售** - 消費者支出趨勢\n\n### 通膨與物價\n- **CPI（消費者物價指數）** - 整體通膨與核心通膨\n- **PPI（生產者物價指數）** - 生產成本變化\n- **PCE（個人消費支出）** - Fed 偏好的通膨指標\n\n### 就業市場\n- **非農就業人數** - 月度就業變化\n- **失業率** - 勞動市場健康度\n- **平均時薪** - 薪資通膨壓力\n- **初領失業金人數** - 就業市場即時狀況\n\n### 領先指標\n- **PMI（採購經理人指數）** - 製造業與服務業景氣\n- **消費者信心指數** - 消費者情緒\n- **ISM 製造業指數** - 美國製造業狀況\n\n## 使用方式\n\n在 Claude Code 中輸入：\n\n```\n請分析最新公佈的美國 CPI 數據：\n- 整體 CPI 年增 3.2%\n- 核心 CPI 年增 4.0%\n- 月增 0.4%\n```\n\n## 分析框架\n\n1. **數據解讀** - 與預期值、前值的比較\n2. **趨勢分析** - 短期與長期趨勢判斷\n3. **結構分析** - 主要驅動因素拆解\n4. **市場影響** - 對股市、債市、匯市的影響\n5. **政策啟示** - 對央行政策的潛在影響\n\n## 範例輸出\n\n**數據摘要**\n- 整體 CPI：3.2%（預期 3.1%，前值 3.0%）\n- 核心 CPI：4.0%（預期 3.9%，前值 4.0%）\n\n**解讀**\n通膨數據略高於預期，顯示物價壓力仍具黏性。核心通膨持平表明...\n\n**市場影響**\n- 股市：短期承壓，升息預期上升\n- 債市：殖利率可能上揚\n- 匯市：美元指數可能走強",
-    "path": "skills/economic-indicator-analyst/SKILL.md",
-    "directoryStructure": "economic-indicator-analyst/\n├── manifest.json\n└── SKILL.md",
-    "lastUpdated": "2026-01-13",
+    "installCount": 0,
+    "content": "<essential_principles>\n**WASDE Ingestor 核心原則**\n\n**1. 商品範圍**\n\nWASDE 涵蓋三大類商品，每類有不同的表格結構與單位：\n\n| 類別      | 商品                                     | US 單位                   | World 單位           |\n|-----------|------------------------------------------|---------------------------|----------------------|\n| Grains    | Wheat, Corn, Rice, Barley, Sorghum, Oats | million bushels / cwt     | million metric tons  |\n| Oilseeds  | Soybeans, Soybean Oil, Soybean Meal      | million bushels / pounds  | million metric tons  |\n| Cotton    | Upland, Pima                             | million 480-lb bales      | million 480-lb bales |\n| Livestock | Beef, Pork, Poultry, Eggs, Dairy         | million lbs / dozen / lbs | - (US only)          |\n| Sugar     | Sugar                                    | 1,000 short tons          | - (US + Mexico only) |\n\n**2. 表格結構一致性**\n\n所有供需表遵循相同的平衡公式：\n```\nEnding Stocks = Beginning Stocks + Production + Imports - Total Use - Exports\n```\n\n**3. 版本控制**\n\n- 每月報告可能修正前期數據\n- 使用 `content_hash` 追蹤數據變化\n- 保留 `revision_flag` 標記修正值\n\n**4. 解析優先級**\n\n1. PDF 結構化解析（優先）\n2. HTML 表格解析（fallback）\n3. TXT 固定寬度解析（legacy）\n</essential_principles>\n\n<intake>\n**您想要執行什麼操作？**\n\n1. **Ingest** - 抓取並解析最新或指定月份的 WASDE 報告\n2. **Backfill** - 批量回補歷史 WASDE 數據\n3. **Validate** - 驗證現有數據與最新報告的一致性\n4. **Configure** - 配置商品範圍、輸出路徑等參數\n\n**等待回應後再繼續。**\n</intake>\n\n<routing>\n| Response                                | Workflow               | Description         |\n|-----------------------------------------|------------------------|---------------------|\n| 1, \"ingest\", \"fetch\", \"parse\", \"latest\" | workflows/ingest.md    | 抓取解析 WASDE 報告 |\n| 2, \"backfill\", \"historical\", \"batch\"    | workflows/backfill.md  | 批量回補歷史數據    |\n| 3, \"validate\", \"check\", \"verify\"        | workflows/validate.md  | 驗證數據一致性      |\n| 4, \"configure\", \"config\", \"setup\"       | workflows/configure.md | 配置參數            |\n\n**讀取工作流程後，請完全遵循其步驟。**\n</routing>\n\n<reference_index>\n**商品參考文件** (`references/`)\n\n| 文件                    | 內容                                               |\n|-------------------------|----------------------------------------------------|\n| commodities-overview.md | 所有商品總覽與單位對照                             |\n| grains.md               | 穀物類（Wheat, Corn, Rice, Barley, Sorghum, Oats） |\n| oilseeds.md             | 油籽類（Soybeans, Soybean Oil, Soybean Meal）      |\n| cotton.md               | 棉花（US & World）                                 |\n| livestock.md            | 畜產品（Beef, Pork, Poultry, Eggs, Dairy）         |\n| sugar.md                | 糖（US & Mexico）                                  |\n| validation-rules.md     | 驗證規則與合理性檢查                               |\n| failure-modes.md        | 失敗模式與緩解策略                                 |\n</reference_index>\n\n<workflows_index>\n| Workflow     | Purpose                       |\n|--------------|-------------------------------|\n| ingest.md    | 抓取解析單一或多個 WASDE 報告 |\n| backfill.md  | 批量回補歷史數據              |\n| validate.md  | 驗證數據一致性與修正追蹤      |\n| configure.md | 配置商品範圍與輸出設定        |\n</workflows_index>\n\n<templates_index>\n| Template                  | Purpose             |\n|---------------------------|---------------------|\n| config.yaml               | 標準配置文件模板    |\n| us-balance-schema.yaml    | US 供需表 schema    |\n| world-balance-schema.yaml | World 供需表 schema |\n</templates_index>\n\n<scripts_index>\n| Script               | Purpose                   |\n|----------------------|---------------------------|\n| discover_releases.py | 發現 WASDE 發布日期與 URL |\n| fetch_report.py      | 下載 PDF/HTML 報告        |\n| parse_tables.py      | 解析表格提取數據          |\n| validate_data.py     | 執行驗證檢查              |\n</scripts_index>\n\n<quick_start>\n**CLI 快速開始：**\n\n```bash\n# 抓取最新報告的所有商品\nmacro-skills wasde ingest --commodities=all --out=./data\n\n# 只抓取穀物類\nmacro-skills wasde ingest --commodities=grains --out=./data\n\n# 回補過去 24 個月的大豆數據\nmacro-skills wasde backfill --commodity=soybeans --months=24 --out=./data\n\n# 驗證現有數據\nmacro-skills wasde validate --data-dir=./data\n```\n\n**Library 快速開始：**\n\n```python\nfrom macro_skills.wasde import WASDEIngestor\n\ningestor = WASDEIngestor(\n    commodities=[\"wheat\", \"corn\", \"soybeans\"],\n    scope=[\"us\", \"world\"],\n    output_dir=\"./data/wasde\"\n)\n\nresult = ingestor.ingest_latest()\nprint(result.status)\n```\n</quick_start>\n\n<success_criteria>\nSkill 成功執行時：\n- [ ] 正確識別商品類別與對應表格\n- [ ] 解析所有指定商品的供需數據\n- [ ] 單位正確轉換與標記\n- [ ] 通過平衡公式驗證\n- [ ] 輸出標準化 parquet 數據集\n- [ ] 生成 ingest_status 報告\n</success_criteria>",
+    "path": "skills/wasde-ingestor/SKILL.md",
+    "directoryStructure": "wasde-ingestor/\n├── manifest.json\n├── references\n│   ├── commodities-overview.md\n│   ├── cotton.md\n│   ├── failure-modes.md\n│   ├── grains.md\n│   ├── livestock.md\n│   ├── oilseeds.md\n│   ├── sugar.md\n│   └── validation-rules.md\n├── scripts\n│   ├── discover_releases.py\n│   ├── fetch_report.py\n│   ├── parse_tables.py\n│   └── validate_data.py\n├── SKILL.md\n├── templates\n│   ├── config.yaml\n│   ├── us-balance-schema.yaml\n│   └── world-balance-schema.yaml\n└── workflows\n    ├── backfill.md\n    ├── configure.md\n    ├── ingest.md\n    └── validate.md",
     "rating": 3,
     "testQuestions": [
       {
-        "question": "請分析最新公佈的美國 CPI 數據：整體 CPI 年增 3.2%、核心 CPI 年增 4.0%、月增 0.4%",
-        "expectedResult": "分析師會提供：\n1. 數據解讀（與預期值、前值比較）\n2. 趨勢分析（短期與長期趨勢判斷）\n3. 結構分析（主要驅動因素拆解）\n4. 市場影響評估（股市、債市、匯市）\n5. 政策啟示（對 Fed 政策的潛在影響）\n"
+        "question": "匯入最新一期 WASDE 報告中的所有穀物資料（小麥、玉米、稻米）",
+        "expectedResult": "此匯入器會：\n1. 找出最新一期 WASDE 發布版本\n2. 下載 PDF 並解析穀物相關表格\n3. 擷取美國與全球的小麥、玉米、稻米供需平衡表\n4. 輸出標準化的 Parquet 資料集\n"
       },
       {
-        "question": "比較最新的 PMI 製造業與服務業指數，分析經濟景氣狀況",
-        "expectedResult": "會分析兩個指數的相對強弱，判斷經濟擴張或收縮趨勢，並評估製造業與服務業的相對表現"
+        "question": "回補過去 36 個月的 WASDE 玉米資料",
+        "expectedResult": "此匯入器會處理 36 期每月發布版本，擷取玉米供需平衡表，\n並維持一致的 schema、內容雜湊（content hashes）與資料驗證檢查。\n"
       },
       {
-        "question": "解讀上個月的非農就業報告，包括新增就業人數、失業率與薪資成長",
-        "expectedResult": "會提供就業市場健康度評估，分析薪資通膨壓力，並探討對聯準會貨幣政策的潛在影響"
+        "question": "將既有 WASDE 資料與最新報告進行比對驗證",
+        "expectedResult": "驗證器會將已儲存的資料與最新解析結果比對，標記任何修訂，\n並回報 schema 漂移或資料更正。\n"
       }
     ],
     "qualityScore": {
-      "overall": 75,
+      "overall": 70,
       "badge": "白銀",
       "metrics": {
-        "architecture": 60,
-        "maintainability": 90,
+        "architecture": 80,
+        "maintainability": 85,
         "content": 95,
-        "community": 50,
+        "community": 30,
         "security": 100,
-        "compliance": 80
+        "compliance": 70
       },
-      "details": "**架構（60/100）**\n- ✅ 模組化設計良好\n- ⚠️ 可進一步抽象化數據處理邏輯\n\n**可維護性（90/100）**\n- ✅ 程式碼清晰易讀\n- ✅ 適當的註解與文件\n\n**內容（95/100）**\n- ✅ 涵蓋主要經濟指標\n- ✅ 範例豐富實用\n\n**社區（50/100）**\n- ⚠️ 尚無社區貢獻\n- ⚠️ 可增加討論區或 Wiki\n\n**安全（100/100）**\n- ✅ 無已知安全問題\n- ✅ 無敏感資料處理\n\n**規範符合性（80/100）**\n- ✅ 遵循 Claude Code 規範\n- ⚠️ 可補充更多元數據\n"
+      "details": "**架構（80/100）**\n- ✅ 模組化 router pattern 設計\n- ✅ 完整涵蓋所有 WASDE 商品類別\n- ⚠️ Alpha 階段，需更多實際使用驗證\n\n**可維護性（85/100）**\n- ✅ 清晰的工作流程分離\n- ✅ 商品參考文件獨立維護\n\n**內容（95/100）**\n- ✅ 涵蓋所有 WASDE 商品\n- ✅ 詳細的欄位映射與驗證規則\n\n**社區（30/100）**\n- ⚠️ 新技能，尚無社區貢獻\n\n**安全（100/100）**\n- ✅ 僅讀取公開 USDA 數據\n\n**規範符合性（70/100）**\n- ✅ 遵循 Claude Code 規範\n- ⚠️ Alpha 階段\n"
     },
     "bestPractices": [
       {
-        "title": "確認數據來源時效性",
-        "description": "使用即時或近期數據以確保分析準確性，避免使用過期資料"
+        "title": "等待 WASDE 正式發布",
+        "description": "WASDE 通常在每月 10-12 日發布，確認官方發布後再執行 ingest"
       },
       {
-        "title": "比對多個數據源",
-        "description": "交叉驗證不同來源（如 FRED、Bloomberg、各國央行）的數據以提升可信度"
+        "title": "保留原始 PDF 備份",
+        "description": "保存原始報告 PDF 以便在解析失敗時進行人工檢查"
       },
       {
-        "title": "考慮季節調整因素",
-        "description": "某些經濟指標有季節性波動（如零售銷售），應優先使用季調後（SA）數據"
+        "title": "監控 schema drift",
+        "description": "USDA 可能調整表格格式，定期檢查 schema_hash 變化"
       },
       {
-        "title": "關注數據修正值",
-        "description": "經濟數據常有後續修正（如非農就業），應追蹤修正情況並更新分析"
+        "title": "使用 content_hash 進行版本控制",
+        "description": "利用 content_hash 確保數據冪等性"
       },
       {
-        "title": "結合前瞻性指引",
-        "description": "解讀數據時需搭配央行的前瞻性指引與市場預期"
+        "title": "注意數據修正",
+        "description": "WASDE 會在後續月份修正歷史數據，需追蹤修正值"
       }
     ],
     "pitfalls": [
       {
-        "title": "忽略數據修正值",
-        "description": "經濟數據初值常有後續修正，僅依據初值可能得出錯誤結論",
-        "consequence": "可能導致分析結論偏差，影響投資決策"
+        "title": "忽略 PDF 佈局變化",
+        "description": "USDA 可能在無預警情況下調整 PDF 格式",
+        "consequence": "可能產生錯誤數據或完全無法解析"
       },
       {
-        "title": "過度依賴單一指標",
-        "description": "單一指標無法反映經濟全貌，應綜合多項指標判斷",
-        "consequence": "可能錯失重要市場訊號或誤判經濟趨勢"
+        "title": "單位混淆",
+        "description": "不同商品使用不同單位（bushels, cwt, metric tons 等）",
+        "consequence": "供需計算完全錯誤"
       },
       {
-        "title": "忽略地緣政治因素",
-        "description": "經濟數據需搭配地緣政治環境解讀（如貿易戰、地區衝突）",
-        "consequence": "分析可能缺乏全面性，無法預測非經濟因素的影響"
+        "title": "忽略行銷年度差異",
+        "description": "不同商品的行銷年度起始月份不同",
+        "consequence": "時間序列對齊錯誤"
       }
     ],
     "faq": [
       {
-        "question": "此技能支援哪些國家的經濟數據？",
-        "answer": "主要支援以下國家/地區的經濟數據：\n- 🇺🇸 美國（GDP、CPI、非農、PMI、ISM 等）\n- 🇪🇺 歐元區（GDP、CPI、PMI 等）\n- 🇨🇳 中國（GDP、CPI、PMI、社會融資規模等）\n- 🇯🇵 日本（GDP、CPI、Tankan 等）\n- 🇬🇧 英國（GDP、CPI、PMI 等）\n\n可根據需求擴充其他國家，歡迎提交 Issue 建議。\n"
+        "question": "WASDE 報告涵蓋哪些商品？",
+        "answer": "WASDE 涵蓋以下商品類別：\n\n**穀物 (Grains)**\n- 小麥 (Wheat) - 包含 by-class 細分\n- 玉米 (Corn)\n- 稻米 (Rice) - 長粒/中短粒\n- 大麥 (Barley)\n- 高粱 (Sorghum)\n- 燕麥 (Oats)\n\n**油籽 (Oilseeds)**\n- 大豆 (Soybeans)\n- 豆油 (Soybean Oil)\n- 豆粕 (Soybean Meal)\n\n**棉花 (Cotton)**\n- 美國棉花供需\n- 世界棉花供需\n\n**畜產品 (Livestock) - 僅美國**\n- 牛肉 (Beef)\n- 豬肉 (Pork)\n- 禽肉 (Poultry)\n- 雞蛋 (Eggs)\n- 乳製品 (Dairy/Milk)\n\n**糖 (Sugar)**\n- 美國糖供需\n- 墨西哥糖供需\n"
       },
       {
-        "question": "如何取得即時經濟數據？",
-        "answer": "推薦以下數據來源：\n\n**免費來源**：\n- [FRED](https://fred.stlouisfed.org/) - 美國聖路易斯聯邦準備銀行資料庫\n- 各國央行官網（Fed、ECB、BOJ、PBOC 等）\n- [Trading Economics](https://tradingeconomics.com/) - 全球經濟指標\n\n**付費來源**：\n- Bloomberg Terminal\n- Refinitiv Eikon\n- FactSet\n\n建議優先使用 FRED API，提供完整的歷史數據與 API 接口。\n"
+        "question": "不同商品的行銷年度是什麼？",
+        "answer": "| 商品 | 美國行銷年度 | 世界行銷年度 |\n|------|--------------|--------------|\n| 小麥 | Jun-May      | Jul-Jun      |\n| 玉米 | Sep-Aug      | Oct-Sep      |\n| 大豆 | Sep-Aug      | Oct-Sep      |\n| 稻米 | Aug-Jul      | Jan-Dec      |\n| 棉花 | Aug-Jul      | Aug-Jul      |\n"
       },
       {
-        "question": "分析結果是否包含投資建議？",
-        "answer": "**本技能僅提供數據解讀與市場影響分析，不構成投資建議。**\n\n輸出內容包括：\n- 數據解讀（與預期值、前值比較）\n- 趨勢判斷（短期與長期）\n- 市場影響評估（股市、債市、匯市）\n- 政策啟示（央行可能的應對）\n\n投資決策需自行評估風險承受能力、投資目標與市場環境，建議諮詢專業財務顧問。\n"
-      },
-      {
-        "question": "如何判斷數據的可信度？",
-        "answer": "評估數據可信度的關鍵要點：\n\n1. **來源權威性** - 優先使用官方機構（央行、統計局）發布的數據\n2. **統計方法** - 了解數據的統計方法、樣本範圍與調整方式\n3. **修正歷史** - 檢查該指標是否常有大幅修正\n4. **交叉驗證** - 比對多個來源的數據是否一致\n5. **時效性** - 確認數據的發布時間與涵蓋期間\n\n對於有爭議的數據（如中國 GDP），建議搭配其他間接指標（如電力消耗、貨運量）交叉驗證。\n"
+        "question": "數據來源與發布時間？",
+        "answer": "- **官網**: https://www.usda.gov/oce/commodity/wasde\n- **發布日期**: 每月約 10-12 日\n- **發布時間**: 美東時間中午 12:00\n- **格式**: PDF, TXT\n- **歷史檔案**: https://esmis.nal.usda.gov/\n"
       }
     ],
     "about": {
       "repository": "https://github.com/fatfingererr/macro-skills",
       "branch": "main",
-      "additionalInfo": "## 維護團隊\n\n本技能由 **Ricky Wang** 開發與維護，持續更新以涵蓋最新的經濟分析方法與數據源。\n\n## 貢獻指南\n\n歡迎社區貢獻！您可以透過以下方式參與：\n- 提交 Bug Report 或 Feature Request\n- 改進文件與範例\n- 提交 Pull Request 改善技能邏輯\n- 在 Discussions 分享使用心得\n\n## 授權說明\n\n本技能採用 MIT 授權，可自由使用、修改與分發。\n\n## 致謝\n\n感謝以下資源與社區的支持：\n- FRED API 提供豐富的經濟數據\n- Claude Code 團隊的技術支援\n- 所有提供回饋與建議的使用者\n"
+      "additionalInfo": "## 數據來源\n\n所有數據來自 USDA 官方 WASDE 報告：\n- 官網：https://www.usda.gov/oce/commodity/wasde\n- 歷史檔案：https://esmis.nal.usda.gov/\n- 數據類型：公開、免費、無限制使用\n\n## 編製單位\n\nWASDE 由 World Agricultural Outlook Board (WAOB) 編製，\n整合以下機構資料：\n- Agricultural Marketing Service (AMS)\n- Economic Research Service (ERS)\n- Farm Service Agency (FSA)\n- Foreign Agricultural Service (FAS)\n- National Agricultural Statistics Service (NASS)\n"
     }
-  },
-  {
-    "id": "central-bank-policy-decoder",
-    "name": "central-bank-policy-decoder",
-    "displayName": "央行政策解讀",
-    "description": "解讀 Fed、ECB、BOJ 等主要央行的政策聲明、會議紀要與官員談話，分析對市場的影響",
-    "emoji": "🏦",
-    "version": "v1.0.0",
-    "license": "MIT",
-    "author": "Ricky Wang",
-    "authorUrl": "https://github.com/fatfingererr",
-    "tags": [
-      "央行",
-      "Fed",
-      "貨幣政策",
-      "利率",
-      "QE",
-      "QT"
-    ],
-    "category": "central-bank-policy",
-    "dataLevel": "free-nolimit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": true,
-    "installCount": 980,
-    "content": "# 央行政策解讀\n\n專業解讀全球主要央行的政策動向，幫助你掌握貨幣政策脈絡。\n\n## 使用時機\n\n- FOMC 會議後解讀政策聲明與記者會\n- 分析央行會議紀要的關鍵資訊\n- 解讀央行官員的公開談話\n- 評估利率決策對各類資產的影響\n- 追蹤央行資產負債表變化（QE/QT）\n\n## 支援的央行\n\n| 央行 | 全稱         | 主要政策工具         |\n|------|--------------|----------------------|\n| Fed  | 美國聯準會   | 聯邦基金利率、QE/QT  |\n| ECB  | 歐洲央行     | 主要再融資利率、PEPP |\n| BOJ  | 日本央行     | YCC、ETF 購買        |\n| BOE  | 英國央行     | 銀行利率、APF        |\n| PBOC | 中國人民銀行 | LPR、MLF、存準率     |\n| SNB  | 瑞士央行     | 政策利率、外匯干預   |\n\n## 使用方式\n\n在 Claude Code 中輸入：\n\n```\n請解讀以下 FOMC 聲明的關鍵變化：\n[貼上 FOMC 聲明全文或重點段落]\n```\n\n或\n\n```\n請分析 Fed 主席鮑威爾今天記者會的主要訊息\n```\n\n## 分析框架\n\n### 1. 政策立場解讀\n- **鷹派訊號** - 強調通膨風險、暗示升息\n- **鴿派訊號** - 關注經濟下行、暗示寬鬆\n- **中性立場** - 數據依賴、保持觀望\n\n### 2. 前瞻性指引分析\n- 利率路徑暗示\n- 資產負債表政策方向\n- 條件式承諾解讀\n\n### 3. 經濟評估變化\n- 對經濟成長的看法\n- 對就業市場的評估\n- 對通膨前景的判斷\n\n### 4. 市場影響評估\n- 短期利率預期\n- 長期利率走勢\n- 風險資產影響\n- 匯率影響\n\n## 關鍵術語解讀\n\n| 術語         | 意義                 |\n|--------------|----------------------|\n| \"進一步收緊\" | 可能繼續升息         |\n| \"維持限制性\" | 高利率持續較長時間   |\n| \"數據依賴\"   | 根據經濟數據決定政策 |\n| \"雙向風險\"   | 通膨與衰退風險並存   |\n| \"軟著陸\"     | 經濟減速但避免衰退   |\n\n## 範例分析\n\n**FOMC 聲明重點變化**\n\n1. 刪除「可能適宜進一步升息」\n   → 訊號：升息週期可能結束\n\n2. 新增「通膨雖有下降但仍偏高」\n   → 訊號：降息不會太快來臨\n\n3. 維持「將繼續縮減資產負債表」\n   → 訊號：QT 持續進行\n\n**綜合評估**\n整體基調偏中性略鴿，暗示政策利率已達峰值，但降息時點仍需觀察更多數據...",
-    "path": "skills/central-bank-policy-decoder/SKILL.md",
-    "directoryStructure": "central-bank-policy-decoder/\n├── manifest.json\n└── SKILL.md",
-    "lastUpdated": "2026-01-13",
-    "rating": 3
-  },
-  {
-    "id": "market-cycle-judge",
-    "name": "market-cycle-judge",
-    "displayName": "市場週期判斷",
-    "description": "根據經濟數據與市場指標判斷當前景氣循環階段，提供對應的資產配置建議",
-    "emoji": "🔄",
-    "version": "v1.0.0",
-    "license": "MIT",
-    "author": "Ricky Wang",
-    "authorUrl": "https://github.com/fatfingererr",
-    "tags": [
-      "景氣循環",
-      "資產配置",
-      "投資策略",
-      "週期分析"
-    ],
-    "category": "business-cycles",
-    "dataLevel": "free-nolimit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": true,
-    "installCount": 856,
-    "content": "# 市場週期判斷\n\n基於經濟數據與市場指標，判斷當前所處的景氣循環階段，並提供對應的資產配置建議。\n\n## 使用時機\n\n- 評估當前經濟所處的週期階段\n- 制定中長期資產配置策略\n- 理解不同資產類別在各週期的表現規律\n- 識別週期轉折的早期訊號\n\n## 景氣循環四階段\n\n### 1. 復甦期 (Recovery)\n**特徵**\n- GDP 成長由負轉正\n- 失業率開始下降\n- 通膨維持低檔\n- 央行維持寬鬆政策\n\n**資產表現**\n- 股票 ⭐⭐⭐⭐⭐ 強勢\n- 債券 ⭐⭐⭐ 中性\n- 商品 ⭐⭐⭐ 開始回升\n- 現金 ⭐ 弱勢\n\n### 2. 擴張期 (Expansion)\n**特徵**\n- GDP 穩健成長\n- 失業率持續下降\n- 通膨開始上升\n- 央行逐步收緊\n\n**資產表現**\n- 股票 ⭐⭐⭐⭐ 仍具吸引力\n- 債券 ⭐⭐ 承壓\n- 商品 ⭐⭐⭐⭐ 走強\n- 現金 ⭐⭐ 較弱\n\n### 3. 過熱期 (Overheating)\n**特徵**\n- GDP 成長放緩跡象\n- 失業率處於低點\n- 通膨明顯上升\n- 央行積極升息\n\n**資產表現**\n- 股票 ⭐⭐⭐ 波動加大\n- 債券 ⭐ 弱勢\n- 商品 ⭐⭐⭐⭐⭐ 最強\n- 現金 ⭐⭐⭐ 吸引力上升\n\n### 4. 衰退期 (Recession)\n**特徵**\n- GDP 負成長\n- 失業率上升\n- 通膨下降\n- 央行降息救市\n\n**資產表現**\n- 股票 ⭐ 弱勢\n- 債券 ⭐⭐⭐⭐⭐ 強勢\n- 商品 ⭐⭐ 弱勢\n- 現金 ⭐⭐⭐⭐ 防禦價值高\n\n## 使用方式\n\n在 Claude Code 中輸入：\n\n```\n請根據以下數據判斷當前美國經濟週期：\n- GDP 成長：2.1%\n- 失業率：3.7%\n- CPI：3.2%\n- Fed 利率：5.25-5.50%\n- PMI 製造業：46.7\n- PMI 服務業：51.4\n```\n\n## 週期判斷指標\n\n### 領先指標\n- 殖利率曲線（倒掛預示衰退）\n- PMI 製造業\n- 新屋開工\n- 消費者信心\n\n### 同步指標\n- 非農就業\n- 工業生產\n- 零售銷售\n- 個人所得\n\n### 落後指標\n- 失業率\n- CPI\n- 企業獲利\n- 貸款違約率\n\n## 經典投資時鐘\n\n```\n        通膨上升\n           ⬆\n    過熱期 │ 衰退初期\n   (商品)  │  (現金)\n ←─────────┼─────────→ 成長放緩\n   擴張期  │  復甦期\n   (股票)  │  (債券→股票)\n           ⬇\n        通膨下降\n```\n\n## 範例分析\n\n**輸入數據**\n- GDP：2.1%（前值 2.4%）\n- 失業率：3.7%\n- CPI：3.2%\n- Fed 利率：5.25-5.50%\n\n**週期判斷**\n當前處於「擴張期後期至過熱期轉折」階段\n\n**依據**\n1. GDP 仍正成長但動能放緩\n2. 失業率處於歷史低檔\n3. 通膨雖下降但仍高於目標\n4. 利率處於限制性水平\n\n**配置建議**\n- 降低股票權重，增加防禦型配置\n- 短債優於長債\n- 適度持有商品對沖通膨\n- 提高現金部位應對波動",
-    "path": "skills/market-cycle-judge/SKILL.md",
-    "directoryStructure": "market-cycle-judge/\n├── manifest.json\n└── SKILL.md",
-    "lastUpdated": "2026-01-13",
-    "rating": 3
   }
 ]
