@@ -46,7 +46,7 @@ export const dataLevels: DataLevelInfo[] = [
     nameEn: 'Low Cost',
     color: 'blue',
     emoji: '🔵',
-    cost: '$5–$50/mo',
+    cost: '$0–$100/mo',
     description: '較高配額、更少延遲、更多欄位',
   },
   {

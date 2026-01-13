@@ -82,5 +82,5 @@ export function generateMarketplaceInstallCommand(): string {
 }
 
 export function generateSkillEnableCommand(skillId: string): string {
-  return `/plugin marketplace enable macroskills/${skillId}`;
+  return `/plugin marketplace enable macro-skills/${skillId}`;
 }
