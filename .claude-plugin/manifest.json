@@ -1,0 +1,34 @@
+{
+  "$schema": "https://claude.ai/schemas/plugin-manifest.json",
+  "id": "macroskills",
+  "name": "Macro Skills",
+  "displayName": "宏觀經濟技能市集",
+  "version": "1.0.0",
+  "description": "專為宏觀經濟分析設計的 Claude 技能集合，涵蓋經濟指標、央行政策、景氣循環等領域",
+  "author": {
+    "name": "Macro Skills Team",
+    "url": "https://github.com/fatfingererr/macro-skills"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fatfingererr/macro-skills.git"
+  },
+  "homepage": "https://fatfingererr.github.io/macro-skills/",
+  "type": "marketplace",
+  "marketplace": {
+    "configPath": "marketplace.json",
+    "skillsPath": "../marketplace/skills",
+    "indexPath": "../marketplace/index.json"
+  },
+  "compatibility": {
+    "claude": ">=1.0.0"
+  },
+  "keywords": [
+    "economics",
+    "macro",
+    "finance",
+    "analysis",
+    "indicators"
+  ]
+}

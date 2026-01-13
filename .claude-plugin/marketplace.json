@@ -1,0 +1,183 @@
+{
+  "$schema": "https://claude.ai/schemas/marketplace.json",
+  "id": "macroskills/marketplace",
+  "name": "Macro Skills Marketplace",
+  "displayName": "宏觀經濟技能市集",
+  "version": "1.0.0",
+  "description": "專為宏觀經濟分析設計的 Claude 技能集合",
+  "installCommand": "/plugin marketplace add macroskills/marketplace",
+  "metadata": {
+    "totalSkills": 3,
+    "lastUpdated": "2026-01-13T00:00:00Z",
+    "language": "zh-TW"
+  },
+  "categories": [
+    {
+      "id": "data-processing",
+      "name": "資料處理",
+      "description": "資料擷取、清理、轉換相關技能",
+      "icon": "📊",
+      "order": 1
+    },
+    {
+      "id": "indicator-monitoring",
+      "name": "指標監控",
+      "description": "經濟指標追蹤與分析",
+      "icon": "📈",
+      "order": 2
+    },
+    {
+      "id": "nowcasting",
+      "name": "即時預測",
+      "description": "即時經濟預測模型",
+      "icon": "🔮",
+      "order": 3
+    },
+    {
+      "id": "business-cycles",
+      "name": "景氣週期",
+      "description": "景氣循環與經濟週期分析",
+      "icon": "🔄",
+      "order": 4
+    },
+    {
+      "id": "inflation-analytics",
+      "name": "通膨分析",
+      "description": "通貨膨脹追蹤與預測",
+      "icon": "💹",
+      "order": 5
+    },
+    {
+      "id": "labor-market",
+      "name": "勞動市場",
+      "description": "就業數據與勞動市場分析",
+      "icon": "👷",
+      "order": 6
+    },
+    {
+      "id": "consumption-demand",
+      "name": "消費需求",
+      "description": "消費者行為與需求分析",
+      "icon": "🛒",
+      "order": 7
+    },
+    {
+      "id": "production-investment",
+      "name": "產業景氣",
+      "description": "生產與投資活動分析",
+      "icon": "🏭",
+      "order": 8
+    },
+    {
+      "id": "housing-shelter",
+      "name": "房市居住",
+      "description": "房地產市場與居住成本",
+      "icon": "🏠",
+      "order": 9
+    },
+    {
+      "id": "central-bank-policy",
+      "name": "央行操作",
+      "description": "央行政策訊號解讀",
+      "icon": "🏦",
+      "order": 10
+    },
+    {
+      "id": "policy-modeling",
+      "name": "政策模型",
+      "description": "經濟政策模擬與分析",
+      "icon": "📋",
+      "order": 11
+    },
+    {
+      "id": "interest-rates",
+      "name": "存貸利率",
+      "description": "利率走勢與影響分析",
+      "icon": "💰",
+      "order": 12
+    },
+    {
+      "id": "fx-factors",
+      "name": "外匯因子",
+      "description": "外匯市場驅動因素",
+      "icon": "💱",
+      "order": 13
+    },
+    {
+      "id": "capital-flows",
+      "name": "跨境金流",
+      "description": "國際資本流動分析",
+      "icon": "🌐",
+      "order": 14
+    },
+    {
+      "id": "credit-risk",
+      "name": "信用風險",
+      "description": "信用市場與風險評估",
+      "icon": "⚠️",
+      "order": 15
+    },
+    {
+      "id": "liquidity-fci",
+      "name": "流動性條件",
+      "description": "金融流動性與條件指數",
+      "icon": "💧",
+      "order": 16
+    },
+    {
+      "id": "commodity-sd",
+      "name": "商品供需",
+      "description": "大宗商品供需分析",
+      "icon": "🛢️",
+      "order": 17
+    },
+    {
+      "id": "event-scenario",
+      "name": "事件情境",
+      "description": "事件風險與情境分析",
+      "icon": "🎯",
+      "order": 18
+    }
+  ],
+  "dataLevels": [
+    {
+      "id": "free-nolimit",
+      "name": "免費不限量",
+      "color": "green",
+      "cost": "$0",
+      "description": "無 API key 需求、寬鬆存取限制、或可離線資料"
+    },
+    {
+      "id": "free-limit",
+      "name": "免費有限制",
+      "color": "yellow",
+      "cost": "$0",
+      "description": "有 API 呼叫次數限制、日配額、延遲、或資料範圍限制"
+    },
+    {
+      "id": "low-cost",
+      "name": "小額付費",
+      "color": "blue",
+      "cost": "$5-$50/月",
+      "description": "較高配額、更少延遲、更多資料欄位"
+    },
+    {
+      "id": "high-cost",
+      "name": "高額付費",
+      "color": "purple",
+      "cost": "$100-$1000+/月",
+      "description": "更完整資料覆蓋、即時資料、深度分析、SLA 保證"
+    },
+    {
+      "id": "enterprise",
+      "name": "企業授權",
+      "color": "red",
+      "cost": "合約制",
+      "description": "合約授權、終端機存取、企業級 SLA"
+    }
+  ],
+  "skills": {
+    "indexPath": "../marketplace/index.json",
+    "basePath": "../marketplace/skills"
+  }
+}
