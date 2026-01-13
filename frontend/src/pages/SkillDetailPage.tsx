@@ -71,20 +71,20 @@ export default function SkillDetailPage() {
 
       {/* Header */}
       <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start space-x-4">
-            <span className="text-5xl">{skill.emoji}</span>
-            <div>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start space-x-4 max-w-[80%]">
+            <span className="text-5xl flex-shrink-0 mt-8">{skill.emoji}</span>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                {getCategoryName(skill.category)}
+              </div>
               <h1 className="text-2xl font-bold text-gray-900 mb-2">
                 {skill.displayName}
               </h1>
               <p className="text-gray-600 mb-4">{skill.description}</p>
 
               <div className="flex flex-wrap items-center gap-2 mb-4">
-                <Badge type="dataLevel" value={skill.dataLevel} />
-                <span className="text-sm text-gray-500">
-                  {getCategoryName(skill.category)}
-                </span>
+                <small>數據源需求 :</small><Badge type="dataLevel" value={skill.dataLevel} />
               </div>
 
               <div className="flex flex-wrap gap-1">
@@ -95,7 +95,7 @@ export default function SkillDetailPage() {
             </div>
           </div>
 
-          <Button onClick={() => setShowInstall(true)}>安裝</Button>
+          <Button className="flex-shrink-0" onClick={() => setShowInstall(true)}>安裝</Button>
         </div>
 
         {/* Meta */}
