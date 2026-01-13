@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import type { Skill } from '../../types/skill';
-import { generateInstallCommand } from '../../services/skillService';
+import {
+  generateInstallCommand,
+  generateSkillEnableCommand,
+} from '../../services/skillService';
 import Button from '../common/Button';
 
 interface InstallModalProps {
@@ -9,14 +12,27 @@ interface InstallModalProps {
 }
 
 export default function InstallModal({ skill, onClose }: InstallModalProps) {
-  const [copied, setCopied] = useState(false);
-  const installCommand = generateInstallCommand(skill);
+  const [copiedAdd, setCopiedAdd] = useState(false);
+  const [copiedEnable, setCopiedEnable] = useState(false);
 
-  const handleCopy = async () => {
+  const addCommand = generateInstallCommand(skill);
+  const enableCommand = generateSkillEnableCommand(skill.id);
+
+  const handleCopyAdd = async () => {
     try {
-      await navigator.clipboard.writeText(installCommand);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await navigator.clipboard.writeText(addCommand);
+      setCopiedAdd(true);
+      setTimeout(() => setCopiedAdd(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
+  const handleCopyEnable = async () => {
+    try {
+      await navigator.clipboard.writeText(enableCommand);
+      setCopiedEnable(true);
+      setTimeout(() => setCopiedEnable(false), 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
@@ -32,10 +48,10 @@ export default function InstallModal({ skill, onClose }: InstallModalProps) {
         />
 
         {/* Modal */}
-        <div className="relative bg-white rounded-xl shadow-xl max-w-lg w-full p-6">
+        <div className="relative bg-white rounded-xl shadow-xl max-w-2xl w-full p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">
-              安裝 {skill.displayName}
+              安裝【{skill.displayName}】技能
             </h3>
             <button
               onClick={onClose}
@@ -47,24 +63,40 @@ export default function InstallModal({ skill, onClose }: InstallModalProps) {
             </button>
           </div>
 
-          <p className="text-sm text-gray-600 mb-4">
-            在終端機中執行以下指令來安裝此技能：
-          </p>
-
-          <div className="bg-gray-900 rounded-lg p-4 mb-4">
-            <code className="text-sm text-green-400 break-all">
-              {installCommand}
-            </code>
+          {/* Step 1: Add Marketplace */}
+          <div className="mb-4">
+            <p className="text-sm text-gray-600 mb-2">
+              <span className="font-medium">步驟 1：</span>添加技能市集 (Marketplace)
+            </p>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 bg-gray-900 rounded-lg p-3">
+                <code className="text-sm text-green-400 break-all">
+                  {addCommand}
+                </code>
+              </div>
+              <Button size="sm" onClick={handleCopyAdd}>
+                {copiedAdd ? '已複製' : '複製'}
+              </Button>
+            </div>
           </div>
 
-          <div className="flex justify-end space-x-3">
-            <Button variant="outline" onClick={onClose}>
-              關閉
-            </Button>
-            <Button onClick={handleCopy}>
-              {copied ? '已複製！' : '複製指令'}
-            </Button>
+          {/* Step 2: Enable Skill */}
+          <div className="mb-4">
+            <p className="text-sm text-gray-600 mb-2">
+              <span className="font-medium">步驟 2：</span>啟用指定技能 (Skill)
+            </p>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 bg-gray-900 rounded-lg p-3">
+                <code className="text-sm text-green-400 break-all">
+                  {enableCommand}
+                </code>
+              </div>
+              <Button size="sm" onClick={handleCopyEnable}>
+                {copiedEnable ? '已複製' : '複製'}
+              </Button>
+            </div>
           </div>
+
         </div>
       </div>
     </div>

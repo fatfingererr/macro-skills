@@ -1,40 +1,25 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import type { Skill } from '../types/skill';
 import { fetchSkills } from '../services/skillService';
 import { getCategoryName } from '../data/categories';
 import Badge from '../components/common/Badge';
 import Button from '../components/common/Button';
 import InstallModal from '../components/skills/InstallModal';
-
-function generateSkillSource(skill: Skill): string {
-  const frontmatter = `---
-name: ${skill.id}
-displayName: ${skill.displayName}
-description: ${skill.description}
-emoji: ${skill.emoji}
-version: ${skill.version}
-license: ${skill.license}
-author: ${skill.author}${skill.authorUrl ? `\nauthorUrl: ${skill.authorUrl}` : ''}
-tags:
-${skill.tags.map(t => `  - ${t}`).join('\n')}
-category: ${skill.category}
-dataLevel: ${skill.dataLevel}
-tools:
-${skill.tools.map(t => `  - ${t}`).join('\n')}
-featured: ${skill.featured}
----`;
-  return `${frontmatter}\n\n${skill.content}`;
-}
+import InstallGuide from '../components/skills/InstallGuide';
+import TestQuestionsSection from '../components/skills/TestQuestionsSection';
+import DataLevelCard from '../components/skills/DataLevelCard';
+import QualityScoreCard from '../components/skills/QualityScoreCard';
+import BestPracticesSection from '../components/skills/BestPracticesSection';
+import PitfallsSection from '../components/skills/PitfallsSection';
+import FAQSection from '../components/skills/FAQSection';
+import AboutSection from '../components/skills/AboutSection';
 
 export default function SkillDetailPage() {
   const { skillId } = useParams<{ skillId: string }>();
   const [skill, setSkill] = useState<Skill | null>(null);
   const [loading, setLoading] = useState(true);
   const [showInstall, setShowInstall] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetchSkills()
@@ -120,68 +105,71 @@ export default function SkillDetailPage() {
             <p className="font-medium">{skill.version}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-500">作者</p>
-            {skill.authorUrl ? (
-              <a
-                href={skill.authorUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium text-primary-600 hover:text-primary-700"
-              >
-                {skill.author}
-              </a>
-            ) : (
-              <p className="font-medium">{skill.author}</p>
-            )}
+            <p className="text-sm text-gray-500">日期</p>
+            <p className="font-medium">{skill.lastUpdated || '未知'}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-500">授權</p>
-            <p className="font-medium">{skill.license}</p>
+            <p className="text-sm text-gray-500">評分</p>
+            <p className="font-medium text-yellow-500">
+              {'★'.repeat(skill.rating || 3)}{'☆'.repeat(5 - (skill.rating || 3))}
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="prose prose-gray max-w-none">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {skill.content}
-        </ReactMarkdown>
+      {/* Install Guide */}
+      <div className="mt-8">
+        <InstallGuide skillId={skill.id} />
       </div>
 
-      {/* Skill Source */}
-      <div className="mt-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-900">技能原文</h2>
-          <button
-            onClick={() => {
-              navigator.clipboard.writeText(generateSkillSource(skill));
-              setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
-            }}
-            className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
-          >
-            {copied ? (
-              <>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                已複製
-              </>
-            ) : (
-              <>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-                複製
-              </>
+      {/* Test Questions */}
+      {skill.testQuestions && skill.testQuestions.length > 0 && (
+        <div className="mt-8">
+          <TestQuestionsSection questions={skill.testQuestions} />
+        </div>
+      )}
+
+      {/* Quality Score */}
+      {skill.qualityScore && (
+        <div className="mt-8">
+          <QualityScoreCard qualityScore={skill.qualityScore} />
+        </div>
+      )}
+
+      {/* Best Practices & Pitfalls - 並排兩欄 */}
+      {((skill.bestPractices && skill.bestPractices.length > 0) ||
+        (skill.pitfalls && skill.pitfalls.length > 0)) && (
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            {skill.bestPractices && skill.bestPractices.length > 0 && (
+              <BestPracticesSection practices={skill.bestPractices} />
             )}
-          </button>
+            {skill.pitfalls && skill.pitfalls.length > 0 && (
+              <PitfallsSection pitfalls={skill.pitfalls} />
+            )}
+          </div>
+        )}
+
+      {/* Data Level Info */}
+      <div className="mt-8">
+        <DataLevelCard dataLevel={skill.dataLevel} />
+      </div>
+
+      {/* FAQ */}
+      {skill.faq && skill.faq.length > 0 && (
+        <div className="mt-8">
+          <FAQSection faqs={skill.faq} />
         </div>
-        <div className="bg-gray-900 rounded-xl overflow-hidden">
-          <pre className="p-4 overflow-x-auto text-sm">
-            <code className="text-gray-100 whitespace-pre">{generateSkillSource(skill)}</code>
-          </pre>
-        </div>
+      )}
+
+      {/* About */}
+      <div className="mt-8">
+        <AboutSection
+          about={skill.about}
+          author={skill.author}
+          authorUrl={skill.authorUrl}
+          license={skill.license}
+          directoryStructure={skill.directoryStructure}
+        />
       </div>
 
       {/* Install Modal */}
