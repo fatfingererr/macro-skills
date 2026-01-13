@@ -1,0 +1,8 @@
+{
+  "name": "wasde-ingestor",
+  "description": "Fetch and parse USDA WASDE monthly reports, extracting supply-demand balance sheets for all major commodities (grains, oilseeds, cotton, livestock, sugar). Produces normalized, versioned datasets as anchor baselines for nowcasting.",
+  "version": "0.2.0",
+  "author": {
+    "name": "macro-skills"
+  }
+}
