@@ -55,19 +55,19 @@
 
 ```bash
 # 列出所有可用技能
-/plugin marketplace list macroskills
+/plugin marketplace list macro-skills
 
 # 啟用特定技能
-/plugin marketplace enable macroskills/economic-indicator-analyst
+/plugin marketplace enable macro-skills/economic-indicator-analyst
 
 # 停用特定技能
-/plugin marketplace disable macroskills/economic-indicator-analyst
+/plugin marketplace disable macro-skills/economic-indicator-analyst
 
 # 更新 marketplace
-/plugin marketplace update macroskills
+/plugin marketplace update macro-skills
 
 # 移除 marketplace
-/plugin marketplace remove macroskills
+/plugin marketplace remove macro-skills
 ```
 
 ## 使用方式

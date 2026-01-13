@@ -1,6 +1,6 @@
 {
   "$schema": "https://claude.ai/schemas/plugin-manifest.json",
-  "id": "macroskills",
+  "id": "macro-skills",
   "name": "Macro Skills",
   "displayName": "宏觀經濟技能市集",
   "version": "1.0.0",

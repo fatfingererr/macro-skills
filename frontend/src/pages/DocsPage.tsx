@@ -47,7 +47,9 @@ export default function DocsPage() {
           </ol>
           <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
             <code className="text-green-400 text-sm">
-              claude mcp add economic-indicator-analyst https://github.com/fatfingererr/macro-skills/marketplace/skills/economic-indicator-analyst
+              /plugin marketplace add fatfingererr/macro-skills
+              <br />
+              /plugin marketplace enable macro-skills/economic-indicator-analyst
             </code>
           </div>
         </section>
@@ -94,6 +96,38 @@ export default function DocsPage() {
           </div>
         </section>
 
+        {/* Categories */}
+        <section className="bg-white border border-gray-200 rounded-xl p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="text-2xl">📂</span>
+            支援的分類 (Category)
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-50 border-b-2 border-gray-200">
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700">ID</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700">中文</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700">English</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {categories.map((cat) => (
+                  <tr key={cat.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-2.5">
+                      <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">{cat.id}</code>
+                    </td>
+                    <td className="px-4 py-2.5 text-gray-700">{cat.name}</td>
+                    <td className="px-4 py-2.5 text-gray-500">{cat.nameEn}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+
+
         {/* Skill Format */}
         <section className="bg-white border border-gray-200 rounded-xl p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -136,36 +170,6 @@ featured: false
 \`\`\`
 範例指令
 \`\`\``}</pre>
-          </div>
-        </section>
-
-        {/* Categories */}
-        <section className="bg-white border border-gray-200 rounded-xl p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="text-2xl">📂</span>
-            支援的分類
-          </h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-gray-50 border-b-2 border-gray-200">
-                  <th className="px-4 py-3 text-left font-semibold text-gray-700">ID</th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-700">中文</th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-700">English</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {categories.map((cat) => (
-                  <tr key={cat.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-2.5">
-                      <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">{cat.id}</code>
-                    </td>
-                    <td className="px-4 py-2.5 text-gray-700">{cat.name}</td>
-                    <td className="px-4 py-2.5 text-gray-500">{cat.nameEn}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
         </section>
 
