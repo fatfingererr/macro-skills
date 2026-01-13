@@ -11,7 +11,7 @@ export default function Sidebar({ showOnMobile = false }: SidebarProps) {
 
   return (
     <aside
-      className={`w-64 flex-shrink-0 ${
+      className={`w-32 flex-shrink-0 ${
         showOnMobile ? 'block' : 'hidden lg:block'
       }`}
     >
@@ -38,8 +38,7 @@ export default function Sidebar({ showOnMobile = false }: SidebarProps) {
                   : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
-              <span>{category.name}</span>
-              <span className="text-gray-400 text-xs ml-1">/ {category.nameEn}</span>
+              {category.name}
             </Link>
           ))}
         </nav>

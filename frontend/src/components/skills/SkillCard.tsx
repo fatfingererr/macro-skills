@@ -14,7 +14,10 @@ export default function SkillCard({ skill, onInstall }: SkillCardProps) {
       <Link to={`/skills/${skill.id}`}>
         <div className="flex items-start justify-between mb-3">
           <span className="text-3xl">{skill.emoji}</span>
-          <Badge type="risk" value={skill.riskLevel} />
+          <div className="flex items-center gap-1 text-xs text-gray-600">
+            <span>數據：</span>
+            <Badge type="dataLevel" value={skill.dataLevel} />
+          </div>
         </div>
 
         <h3 className="font-semibold text-gray-900 mb-2 hover:text-primary-600 transition-colors">
