@@ -7,7 +7,7 @@
 在 Claude 中執行以下指令即可安裝整個技能市集：
 
 ```
-/plugin marketplace add macroskills/marketplace
+/plugin marketplace add fatfingererr/macro-skills
 ```
 
 ## 包含技能

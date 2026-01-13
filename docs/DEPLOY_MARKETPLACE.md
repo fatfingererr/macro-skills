@@ -34,7 +34,7 @@ git push origin master
 使用者現在可以執行以下指令安裝：
 
 ```bash
-/plugin marketplace add macroskills/marketplace
+/plugin marketplace add fatfingererr/macro-skills
 ```
 
 ---
@@ -93,11 +93,11 @@ git push
 
 ## 使用者端操作
 
-| 操作     | 指令                                              |
-|----------|---------------------------------------------------|
-| 安裝     | `/plugin marketplace add macroskills/marketplace` |
-| 更新     | `/plugin marketplace update macroskills`          |
-| 列出技能 | `/plugin marketplace list macroskills`            |
-| 啟用技能 | `/plugin marketplace enable macroskills/{skill}`  |
-| 停用技能 | `/plugin marketplace disable macroskills/{skill}` |
-| 移除     | `/plugin marketplace remove macroskills`          |
+| 操作     | 指令                                                |
+|----------|-----------------------------------------------------|
+| 安裝     | `/plugin marketplace add fatfingererr/macro-skills` |
+| 更新     | `/plugin marketplace update macroskills`            |
+| 列出技能 | `/plugin marketplace list macroskills`              |
+| 啟用技能 | `/plugin marketplace enable macroskills/{skill}`    |
+| 停用技能 | `/plugin marketplace disable macroskills/{skill}`   |
+| 移除     | `/plugin marketplace remove macroskills`            |
