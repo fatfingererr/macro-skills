@@ -104,42 +104,6 @@
       "失業焦慮可能是驅動因素之一（COBRA、失去保險覆蓋）",
       "生活成本壓力也是重要因素"
     ]
-  },
+  }
 
-  "testable_hypotheses_based_on_comparison": [
-    {
-      "id": "C1",
-      "hypothesis": "就業焦慮傳導至保險搜尋（失業→失去雇主保險）",
-      "evidence": "Unemployment 領先 Health Insurance 2 週，相關性從 0.35 升至 0.58",
-      "verify_with": [
-        "FRED: ICSA vs Health Insurance 搜尋的格蘭傑因果檢驗",
-        "COBRA 相關搜尋量"
-      ]
-    },
-    {
-      "id": "C2",
-      "hypothesis": "生活成本壓力導致保險費用關注上升",
-      "evidence": "Cost of Living 相關性上升最大（+0.30），領先 1 週",
-      "verify_with": [
-        "CPI vs Health Insurance 搜尋的時間序列分析",
-        "保費佔收入比例變化"
-      ]
-    },
-    {
-      "id": "C3",
-      "hypothesis": "系統性經濟焦慮導致多領域搜尋同步上升",
-      "evidence": "4/4 對照主題同向移動",
-      "verify_with": [
-        "Consumer Sentiment Index",
-        "Economic Policy Uncertainty Index"
-      ]
-    }
-  ],
-
-  "next_steps": [
-    "檢查 Initial Claims 和 Layoffs 數據，確認就業市場是否惡化",
-    "檢查 Consumer Sentiment，確認整體經濟信心",
-    "追蹤 Cost of Living 和 Health Insurance 的持續共振",
-    "如果就業數據惡化，預期 Health Insurance 搜尋將持續高位"
-  ]
 }

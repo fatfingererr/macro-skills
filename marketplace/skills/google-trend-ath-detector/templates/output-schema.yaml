@@ -105,18 +105,6 @@ full_output:
             description: 上升百分比或 "Breakout"
 
     # 可檢驗假說
-    testable_hypotheses:
-      type: array
-      maxItems: 4
-      items:
-        $ref: "#/hypothesis_schema"
-
-    # 下一步數據
-    next_data_to_pull:
-      type: array
-      items:
-        type: string
-      description: 建議查詢的驗證數據來源
 
     # 元數據
     metadata:
@@ -129,40 +117,6 @@ full_output:
           type: integer
         schema_version:
           type: string
-
-# 假說 Schema
-hypothesis_schema:
-  type: object
-  required:
-    - id
-    - hypothesis
-    - verify_with
-  properties:
-    id:
-      type: string
-      pattern: "^H[0-9]+$"
-      example: "H1"
-
-    hypothesis:
-      type: string
-      description: 假說描述
-      example: "保費/自付額壓力上升造成注意力結構性抬升"
-
-    evidence_in_trends:
-      type: array
-      items:
-        type: string
-      description: 趨勢中支持此假說的證據
-
-    verify_with:
-      type: array
-      items:
-        type: string
-      description: 驗證數據來源
-
-    confidence:
-      type: string
-      enum: [high, medium, low]
 
 # 比較輸出 Schema
 comparison_output:
@@ -208,43 +162,3 @@ comparison_output:
         explanation:
           type: string
 
-# 驗證輸出 Schema
-verification_output:
-  type: object
-  properties:
-    claim_source:
-      type: string
-    topic:
-      type: string
-    claim_type:
-      type: string
-      enum: [ath, spike, trend_up]
-
-    verification_result:
-      type: object
-      properties:
-        is_verified:
-          type: boolean
-        confidence:
-          type: string
-          enum: [high, medium, low]
-        details:
-          type: object
-
-    context:
-      type: object
-      properties:
-        historical_percentile:
-          type: number
-        similar_peaks_in_history:
-          type: array
-        seasonal_explanation:
-          type: object
-
-    caveats:
-      type: array
-      items:
-        type: string
-
-    recommendation:
-      type: string

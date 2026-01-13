@@ -2,12 +2,12 @@
 **執行此工作流程前，請先閱讀：**
 1. references/input-schema.md - 完整參數定義
 2. references/seasonality-guide.md - 季節性分解方法
-3. references/hypothesis-templates.md - 假說模板
-4. references/data-sources.md - 驗證數據來源
+3. references/signal-types.md - 訊號分型定義
+4. references/data-sources.md - 數據來源
 </required_reading>
 
 <objective>
-深度分析 Google Trends 訊號，進行季節性分解、訊號分型，並生成可檢驗假說清單。
+深度分析 Google Trends 訊號，進行季節性分解、訊號分型，並提取驅動詞彙作為參考。
 </objective>
 
 <process>
@@ -152,30 +152,7 @@ def extract_driver_terms(related_queries):
     return drivers
 ```
 
-**Step 8: 假說生成**
-
-```python
-def build_testable_hypotheses(signal_type, drivers, topic):
-    """根據訊號類型與驅動詞彙生成可檢驗假說"""
-    hypotheses = []
-
-    # 讀取 references/hypothesis-templates.md 中的模板
-    templates = load_hypothesis_templates(topic)
-
-    for template in templates:
-        # 檢查驅動詞彙是否符合模板條件
-        if matches_template_condition(drivers, template['trigger_terms']):
-            hypotheses.append({
-                "id": template['id'],
-                "hypothesis": template['hypothesis'],
-                "evidence_in_trends": find_evidence(drivers, template),
-                "verify_with": template['verification_data']
-            })
-
-    return hypotheses[:4]  # 最多 4 個假說
-```
-
-**Step 9: 組裝輸出**
+**Step 8: 組裝輸出**
 
 ```python
 output = {
@@ -199,8 +176,10 @@ output = {
         "is_anomaly": is_anomaly
     },
     "drivers_from_related_queries": drivers[:10],
-    "testable_hypotheses": hypotheses,
-    "next_data_to_pull": collect_verification_data(hypotheses)
+    "metadata": {
+        "analyzed_at": datetime.now().isoformat(),
+        "schema_version": "0.2.0"
+    }
 }
 ```
 </process>
@@ -210,8 +189,6 @@ output = {
 - [ ] 完成季節性分解
 - [ ] 判定訊號類型
 - [ ] 提取驅動詞彙
-- [ ] 生成 2-4 個可檢驗假說
-- [ ] 每個假說配對驗證數據來源
 - [ ] 輸出符合 templates/output-schema.yaml
 </success_criteria>
 

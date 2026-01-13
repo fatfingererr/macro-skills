@@ -1,7 +1,7 @@
 ---
 name: google-trend-ath-detector
 displayName: Google Trend 歷史新高 (ATH) 偵測器
-description: 自動抓取 Google Trends 指標，判定是否出現「歷史新高（ATH）」或異常飆升，並把這個搜尋情緒訊號映射到可檢驗的宏觀驅動假說與後續驗證清單。
+description: 自動抓取 Google Trends 指標，判定是否出現「歷史新高（ATH）」或異常飆升，並使用 STL 季節性分解與統計方法進行訊號分型與趨勢分析。
 emoji: "\U0001F4C8"
 version: v0.1.0
 license: MIT
@@ -15,7 +15,7 @@ tags:
   - 異常偵測
   - 宏觀
   - 搜尋趨勢
-  - 假說生成
+  - 統計分析
   - 季節性分析
 category: indicator-monitoring
 dataLevel: free-nolimit
@@ -30,17 +30,12 @@ testQuestions:
       1. 抓取 2004-至今的 Google Trends 時間序列
       2. 進行 STL 季節性分解
       3. 判定是否為 ATH 並計算異常分數
-      4. 提取 related queries 識別驅動因素
-      5. 生成可檢驗假說與下一步驗證清單
+      4. 識別訊號類型 (seasonal_spike/event_driven_shock/regime_shift)
+      5. 提取 related queries 作為驅動因素參考
   - question: '比較 "Unemployment" 和 "Health Insurance" 的趨勢共振'
     expectedResult: |
       分析兩個主題的相關性，判斷是「單點焦慮」還是「整體經濟焦慮」，
-      並給出對應的宏觀解讀框架。
-  - question: '這張 Google Trends 圖表是否真的創新高？'
-    expectedResult: |
-      若提供圖表圖片，會走數據擷取流程驗證貼文主張，
-      並給出「是否真的破表」的判定與解釋。
-
+      並透過數學分析判斷焦慮類型。
 qualityScore:
   overall: 75
   badge: 白銀
@@ -154,27 +149,27 @@ Attention Signal = f(Raw Trend, Seasonality, Baseline, Anomaly Score)
 - signal_type = classify(is_ath, is_anomaly, seasonality_strength)
 ```
 
-**3. 假說優先於結論**
+**3. 描述性分析優先於解釋性結論**
 
-此技能**不**直接下結論，而是生成**可檢驗假說**：
-- 每個假說配對「下一步該查的數據」
-- 讓用戶自己驗證因果關係
+此技能提供**客觀的數學分析結果**:
+- 輸出訊號類型、異常分數、季節性強度等量化指標
+- 提供驅動詞彙作為參考資訊
+- 由用戶根據專業知識自行解讀與驗證
 
 **4. 數據層級**
 
 - **必要**：Google Trends 時間序列
 - **輔助**：Related queries（識別驅動詞彙）
 - **對照**：Compare terms（區分單點 vs 系統性焦慮）
-- **驗證**：宏觀數據（FRED、BLS、政策日曆）
+- **可選對照**:宏觀數據(FRED、BLS)供用戶自行驗證
 </essential_principles>
 
 <intake>
 **您想要執行什麼操作？**
 
 1. **Detect** - 偵測指定主題是否創下 ATH 或出現異常飆升
-2. **Analyze** - 深度分析訊號類型、驅動因素與假說生成
-3. **Verify** - 驗證社群貼文/圖表的主張是否屬實
-4. **Compare** - 比較多個主題的趨勢共振
+2. **Analyze** - 深度分析訊號類型、季節性與驅動因素
+3. **Compare** - 比較多個主題的趨勢共振
 
 **等待回應後再繼續。**
 </intake>
@@ -182,10 +177,9 @@ Attention Signal = f(Raw Trend, Seasonality, Baseline, Anomaly Score)
 <routing>
 | Response                                  | Workflow             | Description         |
 |-------------------------------------------|----------------------|---------------------|
-| 1, "detect", "ath", "check", "是否創新高" | workflows/detect.md  | 快速偵測 ATH 與異常 |
-| 2, "analyze", "deep", "分析", "假說"      | workflows/analyze.md | 深度分析與假說生成  |
-| 3, "verify", "check", "驗證", "圖表"      | workflows/verify.md  | 驗證貼文主張        |
-| 4, "compare", "對照", "共振"              | workflows/compare.md | 多主題趨勢比較      |
+| 1, "detect", "ath", "check", "是否創新高" | workflows/detect.md  | 快速偵測 ATH 與異常  |
+| 2, "analyze", "deep", "分析", "訊號"      | workflows/analyze.md | 深度分析與訊號分型   |
+| 3, "compare", "對照", "共振"              | workflows/compare.md | 多主題趨勢比較       |
 
 **讀取工作流程後，請完全遵循其步驟。**
 </routing>
@@ -196,7 +190,6 @@ Attention Signal = f(Raw Trend, Seasonality, Baseline, Anomaly Score)
 | 文件                    | 內容                                     |
 |-------------------------|------------------------------------------|
 | input-schema.md         | 完整輸入參數定義與預設值                 |
-| hypothesis-templates.md | 假說模板與驗證數據映射                   |
 | data-sources.md         | 數據來源清單（Google Trends、FRED、BLS） |
 | signal-types.md         | 訊號分型定義與判定邏輯                   |
 | seasonality-guide.md    | 季節性分解方法與解讀                     |
@@ -207,7 +200,6 @@ Attention Signal = f(Raw Trend, Seasonality, Baseline, Anomaly Score)
 |------------|------------------------------|
 | detect.md  | 快速偵測 ATH 與異常分數      |
 | analyze.md | 深度分析、假說生成、驗證清單 |
-| verify.md  | 驗證社群貼文/圖表主張        |
 | compare.md | 多主題趨勢共振分析           |
 </workflows_index>
 
@@ -215,14 +207,12 @@ Attention Signal = f(Raw Trend, Seasonality, Baseline, Anomaly Score)
 | Template               | Purpose              |
 |------------------------|----------------------|
 | output-schema.yaml     | 標準輸出 JSON schema |
-| hypothesis-output.yaml | 假說生成輸出格式     |
 </templates_index>
 
 <scripts_index>
 | Script                | Purpose                          |
 |-----------------------|----------------------------------|
 | trend_analyzer.py     | 核心分析邏輯（抓取、分解、偵測） |
-| hypothesis_builder.py | 假說生成與驗證清單建構           |
 </scripts_index>
 
 <examples_index>
@@ -284,6 +274,4 @@ Skill 成功執行時：
 - [ ] 判定 ATH 狀態與異常分數
 - [ ] 識別訊號類型（seasonal/event/regime）
 - [ ] 提取 related queries 驅動詞彙
-- [ ] 生成可檢驗假說清單
-- [ ] 輸出下一步驗證數據建議
 </success_criteria>

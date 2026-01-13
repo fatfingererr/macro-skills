@@ -2,7 +2,7 @@
   "name": "google-trend-ath-detector",
   "version": "0.1.0",
   "displayName": "Google Trend ATH Detector",
-  "description": "自動抓取 Google Trends 指標，判定是否出現「歷史新高（ATH）」或異常飆升，並把這個搜尋情緒訊號映射到可檢驗的宏觀驅動假說與後續驗證清單。",
+  "description": "自動抓取 Google Trends 指標，判定是否出現「歷史新高（ATH）」或異常飆升，並使用 STL 季節性分解與統計方法進行訊號分型與趨勢分析。",
   "author": "macro-skills",
   "license": "MIT",
   "category": "indicator-monitoring",
@@ -14,7 +14,7 @@
     "異常偵測",
     "宏觀",
     "搜尋趨勢",
-    "假說生成",
+    "統計分析",
     "季節性分析"
   ],
   "dataLevel": "free-nolimit",
@@ -35,8 +35,7 @@
   },
   "entryPoints": {
     "skill": "SKILL.md",
-    "mainScript": "scripts/trend_analyzer.py",
-    "hypothesisBuilder": "scripts/hypothesis_builder.py"
+    "mainScript": "scripts/trend_analyzer.py"
   },
   "workflows": [
     {
@@ -48,14 +47,8 @@
     {
       "id": "analyze",
       "name": "深度分析",
-      "description": "深度分析、假說生成、驗證清單",
+      "description": "深度分析、訊號分型、季節性分解",
       "file": "workflows/analyze.md"
-    },
-    {
-      "id": "verify",
-      "name": "驗證主張",
-      "description": "驗證社群貼文/圖表主張",
-      "file": "workflows/verify.md"
     },
     {
       "id": "compare",
@@ -66,14 +59,12 @@
   ],
   "references": [
     "references/input-schema.md",
-    "references/hypothesis-templates.md",
     "references/data-sources.md",
     "references/signal-types.md",
     "references/seasonality-guide.md"
   ],
   "templates": [
-    "templates/output-schema.yaml",
-    "templates/hypothesis-output.yaml"
+    "templates/output-schema.yaml"
   ],
   "examples": [
     "examples/health_insurance_ath.json",
@@ -89,19 +80,16 @@
     },
     {
       "name": "FRED",
-      "type": "verification",
+      "type": "optional",
       "url": "https://fred.stlouisfed.org",
-      "api": "fredapi"
+      "api": "fredapi",
+      "note": "可選對照數據,供用戶自行驗證"
     },
     {
       "name": "BLS",
-      "type": "verification",
-      "url": "https://www.bls.gov"
-    },
-    {
-      "name": "CMS",
-      "type": "verification",
-      "url": "https://www.cms.gov"
+      "type": "optional",
+      "url": "https://www.bls.gov",
+      "note": "可選對照數據,供用戶自行驗證"
     }
   ]
 }
