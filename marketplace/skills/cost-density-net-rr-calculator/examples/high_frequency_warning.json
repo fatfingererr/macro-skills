@@ -1,0 +1,48 @@
+{
+  "_description": "High-frequency scalping scenario - Warning example",
+  "_description_zh": "高頻剝頭皮情境 - 警示範例",
+  "_purpose": "Demonstrates the 'event horizon' effect with very tight stops",
+
+  "input": {
+    "RR_g": 3.0,
+    "P": 3,
+    "c": 7.0,
+    "s": 1.5,
+    "V": 10.0
+  },
+
+  "expected_output": {
+    "cost_density": 2.2,
+    "x": 0.7333,
+    "RR_net": 1.308,
+    "Loss_RR": 0.564,
+    "WR_min": 0.4333,
+    "P_critical": 3.6667,
+    "zone": "high_friction",
+    "notes": [
+      "成本密度 2.2 pips = 佣金等效 0.70 + 點差 1.50",
+      "淨 RR 從 3.0 降至 1.31，損失 56.4%",
+      "需 43.3% 勝率才能打平",
+      "警告：停損 3.0 < 臨界值 3.7，處於高摩擦區"
+    ]
+  },
+
+  "_analysis": {
+    "severity": "critical",
+    "interpretation": "With P=3 pips (below P_critical=3.67), more than half of the theoretical edge is consumed by costs. Win rate requirement jumps from 25% to 43%.",
+    "interpretation_zh": "在 P=3 pips（低於 P_critical=3.67）時，超過一半的理論優勢被成本吞噬。勝率需求從 25% 跳升至 43%。",
+    "scissors_effect": {
+      "description": "At this timeframe, not only are costs higher (56% loss), but signal quality is also degraded due to noise",
+      "description_zh": "在此時間框架下，不僅成本更高（損失 56%），訊號品質也因雜訊而下降"
+    },
+    "recommendation": "Increase P to at least 5.5 pips (1.5x P_critical) or find lower-cost execution",
+    "recommendation_zh": "建議將 P 增加至至少 5.5 pips（1.5 倍 P_critical）或尋找更低成本的執行方式"
+  },
+
+  "_sweep_comparison": {
+    "P_2": { "RR_net": 0.727, "Loss_RR": 0.758, "zone": "high_friction" },
+    "P_3": { "RR_net": 1.308, "Loss_RR": 0.564, "zone": "high_friction" },
+    "P_5": { "RR_net": 1.778, "Loss_RR": 0.407, "zone": "normal" },
+    "P_10": { "RR_net": 2.278, "Loss_RR": 0.241, "zone": "normal" }
+  }
+}

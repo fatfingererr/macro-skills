@@ -1,0 +1,34 @@
+{
+  "_description": "EUR/USD - Low-cost retail broker scenario",
+  "_description_zh": "EUR/USD - 低成本零售經紀商情境",
+
+  "input": {
+    "RR_g": 2.0,
+    "P": 15,
+    "c": 3.5,
+    "s": 0.8,
+    "V": 10.0
+  },
+
+  "expected_output": {
+    "cost_density": 1.15,
+    "x": 0.0767,
+    "RR_net": 1.786,
+    "Loss_RR": 0.107,
+    "WR_min": 0.359,
+    "P_critical": 2.3,
+    "zone": "normal",
+    "notes": [
+      "成本密度 1.15 pips = 佣金等效 0.35 + 點差 0.80",
+      "淨 RR 從 2.0 降至 1.79，損失 10.7%",
+      "需 35.9% 勝率才能打平"
+    ]
+  },
+
+  "_analysis": {
+    "interpretation": "Low-cost EUR/USD trading shows only ~11% efficiency loss at P=15 pips. The lower RR_g (2.0) means higher baseline win rate requirement (33% vs 25%).",
+    "interpretation_zh": "低成本 EUR/USD 交易在 P=15 pips 時僅損失約 11% 效率。較低的 RR_g (2.0) 意味著基準勝率需求較高（33% vs 25%）。",
+    "key_insight": "Even with low costs, shrinking P to 5 pips would increase Loss_RR to ~35%",
+    "key_insight_zh": "即使成本低，將 P 縮小到 5 pips 也會使 Loss_RR 增加到約 35%"
+  }
+}

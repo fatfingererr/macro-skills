@@ -1,0 +1,84 @@
+# Input Schema for Cost Density Model
+# 成本密度模型輸入參數 Schema
+
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+required:
+  - RR_g
+  - P
+  - c
+  - s
+  - V
+
+properties:
+  RR_g:
+    type: number
+    description: "Gross risk-reward target (Target/Stop), e.g., 3.0"
+    description_zh: "毛風險報酬比（目標/停損），例如 3.0"
+    minimum: 0
+    examples: [2.0, 3.0, 4.0]
+
+  P:
+    type: number
+    description: "Stop-loss size in pips/points (must match units of s)"
+    description_zh: "停損大小（pips/points，需與 s 單位一致）"
+    exclusiveMinimum: 0
+    examples: [5, 10, 20, 50]
+
+  c:
+    type: number
+    description: "Round-turn commission per lot (account currency), e.g., 7.0"
+    description_zh: "來回佣金（每手，帳戶貨幣），例如 $7.0"
+    minimum: 0
+    examples: [0, 3.5, 7.0, 10.0]
+
+  s:
+    type: number
+    description: "Average round-trip spread in pips (or points), e.g., 1.5"
+    description_zh: "來回點差（pips/points），例如 1.5"
+    minimum: 0
+    examples: [0.5, 1.0, 1.5, 3.0]
+
+  V:
+    type: number
+    description: "Value per pip per 1 lot (account currency per pip), e.g., 10"
+    description_zh: "每 pip 每手價值（帳戶貨幣/pip），例如 $10"
+    exclusiveMinimum: 0
+    examples: [1, 10, 100]
+
+  R:
+    type: number
+    description: "Fixed risk per trade in account currency (optional; cancels out in RR_net)"
+    description_zh: "每筆交易固定風險（可選，會在 RR_net 中抵消）"
+    minimum: 0
+    examples: [100, 500, 1000]
+
+  grid:
+    type: object
+    description: "Optional sweep config for plotting/threshold search"
+    description_zh: "可選的網格掃描配置"
+    properties:
+      P_min:
+        type: number
+        description: "Minimum stop-loss for sweep"
+        exclusiveMinimum: 0
+        default: 1
+      P_max:
+        type: number
+        description: "Maximum stop-loss for sweep"
+        exclusiveMinimum: 0
+        default: 100
+      steps:
+        type: integer
+        description: "Number of steps in sweep"
+        minimum: 3
+        maximum: 2000
+        default: 20
+
+# Unit consistency rules
+# 單位一致性規則
+_notes:
+  - "P and s must use the same pip/point basis"
+  - "c must be round-turn (entry + exit) commission per lot"
+  - "V must be per pip per lot value"
+  - "If using points instead of pips, ensure all values are converted consistently"

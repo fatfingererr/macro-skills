@@ -1,0 +1,39 @@
+{
+  "_description": "XAU/USD (Gold) - Standard institutional parameters from the original paper",
+  "_description_zh": "XAU/USD（黃金）- 論文中的標準機構參數",
+  "_source": "Sukhov, S. 'Geometry of Advantage Decay' - Section 6",
+
+  "input": {
+    "RR_g": 3.0,
+    "P": 20,
+    "c": 7.0,
+    "s": 1.5,
+    "V": 10.0
+  },
+
+  "expected_output": {
+    "cost_density": 2.2,
+    "x": 0.11,
+    "RR_net": 2.6036,
+    "Loss_RR": 0.1321,
+    "WR_min": 0.2775,
+    "P_critical": 3.6667,
+    "zone": "normal",
+    "notes": [
+      "成本密度 2.2 pips = 佣金等效 0.70 + 點差 1.50",
+      "淨 RR 從 3.0 降至 2.60，損失 13.2%",
+      "需 27.8% 勝率才能打平"
+    ]
+  },
+
+  "_analysis": {
+    "interpretation": "At P=20 pips, the strategy loses ~13% efficiency due to costs. This is within acceptable range for swing trading.",
+    "interpretation_zh": "在 P=20 pips 時，策略因成本損失約 13% 效率。這對波段交易來說在可接受範圍內。",
+    "warning_threshold": "P < 3.67 pips would enter high-friction zone",
+    "comparison_points": {
+      "P_5": { "RR_net": 1.78, "Loss_RR": 0.408 },
+      "P_10": { "RR_net": 2.28, "Loss_RR": 0.241 },
+      "P_50": { "RR_net": 2.83, "Loss_RR": 0.056 }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "cost-density-net-rr-calculator",
+  "description": "Calculate nonlinear transaction cost impact on risk-reward ratios. Integrates fixed commissions and spreads into a unified Cost Density metric, revealing hyperbolic relationship between stop-loss size and strategy efficiency.",
+  "version": "0.1.0",
+  "author": {
+    "name": "macro-skills"
+  }
+}

@@ -1,0 +1,97 @@
+# Output Schema for Cost Density Model
+# 成本密度模型輸出 Schema
+
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+required:
+  - cost_density
+  - x
+  - RR_net
+  - WR_min
+
+properties:
+  cost_density:
+    type: number
+    description: "Cost Density = (c/V + s) in pips-equivalent"
+    description_zh: "成本密度 = (c/V + s)，pips 等效值"
+
+  x:
+    type: number
+    description: "Load coefficient x = (1/P) * (c/V + s)"
+    description_zh: "負載係數 x = 成本密度 / P"
+
+  RR_net:
+    type: number
+    description: "Net risk-reward after costs: (RR_g - x)/(1 + x)"
+    description_zh: "淨風險報酬比（扣除成本後）"
+
+  Loss_RR:
+    type: number
+    description: "Relative efficiency loss vs RR_g: (x*(RR_g+1))/(RR_g*(1+x))"
+    description_zh: "相對效率損失（與 RR_g 相比）"
+
+  WR_min:
+    type: number
+    description: "Minimum win rate for breakeven given x: (1 + x)/(1 + RR_g)"
+    description_zh: "打平所需最低勝率"
+
+  P_critical:
+    type: number
+    description: "Half-life stop size where RR_net = 0.5*RR_g: cost_density*(RR_g+2)/RR_g"
+    description_zh: "效率減半臨界停損"
+
+  zone:
+    type: string
+    enum: ["normal", "high_friction"]
+    description: "Friction zone classification"
+    description_zh: "摩擦區域分類"
+
+  notes:
+    type: array
+    items:
+      type: string
+    description: "Explanation notes in zh-TW"
+    description_zh: "說明備註"
+
+# Sweep-specific output properties
+sweep_properties:
+  thresholds:
+    type: object
+    description: "Key threshold P values"
+    properties:
+      P_breakeven:
+        type: number
+        description: "Smallest P where RR_net > 0"
+      P_WR_35:
+        type: number
+        description: "P where WR_min <= 35%"
+      P_WR_40:
+        type: number
+        description: "P where WR_min <= 40%"
+      P_WR_50:
+        type: number
+        description: "P where WR_min <= 50%"
+      P_Loss_20:
+        type: number
+        description: "P where Loss_RR <= 20%"
+      P_Loss_40:
+        type: number
+        description: "P where Loss_RR <= 40%"
+
+  summary_table:
+    type: array
+    description: "Representative data points"
+    items:
+      type: object
+      properties:
+        P: { type: number }
+        x: { type: number }
+        RR_net: { type: number }
+        WR_min: { type: number }
+        Loss_RR: { type: number }
+
+  full_results:
+    type: array
+    description: "Complete sweep results"
+    items:
+      $ref: "#/sweep_properties/summary_table/items"
