@@ -9,24 +9,21 @@
   "plugins": [
     {
       "name": "economic-indicator-analyst",
-      "displayName": "經濟指標分析師",
       "description": "分析 GDP、CPI、失業率、PMI 等經濟指標，提供專業解讀與市場影響評估",
       "version": "1.0.0",
-      "path": "marketplace/skills/economic-indicator-analyst"
+      "source": "marketplace/skills/economic-indicator-analyst"
     },
     {
       "name": "central-bank-policy-decoder",
-      "displayName": "央行政策解碼器",
       "description": "解讀央行聲明、會議紀要、政策訊號，預測貨幣政策走向",
       "version": "1.0.0",
-      "path": "marketplace/skills/central-bank-policy-decoder"
+      "source": "marketplace/skills/central-bank-policy-decoder"
     },
     {
       "name": "market-cycle-judge",
-      "displayName": "景氣循環判官",
       "description": "判斷當前景氣位置、預測週期轉折點、提供投資建議",
       "version": "1.0.0",
-      "path": "marketplace/skills/market-cycle-judge"
+      "source": "marketplace/skills/market-cycle-judge"
     }
   ]
 }
