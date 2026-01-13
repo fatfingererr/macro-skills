@@ -15,7 +15,7 @@ export function filterSkills(skills: Skill[], filters: SkillFilters): Skill[] {
     if (filters.category && skill.category !== filters.category) {
       return false;
     }
-    if (filters.riskLevel && skill.riskLevel !== filters.riskLevel) {
+    if (filters.dataLevel && skill.dataLevel !== filters.dataLevel) {
       return false;
     }
     if (filters.search) {
@@ -74,6 +74,13 @@ export function getPopularSkills(skills: Skill[], limit = 6): Skill[] {
 }
 
 export function generateInstallCommand(skill: Skill): string {
-  const repoUrl = 'https://github.com/fatfingererr/macro-skills';
-  return `claude mcp add ${skill.name} ${repoUrl}/marketplace/skills/${skill.name}`;
+  return '/plugin marketplace add macroskills/marketplace';
+}
+
+export function generateMarketplaceInstallCommand(): string {
+  return '/plugin marketplace add macroskills/marketplace';
+}
+
+export function generateSkillEnableCommand(skillId: string): string {
+  return `/plugin marketplace enable macroskills/${skillId}`;
 }
