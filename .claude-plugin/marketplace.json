@@ -10,6 +10,24 @@
   },
   "plugins": [
     {
+      "name": "wasde-ingestor",
+      "description": "下載並解析 USDA 每月發布的 WASDE 報告，擷取所有主要商品（穀物、油籽、棉花、畜產品、糖）的供需平衡表。輸出標準化、可版本化的資料集，作為即時預測（nowcasting）的錨定基準。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/wasde-ingestor",
+      "category": "indicator-monitoring",
+      "tags": [
+        "USDA",
+        "WASDE",
+        "供給與需求",
+        "供需平衡表",
+        "宏觀",
+        "穀物"
+      ]
+    },
+    {
       "name": "google-trends-ath-detector",
       "description": "專注於 Google Trends 數據擷取與分析，使用 Selenium 模擬真人瀏覽器行為抓取數據，自動判定搜尋趨勢是否創下歷史新高（ATH）或出現異常飆升，並提供訊號分型（季節性/事件驅動/結構性轉變）。",
       "version": "0.1.1",
@@ -28,21 +46,21 @@
       ]
     },
     {
-      "name": "wasde-ingestor",
-      "description": "下載並解析 USDA 每月發布的 WASDE 報告，擷取所有主要商品（穀物、油籽、棉花、畜產品、糖）的供需平衡表。輸出標準化、可版本化的資料集，作為即時預測（nowcasting）的錨定基準。",
+      "name": "us-cpi-pce-comparator",
+      "description": "自動比較美國 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
       "version": "0.1.0",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/wasde-ingestor",
-      "category": "indicator-monitoring",
+      "source": "./skills/us-cpi-pce-comparator",
+      "category": "inflation-analytics",
       "tags": [
-        "USDA",
-        "WASDE",
-        "供給與需求",
-        "供需平衡表",
-        "宏觀",
-        "穀物"
+        "CPI",
+        "PCE",
+        "通貨膨脹",
+        "美聯儲",
+        "權重差異",
+        "FRED"
       ]
     },
     {
