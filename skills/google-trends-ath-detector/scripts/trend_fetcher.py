@@ -62,9 +62,10 @@ class AnalysisParams:
 class GoogleTrendsCrawler:
     """Human-like Google Trends crawler using Selenium"""
 
-    def __init__(self, headless: bool = True, debug: bool = False):
+    def __init__(self, headless: bool = True, debug: bool = False, wait_for_login: bool = False):
         self.headless = headless
         self.debug = debug
+        self.wait_for_login = wait_for_login
         self.driver = None
 
     def _create_driver(self) -> webdriver.Chrome:
@@ -110,6 +111,40 @@ class GoogleTrendsCrawler:
         delay = random.uniform(min_sec, max_sec)
         logger.debug(f"Waiting {delay:.2f}s...")
         time.sleep(delay)
+
+    def _wait_for_google_login(self, driver: webdriver.Chrome):
+        """
+        Navigate to Google login page and wait for user to complete login.
+
+        This allows the user to log in to their Google account before
+        proceeding with data fetching, which may provide better access
+        to Google Trends data.
+        """
+        print("\n" + "=" * 60)
+        print("🔐 Google 帳戶登入")
+        print("=" * 60)
+        print("\n瀏覽器已開啟。請在瀏覽器中登入您的 Google 帳戶。")
+        print("登入後，您可以在 Google Trends 頁面確認已登入狀態。")
+        print("\n提示：")
+        print("  1. 在瀏覽器中完成 Google 帳戶登入")
+        print("  2. 確認右上角顯示您的帳戶頭像")
+        print("  3. 回到這裡按 Enter 繼續")
+        print("\n" + "-" * 60)
+
+        # Navigate to Google account sign-in page
+        logger.info("Navigating to Google sign-in page...")
+        driver.get("https://accounts.google.com/signin")
+        self._human_delay(2, 3)
+
+        # Wait for user confirmation
+        input("\n✅ 登入完成後，請按 Enter 繼續執行... ")
+
+        # Return to Google Trends after login
+        logger.info("Returning to Google Trends...")
+        driver.get("https://trends.google.com/trends/")
+        self._human_delay(2, 3)
+
+        print("\n繼續執行資料擷取...\n")
 
     def _build_trends_url(
         self,
@@ -221,6 +256,10 @@ class GoogleTrendsCrawler:
             self._human_delay(1, 2)
             driver.get("https://trends.google.com/trends/")
             self._human_delay(2, 3)
+
+            # Step 1.5: Wait for Google login if requested
+            if self.wait_for_login:
+                self._wait_for_google_login(driver)
 
             # Step 2: Visit explore page
             logger.info(f"Fetching trends for '{topic}' in {geo}...")
@@ -467,6 +506,10 @@ class GoogleTrendsCrawler:
             driver.get("https://trends.google.com/trends/")
             self._human_delay(2, 3)
 
+            # Wait for Google login if requested
+            if self.wait_for_login:
+                self._wait_for_google_login(driver)
+
             try:
                 start_date, end_date = timeframe.split(" ")
             except ValueError:
@@ -567,7 +610,8 @@ def fetch_trends(
     geo: str = "US",
     timeframe: str = "2004-01-01 2025-12-31",
     headless: bool = True,
-    debug: bool = False
+    debug: bool = False,
+    wait_for_login: bool = False
 ) -> Dict[str, Any]:
     """
     Fetch Google Trends interest over time using Selenium.
@@ -578,11 +622,12 @@ def fetch_trends(
         timeframe: Time range (e.g., '2004-01-01 2025-12-31')
         headless: Run browser in headless mode
         debug: Save debug HTML on failure
+        wait_for_login: If True, pause to let user log in to Google account
 
     Returns:
         Dict with 'dates', 'values', and metadata
     """
-    crawler = GoogleTrendsCrawler(headless=headless, debug=debug)
+    crawler = GoogleTrendsCrawler(headless=headless, debug=debug, wait_for_login=wait_for_login)
     return crawler.fetch_trends_via_api(topic, geo, timeframe)
 
 
@@ -590,15 +635,23 @@ def fetch_related_queries(
     topic: str,
     geo: str = "US",
     timeframe: str = "2004-01-01 2025-12-31",
-    headless: bool = True
+    headless: bool = True,
+    wait_for_login: bool = False
 ) -> Dict[str, Any]:
     """
     Fetch related queries (top and rising).
 
+    Args:
+        topic: Search topic or keyword
+        geo: Geographic region code
+        timeframe: Time range
+        headless: Run browser in headless mode
+        wait_for_login: If True, pause to let user log in to Google account
+
     Returns:
         Dict with 'top' and 'rising' lists
     """
-    crawler = GoogleTrendsCrawler(headless=headless)
+    crawler = GoogleTrendsCrawler(headless=headless, wait_for_login=wait_for_login)
     return crawler.fetch_related_queries(topic, geo, timeframe)
 
 
@@ -844,6 +897,7 @@ Examples:
     parser.add_argument("--compare", type=str, default="", help="Comma-separated compare terms")
     parser.add_argument("--no-related", action="store_true", help="Skip related queries")
     parser.add_argument("--no-headless", action="store_true", help="Show browser window")
+    parser.add_argument("--login", action="store_true", help="Pause to let user log in to Google account first")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
     parser.add_argument("--output", type=str, help="Output JSON file")
 
@@ -856,13 +910,20 @@ Examples:
     print(f"Fetching Google Trends data for '{args.topic}' in {args.geo}...")
     print("Using Selenium with anti-detection measures...")
 
+    # Force non-headless mode if login is requested
+    headless = not args.no_headless
+    if args.login:
+        headless = False
+        print("\n⚠️  登入模式已啟用，瀏覽器將以可見模式運行")
+
     # Fetch data
     data = fetch_trends(
         args.topic,
         args.geo,
         args.timeframe,
-        headless=not args.no_headless,
-        debug=args.debug
+        headless=headless,
+        debug=args.debug,
+        wait_for_login=args.login
     )
 
     if "error" in data:

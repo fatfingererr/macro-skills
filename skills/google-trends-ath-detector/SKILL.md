@@ -316,21 +316,28 @@ python scripts/trend_fetcher.py \
   --topic "Health Insurance" \
   --debug \
   --no-headless
+
+# 登入模式（先讓用戶登入 Google 帳戶再抓取）
+python scripts/trend_fetcher.py \
+  --topic "Health Insurance" \
+  --login \
+  --output ./output/health_insurance.json
 ```
 
 **CLI 參數說明：**
 
-| 參數            | 說明                 | 預設值                |
-|-----------------|----------------------|-----------------------|
-| `--topic`       | 搜尋主題（必要）     | -                     |
-| `--geo`         | 地區代碼             | US                    |
-| `--timeframe`   | 時間範圍             | 2004-01-01 2025-12-31 |
-| `--threshold`   | 異常 z-score 門檻    | 2.5                   |
-| `--compare`     | 比較主題（逗號分隔） | -                     |
-| `--no-related`  | 跳過 related queries | false                 |
-| `--no-headless` | 顯示瀏覽器視窗       | false                 |
-| `--debug`       | 啟用調試模式         | false                 |
-| `--output`      | 輸出 JSON 檔案路徑   | -                     |
+| 參數            | 說明                       | 預設值                |
+|-----------------|----------------------------|-----------------------|
+| `--topic`       | 搜尋主題（必要）           | -                     |
+| `--geo`         | 地區代碼                   | US                    |
+| `--timeframe`   | 時間範圍                   | 2004-01-01 2025-12-31 |
+| `--threshold`   | 異常 z-score 門檻          | 2.5                   |
+| `--compare`     | 比較主題（逗號分隔）       | -                     |
+| `--no-related`  | 跳過 related queries       | false                 |
+| `--no-headless` | 顯示瀏覽器視窗             | false                 |
+| `--login`       | 暫停讓用戶先登入 Google    | false                 |
+| `--debug`       | 啟用調試模式               | false                 |
+| `--output`      | 輸出 JSON 檔案路徑         | -                     |
 </quick_start>
 
 <success_criteria>
