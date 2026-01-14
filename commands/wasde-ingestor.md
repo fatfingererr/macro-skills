@@ -8,6 +8,6 @@ allowed-tools:
   - WebFetch
 ---
 
-Read the skill file at `marketplace/skills/wasde-ingestor/SKILL.md` and follow its instructions to help the user with: $ARGUMENTS
+Read the skill file at `~/.claude/plugins/marketplaces/macro-skills/skills/wasde-ingestor/SKILL.md` and follow its instructions to help the user with: $ARGUMENTS
 
 If user did not specify arguments, ask what commodity data they want to ingest.

@@ -7,6 +7,6 @@ allowed-tools:
   - Write
 ---
 
-Read the skill file at `marketplace/skills/cost-density-net-rr-calculator/SKILL.md` and follow its instructions to help the user with: $ARGUMENTS
+Read the skill file at `~/.claude/plugins/marketplaces/macro-skills/skills/cost-density-net-rr-calculator/SKILL.md` and follow its instructions to help the user with: $ARGUMENTS
 
 If user did not specify arguments, ask for the trading parameters (stop loss, commission, spread).

@@ -8,6 +8,6 @@ allowed-tools:
   - WebFetch
 ---
 
-Read the skill file at `marketplace/skills/google-trends-ath-detector/SKILL.md` and follow its instructions to help the user with: $ARGUMENTS
+Read the skill file at `~/.claude/plugins/marketplaces/macro-skills/skills/google-trends-ath-detector/SKILL.md` and follow its instructions to help the user with: $ARGUMENTS
 
 If user did not specify arguments, ask what topic they want to analyze.
