@@ -16,6 +16,9 @@ from datetime import datetime
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from pathlib import Path
+import tempfile
+import csv
+import glob as glob_module
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -62,11 +65,24 @@ class AnalysisParams:
 class GoogleTrendsCrawler:
     """Human-like Google Trends crawler using Selenium"""
 
-    def __init__(self, headless: bool = True, debug: bool = False, wait_for_login: bool = False):
+    def __init__(self, headless: bool = True, debug: bool = False, wait_for_login: bool = False, login_wait: int = 0, download_dir: str = None):
         self.headless = headless
         self.debug = debug
         self.wait_for_login = wait_for_login
+        self.login_wait = login_wait  # Seconds to wait for login (0 = use input())
         self.driver = None
+        # Use user's Downloads folder by default, or specified directory
+        if download_dir:
+            self.download_dir = download_dir
+        else:
+            # Try common download locations
+            home = Path.home()
+            for downloads_path in [home / "Downloads", home / "downloads", home / "Download"]:
+                if downloads_path.exists():
+                    self.download_dir = str(downloads_path)
+                    break
+            else:
+                self.download_dir = tempfile.mkdtemp(prefix="gtrends_")
 
     def _create_driver(self) -> webdriver.Chrome:
         """Create Chrome driver with anti-detection options"""
@@ -84,6 +100,15 @@ class GoogleTrendsCrawler:
         chrome_options.add_argument('--disable-blink-features=AutomationControlled')
         chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
         chrome_options.add_experimental_option('useAutomationExtension', False)
+
+        # Set download directory for CSV downloads
+        prefs = {
+            "download.default_directory": self.download_dir,
+            "download.prompt_for_download": False,
+            "download.directory_upgrade": True,
+            "safebrowsing.enabled": True
+        }
+        chrome_options.add_experimental_option("prefs", prefs)
 
         # Random User-Agent
         user_agent = random.choice(USER_AGENTS)
@@ -137,7 +162,11 @@ class GoogleTrendsCrawler:
         self._human_delay(2, 3)
 
         # Wait for user confirmation
-        input("\n✅ 登入完成後，請按 Enter 繼續執行... ")
+        if self.login_wait > 0:
+            print(f"\n⏳ 等待 {self.login_wait} 秒讓您完成登入...")
+            time.sleep(self.login_wait)
+        else:
+            input("\n✅ 登入完成後，請按 Enter 繼續執行... ")
 
         # Return to Google Trends after login
         logger.info("Returning to Google Trends...")
@@ -188,6 +217,168 @@ class GoogleTrendsCrawler:
 
         logger.warning("Chart element not found, continuing anyway...")
         return False
+
+    def _download_csv(self, driver: webdriver.Chrome, topic: str, geo: str, timeframe: str) -> Dict[str, Any]:
+        """Download CSV from Google Trends and parse it"""
+        try:
+            # Record time before download to find new files
+            before_download = time.time()
+
+            # Find and click the download button (export menu)
+            # Google Trends has a download/export button in the chart widget
+            download_selectors = [
+                (By.CSS_SELECTOR, "button[aria-label*='download']"),
+                (By.CSS_SELECTOR, "button[aria-label*='Download']"),
+                (By.CSS_SELECTOR, "button[aria-label*='Export']"),
+                (By.CSS_SELECTOR, "button[aria-label*='export']"),
+                (By.CSS_SELECTOR, "div.widget-actions-item button"),
+                (By.CSS_SELECTOR, "button.export"),
+                (By.CSS_SELECTOR, "[data-value='CSV']"),
+                (By.XPATH, "//button[contains(@aria-label, 'CSV')]"),
+                (By.XPATH, "//button[contains(@class, 'export')]"),
+            ]
+
+            download_btn = None
+            for by, value in download_selectors:
+                try:
+                    download_btn = driver.find_element(by, value)
+                    if download_btn:
+                        logger.info(f"Found download button: {value}")
+                        break
+                except:
+                    continue
+
+            if not download_btn:
+                # Try finding menu button first, then CSV option
+                menu_selectors = [
+                    (By.CSS_SELECTOR, "button.widget-actions-menu-button"),
+                    (By.CSS_SELECTOR, "button[aria-label='More actions']"),
+                    (By.CSS_SELECTOR, ".ne-cta-container button"),
+                ]
+                for by, value in menu_selectors:
+                    try:
+                        menu_btn = driver.find_element(by, value)
+                        if menu_btn:
+                            logger.info(f"Clicking menu button: {value}")
+                            menu_btn.click()
+                            self._human_delay(0.5, 1)
+                            # Now look for CSV option
+                            csv_option = driver.find_element(By.XPATH, "//*[contains(text(), 'CSV')]")
+                            if csv_option:
+                                download_btn = csv_option
+                                break
+                    except:
+                        continue
+
+            if download_btn:
+                logger.info("Clicking download button...")
+                download_btn.click()
+                self._human_delay(2, 4)
+
+                # Wait for download to complete - look for new CSV files
+                for _ in range(15):
+                    csv_files = glob_module.glob(f"{self.download_dir}/*.csv") + \
+                                glob_module.glob(f"{self.download_dir}/multiTimeline*.csv")
+                    # Find files modified after we started download
+                    new_files = [f for f in csv_files if Path(f).stat().st_mtime > before_download - 5]
+                    if new_files:
+                        latest_csv = max(new_files, key=lambda f: Path(f).stat().st_mtime)
+                        logger.info(f"Found downloaded CSV: {latest_csv}")
+                        return self._parse_csv(latest_csv, topic, geo, timeframe)
+                    time.sleep(1)
+
+            logger.warning("Could not find or click download button")
+            return {"error": "Download button not found"}
+
+        except Exception as e:
+            logger.error(f"CSV download failed: {e}")
+            return {"error": f"CSV download failed: {e}"}
+
+    def _find_latest_trends_csv(self, topic: str = None) -> Optional[str]:
+        """Find the latest Google Trends CSV file in downloads directory"""
+        csv_patterns = [
+            f"{self.download_dir}/multiTimeline*.csv",
+            f"{self.download_dir}/*Timeline*.csv",
+            f"{self.download_dir}/geoMap*.csv",
+        ]
+
+        all_csvs = []
+        for pattern in csv_patterns:
+            all_csvs.extend(glob_module.glob(pattern))
+
+        if not all_csvs:
+            return None
+
+        # Return most recently modified
+        return max(all_csvs, key=lambda f: Path(f).stat().st_mtime)
+
+    def _parse_csv(self, csv_path: str, topic: str, geo: str, timeframe: str) -> Dict[str, Any]:
+        """Parse downloaded Google Trends CSV file"""
+        try:
+            dates = []
+            values = []
+
+            with open(csv_path, 'r', encoding='utf-8') as f:
+                # Skip header rows (Google Trends CSV has metadata rows)
+                lines = f.readlines()
+
+            # Find the actual data start (after header rows)
+            data_start = 0
+            for i, line in enumerate(lines):
+                # Data rows typically start with a date like "2004-01" or "Jan 2004"
+                if line.strip() and (line[0].isdigit() or line.startswith('"20')):
+                    data_start = i
+                    break
+                # Also check for Month pattern
+                if any(month in line for month in ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']):
+                    data_start = i
+                    break
+
+            # Parse data rows
+            for line in lines[data_start:]:
+                line = line.strip()
+                if not line:
+                    continue
+
+                # Handle different CSV formats
+                parts = line.split(',')
+                if len(parts) >= 2:
+                    date_str = parts[0].strip().strip('"')
+                    value_str = parts[1].strip().strip('"')
+
+                    # Handle "<1" values
+                    if value_str == '<1':
+                        value = 0
+                    else:
+                        try:
+                            value = int(value_str)
+                        except ValueError:
+                            try:
+                                value = float(value_str)
+                            except ValueError:
+                                continue
+
+                    dates.append(date_str)
+                    values.append(value)
+
+            if dates and values:
+                logger.info(f"Parsed {len(values)} data points from CSV")
+                return {
+                    "topic": topic,
+                    "geo": geo,
+                    "timeframe": timeframe,
+                    "dates": dates,
+                    "values": values,
+                    "data_points": len(values),
+                    "fetched_at": datetime.now().isoformat(),
+                    "source": "csv_download"
+                }
+
+            return {"error": "No data found in CSV"}
+
+        except Exception as e:
+            logger.error(f"CSV parsing failed: {e}")
+            return {"error": f"CSV parsing failed: {e}"}
 
     def _extract_timeseries_data(self, html: str) -> Dict[str, Any]:
         """Extract time series data from page"""
@@ -317,7 +508,14 @@ class GoogleTrendsCrawler:
             except Exception as e:
                 logger.debug(f"JS data extraction failed: {e}")
 
-            # Step 4: Fallback - extract from internal API
+            # Step 4: Try CSV download first (most reliable)
+            logger.info("Trying CSV download method...")
+            csv_result = self._download_csv(driver, topic, geo, timeframe)
+            if "error" not in csv_result:
+                return csv_result
+
+            # Step 5: Fallback - extract from internal API
+            logger.info("CSV download failed, trying internal API...")
             return self._fetch_via_internal_api(driver, topic, geo, timeframe)
 
         except Exception as e:
@@ -611,7 +809,8 @@ def fetch_trends(
     timeframe: str = "2004-01-01 2025-12-31",
     headless: bool = True,
     debug: bool = False,
-    wait_for_login: bool = False
+    wait_for_login: bool = False,
+    login_wait: int = 0
 ) -> Dict[str, Any]:
     """
     Fetch Google Trends interest over time using Selenium.
@@ -623,11 +822,12 @@ def fetch_trends(
         headless: Run browser in headless mode
         debug: Save debug HTML on failure
         wait_for_login: If True, pause to let user log in to Google account
+        login_wait: Seconds to wait for login (0 = use interactive input())
 
     Returns:
         Dict with 'dates', 'values', and metadata
     """
-    crawler = GoogleTrendsCrawler(headless=headless, debug=debug, wait_for_login=wait_for_login)
+    crawler = GoogleTrendsCrawler(headless=headless, debug=debug, wait_for_login=wait_for_login, login_wait=login_wait)
     return crawler.fetch_trends_via_api(topic, geo, timeframe)
 
 
@@ -898,6 +1098,8 @@ Examples:
     parser.add_argument("--no-related", action="store_true", help="Skip related queries")
     parser.add_argument("--no-headless", action="store_true", help="Show browser window")
     parser.add_argument("--login", action="store_true", help="Pause to let user log in to Google account first")
+    parser.add_argument("--login-wait", type=int, default=120, help="Wait N seconds for login (default: 120s for 2FA). Set 0 to use interactive Enter key")
+    parser.add_argument("--csv", type=str, help="Path to CSV file, or 'auto' to find latest in Downloads folder")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
     parser.add_argument("--output", type=str, help="Output JSON file")
 
@@ -907,30 +1109,60 @@ Examples:
     if args.debug:
         logger.add("trend_fetcher.log", rotation="10 MB")
 
-    print(f"Fetching Google Trends data for '{args.topic}' in {args.geo}...")
-    print("Using Selenium with anti-detection measures...")
+    # Check if using CSV file directly
+    if args.csv:
+        crawler = GoogleTrendsCrawler()
+        if args.csv.lower() == 'auto':
+            # Auto-find latest CSV in Downloads
+            csv_path = crawler._find_latest_trends_csv()
+            if not csv_path:
+                print("Error: No Google Trends CSV found in Downloads folder")
+                return
+            print(f"Found CSV: {csv_path}")
+        else:
+            csv_path = args.csv
+            if not Path(csv_path).exists():
+                print(f"Error: CSV file not found: {csv_path}")
+                return
 
-    # Force non-headless mode if login is requested
-    headless = not args.no_headless
-    if args.login:
-        headless = False
-        print("\n⚠️  登入模式已啟用，瀏覽器將以可見模式運行")
+        print(f"Parsing CSV file: {csv_path}")
+        data = crawler._parse_csv(csv_path, args.topic, args.geo, args.timeframe)
 
-    # Fetch data
-    data = fetch_trends(
-        args.topic,
-        args.geo,
-        args.timeframe,
-        headless=headless,
-        debug=args.debug,
-        wait_for_login=args.login
-    )
+        if "error" in data:
+            print(f"Error: {data['error']}")
+            return
 
-    if "error" in data:
-        print(f"Error: {data['error']}")
-        return
+        print(f"Parsed {len(data.get('values', []))} data points from CSV")
+    else:
+        print(f"Fetching Google Trends data for '{args.topic}' in {args.geo}...")
+        print("Using Selenium with anti-detection measures...")
 
-    print(f"Fetched {len(data.get('values', []))} data points")
+        # Force non-headless mode if login is requested
+        headless = not args.no_headless
+        wait_for_login = args.login or args.login_wait > 0
+        if wait_for_login:
+            headless = False
+            if args.login_wait > 0:
+                print(f"\n⚠️  登入模式已啟用（等待 {args.login_wait} 秒），瀏覽器將以可見模式運行")
+            else:
+                print("\n⚠️  登入模式已啟用，瀏覽器將以可見模式運行")
+
+        # Fetch data
+        data = fetch_trends(
+            args.topic,
+            args.geo,
+            args.timeframe,
+            headless=headless,
+            debug=args.debug,
+            wait_for_login=wait_for_login,
+            login_wait=args.login_wait
+        )
+
+        if "error" in data:
+            print(f"Error: {data['error']}")
+            return
+
+        print(f"Fetched {len(data.get('values', []))} data points")
 
     # Analyze
     result = analyze_ath(data, args.threshold, include_related=not args.no_related)

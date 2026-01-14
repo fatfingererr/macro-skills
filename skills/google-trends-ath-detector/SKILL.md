@@ -317,27 +317,46 @@ python scripts/trend_fetcher.py \
   --debug \
   --no-headless
 
-# 登入模式（先讓用戶登入 Google 帳戶再抓取）
+# 登入模式（預設等待 120 秒供 2FA 驗證）
 python scripts/trend_fetcher.py \
   --topic "Health Insurance" \
-  --login \
+  --output ./output/health_insurance.json
+
+# 跳過登入等待（不需要登入時）
+python scripts/trend_fetcher.py \
+  --topic "Health Insurance" \
+  --login-wait 0 \
+  --output ./output/health_insurance.json
+
+# 從已下載的 CSV 檔案分析（跳過瀏覽器抓取）
+python scripts/trend_fetcher.py \
+  --topic "Health Insurance" \
+  --csv ./downloads/multiTimeline.csv \
+  --output ./output/health_insurance.json
+
+# 自動從 Downloads 目錄找最新 CSV
+python scripts/trend_fetcher.py \
+  --topic "Health Insurance" \
+  --csv auto \
   --output ./output/health_insurance.json
 ```
 
 **CLI 參數說明：**
 
-| 參數            | 說明                       | 預設值                |
-|-----------------|----------------------------|-----------------------|
-| `--topic`       | 搜尋主題（必要）           | -                     |
-| `--geo`         | 地區代碼                   | US                    |
-| `--timeframe`   | 時間範圍                   | 2004-01-01 2025-12-31 |
-| `--threshold`   | 異常 z-score 門檻          | 2.5                   |
-| `--compare`     | 比較主題（逗號分隔）       | -                     |
-| `--no-related`  | 跳過 related queries       | false                 |
-| `--no-headless` | 顯示瀏覽器視窗             | false                 |
-| `--login`       | 暫停讓用戶先登入 Google    | false                 |
-| `--debug`       | 啟用調試模式               | false                 |
-| `--output`      | 輸出 JSON 檔案路徑         | -                     |
+| 參數            | 說明                             | 預設值                |
+|-----------------|----------------------------------|-----------------------|
+| `--topic`       | 搜尋主題（必要）                 | -                     |
+| `--geo`         | 地區代碼                         | US                    |
+| `--timeframe`   | 時間範圍                         | 2004-01-01 2025-12-31 |
+| `--threshold`   | 異常 z-score 門檻                | 2.5                   |
+| `--compare`     | 比較主題（逗號分隔）             | -                     |
+| `--no-related`  | 跳過 related queries             | false                 |
+| `--no-headless` | 顯示瀏覽器視窗                   | false                 |
+| `--login`       | 強制啟用登入模式                 | false                 |
+| `--login-wait`  | 登入等待秒數（0=互動式 Enter）   | 120                   |
+| `--csv`         | CSV 檔案路徑或 'auto' 自動尋找   | -                     |
+| `--debug`       | 啟用調試模式                     | false                 |
+| `--output`      | 輸出 JSON 檔案路徑               | -                     |
 </quick_start>
 
 <success_criteria>
