@@ -99,5 +99,5 @@ git push
 | 安裝     | `/plugin marketplace add fatfingererr/macro-skills` |
 | 更新     | `/plugin marketplace update macro-skills`           |
 | 列出技能 | `/plugin marketplace list macro-skills`             |
-| 安裝技能 | `/plugin install {skill}@macro-skills`              |
+| 啟動技能 | `/plugin enable {skill}@macro-skills`               |
 | 移除     | `/plugin marketplace remove macro-skills`           |
