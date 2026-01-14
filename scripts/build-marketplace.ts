@@ -222,8 +222,30 @@ async function buildMarketplace() {
   const indexPath = path.join(process.cwd(), 'marketplace/index.json');
   fs.writeFileSync(indexPath, JSON.stringify(index, null, 2), 'utf-8');
 
+  // 3. 同步更新 .claude-plugin/marketplace.json
+  const claudePluginPath = path.join(process.cwd(), '.claude-plugin/marketplace.json');
+  const existingPluginConfig = JSON.parse(fs.readFileSync(claudePluginPath, 'utf-8'));
+
+  const updatedPluginConfig = {
+    ...existingPluginConfig,
+    plugins: skills.map(s => ({
+      name: s.id,
+      description: s.description,
+      version: s.version.replace(/^v/, ''), // 移除 v 前綴
+      author: {
+        name: s.author,
+      },
+      source: `./marketplace/skills/${s.id}`,
+      category: s.category,
+      tags: s.tags.slice(0, 6),
+    })),
+  };
+
+  fs.writeFileSync(claudePluginPath, JSON.stringify(updatedPluginConfig, null, 2), 'utf-8');
+
   console.log(`\n✓ 已產生 ${frontendOutput}`);
   console.log(`✓ 已產生 ${indexPath}`);
+  console.log(`✓ 已同步 ${claudePluginPath}`);
   console.log(`  共 ${skills.length} 個技能`);
 }
 
