@@ -1,28 +1,28 @@
 <overview>
-Google Trend ATH Detector 專用數據來源指南。本技能使用 Selenium 模擬真人瀏覽器行為抓取 Google Trends 數據。
+Google Trends ATH Detector 專用數據來源指南。本技能使用 Selenium 模擬真人瀏覽器行為抓取 Google Trends 數據。
 </overview>
 
 <google_trends>
 **Google Trends 數據**
 
-| 項目 | 說明 |
-|------|------|
-| 官網 | https://trends.google.com |
+| 項目     | 說明                       |
+|----------|----------------------------|
+| 官網     | https://trends.google.com  |
 | 擷取方式 | Selenium + Chrome headless |
-| 數據類型 | 相對搜尋指數（0-100） |
-| 更新頻率 | 接近即時（2-3 天延遲） |
-| 歷史數據 | 2004 年至今 |
+| 數據類型 | 相對搜尋指數（0-100）      |
+| 更新頻率 | 接近即時（2-3 天延遲）     |
+| 歷史數據 | 2004 年至今                |
 </google_trends>
 
 <data_types>
 **可取得的數據類型**
 
-| 數據類型 | API 端點 | 說明 |
-|----------|----------|------|
-| Interest over time | multiline | 搜尋趨勢時間序列 |
-| Related queries | relatedsearches | 相關搜尋詞（Top 與 Rising） |
-| Related topics | relatedsearches | 相關主題 |
-| Interest by region | comparedgeo | 地區分布 |
+| 數據類型           | API 端點        | 說明                        |
+|--------------------|-----------------|-----------------------------|
+| Interest over time | multiline       | 搜尋趨勢時間序列            |
+| Related queries    | relatedsearches | 相關搜尋詞（Top 與 Rising） |
+| Related topics     | relatedsearches | 相關主題                    |
+| Interest by region | comparedgeo     | 地區分布                    |
 </data_types>
 
 <selenium_approach>
@@ -64,13 +64,13 @@ result = analyze_ath(data, threshold=2.5)
 
 本技能實現以下防偵測措施（基於 design-human-like-crawler.md）：
 
-| 策略 | 實作 | 效果 |
-|------|------|------|
-| 移除 webdriver 標記 | `--disable-blink-features=AutomationControlled` | 防止 JS 偵測 |
-| 隨機 User-Agent | 5 種瀏覽器 UA 輪換 | 避免固定 UA 被識別 |
-| 隨機延遲 | 0.5-2 秒 + 3-5 秒頁面等待 | 模擬人類行為 |
-| 禁用自動化擴展 | `excludeSwitches: ['enable-automation']` | 移除 Chrome 痕跡 |
-| 先訪問首頁 | 建立正常 session | 避免直接 API 請求 |
+| 策略                | 實作                                            | 效果               |
+|---------------------|-------------------------------------------------|--------------------|
+| 移除 webdriver 標記 | `--disable-blink-features=AutomationControlled` | 防止 JS 偵測       |
+| 隨機 User-Agent     | 5 種瀏覽器 UA 輪換                              | 避免固定 UA 被識別 |
+| 隨機延遲            | 0.5-2 秒 + 3-5 秒頁面等待                       | 模擬人類行為       |
+| 禁用自動化擴展      | `excludeSwitches: ['enable-automation']`        | 移除 Chrome 痕跡   |
+| 先訪問首頁          | 建立正常 session                                | 避免直接 API 請求  |
 
 **User-Agent 池：**
 
@@ -145,10 +145,10 @@ chrome_options.add_experimental_option('useAutomationExtension', False)
 
 Google Trends 支援兩種查詢方式：
 
-| 類型 | 說明 | 優點 | 缺點 |
-|------|------|------|------|
+| 類型         | 說明                 | 優點                   | 缺點               |
+|--------------|----------------------|------------------------|--------------------|
 | Topic Entity | Knowledge Graph 實體 | 避免歧義、涵蓋語言變體 | 部分主題無對應實體 |
-| Search Term | 純文字關鍵字 | 精確匹配 | 可能錯過變體 |
+| Search Term  | 純文字關鍵字         | 精確匹配               | 可能錯過變體       |
 
 **範例：**
 - "Apple" 作為 Search Term → 包含水果和公司
@@ -177,29 +177,29 @@ Google Trends 支援兩種查詢方式：
 
 **粒度自動選擇：**
 
-| 時間範圍 | 自動粒度 |
-|----------|----------|
-| < 7 天 | 小時 |
-| 7 天 - 9 個月 | 日 |
-| 9 個月 - 5 年 | 週 |
-| > 5 年 | 月 |
+| 時間範圍      | 自動粒度 |
+|---------------|----------|
+| < 7 天        | 小時     |
+| 7 天 - 9 個月 | 日       |
+| 9 個月 - 5 年 | 週       |
+| > 5 年        | 月       |
 </timeframe_formats>
 
 <geo_codes>
 **常用地區代碼**
 
-| 代碼 | 地區 |
-|------|------|
-| (空) | 全球 |
-| US | 美國 |
+| 代碼  | 地區     |
+|-------|----------|
+| (空)  | 全球     |
+| US    | 美國     |
 | US-CA | 美國加州 |
-| GB | 英國 |
-| DE | 德國 |
-| JP | 日本 |
-| TW | 台灣 |
-| CN | 中國 |
-| HK | 香港 |
-| SG | 新加坡 |
+| GB    | 英國     |
+| DE    | 德國     |
+| JP    | 日本     |
+| TW    | 台灣     |
+| CN    | 中國     |
+| HK    | 香港     |
+| SG    | 新加坡   |
 
 完整列表見 Google Trends 網站的地區選擇器。
 </geo_codes>
@@ -207,11 +207,11 @@ Google Trends 支援兩種查詢方式：
 <rate_limits>
 **速率限制與建議**
 
-| 情況 | 限制 | 建議 |
-|------|------|------|
-| 正常使用 | ~10 req/min | 每次請求間隔 1-3 秒 |
-| 被偵測為機器人 | 429 錯誤 | 使用 VPN/代理、增加延遲 |
-| 長時間大量抓取 | 可能被封鎖 | 分散請求時間、使用多 IP |
+| 情況           | 限制        | 建議                    |
+|----------------|-------------|-------------------------|
+| 正常使用       | ~10 req/min | 每次請求間隔 1-3 秒     |
+| 被偵測為機器人 | 429 錯誤    | 使用 VPN/代理、增加延遲 |
+| 長時間大量抓取 | 可能被封鎖  | 分散請求時間、使用多 IP |
 
 **最佳實踐：**
 1. 模擬瀏覽器行為（Selenium + 防偵測配置）
@@ -224,11 +224,11 @@ Google Trends 支援兩種查詢方式：
 <related_queries_guide>
 **Related Queries 解讀指南**
 
-| 類型 | 說明 | 用途 |
-|------|------|------|
-| Top | 最常被搜尋的相關詞 | 了解主要關聯概念 |
-| Rising | 上升幅度最大的相關詞 | 識別新興趨勢與驅動因素 |
-| Breakout | 上升超過 5000% | 全新出現的高熱度關鍵詞 |
+| 類型     | 說明                 | 用途                   |
+|----------|----------------------|------------------------|
+| Top      | 最常被搜尋的相關詞   | 了解主要關聯概念       |
+| Rising   | 上升幅度最大的相關詞 | 識別新興趨勢與驅動因素 |
+| Breakout | 上升超過 5000%       | 全新出現的高熱度關鍵詞 |
 
 **範例解讀：**
 - Rising: "ACA enrollment deadline +450%" → 投保截止日驅動搜尋
@@ -278,11 +278,11 @@ finally:
 
 若需進一步驗證 Google Trends 訊號，可參考以下公開資料：
 
-| 來源 | 網址 | 用途 |
-|------|------|------|
+| 來源                | 網址                          | 用途             |
+|---------------------|-------------------------------|------------------|
 | Wikipedia Pageviews | https://pageviews.wmcloud.org | 驗證特定主題熱度 |
-| Google News | https://news.google.com | 搜尋相關新聞事件 |
-| Reddit | https://www.reddit.com | 社群討論熱度 |
+| Google News         | https://news.google.com       | 搜尋相關新聞事件 |
+| Reddit              | https://www.reddit.com        | 社群討論熱度     |
 
 **注意：** 這些資料僅供手動參考驗證，本技能不自動抓取。
 </alternative_attention_proxies>

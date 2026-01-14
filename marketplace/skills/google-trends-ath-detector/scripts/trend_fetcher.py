@@ -1,5 +1,5 @@
 """
-Google Trend ATH Detector - Core Analysis Script
+Google Trends ATH Detector - Core Analysis Script
 
 Fetches Google Trends data using Selenium with human-like behavior to avoid detection.
 Detects ATH (All-Time High) and anomalies, classifies signal types.
@@ -820,7 +820,7 @@ async def fetch_trends_async(
 def main():
     """CLI interface"""
     parser = argparse.ArgumentParser(
-        description="Google Trend ATH Detector (Selenium-based)",
+        description="Google Trends ATH Detector (Selenium-based)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
