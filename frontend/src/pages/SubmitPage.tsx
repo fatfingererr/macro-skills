@@ -64,7 +64,7 @@ export default function SubmitPage() {
               <div className="flex-1 pt-1">
                 <h3 className="font-semibold text-gray-900 mb-1">新增你的技能</h3>
                 <p className="text-gray-600">
-                  在 <code className="bg-gray-100 px-1.5 py-0.5 rounded text-sm">marketplace/skills/</code> 目錄下
+                  在 <code className="bg-gray-100 px-1.5 py-0.5 rounded text-sm">skills/</code> 目錄下
                   建立新資料夾，放入你的 <code className="bg-gray-100 px-1.5 py-0.5 rounded text-sm">SKILL.md</code>。
                 </p>
               </div>

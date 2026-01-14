@@ -41,9 +41,9 @@ macro-skills/
 │   │   ├── types/              # TypeScript 型別定義
 │   │   └── data/               # 靜態資料
 │   └── public/                 # 靜態資源
-├── marketplace/                # 技能倉庫
-│   ├── marketplace.json        # 市集設定檔
-│   └── skills/                 # 技能定義檔
+├── skills/                     # 技能定義檔
+├── marketplace/                # 市集索引
+│   └── index.json              # 技能索引
 ├── scripts/                    # 建置腳本
 └── .github/workflows/          # GitHub Actions 工作流程
 ```
@@ -165,7 +165,7 @@ featured: false               # 是否為精選
 ## 提交技能
 
 1. Fork 本專案
-2. 在 `marketplace/skills/` 目錄下建立新資料夾
+2. 在 `skills/` 目錄下建立新資料夾
 3. 新增 `SKILL.md` 檔案
 4. 提交 Pull Request
 

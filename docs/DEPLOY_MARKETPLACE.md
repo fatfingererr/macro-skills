@@ -9,10 +9,10 @@ macro-skills/
 ├── .claude-plugin/
 │   ├── manifest.json       # Plugin 清單
 │   └── marketplace.json    # Marketplace 設定
+├── skills/
+│   └── */SKILL.md          # 技能定義
 └── marketplace/
-    ├── index.json          # 技能索引
-    └── skills/
-        └── */SKILL.md      # 技能定義
+    └── index.json          # 技能索引
 ```
 
 ### 2. 建置技能索引
@@ -45,10 +45,10 @@ git push origin master
 
 ```bash
 # 1. 建立技能目錄
-mkdir marketplace/skills/new-skill
+mkdir skills/new-skill
 
 # 2. 建立 SKILL.md
-# 編輯 marketplace/skills/new-skill/SKILL.md
+# 編輯 skills/new-skill/SKILL.md
 
 # 3. 重新建置
 bun run build:marketplace
@@ -63,7 +63,7 @@ git push
 
 ```bash
 # 1. 編輯技能
-# 修改 marketplace/skills/skill-name/SKILL.md
+# 修改 skills/skill-name/SKILL.md
 
 # 2. 重新建置
 bun run build:marketplace
@@ -78,7 +78,7 @@ git push
 
 ```bash
 # 1. 刪除技能目錄
-rm -rf marketplace/skills/skill-to-delete
+rm -rf skills/skill-to-delete
 
 # 2. 重新建置
 bun run build:marketplace
