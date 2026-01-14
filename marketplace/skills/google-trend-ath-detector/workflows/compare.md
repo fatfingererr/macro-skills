@@ -2,12 +2,31 @@
 **執行此工作流程前，請先閱讀：**
 1. references/input-schema.md - 了解輸入參數
 2. references/signal-types.md - 了解訊號分型
-3. references/data-sources.md - 了解宏觀數據來源
+3. references/data-sources.md - Selenium 爬取方式與速率限制
 </required_reading>
 
 <objective>
-比較多個主題的 Google Trends 趨勢，識別共振模式，區分「單點焦慮」與「系統性焦慮」。
+比較多個 Google Trends 主題的趨勢，識別共振模式，區分「單點焦慮」與「系統性焦慮」。
+使用 Selenium 模擬真人瀏覽器行為抓取數據。
 </objective>
+
+<prerequisites>
+**環境準備：**
+
+```bash
+# 安裝依賴
+pip install selenium webdriver-manager beautifulsoup4 lxml loguru
+```
+
+確保系統已安裝 Chrome 瀏覽器。
+
+**重要警告：**
+比較分析會為每個主題分別抓取數據，請求數量較多。
+建議：
+- 限制比較主題數量（≤3 個）
+- 在非高峰時段執行
+- 若被封鎖，等待 24 小時後重試
+</prerequisites>
 
 <use_cases>
 **適用場景：**
@@ -23,196 +42,136 @@
 ```yaml
 parameters:
   primary_topic: "主要分析主題"
-  compare_topics: ["對照主題1", "對照主題2", "對照主題3"]
+  compare_topics: ["對照主題1", "對照主題2", "對照主題3"]  # 建議 ≤3 個
   geo: "US"
   timeframe: "2019-01-01 2025-12-31"
-  granularity: "weekly"
-
-  # 分析選項
-  correlation_window: 52  # 計算相關性的窗口（週數）
-  lag_analysis: true      # 是否分析領先/滯後關係
-  max_lag_weeks: 8        # 最大滯後週數
 ```
 
-**Step 2: 抓取所有主題數據**
+**Step 2: 使用 trend_fetcher.py 進行比較**
 
 ```python
-# 主題
-primary_ts = fetch_trends(primary_topic, geo, timeframe)
+from scripts.trend_fetcher import compare_trends
 
-# 對照主題
-compare_data = {}
-for topic in compare_topics:
-    compare_data[topic] = fetch_trends(topic, geo, timeframe)
-
-# 對齊時間索引
-all_data = pd.DataFrame({primary_topic: primary_ts})
-for topic, ts in compare_data.items():
-    all_data[topic] = ts
-
-all_data = all_data.dropna()
+# 比較多個主題（每個主題會分別抓取）
+# 注意：會為每個主題啟動一次瀏覽器，並有隨機延遲
+result = compare_trends(
+    topic="Health Insurance",
+    compare_terms=["Unemployment", "Inflation", "Medicare"],
+    geo="US",
+    timeframe="2019-01-01 2025-12-31"
+)
 ```
 
-**Step 3: 相關性分析**
+或使用 CLI：
 
-```python
-def compute_correlations(all_data, primary_topic):
-    """計算主題間的相關性"""
-
-    correlations = {}
-    for col in all_data.columns:
-        if col != primary_topic:
-            # 整體相關性
-            corr = all_data[primary_topic].corr(all_data[col])
-
-            # 近期相關性（最近 52 週）
-            recent_corr = all_data[primary_topic].iloc[-52:].corr(
-                all_data[col].iloc[-52:]
-            )
-
-            correlations[col] = {
-                "overall_correlation": round(corr, 3),
-                "recent_correlation": round(recent_corr, 3),
-                "correlation_change": round(recent_corr - corr, 3)
-            }
-
-    return correlations
+```bash
+python scripts/trend_fetcher.py \
+  --topic "Health Insurance" \
+  --compare "Unemployment,Inflation,Medicare" \
+  --geo US \
+  --timeframe "2019-01-01 2025-12-31" \
+  --output ./output/comparison.json
 ```
 
-**Step 4: 領先/滯後分析**
+**Step 3: 解讀相關性結果**
+
+輸出包含各主題間的 Pearson 相關係數：
+
+```json
+{
+  "topic": "Health Insurance",
+  "geo": "US",
+  "timeframe": "2019-01-01 2025-12-31",
+  "compare_correlations": {
+    "Unemployment": 0.45,
+    "Inflation": 0.38,
+    "Medicare": 0.72
+  },
+  "interpretation": "與 Medicare 高度相關（>0.7），可能為系統性焦慮而非單點焦慮",
+  "analyzed_at": "2025-12-15T10:30:00"
+}
+```
+
+**相關性解讀：**
+
+| 相關係數 | 解讀 |
+|----------|------|
+| > 0.7 | 高度相關，同步移動 |
+| 0.4 - 0.7 | 中度相關，部分同步 |
+| 0.2 - 0.4 | 弱相關 |
+| < 0.2 | 幾乎無關 |
+
+**Step 4: 判定共振模式**
+
+根據相關性組合判定：
+
+| 模式 | 特徵 | 解讀 |
+|------|------|------|
+| systemic_anxiety | 多個主題同步高相關 | 整體經濟/社會焦慮 |
+| isolated_signal | 主題獨立移動 | 特定事件或政策影響 |
+| mixed_signal | 部分同步、部分獨立 | 需細分時間段分析 |
+
+**Step 5: 組裝比較報告**
 
 ```python
-def lag_analysis(primary_ts, compare_ts, max_lag=8):
-    """分析領先滯後關係"""
-
-    results = []
-    for lag in range(-max_lag, max_lag + 1):
-        if lag < 0:
-            # compare_ts 領先
-            shifted = compare_ts.shift(-lag)
-        else:
-            # primary_ts 領先
-            shifted = compare_ts.shift(lag)
-
-        corr = primary_ts.corr(shifted)
-        results.append({"lag": lag, "correlation": round(corr, 3)})
-
-    # 找最佳滯後
-    best = max(results, key=lambda x: abs(x['correlation']))
-
-    return {
-        "all_lags": results,
-        "best_lag": best['lag'],
-        "best_correlation": best['correlation'],
-        "interpretation": interpret_lag(best['lag'])
-    }
-
-def interpret_lag(lag):
-    if lag == 0:
-        return "同步移動"
-    elif lag > 0:
-        return f"主題領先對照主題 {lag} 週"
+def identify_pattern(correlations):
+    high_corr_count = sum(1 for v in correlations.values() if v and v > 0.7)
+    if high_corr_count >= 2:
+        return "systemic_anxiety"
+    elif high_corr_count == 0:
+        return "isolated_signal"
     else:
-        return f"對照主題領先主題 {-lag} 週"
-```
+        return "mixed_signal"
 
-**Step 5: 共振模式識別**
-
-```python
-def identify_resonance_pattern(all_data, primary_topic, correlations):
-    """識別共振模式"""
-
-    # 計算最近變化的同步性
-    recent_changes = {}
-    for col in all_data.columns:
-        # 計算近 4 週 vs 前 4 週的變化
-        recent = all_data[col].iloc[-4:].mean()
-        previous = all_data[col].iloc[-8:-4].mean()
-        change_pct = (recent - previous) / previous if previous > 0 else 0
-        recent_changes[col] = change_pct
-
-    # 判斷模式
-    primary_change = recent_changes[primary_topic]
-    compare_changes = {k: v for k, v in recent_changes.items() if k != primary_topic}
-
-    # 計算同向移動的比例
-    same_direction = sum(
-        1 for v in compare_changes.values()
-        if (v > 0) == (primary_change > 0)
-    )
-    same_direction_ratio = same_direction / len(compare_changes)
-
-    if same_direction_ratio >= 0.7:
-        pattern = "systemic_anxiety"
-        explanation = "多數對照主題同向移動，表示系統性焦慮"
-    elif same_direction_ratio <= 0.3:
-        pattern = "isolated_signal"
-        explanation = "主題獨立移動，表示單點焦慮或特定事件"
+def generate_next_steps(result):
+    pattern = identify_pattern(result.get("compare_correlations", {}))
+    if pattern == "systemic_anxiety":
+        return "建議關注宏觀經濟環境變化，多個相關主題同步上升"
+    elif pattern == "isolated_signal":
+        return "建議深入分析該主題的 related queries，識別特定驅動因素"
     else:
-        pattern = "mixed_signal"
-        explanation = "混合訊號，需進一步分析"
+        return "建議分段分析不同時間段的相關性變化"
 
-    return {
-        "pattern": pattern,
-        "same_direction_ratio": round(same_direction_ratio, 2),
-        "explanation": explanation,
-        "recent_changes": recent_changes
-    }
-```
-
-**Step 6: 組裝比較報告**
-
-```python
 report = {
-    "primary_topic": primary_topic,
-    "compare_topics": compare_topics,
-    "geo": geo,
-    "timeframe": timeframe,
-
-    "correlations": correlations,
-    "lag_analysis": lag_results if lag_analysis else None,
-    "resonance_pattern": resonance,
-
+    "primary_topic": "Health Insurance",
+    "compare_topics": ["Unemployment", "Inflation", "Medicare"],
+    "geo": "US",
+    "correlations": result["compare_correlations"],
     "interpretation": {
-        "signal_type": resonance['pattern'],
-        "explanation": resonance['explanation'],
-        "confidence": calculate_confidence(correlations, resonance)
+        "pattern": identify_pattern(result["compare_correlations"]),
+        "explanation": result.get("interpretation", "")
     },
-
-    "implications": generate_implications(resonance['pattern'], primary_topic),
-
-    "next_steps": [
-        "如果是 systemic_anxiety：檢查宏觀經濟指標（失業、通膨）",
-        "如果是 isolated_signal：深入分析該主題的 related queries",
-        "如果是 mixed_signal：擴大對照主題範圍或分段分析"
-    ]
+    "next_steps": generate_next_steps(result)
 }
 ```
 </process>
 
 <pattern_interpretation>
-**共振模式解讀：**
+**共振模式解讀**
 
-| 模式 | 特徵 | 解讀 |
-|------|------|------|
-| systemic_anxiety | 多個主題同步上升 | 整體經濟焦慮，非單一問題 |
-| isolated_signal | 單一主題獨立移動 | 特定事件或政策影響 |
-| mixed_signal | 部分同步、部分獨立 | 需細分時間段或擴大樣本 |
+| 模式 | 特徵 | 解讀 | 建議行動 |
+|------|------|------|----------|
+| systemic_anxiety | 多個主題同步上升 | 整體經濟焦慮，非單一問題 | 關注宏觀環境變化 |
+| isolated_signal | 單一主題獨立移動 | 特定事件或政策影響 | 深入分析該主題的 related queries |
+| mixed_signal | 部分同步、部分獨立 | 複合因素影響 | 分段分析不同時期 |
 
-**領先滯後解讀：**
+**範例解讀：**
 
-| 滯後 | 解讀 |
-|------|------|
-| 主題領先 | 主題可能是先行指標 |
-| 對照領先 | 對照主題可能是驅動因素 |
-| 同步 | 共同受第三因素影響 |
+- **Health Insurance + Unemployment 高相關**
+  → 經濟焦慮驅動（工作不穩定 → 擔心保險）
+
+- **Health Insurance + Medicare 高相關**
+  → 醫療系統焦慮（整體醫療關注度上升）
+
+- **Health Insurance 獨立上升**
+  → 可能為政策事件（Open Enrollment、法案變動）
 </pattern_interpretation>
 
 <success_criteria>
 此工作流程成功完成時：
-- [ ] 抓取所有主題的時間序列
-- [ ] 計算相關性矩陣
-- [ ] 完成領先/滯後分析（若啟用）
+- [ ] Selenium 成功啟動並抓取所有主題數據
+- [ ] 抓取所有主題的 Google Trends 時間序列
+- [ ] 計算相關係數
 - [ ] 識別共振模式
 - [ ] 給出解讀與下一步建議
 </success_criteria>
@@ -223,23 +182,40 @@ report = {
   "primary_topic": "Health Insurance",
   "compare_topics": ["Unemployment", "Inflation", "Medicare"],
   "geo": "US",
+  "timeframe": "2019-01-01 2025-12-31",
 
-  "correlations": {
-    "Unemployment": {"overall": 0.45, "recent": 0.62, "change": 0.17},
-    "Inflation": {"overall": 0.38, "recent": 0.55, "change": 0.17},
-    "Medicare": {"overall": 0.72, "recent": 0.68, "change": -0.04}
+  "compare_correlations": {
+    "Unemployment": 0.45,
+    "Inflation": 0.38,
+    "Medicare": 0.72
   },
 
-  "resonance_pattern": {
-    "pattern": "mixed_signal",
-    "same_direction_ratio": 0.67,
-    "explanation": "Medicare 高度相關但經濟指標近期相關性上升"
-  },
+  "interpretation": "與 Medicare 高度相關（>0.7），可能為系統性焦慮而非單點焦慮",
 
-  "interpretation": {
-    "signal_type": "mixed_signal",
-    "explanation": "Health Insurance 搜尋同時受醫療特定因素（Medicare 相關）和經濟焦慮（Unemployment/Inflation 相關性上升）影響"
-  }
+  "pattern": "mixed_signal",
+  "explanation": "Health Insurance 搜尋同時受醫療特定因素（Medicare 高相關）和經濟因素（Unemployment/Inflation 中度相關）影響"
 }
 ```
 </example_output>
+
+<rate_limit_warning>
+**速率限制警告**
+
+比較分析會為每個主題發送獨立請求：
+- 主要主題：1 次請求
+- 每個比較主題：1 次請求
+- 總計：1 + N 次請求（N = 比較主題數量）
+
+**建議：**
+1. 限制比較主題數量（≤3 個）
+2. 腳本已內建請求間 3-6 秒隨機延遲
+3. 若被封鎖，等待 24 小時後重試
+4. 考慮分批執行（每次比較 1-2 個主題）
+
+```bash
+# 分批執行範例
+python scripts/trend_fetcher.py --topic "Health Insurance" --compare "Unemployment" --output ./output/compare1.json
+# 等待幾分鐘
+python scripts/trend_fetcher.py --topic "Health Insurance" --compare "Medicare" --output ./output/compare2.json
+```
+</rate_limit_warning>

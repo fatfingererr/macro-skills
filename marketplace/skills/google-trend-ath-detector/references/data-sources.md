@@ -1,5 +1,5 @@
 <overview>
-Google Trend ATH Detector 使用的數據來源清單，包含主要數據（Google Trends）和驗證數據（FRED、BLS 等）。
+Google Trend ATH Detector 專用數據來源指南。本技能使用 Selenium 模擬真人瀏覽器行為抓取 Google Trends 數據。
 </overview>
 
 <google_trends>
@@ -8,178 +8,281 @@ Google Trend ATH Detector 使用的數據來源清單，包含主要數據（Goo
 | 項目 | 說明 |
 |------|------|
 | 官網 | https://trends.google.com |
-| Python 介面 | pytrends (https://pypi.org/project/pytrends/) |
-| 替代 API | SerpAPI Google Trends API |
+| 擷取方式 | Selenium + Chrome headless |
 | 數據類型 | 相對搜尋指數（0-100） |
 | 更新頻率 | 接近即時（2-3 天延遲） |
 | 歷史數據 | 2004 年至今 |
-
-**pytrends 安裝與使用：**
-
-```bash
-pip install pytrends
-```
-
-```python
-from pytrends.request import TrendReq
-
-pytrends = TrendReq(hl='en-US', tz=360)
-pytrends.build_payload(kw_list=['Health Insurance'], geo='US', timeframe='today 5-y')
-
-# Interest over time
-df = pytrends.interest_over_time()
-
-# Related queries
-related = pytrends.related_queries()
-```
-
-**注意事項：**
-- 非官方 API，可能被 rate limit
-- 每次最多 5 個關鍵字
-- 建議使用 proxies 避免封鎖
 </google_trends>
 
-<fred_data>
-**FRED 經濟數據**
+<data_types>
+**可取得的數據類型**
 
-| Series ID | 名稱 | 用途 |
-|-----------|------|------|
-| CUSR0000SAM | Medical Care CPI | 醫療成本壓力 |
-| CUSR0000SAM2 | Health Insurance CPI | 保險成本壓力 |
-| CPIAUCSL | CPI All Items | 整體通膨 |
-| PCEPILFE | Core PCE | 核心通膨（Fed 偏好） |
-| UNRATE | Unemployment Rate | 失業率 |
-| ICSA | Initial Claims | 初次申請失業救濟 |
-| PAYEMS | Nonfarm Payrolls | 非農就業 |
-| JTSJOL | Job Openings | 職位空缺 |
-| FEDFUNDS | Federal Funds Rate | 聯邦基金利率 |
-| UMCSENT | Consumer Sentiment | 消費者信心 |
+| 數據類型 | API 端點 | 說明 |
+|----------|----------|------|
+| Interest over time | multiline | 搜尋趨勢時間序列 |
+| Related queries | relatedsearches | 相關搜尋詞（Top 與 Rising） |
+| Related topics | relatedsearches | 相關主題 |
+| Interest by region | comparedgeo | 地區分布 |
+</data_types>
 
-**FRED API 使用：**
+<selenium_approach>
+**Selenium 爬取方式（本技能使用）**
 
-```python
-import pandas_datareader as pdr
+本技能的 `scripts/trend_fetcher.py` 使用 Selenium 模擬真人瀏覽器行為：
 
-# 抓取 Medical Care CPI
-medical_cpi = pdr.get_data_fred('CUSR0000SAM', start='2020-01-01')
+**安裝依賴：**
 
-# 或使用 fredapi
-from fredapi import Fred
-fred = Fred(api_key='YOUR_API_KEY')
-data = fred.get_series('CUSR0000SAM')
+```bash
+pip install selenium webdriver-manager beautifulsoup4 lxml loguru
 ```
 
-**官網：** https://fred.stlouisfed.org
-</fred_data>
+**基本使用：**
 
-<bls_data>
-**BLS 勞動統計數據**
+```python
+from scripts.trend_fetcher import fetch_trends, analyze_ath
 
-| 數據系列 | 說明 | 用途 |
-|----------|------|------|
-| CES Employment | 就業統計 | 行業就業變化 |
-| JOLTS | 職位空缺與離職 | 勞動市場健康度 |
-| CPI Detailed | CPI 細項 | 特定品類通膨 |
-| Layoffs and Discharges | 裁員數據 | 就業焦慮指標 |
+# 抓取數據（Selenium 自動處理 session 和 tokens）
+data = fetch_trends(
+    topic="Health Insurance",
+    geo="US",
+    timeframe="2004-01-01 2025-12-31"
+)
 
-**官網：** https://www.bls.gov
-</bls_data>
+# ATH 分析
+result = analyze_ath(data, threshold=2.5)
+```
 
-<cms_data>
-**CMS 醫療保險數據**
+**優點：**
+- 模擬真人瀏覽器，避免被偵測
+- 自動處理 JavaScript 渲染
+- 內建防偵測策略
+- 自動管理 ChromeDriver 版本
+</selenium_approach>
 
-| 數據 | 說明 | 用途 |
+<anti_detection_strategy>
+**防偵測策略**
+
+本技能實現以下防偵測措施（基於 design-human-like-crawler.md）：
+
+| 策略 | 實作 | 效果 |
 |------|------|------|
-| Medicaid Enrollment | Medicaid 參保人數 | 政策影響追蹤 |
-| Marketplace Enrollment | ACA 市場參保 | 投保季影響 |
-| Medicare Enrollment | Medicare 參保 | 醫療保險覆蓋 |
+| 移除 webdriver 標記 | `--disable-blink-features=AutomationControlled` | 防止 JS 偵測 |
+| 隨機 User-Agent | 5 種瀏覽器 UA 輪換 | 避免固定 UA 被識別 |
+| 隨機延遲 | 0.5-2 秒 + 3-5 秒頁面等待 | 模擬人類行為 |
+| 禁用自動化擴展 | `excludeSwitches: ['enable-automation']` | 移除 Chrome 痕跡 |
+| 先訪問首頁 | 建立正常 session | 避免直接 API 請求 |
 
-**官網：** https://www.cms.gov/data-research
-</cms_data>
+**User-Agent 池：**
 
-<alternative_attention_proxies>
-**替代注意力指標**
+```python
+USER_AGENTS = [
+    # Windows Chrome
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36...',
+    # macOS Chrome
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36...',
+    # Windows Firefox
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101...',
+    # macOS Safari
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15...',
+    # Linux Chrome
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36...'
+]
+```
 
-| 來源 | 說明 | 優點 | 缺點 |
+**Chrome 配置：**
+
+```python
+chrome_options = Options()
+chrome_options.add_argument('--headless')
+chrome_options.add_argument('--no-sandbox')
+chrome_options.add_argument('--disable-dev-shm-usage')
+chrome_options.add_argument('--disable-gpu')
+
+# 核心防偵測設定
+chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
+chrome_options.add_experimental_option('useAutomationExtension', False)
+```
+</anti_detection_strategy>
+
+<crawl_flow>
+**爬取流程**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     爬蟲流程總覽                              │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  1. 請求前準備                                               │
+│     ├─ 隨機延遲 (0.5-2 秒)                                  │
+│     ├─ 隨機選擇 User-Agent                                  │
+│     └─ 配置瀏覽器選項 (移除自動化標記)                       │
+│                                                              │
+│  2. Session 建立                                             │
+│     ├─ 先訪問 trends.google.com 首頁                        │
+│     ├─ 等待 cookies 建立 (2-3 秒)                           │
+│     └─ 瀏覽器保持同一 session                               │
+│                                                              │
+│  3. API 請求                                                 │
+│     ├─ 訪問 /api/explore 取得 widget tokens                 │
+│     ├─ 訪問 /api/widgetdata/multiline 取得時間序列          │
+│     └─ （可選）訪問 /api/widgetdata/relatedsearches         │
+│                                                              │
+│  4. 數據解析                                                 │
+│     ├─ 移除 XSS 保護前綴 ")]}'\\n"                          │
+│     ├─ JSON 解析                                             │
+│     └─ 提取 timelineData                                    │
+│                                                              │
+│  5. 清理                                                     │
+│     └─ driver.quit() 關閉瀏覽器                             │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+</crawl_flow>
+
+<topic_vs_keyword>
+**Topic Entity vs Search Term**
+
+Google Trends 支援兩種查詢方式：
+
+| 類型 | 說明 | 優點 | 缺點 |
 |------|------|------|------|
-| Wikipedia Pageviews | 頁面瀏覽量 | 有 API、精確到日 | 僅限維基百科主題 |
-| GDELT | 新聞注意力 | 涵蓋全球新聞 | 需要處理大數據 |
-| Reddit/Twitter API | 社群討論量 | 即時性高 | API 限制多 |
+| Topic Entity | Knowledge Graph 實體 | 避免歧義、涵蓋語言變體 | 部分主題無對應實體 |
+| Search Term | 純文字關鍵字 | 精確匹配 | 可能錯過變體 |
 
-**Wikipedia Pageviews API：**
+**範例：**
+- "Apple" 作為 Search Term → 包含水果和公司
+- "Apple" 作為 Topic (Tech company) → 僅限蘋果公司
 
-```python
-import requests
+**如何找 Topic Entity：**
+1. 在 trends.google.com 搜尋關鍵字
+2. 點選自動完成建議中帶有分類描述的項目
+3. URL 中的 mid 參數即為 Topic Entity ID
+</topic_vs_keyword>
 
-url = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/all-agents/Health_insurance/daily/20200101/20251231"
-response = requests.get(url, headers={'User-Agent': 'MacroSkills/1.0'})
-data = response.json()
-```
-</alternative_attention_proxies>
-
-<event_calendars>
-**事件日曆來源**
-
-| 事件類型 | 來源 | 時間點 |
-|----------|------|--------|
-| Open Enrollment | Healthcare.gov | 每年 11/1 - 1/15 |
-| Tax Season | IRS | 每年 1/27 - 4/15 |
-| Fed Meetings | Federal Reserve | FOMC 日曆 |
-| Jobs Report | BLS | 每月第一個週五 |
-| CPI Release | BLS | 每月中旬 |
-
-**Open Enrollment 時間（2024-2025 範例）：**
-
-```yaml
-open_enrollment_2025:
-  start: "2024-11-01"
-  end: "2025-01-15"
-  peak_search_period: "2024-11-01 to 2024-12-15"
-```
-</event_calendars>
-
-<data_access_patterns>
-**數據存取模式**
+<timeframe_formats>
+**時間範圍格式**
 
 ```python
-class DataSourceManager:
-    """統一數據來源管理"""
+# 絕對時間範圍
+"2004-01-01 2025-12-31"  # YYYY-MM-DD YYYY-MM-DD
 
-    def __init__(self, fred_api_key=None):
-        self.fred_key = fred_api_key
-
-    def get_google_trends(self, topic, geo, timeframe):
-        from pytrends.request import TrendReq
-        pytrends = TrendReq()
-        pytrends.build_payload([topic], geo=geo, timeframe=timeframe)
-        return pytrends.interest_over_time()
-
-    def get_fred_series(self, series_id, start_date=None):
-        from fredapi import Fred
-        fred = Fred(api_key=self.fred_key)
-        return fred.get_series(series_id, observation_start=start_date)
-
-    def get_related_queries(self, topic, geo, timeframe):
-        from pytrends.request import TrendReq
-        pytrends = TrendReq()
-        pytrends.build_payload([topic], geo=geo, timeframe=timeframe)
-        return pytrends.related_queries()
-
-    def get_wikipedia_pageviews(self, article, start, end):
-        import requests
-        url = f"https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/all-agents/{article}/daily/{start}/{end}"
-        response = requests.get(url, headers={'User-Agent': 'MacroSkills/1.0'})
-        return response.json()
+# 相對時間範圍
+"today 5-y"              # 過去 5 年
+"today 12-m"             # 過去 12 個月
+"today 3-m"              # 過去 3 個月
+"now 7-d"                # 過去 7 天
+"now 1-H"                # 過去 1 小時
 ```
-</data_access_patterns>
+
+**粒度自動選擇：**
+
+| 時間範圍 | 自動粒度 |
+|----------|----------|
+| < 7 天 | 小時 |
+| 7 天 - 9 個月 | 日 |
+| 9 個月 - 5 年 | 週 |
+| > 5 年 | 月 |
+</timeframe_formats>
+
+<geo_codes>
+**常用地區代碼**
+
+| 代碼 | 地區 |
+|------|------|
+| (空) | 全球 |
+| US | 美國 |
+| US-CA | 美國加州 |
+| GB | 英國 |
+| DE | 德國 |
+| JP | 日本 |
+| TW | 台灣 |
+| CN | 中國 |
+| HK | 香港 |
+| SG | 新加坡 |
+
+完整列表見 Google Trends 網站的地區選擇器。
+</geo_codes>
 
 <rate_limits>
 **速率限制與建議**
 
-| 來源 | 限制 | 建議 |
+| 情況 | 限制 | 建議 |
 |------|------|------|
-| Google Trends (pytrends) | ~10 req/min | 使用 proxies、加延遲 |
-| FRED API | 120 req/min | 無需特殊處理 |
-| Wikipedia | 100 req/sec | 批量抓取後本地快取 |
-| BLS API | 500 req/day | 每日執行、本地快取 |
+| 正常使用 | ~10 req/min | 每次請求間隔 1-3 秒 |
+| 被偵測為機器人 | 429 錯誤 | 使用 VPN/代理、增加延遲 |
+| 長時間大量抓取 | 可能被封鎖 | 分散請求時間、使用多 IP |
+
+**最佳實踐：**
+1. 模擬瀏覽器行為（Selenium + 防偵測配置）
+2. 請求間加入隨機延遲（1-3 秒）
+3. 先訪問首頁再進行 API 請求
+4. 若被封鎖，等待 24 小時或更換 IP
+5. 使用 `--no-related` 減少請求數量
 </rate_limits>
+
+<related_queries_guide>
+**Related Queries 解讀指南**
+
+| 類型 | 說明 | 用途 |
+|------|------|------|
+| Top | 最常被搜尋的相關詞 | 了解主要關聯概念 |
+| Rising | 上升幅度最大的相關詞 | 識別新興趨勢與驅動因素 |
+| Breakout | 上升超過 5000% | 全新出現的高熱度關鍵詞 |
+
+**範例解讀：**
+- Rising: "ACA enrollment deadline +450%" → 投保截止日驅動搜尋
+- Breakout: "new health law" → 新政策引發關注
+- Top: "health insurance plans" → 常態性搜尋需求
+</related_queries_guide>
+
+<troubleshooting>
+**常見問題處理**
+
+**問題 1：抓取失敗 / 被封鎖**
+
+```bash
+# 使用 debug 模式查看問題
+python scripts/trend_fetcher.py --topic "test" --debug --no-headless
+```
+
+**問題 2：ChromeDriver 版本不匹配**
+
+```bash
+# webdriver-manager 會自動下載匹配版本
+# 若仍有問題，嘗試更新：
+pip install --upgrade webdriver-manager
+```
+
+**問題 3：Linux/Docker 環境**
+
+```bash
+# 確保安裝必要依賴
+apt-get update && apt-get install -y \
+    chromium-browser \
+    chromium-chromedriver
+```
+
+**問題 4：記憶體洩漏**
+
+```python
+# 確保 driver 正確關閉
+finally:
+    if driver:
+        driver.quit()  # 使用 quit() 而非 close()
+```
+</troubleshooting>
+
+<alternative_attention_proxies>
+**輔助參考資料（可選）**
+
+若需進一步驗證 Google Trends 訊號，可參考以下公開資料：
+
+| 來源 | 網址 | 用途 |
+|------|------|------|
+| Wikipedia Pageviews | https://pageviews.wmcloud.org | 驗證特定主題熱度 |
+| Google News | https://news.google.com | 搜尋相關新聞事件 |
+| Reddit | https://www.reddit.com | 社群討論熱度 |
+
+**注意：** 這些資料僅供手動參考驗證，本技能不自動抓取。
+</alternative_attention_proxies>

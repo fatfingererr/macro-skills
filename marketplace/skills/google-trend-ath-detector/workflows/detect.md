@@ -2,11 +2,24 @@
 **執行此工作流程前，請先閱讀：**
 1. references/input-schema.md - 了解輸入參數
 2. references/signal-types.md - 了解訊號分型
+3. references/data-sources.md - 了解 Selenium 爬取方式
 </required_reading>
 
 <objective>
 快速偵測指定主題是否創下 ATH（歷史新高）或出現異常飆升。
+使用 Selenium 模擬真人瀏覽器行為抓取 Google Trends 數據。
 </objective>
+
+<prerequisites>
+**環境準備：**
+
+```bash
+# 安裝依賴
+pip install selenium webdriver-manager beautifulsoup4 lxml loguru
+```
+
+確保系統已安裝 Chrome 瀏覽器。
+</prerequisites>
 
 <process>
 **Step 1: 確認參數**
@@ -20,65 +33,54 @@ required:
   timeframe: "時間範圍（如 2004-01-01 2025-12-31）"
 
 optional:
-  granularity: "weekly"  # daily|weekly|monthly
-  use_topic_entity: true  # 使用 Topic Entity 避免歧義
   anomaly_threshold: 2.5  # z-score 門檻
+  headless: true          # 是否隱藏瀏覽器
+  debug: false            # 調試模式
 ```
 
-**Step 2: 抓取 Google Trends 數據**
+**Step 2: 使用 trend_fetcher.py 抓取數據並分析**
 
 ```python
-from pytrends.request import TrendReq
+from scripts.trend_fetcher import fetch_trends, analyze_ath
 
-pytrends = TrendReq(hl='en-US', tz=360)
-
-# 建立 payload
-pytrends.build_payload(
-    kw_list=[topic],
-    cat=0,
-    timeframe=timeframe,
-    geo=geo,
-    gprop=''
+# 抓取 Google Trends 數據（Selenium 自動處理 session）
+data = fetch_trends(
+    topic="Health Insurance",
+    geo="US",
+    timeframe="2004-01-01 2025-12-31",
+    headless=True,   # 隱藏瀏覽器
+    debug=False      # 調試模式
 )
 
-# 取得 Interest over time
-df = pytrends.interest_over_time()
+# ATH 分析（跳過 related queries 以加速）
+result = analyze_ath(data, threshold=2.5, include_related=False)
 ```
 
-**Step 3: ATH 判定**
+或使用 CLI：
 
-```python
-latest_value = float(df[topic].iloc[-1])
-hist_max = float(df[topic].max())
-
-is_ath = latest_value >= hist_max  # 或 >= hist_max - epsilon
+```bash
+python scripts/trend_fetcher.py \
+  --topic "Health Insurance" \
+  --geo US \
+  --no-related \
+  --output ./output/quick_detect.json
 ```
 
-**Step 4: 異常分數計算**
-
-```python
-from scipy import stats
-
-# 簡單 z-score（若無季節性分解）
-mean = df[topic].mean()
-std = df[topic].std()
-zscore = (latest_value - mean) / std
-
-is_anomaly = zscore >= anomaly_threshold
-```
-
-**Step 5: 輸出結果**
+**Step 3: 解讀結果**
 
 ```json
 {
   "topic": "Health Insurance",
   "geo": "US",
-  "latest": 100,
-  "hist_max": 100,
-  "is_all_time_high": true,
-  "zscore": 3.1,
-  "is_anomaly": true,
-  "recommendation": "建議進行深度分析（analyze workflow）以識別訊號類型與驅動因素"
+  "analysis": {
+    "latest_value": 100,
+    "historical_max": 100,
+    "zscore": 3.1,
+    "is_all_time_high": true,
+    "is_anomaly": true,
+    "signal_type": "regime_shift"
+  },
+  "recommendation": "搜尋趨勢創下歷史新高且異常飆升，建議進一步分析驅動因素"
 }
 ```
 </process>
@@ -96,6 +98,7 @@ is_anomaly = zscore >= anomaly_threshold
 
 <success_criteria>
 此工作流程成功完成時：
+- [ ] Selenium 成功啟動 Chrome 瀏覽器
 - [ ] 成功抓取 Google Trends 時間序列
 - [ ] 判定 ATH 狀態
 - [ ] 計算異常分數
@@ -105,7 +108,46 @@ is_anomaly = zscore >= anomaly_threshold
 <error_handling>
 **錯誤處理：**
 
-1. **429 Too Many Requests** → 等待後重試，建議使用 VPN 或 proxies
-2. **Topic 找不到** → 嘗試用純關鍵字而非 Topic Entity
-3. **數據不足** → 縮短時間範圍或改用月度數據
+1. **ChromeDriver 版本問題**
+   ```bash
+   pip install --upgrade webdriver-manager
+   ```
+
+2. **429 Too Many Requests / 被封鎖**
+   - 等待後重試（建議 24 小時）
+   - 使用 VPN 或代理
+   - 增加請求間隔
+
+3. **數據不足**
+   - 縮短時間範圍
+   - 確認主題名稱正確
+
+4. **請求失敗**
+   - 使用 `--debug --no-headless` 查看問題
+   ```bash
+   python scripts/trend_fetcher.py --topic "test" --debug --no-headless
+   ```
+
+5. **記憶體問題（Linux/Docker）**
+   - 確保安裝 chromium-browser
+   - 使用 `--no-sandbox` 選項（已內建）
 </error_handling>
+
+<debug_tips>
+**調試技巧：**
+
+```bash
+# 顯示瀏覽器視窗觀察行為
+python scripts/trend_fetcher.py --topic "test" --no-headless
+
+# 啟用調試模式（保存 HTML、輸出日誌）
+python scripts/trend_fetcher.py --topic "test" --debug
+
+# 結合兩者
+python scripts/trend_fetcher.py --topic "test" --debug --no-headless
+```
+
+調試模式會：
+- 保存 `debug_page.html` 供檢查
+- 輸出詳細日誌到 `trend_fetcher.log`
+</debug_tips>
