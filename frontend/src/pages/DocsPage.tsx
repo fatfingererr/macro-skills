@@ -49,7 +49,7 @@ export default function DocsPage() {
             <code className="text-green-400 text-sm">
               /plugin marketplace add fatfingererr/macro-skills
               <br />
-              /plugin marketplace enable macro-skills/economic-indicator-analyst
+              /plugin install economic-indicator-analyst@macro-skills
             </code>
           </div>
         </section>

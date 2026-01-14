@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import type { Skill } from '../../types/skill';
 import {
-  generateInstallCommand,
-  generateSkillEnableCommand,
+  generateMarketplaceAddCommand,
+  generateSkillInstallCommand,
 } from '../../services/skillService';
 import Button from '../common/Button';
 
@@ -13,10 +13,10 @@ interface InstallModalProps {
 
 export default function InstallModal({ skill, onClose }: InstallModalProps) {
   const [copiedAdd, setCopiedAdd] = useState(false);
-  const [copiedEnable, setCopiedEnable] = useState(false);
+  const [copiedInstall, setCopiedInstall] = useState(false);
 
-  const addCommand = generateInstallCommand(skill);
-  const enableCommand = generateSkillEnableCommand(skill.id);
+  const addCommand = generateMarketplaceAddCommand();
+  const installCommand = generateSkillInstallCommand(skill.id);
 
   const handleCopyAdd = async () => {
     try {
@@ -28,11 +28,11 @@ export default function InstallModal({ skill, onClose }: InstallModalProps) {
     }
   };
 
-  const handleCopyEnable = async () => {
+  const handleCopyInstall = async () => {
     try {
-      await navigator.clipboard.writeText(enableCommand);
-      setCopiedEnable(true);
-      setTimeout(() => setCopiedEnable(false), 2000);
+      await navigator.clipboard.writeText(installCommand);
+      setCopiedInstall(true);
+      setTimeout(() => setCopiedInstall(false), 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
@@ -80,19 +80,19 @@ export default function InstallModal({ skill, onClose }: InstallModalProps) {
             </div>
           </div>
 
-          {/* Step 2: Enable Skill */}
+          {/* Step 2: Install Skill */}
           <div className="mb-4">
             <p className="text-sm text-gray-600 mb-2">
-              <span className="font-medium">步驟 2：</span>啟用指定技能 (Skill)
+              <span className="font-medium">步驟 2：</span>安裝指定技能 (Skill)
             </p>
             <div className="flex items-center gap-2">
               <div className="flex-1 bg-gray-900 rounded-lg p-3">
                 <code className="text-sm text-green-400 break-all">
-                  {enableCommand}
+                  {installCommand}
                 </code>
               </div>
-              <Button size="sm" onClick={handleCopyEnable}>
-                {copiedEnable ? '已複製' : '複製'}
+              <Button size="sm" onClick={handleCopyInstall}>
+                {copiedInstall ? '已複製' : '複製'}
               </Button>
             </div>
           </div>

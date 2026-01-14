@@ -1,5 +1,5 @@
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
-import { generateMarketplaceInstallCommand, generateSkillEnableCommand } from '../../services/skillService';
+import { generateMarketplaceAddCommand, generateSkillInstallCommand } from '../../services/skillService';
 
 interface InstallGuideProps {
   skillId: string;
@@ -21,13 +21,13 @@ export default function InstallGuide({ skillId }: InstallGuideProps) {
       number: 1,
       title: '新增市集 (Marketplace)',
       description: '執行以下指令將技能市集加入 Claude Code',
-      command: generateMarketplaceInstallCommand(),
+      command: generateMarketplaceAddCommand(),
     },
     {
       number: 2,
-      title: '啟用技能 (Skill)',
-      description: '啟用指定的技能',
-      command: generateSkillEnableCommand(skillId),
+      title: '安裝技能 (Skill)',
+      description: '安裝指定的技能',
+      command: generateSkillInstallCommand(skillId),
     },
     {
       number: 3,
