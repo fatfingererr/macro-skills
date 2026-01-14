@@ -19,7 +19,7 @@
   "marketplace": {
     "configPath": "marketplace.json",
     "skillsPath": "../skills",
-    "indexPath": "../marketplace/index.json"
+    "indexPath": "index.json"
   },
   "compatibility": {
     "claude": ">=1.0.0"

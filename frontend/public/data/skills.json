@@ -1,5 +1,128 @@
 [
   {
+    "id": "wasde-ingestor",
+    "name": "wasde-ingestor",
+    "displayName": "WASDE 解析匯入器（USDA 月度供需錨點）",
+    "description": "下載並解析 USDA 每月發布的 WASDE 報告，擷取所有主要商品（穀物、油籽、棉花、畜產品、糖）的供需平衡表。輸出標準化、可版本化的資料集，作為即時預測（nowcasting）的錨定基準。",
+    "emoji": "🌾",
+    "version": "v0.1.0",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "USDA",
+      "WASDE",
+      "供給與需求",
+      "供需平衡表",
+      "宏觀",
+      "穀物",
+      "油籽",
+      "棉花",
+      "畜產品",
+      "小麥",
+      "玉米",
+      "黃豆",
+      "稻米"
+    ],
+    "category": "indicator-monitoring",
+    "dataLevel": "free-nolimit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": true,
+    "installCount": 0,
+    "content": "<essential_principles>\n**WASDE Ingestor 核心原則**\n\n**1. 商品範圍**\n\nWASDE 涵蓋三大類商品，每類有不同的表格結構與單位：\n\n| 類別      | 商品                                     | US 單位                   | World 單位           |\n|-----------|------------------------------------------|---------------------------|----------------------|\n| Grains    | Wheat, Corn, Rice, Barley, Sorghum, Oats | million bushels / cwt     | million metric tons  |\n| Oilseeds  | Soybeans, Soybean Oil, Soybean Meal      | million bushels / pounds  | million metric tons  |\n| Cotton    | Upland, Pima                             | million 480-lb bales      | million 480-lb bales |\n| Livestock | Beef, Pork, Poultry, Eggs, Dairy         | million lbs / dozen / lbs | - (US only)          |\n| Sugar     | Sugar                                    | 1,000 short tons          | - (US + Mexico only) |\n\n**2. 表格結構一致性**\n\n所有供需表遵循相同的平衡公式：\n```\nEnding Stocks = Beginning Stocks + Production + Imports - Total Use - Exports\n```\n\n**3. 版本控制**\n\n- 每月報告可能修正前期數據\n- 使用 `content_hash` 追蹤數據變化\n- 保留 `revision_flag` 標記修正值\n\n**4. 解析優先級**\n\n1. PDF 結構化解析（優先）\n2. HTML 表格解析（fallback）\n3. TXT 固定寬度解析（legacy）\n</essential_principles>\n\n<intake>\n**您想要執行什麼操作？**\n\n1. **Ingest** - 抓取並解析最新或指定月份的 WASDE 報告\n2. **Backfill** - 批量回補歷史 WASDE 數據\n3. **Validate** - 驗證現有數據與最新報告的一致性\n4. **Configure** - 配置商品範圍、輸出路徑等參數\n\n**等待回應後再繼續。**\n</intake>\n\n<routing>\n| Response                                | Workflow               | Description         |\n|-----------------------------------------|------------------------|---------------------|\n| 1, \"ingest\", \"fetch\", \"parse\", \"latest\" | workflows/ingest.md    | 抓取解析 WASDE 報告 |\n| 2, \"backfill\", \"historical\", \"batch\"    | workflows/backfill.md  | 批量回補歷史數據    |\n| 3, \"validate\", \"check\", \"verify\"        | workflows/validate.md  | 驗證數據一致性      |\n| 4, \"configure\", \"config\", \"setup\"       | workflows/configure.md | 配置參數            |\n\n**讀取工作流程後，請完全遵循其步驟。**\n</routing>\n\n<reference_index>\n**商品參考文件** (`references/`)\n\n| 文件                    | 內容                                               |\n|-------------------------|----------------------------------------------------|\n| commodities-overview.md | 所有商品總覽與單位對照                             |\n| grains.md               | 穀物類（Wheat, Corn, Rice, Barley, Sorghum, Oats） |\n| oilseeds.md             | 油籽類（Soybeans, Soybean Oil, Soybean Meal）      |\n| cotton.md               | 棉花（US & World）                                 |\n| livestock.md            | 畜產品（Beef, Pork, Poultry, Eggs, Dairy）         |\n| sugar.md                | 糖（US & Mexico）                                  |\n| validation-rules.md     | 驗證規則與合理性檢查                               |\n| failure-modes.md        | 失敗模式與緩解策略                                 |\n</reference_index>\n\n<workflows_index>\n| Workflow     | Purpose                       |\n|--------------|-------------------------------|\n| ingest.md    | 抓取解析單一或多個 WASDE 報告 |\n| backfill.md  | 批量回補歷史數據              |\n| validate.md  | 驗證數據一致性與修正追蹤      |\n| configure.md | 配置商品範圍與輸出設定        |\n</workflows_index>\n\n<templates_index>\n| Template                  | Purpose             |\n|---------------------------|---------------------|\n| config.yaml               | 標準配置文件模板    |\n| us-balance-schema.yaml    | US 供需表 schema    |\n| world-balance-schema.yaml | World 供需表 schema |\n</templates_index>\n\n<scripts_index>\n| Script               | Purpose                   |\n|----------------------|---------------------------|\n| discover_releases.py | 發現 WASDE 發布日期與 URL |\n| fetch_report.py      | 下載 PDF/HTML 報告        |\n| parse_tables.py      | 解析表格提取數據          |\n| validate_data.py     | 執行驗證檢查              |\n</scripts_index>\n\n<examples_index>\n**範例輸出** (`examples/`)\n\n| 文件                       | 內容                   |\n|----------------------------|------------------------|\n| corn_us_balance.json       | 美國玉米供需平衡表範例 |\n| wheat_world_balance.json   | 世界小麥供需平衡表範例 |\n| ingest_status_success.json | 成功執行的狀態報告範例 |\n| backfill_result.json       | 批量回補作業結果範例   |\n</examples_index>\n\n<quick_start>\n**CLI 快速開始：**\n\n```bash\n# 抓取最新報告的所有商品\nmacro-skills wasde ingest --commodities=all --out=./data\n\n# 只抓取穀物類\nmacro-skills wasde ingest --commodities=grains --out=./data\n\n# 回補過去 24 個月的大豆數據\nmacro-skills wasde backfill --commodity=soybeans --months=24 --out=./data\n\n# 驗證現有數據\nmacro-skills wasde validate --data-dir=./data\n```\n\n**Library 快速開始：**\n\n```python\nfrom macro_skills.wasde import WASDEIngestor\n\ningestor = WASDEIngestor(\n    commodities=[\"wheat\", \"corn\", \"soybeans\"],\n    scope=[\"us\", \"world\"],\n    output_dir=\"./data/wasde\"\n)\n\nresult = ingestor.ingest_latest()\nprint(result.status)\n```\n</quick_start>\n\n<success_criteria>\nSkill 成功執行時：\n- [ ] 正確識別商品類別與對應表格\n- [ ] 解析所有指定商品的供需數據\n- [ ] 單位正確轉換與標記\n- [ ] 通過平衡公式驗證\n- [ ] 輸出標準化 parquet 數據集\n- [ ] 生成 ingest_status 報告\n</success_criteria>\n\n<detailed_usage_examples>\n**詳細使用範例**\n\n**範例 1：抓取最新玉米與大豆數據**\n```\nUser: 幫我抓取最新 WASDE 的玉米和大豆供需數據\n\nAssistant 執行步驟:\n1. 讀取 workflows/ingest.md\n2. 呼叫 discover_releases.py 找到最新發布 (2025-01-10)\n3. 下載 PDF 報告\n4. 解析 corn_us, corn_world, soybeans_us, soybeans_world 表格\n5. 驗證平衡公式\n6. 輸出 parquet 檔案\n7. 回報 ingest_status\n\n預期輸出:\n- ./data/wasde/curated/corn_us_balance.parquet\n- ./data/wasde/curated/corn_world_balance.parquet\n- ./data/wasde/curated/soybeans_us_balance.parquet\n- ./data/wasde/curated/soybeans_world_balance.parquet\n```\n\n**範例 2：回補歷史小麥數據並追蹤修正**\n```\nUser: 回補過去 12 個月的小麥數據，我想追蹤 USDA 的修正歷程\n\nAssistant 執行步驟:\n1. 讀取 workflows/backfill.md\n2. 確定日期範圍 (2024-01 至 2024-12)\n3. 依序處理 12 期報告\n4. 比對每期數據，標記修正值\n5. 輸出包含 revision_flag 的完整歷史數據\n\n預期輸出:\n- 12 期小麥數據\n- 修正追蹤報告\n```\n\n**範例 3：驗證現有數據一致性**\n```\nUser: 檢查我現有的 WASDE 數據是否與最新報告一致\n\nAssistant 執行步驟:\n1. 讀取 workflows/validate.md\n2. 載入現有 parquet 檔案\n3. 抓取最新報告\n4. 逐欄位比對\n5. 標記差異與修正\n6. 輸出驗證報告\n\n預期輸出:\n- validation_report.json (差異列表)\n- 修正建議\n```\n</detailed_usage_examples>\n\n<data_pipeline_architecture>\n**數據流水線架構**\n\n```\n[USDA WASDE Website]\n         |\n         v\n+-------------------+\n| discover_releases |  --> 找到 PDF URL 與發布日期\n+-------------------+\n         |\n         v\n+-------------------+\n|   fetch_report    |  --> 下載 PDF (fallback: HTML)\n+-------------------+\n         |\n         v\n+-------------------+\n|   parse_tables    |  --> 提取供需表格數據\n+-------------------+\n         |\n         v\n+-------------------+\n|   normalize_data  |  --> 標準化欄位與單位\n+-------------------+\n         |\n         v\n+-------------------+\n|   validate_data   |  --> 平衡公式與範圍檢查\n+-------------------+\n         |\n         v\n+-------------------+\n|   write_output    |  --> Parquet / JSON\n+-------------------+\n         |\n         v\n[Curated Dataset]\n```\n\n**目錄結構：**\n```\ndata/wasde/\n├── raw/                    # 原始 PDF 檔案\n│   └── 2025-01-10/\n│       └── wasde0125.pdf\n├── intermediate/           # 中間解析結果\n│   └── 2025-01-10/\n│       ├── tables.json\n│       └── ingest_status.json\n└── curated/                # 最終標準化數據\n    ├── corn_us_balance.parquet\n    ├── corn_world_balance.parquet\n    ├── wheat_us_balance.parquet\n    └── ...\n```\n</data_pipeline_architecture>",
+    "path": "skills/wasde-ingestor/SKILL.md",
+    "directoryStructure": "wasde-ingestor/\n├── examples\n│   ├── backfill_result.json\n│   ├── corn_us_balance.json\n│   ├── ingest_status_success.json\n│   └── wheat_world_balance.json\n├── manifest.json\n├── references\n│   ├── commodities-overview.md\n│   ├── cotton.md\n│   ├── failure-modes.md\n│   ├── grains.md\n│   ├── livestock.md\n│   ├── oilseeds.md\n│   ├── sugar.md\n│   └── validation-rules.md\n├── scripts\n│   ├── discover_releases.py\n│   ├── fetch_report.py\n│   ├── parse_tables.py\n│   └── validate_data.py\n├── SKILL.md\n├── templates\n│   ├── config.yaml\n│   ├── us-balance-schema.yaml\n│   └── world-balance-schema.yaml\n└── workflows\n    ├── backfill.md\n    ├── configure.md\n    ├── ingest.md\n    └── validate.md",
+    "lastUpdated": "2026-01-14",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "匯入最新一期 WASDE 報告中的所有穀物資料（小麥、玉米、稻米）",
+        "expectedResult": "此匯入器會：\n1. 找出最新一期 WASDE 發布版本\n2. 下載 PDF 並解析穀物相關表格\n3. 擷取美國與全球的小麥、玉米、稻米供需平衡表\n4. 輸出標準化的 Parquet 資料集\n"
+      },
+      {
+        "question": "回補過去 36 個月的 WASDE 玉米資料",
+        "expectedResult": "此匯入器會處理 36 期每月發布版本，擷取玉米供需平衡表，\n並維持一致的 schema、內容雜湊（content hashes）與資料驗證檢查。\n"
+      },
+      {
+        "question": "將既有 WASDE 資料與最新報告進行比對驗證",
+        "expectedResult": "驗證器會將已儲存的資料與最新解析結果比對，標記任何修訂，\n並回報 schema 漂移或資料更正。\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 70,
+      "badge": "白銀",
+      "metrics": {
+        "architecture": 80,
+        "maintainability": 85,
+        "content": 95,
+        "community": 30,
+        "security": 100,
+        "compliance": 70
+      },
+      "details": "**架構（80/100）**\n- ✅ 模組化 router pattern 設計\n- ✅ 完整涵蓋所有 WASDE 商品類別\n- ⚠️ Alpha 階段，需更多實際使用驗證\n\n**可維護性（85/100）**\n- ✅ 清晰的工作流程分離\n- ✅ 商品參考文件獨立維護\n\n**內容（95/100）**\n- ✅ 涵蓋所有 WASDE 商品\n- ✅ 詳細的欄位映射與驗證規則\n\n**社區（30/100）**\n- ⚠️ 新技能，尚無社區貢獻\n\n**安全（100/100）**\n- ✅ 僅讀取公開 USDA 數據\n\n**規範符合性（70/100）**\n- ✅ 遵循 Claude Code 規範\n- ⚠️ Alpha 階段\n"
+    },
+    "bestPractices": [
+      {
+        "title": "等待 WASDE 正式發布",
+        "description": "WASDE 通常在每月 10-12 日發布，確認官方發布後再執行 ingest"
+      },
+      {
+        "title": "保留原始 PDF 備份",
+        "description": "保存原始報告 PDF 以便在解析失敗時進行人工檢查"
+      },
+      {
+        "title": "監控 schema drift",
+        "description": "USDA 可能調整表格格式，定期檢查 schema_hash 變化"
+      },
+      {
+        "title": "使用 content_hash 進行版本控制",
+        "description": "利用 content_hash 確保數據冪等性"
+      },
+      {
+        "title": "注意數據修正",
+        "description": "WASDE 會在後續月份修正歷史數據，需追蹤修正值"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "忽略 PDF 佈局變化",
+        "description": "USDA 可能在無預警情況下調整 PDF 格式",
+        "consequence": "可能產生錯誤數據或完全無法解析"
+      },
+      {
+        "title": "單位混淆",
+        "description": "不同商品使用不同單位（bushels, cwt, metric tons 等）",
+        "consequence": "供需計算完全錯誤"
+      },
+      {
+        "title": "忽略行銷年度差異",
+        "description": "不同商品的行銷年度起始月份不同",
+        "consequence": "時間序列對齊錯誤"
+      }
+    ],
+    "faq": [
+      {
+        "question": "WASDE 報告涵蓋哪些商品？",
+        "answer": "WASDE 涵蓋以下商品類別：\n\n**穀物 (Grains)**\n- 小麥 (Wheat) - 包含 by-class 細分\n- 玉米 (Corn)\n- 稻米 (Rice) - 長粒/中短粒\n- 大麥 (Barley)\n- 高粱 (Sorghum)\n- 燕麥 (Oats)\n\n**油籽 (Oilseeds)**\n- 大豆 (Soybeans)\n- 豆油 (Soybean Oil)\n- 豆粕 (Soybean Meal)\n\n**棉花 (Cotton)**\n- 美國棉花供需\n- 世界棉花供需\n\n**畜產品 (Livestock) - 僅美國**\n- 牛肉 (Beef)\n- 豬肉 (Pork)\n- 禽肉 (Poultry)\n- 雞蛋 (Eggs)\n- 乳製品 (Dairy/Milk)\n\n**糖 (Sugar)**\n- 美國糖供需\n- 墨西哥糖供需\n"
+      },
+      {
+        "question": "不同商品的行銷年度是什麼？",
+        "answer": "| 商品 | 美國行銷年度 | 世界行銷年度 |\n|------|--------------|--------------|\n| 小麥 | Jun-May      | Jul-Jun      |\n| 玉米 | Sep-Aug      | Oct-Sep      |\n| 大豆 | Sep-Aug      | Oct-Sep      |\n| 稻米 | Aug-Jul      | Jan-Dec      |\n| 棉花 | Aug-Jul      | Aug-Jul      |\n"
+      },
+      {
+        "question": "數據來源與發布時間？",
+        "answer": "- **官網**: https://www.usda.gov/oce/commodity/wasde\n- **發布日期**: 每月約 10-12 日\n- **發布時間**: 美東時間中午 12:00\n- **格式**: PDF, TXT\n- **歷史檔案**: https://esmis.nal.usda.gov/\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 數據來源\n\n所有數據來自 USDA 官方 WASDE 報告：\n- 官網：https://www.usda.gov/oce/commodity/wasde\n- 歷史檔案：https://esmis.nal.usda.gov/\n- 數據類型：公開、免費、無限制使用\n\n## 編製單位\n\nWASDE 由 World Agricultural Outlook Board (WAOB) 編製，\n整合以下機構資料：\n- Agricultural Marketing Service (AMS)\n- Economic Research Service (ERS)\n- Farm Service Agency (FSA)\n- Foreign Agricultural Service (FAS)\n- National Agricultural Statistics Service (NASS)\n"
+    }
+  },
+  {
     "id": "google-trends-ath-detector",
     "name": "google-trends-ath-detector",
     "displayName": "Google Trends 歷史新高 (ATH) 偵測器",
@@ -27,6 +150,7 @@
     "content": "<essential_principles>\n**Google Trends ATH Detector 核心原則**\n\n**1. 模擬真人瀏覽器行為抓取 Google Trends**\n\n本技能使用 Selenium 模擬真人瀏覽器：\n- 移除 `navigator.webdriver` 自動化標記\n- 隨機輪換 User-Agent（Chrome/Firefox/Safari）\n- 請求間隨機延遲（0.5-2 秒）\n- 先訪問首頁建立 session，再抓取數據\n\n**2. 訊號分型（Signal Typing）**\n\n搜尋趨勢飆升分為三種類型：\n\n| 類型               | 特徵                 | 解讀                         |\n|--------------------|----------------------|------------------------------|\n| Seasonal spike     | 每年固定月份重複     | 制度性週期（投保季、報稅季） |\n| Event-driven shock | 短期尖峰、z-score 高 | 新聞/政策/突發事件           |\n| Regime shift       | 趨勢線上移、持續高位 | 結構性關注上升               |\n\n**3. 分析公式**\n\n```\nATH 判定：latest_value >= max(history) * 0.98\n異常判定：zscore >= threshold (default: 2.5)\n訊號分型：based on (is_ath, is_anomaly, trend_direction)\n```\n\n**4. 描述性分析優先**\n\n本技能提供**客觀的數學分析結果**：\n- 輸出訊號類型、異常分數等量化指標\n- 提取 related queries 作為驅動因素參考\n- 由用戶根據專業知識自行解讀\n</essential_principles>\n\n<intake>\n**您想要執行什麼操作？**\n\n1. **Detect** - 快速偵測是否創下 ATH 或出現異常\n2. **Analyze** - 深度分析訊號類型與驅動因素\n3. **Compare** - 比較多個主題的趨勢共振\n\n**等待回應後再繼續。**\n</intake>\n\n<routing>\n| Response                                  | Workflow             | Description         |\n|-------------------------------------------|----------------------|---------------------|\n| 1, \"detect\", \"ath\", \"check\", \"是否創新高\" | workflows/detect.md  | 快速偵測 ATH 與異常 |\n| 2, \"analyze\", \"deep\", \"分析\", \"訊號\"      | workflows/analyze.md | 深度分析與訊號分型  |\n| 3, \"compare\", \"對照\", \"共振\"              | workflows/compare.md | 多主題趨勢比較      |\n\n**讀取工作流程後，請完全遵循其步驟。**\n</routing>\n\n<reference_index>\n**參考文件** (`references/`)\n\n| 文件                 | 內容                                       |\n|----------------------|--------------------------------------------|\n| input-schema.md      | 完整輸入參數定義與預設值                   |\n| data-sources.md      | Google Trends 數據來源與 Selenium 爬取指南 |\n| signal-types.md      | 訊號分型定義與判定邏輯                     |\n| seasonality-guide.md | 季節性分解方法與解讀                       |\n</reference_index>\n\n<workflows_index>\n| Workflow   | Purpose                      |\n|------------|------------------------------|\n| detect.md  | 快速偵測 ATH 與異常分數      |\n| analyze.md | 深度分析、訊號分型、驅動詞彙 |\n| compare.md | 多主題趨勢共振分析           |\n</workflows_index>\n\n<templates_index>\n| Template           | Purpose              |\n|--------------------|----------------------|\n| output-schema.yaml | 標準輸出 JSON schema |\n</templates_index>\n\n<scripts_index>\n| Script           | Purpose                           |\n|------------------|-----------------------------------|\n| trend_fetcher.py | 核心爬蟲與分析邏輯（Selenium 版） |\n</scripts_index>\n\n<examples_index>\n**範例輸出** (`examples/`)\n\n| 文件                        | 內容                          |\n|-----------------------------|-------------------------------|\n| health_insurance_ath.json   | Health Insurance ATH 偵測範例 |\n| seasonal_vs_anomaly.json    | 季節性 vs 異常判定範例        |\n| multi_topic_comparison.json | 多主題比較範例                |\n</examples_index>\n\n<quick_start>\n**快速開始：安裝依賴**\n\n```bash\npip install selenium webdriver-manager beautifulsoup4 lxml loguru\n```\n\n**Python API：**\n\n```python\nfrom scripts.trend_fetcher import fetch_trends, analyze_ath\n\n# 抓取數據（使用 Selenium 模擬瀏覽器）\ndata = fetch_trends(\n    topic=\"Health Insurance\",\n    geo=\"US\",\n    timeframe=\"2004-01-01 2025-12-31\"\n)\n\n# ATH 分析\nresult = analyze_ath(data, threshold=2.5)\n\nprint(f\"Is ATH: {result['analysis']['is_all_time_high']}\")\nprint(f\"Signal Type: {result['analysis']['signal_type']}\")\nprint(f\"Z-Score: {result['analysis']['zscore']}\")\n```\n\n**CLI 快速開始：**\n\n```bash\n# 基本分析\npython scripts/trend_fetcher.py \\\n  --topic \"Health Insurance\" \\\n  --geo US \\\n  --output ./output/health_insurance.json\n\n# 比較多個主題\npython scripts/trend_fetcher.py \\\n  --topic \"Health Insurance\" \\\n  --compare \"Unemployment,Inflation\" \\\n  --geo US \\\n  --output ./output/comparison.json\n\n# 跳過 related queries（更快、更少請求）\npython scripts/trend_fetcher.py \\\n  --topic \"Health Insurance\" \\\n  --no-related \\\n  --output ./output/health_insurance.json\n\n# Debug 模式（顯示瀏覽器、保存 HTML）\npython scripts/trend_fetcher.py \\\n  --topic \"Health Insurance\" \\\n  --debug \\\n  --no-headless\n```\n\n**CLI 參數說明：**\n\n| 參數            | 說明                 | 預設值                |\n|-----------------|----------------------|-----------------------|\n| `--topic`       | 搜尋主題（必要）     | -                     |\n| `--geo`         | 地區代碼             | US                    |\n| `--timeframe`   | 時間範圍             | 2004-01-01 2025-12-31 |\n| `--threshold`   | 異常 z-score 門檻    | 2.5                   |\n| `--compare`     | 比較主題（逗號分隔） | -                     |\n| `--no-related`  | 跳過 related queries | false                 |\n| `--no-headless` | 顯示瀏覽器視窗       | false                 |\n| `--debug`       | 啟用調試模式         | false                 |\n| `--output`      | 輸出 JSON 檔案路徑   | -                     |\n</quick_start>\n\n<success_criteria>\nSkill 成功執行時：\n- [ ] Selenium 成功啟動並模擬瀏覽器\n- [ ] 正確抓取 Google Trends 時間序列\n- [ ] 判定 ATH 狀態與異常分數\n- [ ] 識別訊號類型（seasonal/event/regime）\n- [ ] 提取 related queries 驅動詞彙（若啟用）\n- [ ] 輸出結構化 JSON 結果\n</success_criteria>\n\n<anti_detection_strategy>\n**防偵測策略摘要**\n\n本技能實現以下防偵測措施（基於 design-human-like-crawler.md）：\n\n| 策略                       | 效果               | 優先級  |\n|----------------------------|--------------------|---------|\n| 移除 `navigator.webdriver` | 核心，防止 JS 偵測 | 🔴 必要 |\n| 隨機 User-Agent            | 避免固定 UA 被識別 | 🔴 必要 |\n| 請求前隨機延遲             | 模擬人類行為       | 🔴 必要 |\n| 禁用自動化擴展             | 移除 Chrome 痕跡   | 🟡 建議 |\n| 先訪問首頁再 API           | 建立正常 session   | 🟡 建議 |\n\n**Chrome 選項配置：**\n\n```python\nchrome_options.add_argument('--disable-blink-features=AutomationControlled')\nchrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])\nchrome_options.add_experimental_option('useAutomationExtension', False)\n```\n</anti_detection_strategy>",
     "path": "skills/google-trends-ath-detector/SKILL.md",
     "directoryStructure": "google-trends-ath-detector/\n├── examples\n│   ├── health_insurance_ath.json\n│   ├── multi_topic_comparison.json\n│   └── seasonal_vs_anomaly.json\n├── manifest.json\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   ├── seasonality-guide.md\n│   └── signal-types.md\n├── scripts\n│   └── trend_fetcher.py\n├── SKILL.md\n├── templates\n│   └── output-schema.yaml\n└── workflows\n    ├── analyze.md\n    ├── compare.md\n    └── detect.md",
+    "lastUpdated": "2026-01-14",
     "rating": 3,
     "testQuestions": [
       {
@@ -133,128 +257,6 @@
     }
   },
   {
-    "id": "wasde-ingestor",
-    "name": "wasde-ingestor",
-    "displayName": "WASDE 解析匯入器（USDA 月度供需錨點）",
-    "description": "下載並解析 USDA 每月發布的 WASDE 報告，擷取所有主要商品（穀物、油籽、棉花、畜產品、糖）的供需平衡表。輸出標準化、可版本化的資料集，作為即時預測（nowcasting）的錨定基準。",
-    "emoji": "🌾",
-    "version": "v0.1.0",
-    "license": "MIT",
-    "author": "Ricky Wang",
-    "authorUrl": "https://github.com/fatfingererr/macro-skills",
-    "tags": [
-      "USDA",
-      "WASDE",
-      "供給與需求",
-      "供需平衡表",
-      "宏觀",
-      "穀物",
-      "油籽",
-      "棉花",
-      "畜產品",
-      "小麥",
-      "玉米",
-      "黃豆",
-      "稻米"
-    ],
-    "category": "indicator-monitoring",
-    "dataLevel": "free-nolimit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": true,
-    "installCount": 0,
-    "content": "<essential_principles>\n**WASDE Ingestor 核心原則**\n\n**1. 商品範圍**\n\nWASDE 涵蓋三大類商品，每類有不同的表格結構與單位：\n\n| 類別      | 商品                                     | US 單位                   | World 單位           |\n|-----------|------------------------------------------|---------------------------|----------------------|\n| Grains    | Wheat, Corn, Rice, Barley, Sorghum, Oats | million bushels / cwt     | million metric tons  |\n| Oilseeds  | Soybeans, Soybean Oil, Soybean Meal      | million bushels / pounds  | million metric tons  |\n| Cotton    | Upland, Pima                             | million 480-lb bales      | million 480-lb bales |\n| Livestock | Beef, Pork, Poultry, Eggs, Dairy         | million lbs / dozen / lbs | - (US only)          |\n| Sugar     | Sugar                                    | 1,000 short tons          | - (US + Mexico only) |\n\n**2. 表格結構一致性**\n\n所有供需表遵循相同的平衡公式：\n```\nEnding Stocks = Beginning Stocks + Production + Imports - Total Use - Exports\n```\n\n**3. 版本控制**\n\n- 每月報告可能修正前期數據\n- 使用 `content_hash` 追蹤數據變化\n- 保留 `revision_flag` 標記修正值\n\n**4. 解析優先級**\n\n1. PDF 結構化解析（優先）\n2. HTML 表格解析（fallback）\n3. TXT 固定寬度解析（legacy）\n</essential_principles>\n\n<intake>\n**您想要執行什麼操作？**\n\n1. **Ingest** - 抓取並解析最新或指定月份的 WASDE 報告\n2. **Backfill** - 批量回補歷史 WASDE 數據\n3. **Validate** - 驗證現有數據與最新報告的一致性\n4. **Configure** - 配置商品範圍、輸出路徑等參數\n\n**等待回應後再繼續。**\n</intake>\n\n<routing>\n| Response                                | Workflow               | Description         |\n|-----------------------------------------|------------------------|---------------------|\n| 1, \"ingest\", \"fetch\", \"parse\", \"latest\" | workflows/ingest.md    | 抓取解析 WASDE 報告 |\n| 2, \"backfill\", \"historical\", \"batch\"    | workflows/backfill.md  | 批量回補歷史數據    |\n| 3, \"validate\", \"check\", \"verify\"        | workflows/validate.md  | 驗證數據一致性      |\n| 4, \"configure\", \"config\", \"setup\"       | workflows/configure.md | 配置參數            |\n\n**讀取工作流程後，請完全遵循其步驟。**\n</routing>\n\n<reference_index>\n**商品參考文件** (`references/`)\n\n| 文件                    | 內容                                               |\n|-------------------------|----------------------------------------------------|\n| commodities-overview.md | 所有商品總覽與單位對照                             |\n| grains.md               | 穀物類（Wheat, Corn, Rice, Barley, Sorghum, Oats） |\n| oilseeds.md             | 油籽類（Soybeans, Soybean Oil, Soybean Meal）      |\n| cotton.md               | 棉花（US & World）                                 |\n| livestock.md            | 畜產品（Beef, Pork, Poultry, Eggs, Dairy）         |\n| sugar.md                | 糖（US & Mexico）                                  |\n| validation-rules.md     | 驗證規則與合理性檢查                               |\n| failure-modes.md        | 失敗模式與緩解策略                                 |\n</reference_index>\n\n<workflows_index>\n| Workflow     | Purpose                       |\n|--------------|-------------------------------|\n| ingest.md    | 抓取解析單一或多個 WASDE 報告 |\n| backfill.md  | 批量回補歷史數據              |\n| validate.md  | 驗證數據一致性與修正追蹤      |\n| configure.md | 配置商品範圍與輸出設定        |\n</workflows_index>\n\n<templates_index>\n| Template                  | Purpose             |\n|---------------------------|---------------------|\n| config.yaml               | 標準配置文件模板    |\n| us-balance-schema.yaml    | US 供需表 schema    |\n| world-balance-schema.yaml | World 供需表 schema |\n</templates_index>\n\n<scripts_index>\n| Script               | Purpose                   |\n|----------------------|---------------------------|\n| discover_releases.py | 發現 WASDE 發布日期與 URL |\n| fetch_report.py      | 下載 PDF/HTML 報告        |\n| parse_tables.py      | 解析表格提取數據          |\n| validate_data.py     | 執行驗證檢查              |\n</scripts_index>\n\n<examples_index>\n**範例輸出** (`examples/`)\n\n| 文件                       | 內容                   |\n|----------------------------|------------------------|\n| corn_us_balance.json       | 美國玉米供需平衡表範例 |\n| wheat_world_balance.json   | 世界小麥供需平衡表範例 |\n| ingest_status_success.json | 成功執行的狀態報告範例 |\n| backfill_result.json       | 批量回補作業結果範例   |\n</examples_index>\n\n<quick_start>\n**CLI 快速開始：**\n\n```bash\n# 抓取最新報告的所有商品\nmacro-skills wasde ingest --commodities=all --out=./data\n\n# 只抓取穀物類\nmacro-skills wasde ingest --commodities=grains --out=./data\n\n# 回補過去 24 個月的大豆數據\nmacro-skills wasde backfill --commodity=soybeans --months=24 --out=./data\n\n# 驗證現有數據\nmacro-skills wasde validate --data-dir=./data\n```\n\n**Library 快速開始：**\n\n```python\nfrom macro_skills.wasde import WASDEIngestor\n\ningestor = WASDEIngestor(\n    commodities=[\"wheat\", \"corn\", \"soybeans\"],\n    scope=[\"us\", \"world\"],\n    output_dir=\"./data/wasde\"\n)\n\nresult = ingestor.ingest_latest()\nprint(result.status)\n```\n</quick_start>\n\n<success_criteria>\nSkill 成功執行時：\n- [ ] 正確識別商品類別與對應表格\n- [ ] 解析所有指定商品的供需數據\n- [ ] 單位正確轉換與標記\n- [ ] 通過平衡公式驗證\n- [ ] 輸出標準化 parquet 數據集\n- [ ] 生成 ingest_status 報告\n</success_criteria>\n\n<detailed_usage_examples>\n**詳細使用範例**\n\n**範例 1：抓取最新玉米與大豆數據**\n```\nUser: 幫我抓取最新 WASDE 的玉米和大豆供需數據\n\nAssistant 執行步驟:\n1. 讀取 workflows/ingest.md\n2. 呼叫 discover_releases.py 找到最新發布 (2025-01-10)\n3. 下載 PDF 報告\n4. 解析 corn_us, corn_world, soybeans_us, soybeans_world 表格\n5. 驗證平衡公式\n6. 輸出 parquet 檔案\n7. 回報 ingest_status\n\n預期輸出:\n- ./data/wasde/curated/corn_us_balance.parquet\n- ./data/wasde/curated/corn_world_balance.parquet\n- ./data/wasde/curated/soybeans_us_balance.parquet\n- ./data/wasde/curated/soybeans_world_balance.parquet\n```\n\n**範例 2：回補歷史小麥數據並追蹤修正**\n```\nUser: 回補過去 12 個月的小麥數據，我想追蹤 USDA 的修正歷程\n\nAssistant 執行步驟:\n1. 讀取 workflows/backfill.md\n2. 確定日期範圍 (2024-01 至 2024-12)\n3. 依序處理 12 期報告\n4. 比對每期數據，標記修正值\n5. 輸出包含 revision_flag 的完整歷史數據\n\n預期輸出:\n- 12 期小麥數據\n- 修正追蹤報告\n```\n\n**範例 3：驗證現有數據一致性**\n```\nUser: 檢查我現有的 WASDE 數據是否與最新報告一致\n\nAssistant 執行步驟:\n1. 讀取 workflows/validate.md\n2. 載入現有 parquet 檔案\n3. 抓取最新報告\n4. 逐欄位比對\n5. 標記差異與修正\n6. 輸出驗證報告\n\n預期輸出:\n- validation_report.json (差異列表)\n- 修正建議\n```\n</detailed_usage_examples>\n\n<data_pipeline_architecture>\n**數據流水線架構**\n\n```\n[USDA WASDE Website]\n         |\n         v\n+-------------------+\n| discover_releases |  --> 找到 PDF URL 與發布日期\n+-------------------+\n         |\n         v\n+-------------------+\n|   fetch_report    |  --> 下載 PDF (fallback: HTML)\n+-------------------+\n         |\n         v\n+-------------------+\n|   parse_tables    |  --> 提取供需表格數據\n+-------------------+\n         |\n         v\n+-------------------+\n|   normalize_data  |  --> 標準化欄位與單位\n+-------------------+\n         |\n         v\n+-------------------+\n|   validate_data   |  --> 平衡公式與範圍檢查\n+-------------------+\n         |\n         v\n+-------------------+\n|   write_output    |  --> Parquet / JSON\n+-------------------+\n         |\n         v\n[Curated Dataset]\n```\n\n**目錄結構：**\n```\ndata/wasde/\n├── raw/                    # 原始 PDF 檔案\n│   └── 2025-01-10/\n│       └── wasde0125.pdf\n├── intermediate/           # 中間解析結果\n│   └── 2025-01-10/\n│       ├── tables.json\n│       └── ingest_status.json\n└── curated/                # 最終標準化數據\n    ├── corn_us_balance.parquet\n    ├── corn_world_balance.parquet\n    ├── wheat_us_balance.parquet\n    └── ...\n```\n</data_pipeline_architecture>",
-    "path": "skills/wasde-ingestor/SKILL.md",
-    "directoryStructure": "wasde-ingestor/\n├── examples\n│   ├── backfill_result.json\n│   ├── corn_us_balance.json\n│   ├── ingest_status_success.json\n│   └── wheat_world_balance.json\n├── manifest.json\n├── references\n│   ├── commodities-overview.md\n│   ├── cotton.md\n│   ├── failure-modes.md\n│   ├── grains.md\n│   ├── livestock.md\n│   ├── oilseeds.md\n│   ├── sugar.md\n│   └── validation-rules.md\n├── scripts\n│   ├── discover_releases.py\n│   ├── fetch_report.py\n│   ├── parse_tables.py\n│   └── validate_data.py\n├── SKILL.md\n├── templates\n│   ├── config.yaml\n│   ├── us-balance-schema.yaml\n│   └── world-balance-schema.yaml\n└── workflows\n    ├── backfill.md\n    ├── configure.md\n    ├── ingest.md\n    └── validate.md",
-    "rating": 3,
-    "testQuestions": [
-      {
-        "question": "匯入最新一期 WASDE 報告中的所有穀物資料（小麥、玉米、稻米）",
-        "expectedResult": "此匯入器會：\n1. 找出最新一期 WASDE 發布版本\n2. 下載 PDF 並解析穀物相關表格\n3. 擷取美國與全球的小麥、玉米、稻米供需平衡表\n4. 輸出標準化的 Parquet 資料集\n"
-      },
-      {
-        "question": "回補過去 36 個月的 WASDE 玉米資料",
-        "expectedResult": "此匯入器會處理 36 期每月發布版本，擷取玉米供需平衡表，\n並維持一致的 schema、內容雜湊（content hashes）與資料驗證檢查。\n"
-      },
-      {
-        "question": "將既有 WASDE 資料與最新報告進行比對驗證",
-        "expectedResult": "驗證器會將已儲存的資料與最新解析結果比對，標記任何修訂，\n並回報 schema 漂移或資料更正。\n"
-      }
-    ],
-    "qualityScore": {
-      "overall": 70,
-      "badge": "白銀",
-      "metrics": {
-        "architecture": 80,
-        "maintainability": 85,
-        "content": 95,
-        "community": 30,
-        "security": 100,
-        "compliance": 70
-      },
-      "details": "**架構（80/100）**\n- ✅ 模組化 router pattern 設計\n- ✅ 完整涵蓋所有 WASDE 商品類別\n- ⚠️ Alpha 階段，需更多實際使用驗證\n\n**可維護性（85/100）**\n- ✅ 清晰的工作流程分離\n- ✅ 商品參考文件獨立維護\n\n**內容（95/100）**\n- ✅ 涵蓋所有 WASDE 商品\n- ✅ 詳細的欄位映射與驗證規則\n\n**社區（30/100）**\n- ⚠️ 新技能，尚無社區貢獻\n\n**安全（100/100）**\n- ✅ 僅讀取公開 USDA 數據\n\n**規範符合性（70/100）**\n- ✅ 遵循 Claude Code 規範\n- ⚠️ Alpha 階段\n"
-    },
-    "bestPractices": [
-      {
-        "title": "等待 WASDE 正式發布",
-        "description": "WASDE 通常在每月 10-12 日發布，確認官方發布後再執行 ingest"
-      },
-      {
-        "title": "保留原始 PDF 備份",
-        "description": "保存原始報告 PDF 以便在解析失敗時進行人工檢查"
-      },
-      {
-        "title": "監控 schema drift",
-        "description": "USDA 可能調整表格格式，定期檢查 schema_hash 變化"
-      },
-      {
-        "title": "使用 content_hash 進行版本控制",
-        "description": "利用 content_hash 確保數據冪等性"
-      },
-      {
-        "title": "注意數據修正",
-        "description": "WASDE 會在後續月份修正歷史數據，需追蹤修正值"
-      }
-    ],
-    "pitfalls": [
-      {
-        "title": "忽略 PDF 佈局變化",
-        "description": "USDA 可能在無預警情況下調整 PDF 格式",
-        "consequence": "可能產生錯誤數據或完全無法解析"
-      },
-      {
-        "title": "單位混淆",
-        "description": "不同商品使用不同單位（bushels, cwt, metric tons 等）",
-        "consequence": "供需計算完全錯誤"
-      },
-      {
-        "title": "忽略行銷年度差異",
-        "description": "不同商品的行銷年度起始月份不同",
-        "consequence": "時間序列對齊錯誤"
-      }
-    ],
-    "faq": [
-      {
-        "question": "WASDE 報告涵蓋哪些商品？",
-        "answer": "WASDE 涵蓋以下商品類別：\n\n**穀物 (Grains)**\n- 小麥 (Wheat) - 包含 by-class 細分\n- 玉米 (Corn)\n- 稻米 (Rice) - 長粒/中短粒\n- 大麥 (Barley)\n- 高粱 (Sorghum)\n- 燕麥 (Oats)\n\n**油籽 (Oilseeds)**\n- 大豆 (Soybeans)\n- 豆油 (Soybean Oil)\n- 豆粕 (Soybean Meal)\n\n**棉花 (Cotton)**\n- 美國棉花供需\n- 世界棉花供需\n\n**畜產品 (Livestock) - 僅美國**\n- 牛肉 (Beef)\n- 豬肉 (Pork)\n- 禽肉 (Poultry)\n- 雞蛋 (Eggs)\n- 乳製品 (Dairy/Milk)\n\n**糖 (Sugar)**\n- 美國糖供需\n- 墨西哥糖供需\n"
-      },
-      {
-        "question": "不同商品的行銷年度是什麼？",
-        "answer": "| 商品 | 美國行銷年度 | 世界行銷年度 |\n|------|--------------|--------------|\n| 小麥 | Jun-May      | Jul-Jun      |\n| 玉米 | Sep-Aug      | Oct-Sep      |\n| 大豆 | Sep-Aug      | Oct-Sep      |\n| 稻米 | Aug-Jul      | Jan-Dec      |\n| 棉花 | Aug-Jul      | Aug-Jul      |\n"
-      },
-      {
-        "question": "數據來源與發布時間？",
-        "answer": "- **官網**: https://www.usda.gov/oce/commodity/wasde\n- **發布日期**: 每月約 10-12 日\n- **發布時間**: 美東時間中午 12:00\n- **格式**: PDF, TXT\n- **歷史檔案**: https://esmis.nal.usda.gov/\n"
-      }
-    ],
-    "about": {
-      "repository": "https://github.com/fatfingererr/macro-skills",
-      "branch": "main",
-      "additionalInfo": "## 數據來源\n\n所有數據來自 USDA 官方 WASDE 報告：\n- 官網：https://www.usda.gov/oce/commodity/wasde\n- 歷史檔案：https://esmis.nal.usda.gov/\n- 數據類型：公開、免費、無限制使用\n\n## 編製單位\n\nWASDE 由 World Agricultural Outlook Board (WAOB) 編製，\n整合以下機構資料：\n- Agricultural Marketing Service (AMS)\n- Economic Research Service (ERS)\n- Farm Service Agency (FSA)\n- Foreign Agricultural Service (FAS)\n- National Agricultural Statistics Service (NASS)\n"
-    }
-  },
-  {
     "id": "cost-density-net-rr-calculator",
     "name": "cost-density-net-rr-calculator",
     "displayName": "成本密度淨風報比計算器",
@@ -286,6 +288,7 @@
     "content": "<essential_principles>\n**成本密度模型核心原則**\n\n**1. 核心公式**\n\n所有計算基於以下關係：\n\n```\nCost Density = (c/V + s)           # 成本密度（pips 等效）\nx = Cost Density / P               # 負載係數\nRR_net = (RR_g - x) / (1 + x)      # 淨風險報酬比\nWR_min = (1 + x) / (1 + RR_g)      # 最低勝率\nP_critical = CostDensity × (RR_g + 2) / RR_g  # 效率減半點\n```\n\n**2. 參數定義**\n\n| 參數 | 定義                      | 單位         |\n|------|---------------------------|--------------|\n| RR_g | 毛風險報酬比（目標/停損） | 無單位       |\n| P    | 停損大小                  | pips/points  |\n| c    | 來回佣金（每手）          | 帳戶貨幣     |\n| s    | 來回點差                  | pips/points  |\n| V    | 每 pip 價值（每手）       | 帳戶貨幣/pip |\n| R    | 固定風險（可選，會抵消）  | 帳戶貨幣     |\n\n**3. 關鍵洞察**\n\n- **雙曲線衰減**: P → 0 時，x → ∞，RR_net → -1\n- **R 無關性**: RR_net 不依賴固定風險 R\n- **剪刀效應**: 短時間框架同時增加成本負擔與降低訊號品質\n\n**4. 單位一致性規則**\n\n- P 和 s 必須使用相同基準（都是 pips 或都是 points）\n- c 必須是 round-turn（來回）佣金\n- V 必須是每 pip 每手的價值\n</essential_principles>\n\n<intake>\n**您想要執行什麼操作？**\n\n1. **Compute** - 計算單一參數組合的成本密度與效率指標\n2. **Sweep** - 掃描停損範圍，生成 RR_net/WR_min 曲線表\n3. **Analyze** - 解讀結果，提供策略建議\n\n**等待回應後再繼續。**\n</intake>\n\n<routing>\n| Response                             | Workflow             | Description          |\n|--------------------------------------|----------------------|----------------------|\n| 1, \"compute\", \"calculate\", \"single\"  | workflows/compute.md | 單次計算成本密度指標 |\n| 2, \"sweep\", \"grid\", \"curve\", \"range\" | workflows/sweep.md   | 網格掃描與閾值搜尋   |\n| 3, \"analyze\", \"interpret\", \"explain\" | workflows/analyze.md | 結果解讀與策略建議   |\n\n**讀取工作流程後，請完全遵循其步驟。**\n</routing>\n\n<reference_index>\n**參考文件** (`references/`)\n\n| 文件        | 內容                     |\n|-------------|--------------------------|\n| formulas.md | 完整公式推導與數學證明   |\n| theory.md   | 市場微結構理論背景與文獻 |\n</reference_index>\n\n<workflows_index>\n| Workflow   | Purpose                    |\n|------------|----------------------------|\n| compute.md | 單次計算成本密度與效率指標 |\n| sweep.md   | 網格掃描與閾值搜尋         |\n| analyze.md | 結果解讀與策略建議         |\n</workflows_index>\n\n<templates_index>\n| Template           | Purpose          |\n|--------------------|------------------|\n| output-schema.yaml | 輸出 JSON schema |\n| input-schema.yaml  | 輸入參數 schema  |\n</templates_index>\n\n<scripts_index>\n| Script          | Purpose             |\n|-----------------|---------------------|\n| cost_density.py | Python 計算實作     |\n| cost_density.ts | TypeScript 計算實作 |\n</scripts_index>\n\n<quick_start>\n**快速計算（XAU/USD 範例）：**\n\n輸入：\n```json\n{\n  \"RR_g\": 3.0,\n  \"c\": 7.0,\n  \"s\": 1.5,\n  \"V\": 10.0,\n  \"P\": 20\n}\n```\n\n計算：\n```python\ncost_density = 7.0/10.0 + 1.5  # = 2.2 pips\nx = 2.2 / 20                    # = 0.11\nRR_net = (3.0 - 0.11) / (1 + 0.11)  # = 2.60\nWR_min = (1 + 0.11) / (1 + 3.0)     # = 27.7%\nP_critical = 2.2 * (3.0 + 2) / 3.0  # = 3.67 pips\n```\n\n輸出：\n```json\n{\n  \"cost_density\": 2.2,\n  \"x\": 0.11,\n  \"RR_net\": 2.60,\n  \"WR_min\": 0.277,\n  \"P_critical\": 3.67,\n  \"Loss_RR\": 0.133\n}\n```\n</quick_start>\n\n<success_criteria>\nSkill 成功執行時：\n- [ ] 輸入參數通過驗證（單位一致性）\n- [ ] 正確計算 cost_density、x、RR_net、WR_min\n- [ ] 識別是否處於高摩擦區（P < P_critical）\n- [ ] 輸出符合 outputs_schema\n- [ ] 提供 zh-TW 解釋說明\n</success_criteria>",
     "path": "skills/cost-density-net-rr-calculator/SKILL.md",
     "directoryStructure": "cost-density-net-rr-calculator/\n├── examples\n│   ├── eurusd_low_cost.json\n│   ├── high_frequency_warning.json\n│   └── xauusd_default.json\n├── manifest.json\n├── references\n│   ├── formulas.md\n│   └── theory.md\n├── scripts\n│   ├── cost_density.py\n│   └── cost_density.ts\n├── SKILL.md\n├── templates\n│   ├── input-schema.yaml\n│   └── output-schema.yaml\n└── workflows\n    ├── analyze.md\n    ├── compute.md\n    └── sweep.md",
+    "lastUpdated": "2026-01-14",
     "rating": 3,
     "testQuestions": [
       {

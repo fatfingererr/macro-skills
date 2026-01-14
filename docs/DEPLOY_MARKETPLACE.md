@@ -8,11 +8,12 @@
 macro-skills/
 ├── .claude-plugin/
 │   ├── manifest.json       # Plugin 清單
-│   └── marketplace.json    # Marketplace 設定
+│   ├── marketplace.json    # Marketplace 設定
+│   └── index.json          # 技能索引 (自動產生)
 ├── skills/
 │   └── */SKILL.md          # 技能定義
-└── marketplace/
-    └── index.json          # 技能索引
+└── commands/
+    └── *.md                # Slash commands
 ```
 
 ### 2. 建置技能索引
@@ -98,6 +99,5 @@ git push
 | 安裝     | `/plugin marketplace add fatfingererr/macro-skills` |
 | 更新     | `/plugin marketplace update macro-skills`           |
 | 列出技能 | `/plugin marketplace list macro-skills`             |
-| 啟用技能 | `/plugin marketplace enable macro-skills/{skill}`   |
-| 停用技能 | `/plugin marketplace disable macro-skills/{skill}`  |
+| 安裝技能 | `/plugin install {skill}@macro-skills`              |
 | 移除     | `/plugin marketplace remove macro-skills`           |

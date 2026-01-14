@@ -219,7 +219,7 @@ async function buildMarketplace() {
     })),
   };
 
-  const indexPath = path.join(process.cwd(), 'marketplace/index.json');
+  const indexPath = path.join(process.cwd(), '.claude-plugin/index.json');
   fs.writeFileSync(indexPath, JSON.stringify(index, null, 2), 'utf-8');
 
   // 3. 同步更新 .claude-plugin/marketplace.json

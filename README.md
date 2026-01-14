@@ -42,8 +42,7 @@ macro-skills/
 │   │   └── data/               # 靜態資料
 │   └── public/                 # 靜態資源
 ├── skills/                     # 技能定義檔
-├── marketplace/                # 市集索引
-│   └── index.json              # 技能索引
+├── commands/                   # Slash commands
 ├── scripts/                    # 建置腳本
 └── .github/workflows/          # GitHub Actions 工作流程
 ```

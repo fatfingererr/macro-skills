@@ -12,7 +12,7 @@ dist-node/
 *.tsbuildinfo
 
 # Auto-generated files
-marketplace/index.json
+.claude-plugin/index.json
 
 # Bun
 bun.lock
