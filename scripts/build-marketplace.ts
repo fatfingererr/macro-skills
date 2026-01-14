@@ -126,7 +126,7 @@ function getDirectoryStructure(dirPath: string, prefix: string = ''): string {
 }
 
 async function buildMarketplace() {
-  const skillsDir = path.join(process.cwd(), 'marketplace/skills');
+  const skillsDir = path.join(process.cwd(), 'skills');
   const outputDir = path.join(process.cwd(), 'frontend/public/data');
 
   // 確保輸出目錄存在
@@ -135,7 +135,7 @@ async function buildMarketplace() {
   }
 
   // 尋找所有 SKILL.md 檔案
-  const skillFiles = await glob('marketplace/skills/*/SKILL.md');
+  const skillFiles = await glob('skills/*/SKILL.md');
   const skills: Skill[] = [];
 
   console.log(`找到 ${skillFiles.length} 個技能檔案`);
@@ -235,7 +235,7 @@ async function buildMarketplace() {
       author: {
         name: s.author,
       },
-      source: `./marketplace/skills/${s.id}`,
+      source: `./skills/${s.id}`,
       category: s.category,
       tags: s.tags.slice(0, 6),
     })),

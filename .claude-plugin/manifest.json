@@ -18,7 +18,7 @@
   "type": "marketplace",
   "marketplace": {
     "configPath": "marketplace.json",
-    "skillsPath": "../marketplace/skills",
+    "skillsPath": "../skills",
     "indexPath": "../marketplace/index.json"
   },
   "compatibility": {
