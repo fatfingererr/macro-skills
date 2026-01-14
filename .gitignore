@@ -7,6 +7,7 @@ thoughts/ricky/
 node_modules/
 
 # Build outputs
+output/
 dist/
 dist-node/
 *.tsbuildinfo
