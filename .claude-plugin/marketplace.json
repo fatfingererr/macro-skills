@@ -11,13 +11,13 @@
   "plugins": [
     {
       "name": "wasde-ingestor",
-      "description": "Fetch and parse USDA WASDE monthly reports, extracting supply-demand balance sheets for all major commodities (grains, oilseeds, cotton, livestock, sugar). Produces normalized, versioned datasets as anchor baselines for nowcasting.",
+      "description": "抓取並解析 USDA（美國農業部）每月發布的 WASDE（世界農產品供需估計）報告，擷取所有主要商品（穀物、油籽、棉花、畜產品、糖）的供需平衡表。產出經標準化、具版本控管的資料集，作為即時預測的基準錨點。",
       "version": "0.2.0",
       "author": {
         "name": "macro-skills"
       },
       "source": "./skills/wasde-ingestor",
-      "category": "other",
+      "category": "nowcasting",
       "tags": []
     },
     {
@@ -39,6 +39,24 @@
       ]
     },
     {
+      "name": "zeberg-salomon-rotator",
+      "description": "用領先和即時指標建構景氣模型，並判讀兩種景氣階段：景氣擴張與景氣收縮期，並根據理論給出\"撞冰山\"與\"下沉\"事件訊號",
+      "version": "0.1.2",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/zeberg-salomon-rotator",
+      "category": "business-cycles",
+      "tags": [
+        "景氣循環",
+        "領先指標",
+        "同時指標",
+        "景氣擴張",
+        "景氣收縮",
+        "FRED"
+      ]
+    },
+    {
       "name": "us-cpi-pce-comparator",
       "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
       "version": "0.1.0",
@@ -57,37 +75,19 @@
       ]
     },
     {
-      "name": "zeberg-salomon-rotator",
-      "description": "用領先和即時指標建構景氣模型，並判讀兩種景氣階段：景氣擴張期 (Risk-On) 與景氣收縮期 (Risk-Off)，並根據理論給出\"撞冰山\"與\"下沉\"事件訊號",
-      "version": "0.1.2",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/zeberg-salomon-rotator",
-      "category": "business-cycles",
-      "tags": [
-        "景氣循環",
-        "領先指標",
-        "同時指標",
-        "景氣擴張",
-        "景氣收縮",
-        "FRED"
-      ]
-    },
-    {
       "name": "cost-density-net-rr-calculator",
-      "description": "Calculate nonlinear transaction cost impact on risk-reward ratios. Integrates fixed commissions and spreads into a unified Cost Density metric, revealing hyperbolic relationship between stop-loss size and strategy efficiency.",
+      "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
       "version": "0.1.0",
       "author": {
         "name": "macro-skills"
       },
       "source": "./skills/cost-density-net-rr-calculator",
-      "category": "other",
+      "category": "indicator-monitoring",
       "tags": []
     },
     {
       "name": "detect-atr-squeeze-regime",
-      "description": "以 14 日指數平滑 ATR（%）偵測市場是否從秩序型趨勢轉為「波動主導的擠壓（squeeze）行情」，並輸出對技術位、停損、交易持有期的可行性評估。",
+      "description": "以 14 日指數平滑 ATR 偵測市場是否從秩序型趨勢轉為波動主導的擠壓（squeeze）行情，並輸出對技術位、停損、交易持有期的可行性評估。",
       "version": "0.1.0",
       "author": {
         "name": "Ricky Wang"
