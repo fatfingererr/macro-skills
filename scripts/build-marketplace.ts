@@ -3,10 +3,12 @@ import path from 'path';
 import matter from 'gray-matter';
 import { glob } from 'glob';
 import { execSync } from 'child_process';
+import yaml from 'js-yaml';
 
 interface TestQuestion {
   question: string;
   expectedResult?: string;
+  imagePath?: string;
 }
 
 interface QualityScore {
@@ -77,6 +79,36 @@ interface Skill {
   about?: About;
 }
 
+// manifest.json 的欄位定義（技能元數據）
+interface ManifestJson {
+  name: string;
+  displayName?: string;
+  description?: string;
+  version?: string;
+  author?: string | { name: string };
+  license?: string;
+  category?: string;
+  tags?: string[];
+  dataLevel?: string;
+}
+
+// skill.yaml 的欄位定義（前端展示專用）
+interface SkillYaml {
+  displayName?: string;  // 可覆蓋 manifest 的 displayName
+  emoji?: string;
+  authorUrl?: string;
+  tools?: string[];
+  featured?: boolean;
+  installCount?: number;
+  rating?: number;
+  testQuestions?: TestQuestion[];
+  qualityScore?: QualityScore;
+  bestPractices?: BestPractice[];
+  pitfalls?: Pitfall[];
+  faq?: FAQ[];
+  about?: About;
+}
+
 // 取得檔案最新 commit 日期
 function getLastCommitDate(filePath: string): string | undefined {
   try {
@@ -125,6 +157,36 @@ function getDirectoryStructure(dirPath: string, prefix: string = ''): string {
   return lines.join('\n');
 }
 
+// 讀取 manifest.json（技能元數據）
+function loadManifestJson(skillDir: string): ManifestJson | null {
+  const manifestPath = path.join(skillDir, 'manifest.json');
+  if (fs.existsSync(manifestPath)) {
+    try {
+      const content = fs.readFileSync(manifestPath, 'utf-8');
+      return JSON.parse(content) as ManifestJson;
+    } catch (error) {
+      console.warn(`  ⚠ 無法解析 manifest.json: ${error}`);
+      return null;
+    }
+  }
+  return null;
+}
+
+// 讀取 skill.yaml（前端展示專用）
+function loadSkillYaml(skillDir: string): SkillYaml | null {
+  const yamlPath = path.join(skillDir, 'skill.yaml');
+  if (fs.existsSync(yamlPath)) {
+    try {
+      const content = fs.readFileSync(yamlPath, 'utf-8');
+      return yaml.load(content) as SkillYaml;
+    } catch (error) {
+      console.warn(`  ⚠ 無法解析 skill.yaml: ${error}`);
+      return null;
+    }
+  }
+  return null;
+}
+
 async function buildMarketplace() {
   const skillsDir = path.join(process.cwd(), 'skills');
   const outputDir = path.join(process.cwd(), 'frontend/public/data');
@@ -143,47 +205,69 @@ async function buildMarketplace() {
   for (const file of skillFiles) {
     try {
       const content = fs.readFileSync(file, 'utf-8');
-      const { data, content: body } = matter(content);
+      const { data: mdData, content: body } = matter(content);
       const skillName = path.basename(path.dirname(file));
       const skillDir = path.dirname(file);
+
+      // 讀取 manifest.json（技能元數據）和 skill.yaml（前端展示）
+      const manifest = loadManifestJson(skillDir);
+      const yamlData = loadSkillYaml(skillDir);
+      const hasManifest = manifest !== null;
+      const hasYaml = yamlData !== null;
+
+      // 從 manifest.json 提取 author（處理 string 或 {name: string} 格式）
+      const manifestAuthor = manifest?.author
+        ? (typeof manifest.author === 'string' ? manifest.author : manifest.author.name)
+        : undefined;
 
       // 生成目錄結構
       const dirStructure = getDirectoryStructure(skillDir);
 
-      // 取得最新更新日期
-      const lastUpdated = getLastCommitDate(file);
+      // 取得最新更新日期（優先使用 manifest.json 的時間）
+      const manifestPath = path.join(skillDir, 'manifest.json');
+      const lastUpdated = hasManifest && fs.existsSync(manifestPath)
+        ? getLastCommitDate(manifestPath)
+        : getLastCommitDate(file);
 
+      // 數據來源優先級：
+      // - 基礎元數據：manifest.json > SKILL.md frontmatter > 預設值
+      // - 前端展示：skill.yaml > 預設值
+      // - displayName：skill.yaml > manifest.json > SKILL.md name
       const skill: Skill = {
-        id: data.name || skillName,
-        name: data.name || skillName,
-        displayName: data.displayName || data.name,
-        description: data.description || '',
-        emoji: data.emoji || '🛠️',
-        version: data.version || 'v1.0.0',
-        license: data.license || 'MIT',
-        author: data.author || 'Unknown',
-        authorUrl: data.authorUrl,
-        tags: data.tags || [],
-        category: data.category || 'other',
-        dataLevel: data.dataLevel || 'free-nolimit',
-        tools: data.tools || ['claude-code'],
-        featured: data.featured || false,
-        installCount: data.installCount || 0,
+        id: manifest?.name || mdData.name || skillName,
+        name: manifest?.name || mdData.name || skillName,
+        displayName: yamlData?.displayName || manifest?.displayName || mdData.name || skillName,
+        description: manifest?.description || mdData.description || '',
+        emoji: yamlData?.emoji || '🛠️',
+        version: manifest?.version || 'v1.0.0',
+        license: manifest?.license || 'MIT',
+        author: manifestAuthor || 'Unknown',
+        authorUrl: yamlData?.authorUrl,
+        tags: manifest?.tags || [],
+        category: manifest?.category || 'other',
+        dataLevel: manifest?.dataLevel || 'free-nolimit',
+        tools: yamlData?.tools || ['claude-code'],
+        featured: yamlData?.featured || false,
+        installCount: yamlData?.installCount || 0,
         content: body.trim(),
         path: `skills/${skillName}/SKILL.md`,
         directoryStructure: `${skillName}/\n${dirStructure}`,
         lastUpdated,
-        rating: data.rating || 3,
-        testQuestions: data.testQuestions,
-        qualityScore: data.qualityScore,
-        bestPractices: data.bestPractices,
-        pitfalls: data.pitfalls,
-        faq: data.faq,
-        about: data.about,
+        rating: yamlData?.rating || 3,
+        testQuestions: yamlData?.testQuestions,
+        qualityScore: yamlData?.qualityScore,
+        bestPractices: yamlData?.bestPractices,
+        pitfalls: yamlData?.pitfalls,
+        faq: yamlData?.faq,
+        about: yamlData?.about,
       };
 
       skills.push(skill);
-      console.log(`✓ 載入: ${skill.displayName}`);
+      const sources: string[] = [];
+      if (hasManifest) sources.push('manifest');
+      if (hasYaml) sources.push('yaml');
+      const source = sources.length > 0 ? `(${sources.join('+')})` : '(md)';
+      console.log(`✓ 載入: ${skill.displayName} ${source}`);
     } catch (error) {
       console.error(`✗ 錯誤處理 ${file}:`, error);
     }
