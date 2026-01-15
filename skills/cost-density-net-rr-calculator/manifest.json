@@ -1,8 +1,9 @@
 {
   "name": "cost-density-net-rr-calculator",
-  "description": "Calculate nonlinear transaction cost impact on risk-reward ratios. Integrates fixed commissions and spreads into a unified Cost Density metric, revealing hyperbolic relationship between stop-loss size and strategy efficiency.",
+  "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
   "version": "0.1.0",
   "author": {
     "name": "macro-skills"
-  }
+  },
+  "category": "indicator-monitoring"
 }
