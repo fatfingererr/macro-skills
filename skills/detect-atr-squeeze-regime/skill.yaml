@@ -1,4 +1,4 @@
-displayName: ATR 擠壓行情偵測
+displayName: 波動擠壓行情偵測
 emoji: "\U0001F4A5"
 authorUrl: https://github.com/fatfingererr/macro-skills
 
@@ -11,7 +11,7 @@ installCount: 0
 testQuestions:
   - question: '銀價目前是否處於擠壓行情？幫我偵測並給出交易建議'
     expectedResult: |
-      白銀（SI=F）ATR 擠壓行情偵測結果（數據截至 2026-01-14）
+      白銀（SI=F）波動擠壓行情偵測結果（數據截至 2026-01-14）
 
       ┌─────────────────────────────┬────────┬─────────────────────────────┐
       │            指標             │  數值  │            狀態             │

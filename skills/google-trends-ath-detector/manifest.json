@@ -2,7 +2,7 @@
   "name": "google-trends-ath-detector",
   "version": "0.1.1",
   "displayName": "Google Trends ATH Detector",
-  "description": "專注於 Google Trends 數據擷取與分析，使用 Selenium 模擬真人瀏覽器行為抓取數據，自動判定搜尋趨勢是否創下歷史新高（ATH）或出現異常飆升，並提供訊號分型。",
+  "description": "模擬真人操作瀏覽器抓取 Google Trends 數據，自動判定搜尋趨勢是否創下歷史新高（ATH）或出現異常飆升，並提供訊號分類。",
   "author": "Ricky Wang",
   "license": "MIT",
   "category": "indicator-monitoring",
