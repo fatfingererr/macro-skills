@@ -452,7 +452,7 @@ def backtest_two_asset(
             "total_slippage_bps": len(signals) * slippage_bps,
             "net_impact": float(total_costs),
         },
-        "cumulative_series": cumulative_after_cost.to_dict(),
+        "cumulative_series": {str(k.date()): v for k, v in cumulative_after_cost.to_dict().items()},
     }
 
 
@@ -625,7 +625,7 @@ def run_full_backtest(
 
     return {
         "skill": "zeberg-salomon-rotator",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "as_of": current_state["as_of"],
         "params_used": params,
         "current_state": {
@@ -645,6 +645,10 @@ def run_full_backtest(
         "switch_events": result["signals"],
         "backtest_summary": result["backtest"],
         "benchmarks": benchmarks,
+        "index_series": {
+            "leading": {str(k.date()): float(v) for k, v in result["leading_index"].to_dict().items() if not pd.isna(v)},
+            "coincident": {str(k.date()): float(v) for k, v in result["coincident_index"].to_dict().items() if not pd.isna(v)},
+        },
         "diagnostics": {
             "leading_components": list(current_state["leading_attribution"].values()),
             "coincident_components": list(current_state["coincident_attribution"].values()),

@@ -1,7 +1,7 @@
 ---
 name: zeberg-salomon-rotator
 displayName: 澤伯格–所羅門景氣循環
-description: 用「領先/同時」景氣循環合成指標，實作 Zeberg–Salomon 兩態切換器：在 Risk-On（景氣擴張期）與 Risk-Off（景氣收縮期）間切換，並輸出可回測的進出場事件與績效。將「撞冰山→下沉」敘事落地成可重現的訊號系統。
+description: 用領先和同時指標建構景氣模型，並判讀兩種景氣階段：景氣擴張期 (Risk-On) 與景氣收縮期 (Risk-Off)，並根據理論給出 "撞冰山" 與 "下沉" 事件訊號。
 emoji: "\U0001F6A2"
 version: v0.1.0
 license: MIT
@@ -11,13 +11,12 @@ tags:
   - 景氣循環
   - 領先指標
   - 同時指標
-  - 兩態切換
-  - Risk-On
-  - Risk-Off
-  - 回測
+  - 景氣擴張
+  - 景氣收縮
   - FRED
   - 宏觀經濟
   - Zeberg
+  - Salomon
 category: business-cycles
 dataLevel: free-nolimit
 tools:
@@ -25,15 +24,7 @@ tools:
 featured: false
 installCount: 0
 testQuestions:
-  - question: '使用預設參數執行 Zeberg-Salomon 輪動策略回測'
-    expectedResult: |
-      此輪動器會：
-      1. 從 FRED 抓取領先/同時指標數據
-      2. 建構兩條合成指標線（LeadingIndex, CoincidentIndex）
-      3. 識別「冰山事件」與「下沉事件」
-      4. 產生 RISK_ON/RISK_OFF 切換訊號
-      5. 回測兩態資產切換績效
-  - question: '查看目前的景氣狀態是 Risk-On 還是 Risk-Off？'
+  - question: '基於 Zeberg-Salomon 景氣循環模型，目前的景氣狀態是？'
     expectedResult: |
       輸出目前狀態、最新指標值、是否觸發冰山/下沉事件，
       以及最近一次切換的日期與原因。
@@ -121,7 +112,6 @@ about:
     ## 參考來源
 
     - Zeberg Letter: https://swissblock.net/products/reports/zeberg-letter
-    - @SystematicPeter: https://x.com/SystematicPeter/status/2011460563096760388
 
     ## 數據來源
 
@@ -238,8 +228,9 @@ python scripts/rotator.py --start 2000-01-01 --end 2026-01-01 --output result.js
 
 1. **快速檢查** - 查看目前的景氣狀態與最新指標
 2. **完整回測** - 執行完整的歷史回測與績效分析
-3. **監控模式** - 設定持續監控與切換警報
-4. **方法論學習** - 了解 Zeberg-Salomon 模型的邏輯
+3. **視覺化圖表** - 生成多面板回測結果圖表
+4. **監控模式** - 設定持續監控與切換警報
+5. **方法論學習** - 了解 Zeberg-Salomon 模型的邏輯
 
 **請選擇或直接提供分析參數。**
 </intake>
@@ -249,8 +240,9 @@ python scripts/rotator.py --start 2000-01-01 --end 2026-01-01 --output result.js
 |-------------------------------|---------------------------------------------|
 | 1, "快速", "quick", "check"   | 執行 `python scripts/rotator.py --quick`    |
 | 2, "回測", "backtest", "full" | 閱讀 `workflows/backtest.md` 並執行         |
-| 3, "監控", "monitor", "alert" | 閱讀 `workflows/monitor.md` 並執行          |
-| 4, "學習", "方法論", "why"    | 閱讀 `references/methodology.md`            |
+| 3, "視覺化", "chart", "plot"  | 閱讀 `workflows/visualize.md` 並執行        |
+| 4, "監控", "monitor", "alert" | 閱讀 `workflows/monitor.md` 並執行          |
+| 5, "學習", "方法論", "why"    | 閱讀 `references/methodology.md`            |
 | 提供參數 (如日期範圍)         | 閱讀 `workflows/backtest.md` 並使用參數執行 |
 
 **路由後，閱讀對應文件並執行。**
@@ -263,6 +255,7 @@ zeberg-salomon-rotator/
 ├── manifest.json                      # 技能元數據
 ├── workflows/
 │   ├── backtest.md                    # 完整回測工作流
+│   ├── visualize.md                   # 視覺化工作流
 │   ├── monitor.md                     # 持續監控工作流
 │   └── analyze.md                     # 深度分析工作流
 ├── references/
@@ -274,6 +267,7 @@ zeberg-salomon-rotator/
 │   └── output-markdown.md             # Markdown 報告模板
 └── scripts/
     ├── rotator.py                     # 主輪動腳本
+    ├── visualize.py                   # 視覺化繪圖工具
     └── fetch_data.py                  # 數據抓取工具
 ```
 </directory_structure>
@@ -297,11 +291,12 @@ zeberg-salomon-rotator/
 </reference_index>
 
 <workflows_index>
-| Workflow    | Purpose      | 使用時機         |
-|-------------|--------------|------------------|
-| backtest.md | 完整歷史回測 | 需要績效分析時   |
-| monitor.md  | 持續監控狀態 | 日常監控或警報   |
-| analyze.md  | 深度指標分析 | 理解當前市場狀態 |
+| Workflow     | Purpose        | 使用時機         |
+|--------------|----------------|------------------|
+| backtest.md  | 完整歷史回測   | 需要績效分析時   |
+| visualize.md | 生成視覺化圖表 | 需要圖表展示時   |
+| monitor.md   | 持續監控狀態   | 日常監控或警報   |
+| analyze.md   | 深度指標分析   | 理解當前市場狀態 |
 </workflows_index>
 
 <templates_index>
@@ -312,11 +307,12 @@ zeberg-salomon-rotator/
 </templates_index>
 
 <scripts_index>
-| Script        | Command                   | Purpose          |
-|---------------|---------------------------|------------------|
-| rotator.py    | `--quick`                 | 快速檢查當前狀態 |
-| rotator.py    | `--start DATE --end DATE` | 完整回測         |
-| fetch_data.py | `--series T10Y3M,PAYEMS`  | 抓取 FRED 資料   |
+| Script        | Command                       | Purpose          |
+|---------------|-------------------------------|------------------|
+| rotator.py    | `--quick`                     | 快速檢查當前狀態 |
+| rotator.py    | `--start DATE --end DATE`     | 完整回測         |
+| visualize.py  | `-i result.json -o chart.png` | 生成視覺化圖表   |
+| fetch_data.py | `--series T10Y3M,PAYEMS`      | 抓取 FRED 資料   |
 </scripts_index>
 
 <input_schema_summary>
@@ -378,4 +374,5 @@ zeberg-salomon-rotator/
 - [ ] 回測績效摘要（CAGR, MaxDD, 換手次數）
 - [ ] 與 benchmark 比較（買入持有、60/40）
 - [ ] 診斷資訊（各指標貢獻）
+- [ ] 視覺化圖表（可選，輸出至 `output/` 目錄）
 </success_criteria>
