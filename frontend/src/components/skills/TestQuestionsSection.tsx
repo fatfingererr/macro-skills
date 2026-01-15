@@ -11,8 +11,11 @@ interface QuestionItemProps {
 }
 
 function QuestionItem({ question }: QuestionItemProps) {
-  const [showResult, setShowResult] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const { copied, copy } = useCopyToClipboard();
+
+  const imageUrl = question.imagePath ? `/macro-skills/${question.imagePath}` : null;
+  const toggleExpanded = () => setExpanded(!expanded);
 
   return (
     <div className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
@@ -37,28 +40,41 @@ function QuestionItem({ question }: QuestionItemProps) {
         </button>
       </div>
 
-      {question.expectedResult && (
-        <div className="mt-3">
-          <button
-            onClick={() => setShowResult(!showResult)}
-            className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <span>預期結果</span>
-            <svg
-              className={`w-4 h-4 transition-transform ${showResult ? 'rotate-180' : ''}`}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+      {(question.expectedResult || imageUrl) && (
+        <div className="mt-3 flex flex-wrap gap-4">
+          {question.expectedResult && (
+            <button
+              onClick={toggleExpanded}
+              className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-
-          {showResult && (
-            <div className="mt-2 p-3 bg-gray-50 rounded-md">
-              <p className="text-sm text-gray-700 whitespace-pre-wrap">{question.expectedResult}</p>
-            </div>
+              <span>預期結果</span>
+              <svg
+                className={`w-4 h-4 transition-transform ${expanded ? 'rotate-180' : ''}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
           )}
+        </div>
+      )}
+
+      {expanded && question.expectedResult && (
+        <div className="mt-2 p-3 bg-gray-50 rounded-md">
+          <p className="text-sm text-gray-700 whitespace-pre-wrap">{question.expectedResult}</p>
+        </div>
+      )}
+
+      {expanded && imageUrl && (
+        <div className="p-3 bg-gray-50 rounded-md">
+          <img
+            src={imageUrl}
+            alt="圖表範例"
+            className="w-full rounded-md border border-gray-200"
+            loading="lazy"
+          />
         </div>
       )}
     </div>

@@ -4,6 +4,7 @@ export type Tool = 'claude-code';
 export interface TestQuestion {
   question: string;
   expectedResult?: string;
+  imagePath?: string;
 }
 
 // 質量評分介面
