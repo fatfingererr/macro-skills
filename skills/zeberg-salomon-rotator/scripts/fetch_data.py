@@ -47,11 +47,13 @@ def fetch_fred_series(
         response = requests.get(url, params=params, timeout=30)
         response.raise_for_status()
 
+        # FRED API uses "observation_date" as the date column
         df = pd.read_csv(
             StringIO(response.text),
-            parse_dates=["DATE"],
-            index_col="DATE",
+            parse_dates=["observation_date"],
+            index_col="observation_date",
         )
+        df.index.name = "DATE"
         df.columns = [series_id]
 
         # 處理缺失值標記
