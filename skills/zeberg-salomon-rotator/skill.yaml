@@ -5,7 +5,7 @@ authorUrl: https://github.com/fatfingererr/macro-skills
 tools:
   - claude-code
 
-featured: false
+featured: true
 installCount: 0
 
 testQuestions:
