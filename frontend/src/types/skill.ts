@@ -78,6 +78,8 @@ export interface Skill {
   pitfalls?: Pitfall[];
   faq?: FAQ[];
   about?: About;
+  methodology?: string;      // 原理應用文件內容
+  downloadUrl?: string;      // 技能下載 zip 路徑
 }
 
 export interface Category {

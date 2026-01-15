@@ -14,6 +14,7 @@ import BestPracticesSection from '../components/skills/BestPracticesSection';
 import PitfallsSection from '../components/skills/PitfallsSection';
 import FAQSection from '../components/skills/FAQSection';
 import AboutSection from '../components/skills/AboutSection';
+import MethodologySection from '../components/skills/MethodologySection';
 
 export default function SkillDetailPage() {
   const { skillId } = useParams<{ skillId: string }>();
@@ -108,11 +109,18 @@ export default function SkillDetailPage() {
             <p className="text-sm text-gray-500">日期</p>
             <p className="font-medium">{skill.lastUpdated || '未知'}</p>
           </div>
-          <div>
-            <p className="text-sm text-gray-500">評分</p>
-            <p className="font-medium text-yellow-500">
-              {'★'.repeat(skill.rating || 3)}{'☆'.repeat(5 - (skill.rating || 3))}
-            </p>
+          <div className="flex items-center gap-2">
+            {skill.downloadUrl ? (
+              <a
+                href={skill.downloadUrl}
+                download
+                className="inline-flex items-center gap-1 px-3 py-1 bg-blue-600 text-white text-md font-medium rounded-lg hover:bg-primary-700 transition-colors"
+              >
+                下載壓縮檔 (.zip)
+              </a>
+            ) : (
+              <span className="text-gray-400 text-sm">暫無</span>
+            )}
           </div>
         </div>
       </div>
@@ -126,6 +134,13 @@ export default function SkillDetailPage() {
       {skill.testQuestions && skill.testQuestions.length > 0 && (
         <div className="mt-8">
           <TestQuestionsSection questions={skill.testQuestions} />
+        </div>
+      )}
+
+      {/* Methodology / 原理應用 */}
+      {skill.methodology && (
+        <div className="mt-8">
+          <MethodologySection methodology={skill.methodology} />
         </div>
       )}
 
