@@ -39,24 +39,6 @@
       ]
     },
     {
-      "name": "zeberg-salomon-rotator",
-      "description": "用領先和即時指標建構景氣模型，並判讀兩種景氣階段：景氣擴張期 (Risk-On) 與景氣收縮期 (Risk-Off)，並根據理論給出\"撞冰山\"與\"下沉\"事件訊號",
-      "version": "0.1.1",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/zeberg-salomon-rotator",
-      "category": "business-cycles",
-      "tags": [
-        "景氣循環",
-        "領先指標",
-        "同時指標",
-        "景氣擴張",
-        "景氣收縮",
-        "FRED"
-      ]
-    },
-    {
       "name": "us-cpi-pce-comparator",
       "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
       "version": "0.1.0",
@@ -75,6 +57,24 @@
       ]
     },
     {
+      "name": "zeberg-salomon-rotator",
+      "description": "用領先和即時指標建構景氣模型，並判讀兩種景氣階段：景氣擴張期 (Risk-On) 與景氣收縮期 (Risk-Off)，並根據理論給出\"撞冰山\"與\"下沉\"事件訊號",
+      "version": "0.1.2",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/zeberg-salomon-rotator",
+      "category": "business-cycles",
+      "tags": [
+        "景氣循環",
+        "領先指標",
+        "同時指標",
+        "景氣擴張",
+        "景氣收縮",
+        "FRED"
+      ]
+    },
+    {
       "name": "cost-density-net-rr-calculator",
       "description": "Calculate nonlinear transaction cost impact on risk-reward ratios. Integrates fixed commissions and spreads into a unified Cost Density metric, revealing hyperbolic relationship between stop-loss size and strategy efficiency.",
       "version": "0.1.0",
@@ -84,6 +84,24 @@
       "source": "./skills/cost-density-net-rr-calculator",
       "category": "other",
       "tags": []
+    },
+    {
+      "name": "detect-atr-squeeze-regime",
+      "description": "以 14 日指數平滑 ATR（%）偵測市場是否從秩序型趨勢轉為「波動主導的擠壓（squeeze）行情」，並輸出對技術位、停損、交易持有期的可行性評估。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-atr-squeeze-regime",
+      "category": "indicator-monitoring",
+      "tags": [
+        "ATR",
+        "波動率",
+        "擠壓行情",
+        "停損管理",
+        "風險控制",
+        "技術分析"
+      ]
     }
   ]
 }
