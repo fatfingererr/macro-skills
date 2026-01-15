@@ -11,25 +11,18 @@
   "plugins": [
     {
       "name": "wasde-ingestor",
-      "description": "下載並解析 USDA 每月發布的 WASDE 報告，擷取所有主要商品（穀物、油籽、棉花、畜產品、糖）的供需平衡表。輸出標準化、可版本化的資料集，作為即時預測（nowcasting）的錨定基準。",
-      "version": "0.1.0",
+      "description": "Fetch and parse USDA WASDE monthly reports, extracting supply-demand balance sheets for all major commodities (grains, oilseeds, cotton, livestock, sugar). Produces normalized, versioned datasets as anchor baselines for nowcasting.",
+      "version": "0.2.0",
       "author": {
-        "name": "Ricky Wang"
+        "name": "macro-skills"
       },
       "source": "./skills/wasde-ingestor",
-      "category": "indicator-monitoring",
-      "tags": [
-        "USDA",
-        "WASDE",
-        "供給與需求",
-        "供需平衡表",
-        "宏觀",
-        "穀物"
-      ]
+      "category": "other",
+      "tags": []
     },
     {
       "name": "google-trends-ath-detector",
-      "description": "專注於 Google Trends 數據擷取與分析，使用 Selenium 模擬真人瀏覽器行為抓取數據，自動判定搜尋趨勢是否創下歷史新高（ATH）或出現異常飆升，並提供訊號分型（季節性/事件驅動/結構性轉變）。",
+      "description": "專注於 Google Trends 數據擷取與分析，使用 Selenium 模擬真人瀏覽器行為抓取數據，自動判定搜尋趨勢是否創下歷史新高（ATH）或出現異常飆升，並提供訊號分型。",
       "version": "0.1.1",
       "author": {
         "name": "Ricky Wang"
@@ -38,17 +31,17 @@
       "category": "indicator-monitoring",
       "tags": [
         "Google Trends",
+        "ATH",
         "歷史新高",
         "情緒指標",
         "異常偵測",
-        "搜尋趨勢",
-        "訊號分型"
+        "搜尋趨勢"
       ]
     },
     {
       "name": "zeberg-salomon-rotator",
-      "description": "用「領先/同時」景氣循環合成指標，實作 Zeberg–Salomon 兩態切換器：在 Risk-On（景氣擴張期）與 Risk-Off（景氣收縮期）間切換，並輸出可回測的進出場事件與績效。將「撞冰山→下沉」敘事落地成可重現的訊號系統。",
-      "version": "0.1.0",
+      "description": "用領先和即時指標建構景氣模型，並判讀兩種景氣階段：景氣擴張期 (Risk-On) 與景氣收縮期 (Risk-Off)，並根據理論給出\"撞冰山\"與\"下沉\"事件訊號",
+      "version": "0.1.1",
       "author": {
         "name": "Ricky Wang"
       },
@@ -58,46 +51,39 @@
         "景氣循環",
         "領先指標",
         "同時指標",
-        "兩態切換",
-        "Risk-On",
-        "Risk-Off"
+        "景氣擴張",
+        "景氣收縮",
+        "FRED"
       ]
     },
     {
       "name": "us-cpi-pce-comparator",
-      "description": "自動比較美國 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
+      "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
       "version": "0.1.0",
       "author": {
         "name": "Ricky Wang"
       },
       "source": "./skills/us-cpi-pce-comparator",
-      "category": "inflation-analytics",
+      "category": "macro-indicator",
       "tags": [
         "CPI",
         "PCE",
-        "通貨膨脹",
-        "美聯儲",
+        "通膨",
+        "Fed",
         "權重差異",
         "FRED"
       ]
     },
     {
       "name": "cost-density-net-rr-calculator",
-      "description": "計算交易成本對風險報酬比的非線性衰減影響。將固定佣金與點差整合為「成本密度」指標，揭示停損大小與策略效率的雙曲線關係，識別「獲利事件視界」閾值。",
+      "description": "Calculate nonlinear transaction cost impact on risk-reward ratios. Integrates fixed commissions and spreads into a unified Cost Density metric, revealing hyperbolic relationship between stop-loss size and strategy efficiency.",
       "version": "0.1.0",
       "author": {
-        "name": "Ricky Wang"
+        "name": "macro-skills"
       },
       "source": "./skills/cost-density-net-rr-calculator",
-      "category": "data-processing",
-      "tags": [
-        "市場微結構",
-        "交易成本",
-        "風險報酬比",
-        "勝率",
-        "點差與手續費",
-        "倉位規模"
-      ]
+      "category": "other",
+      "tags": []
     }
   ]
 }
