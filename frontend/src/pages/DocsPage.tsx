@@ -128,48 +128,185 @@ export default function DocsPage() {
 
 
 
-        {/* Skill Format */}
+        {/* Skill Structure */}
+        <section className="bg-white border border-gray-200 rounded-xl p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="text-2xl">📁</span>
+            技能目錄結構
+          </h2>
+          <p className="text-gray-600 mb-4">
+            每個技能由三個核心檔案組成，各司其職：
+          </p>
+          <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto mb-4">
+            <pre className="text-gray-100 text-sm leading-relaxed">{`skills/{skill-name}/
+├── SKILL.md          # 技能內容（Claude 執行用）
+├── skill.yaml        # 前端展示設定
+├── manifest.json     # 技能元資料
+├── workflows/        # 工作流程定義
+├── references/       # 參考文件
+├── templates/        # 輸出模板
+├── scripts/          # 執行腳本
+└── examples/         # 範例輸出（選用）`}</pre>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-50 border-b-2 border-gray-200">
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700">檔案</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700">用途</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700">讀取者</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                <tr className="hover:bg-gray-50">
+                  <td className="px-4 py-2.5"><code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">SKILL.md</code></td>
+                  <td className="px-4 py-2.5 text-gray-700">技能執行邏輯與內容</td>
+                  <td className="px-4 py-2.5 text-gray-500">Claude Code</td>
+                </tr>
+                <tr className="hover:bg-gray-50">
+                  <td className="px-4 py-2.5"><code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">skill.yaml</code></td>
+                  <td className="px-4 py-2.5 text-gray-700">前端展示設定</td>
+                  <td className="px-4 py-2.5 text-gray-500">Frontend</td>
+                </tr>
+                <tr className="hover:bg-gray-50">
+                  <td className="px-4 py-2.5"><code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">manifest.json</code></td>
+                  <td className="px-4 py-2.5 text-gray-700">技能元資料</td>
+                  <td className="px-4 py-2.5 text-gray-500">Frontend + Claude Code</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* SKILL.md Format */}
         <section className="bg-white border border-gray-200 rounded-xl p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
             <span className="text-2xl">📝</span>
-            技能格式
+            SKILL.md 格式
           </h2>
           <p className="text-gray-600 mb-4">
-            每個技能都使用 <code className="bg-gray-100 px-1.5 py-0.5 rounded text-sm">SKILL.md</code> 格式定義，包含 YAML frontmatter 和 Markdown 內容：
+            SKILL.md 的 frontmatter 只放 <code className="bg-gray-100 px-1.5 py-0.5 rounded text-sm">name</code> 和 <code className="bg-gray-100 px-1.5 py-0.5 rounded text-sm">description</code>，其他元資料都在 manifest.json 或 skill.yaml：
           </p>
           <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
             <pre className="text-gray-100 text-sm leading-relaxed">{`---
 name: my-skill
-displayName: 我的技能
-description: 技能簡短描述
-emoji: 📊
-version: v1.0.0
-license: MIT
-author: 作者名稱
-tags:
-  - 標籤1
-  - 標籤2
-category: indicator-monitoring
-dataLevel: free-nolimit
-tools:
-  - claude-code
-featured: false
+description: 技能的一句話描述
 ---
 
-# 技能名稱
+<essential_principles>
+**技能名稱 核心原則**
 
-詳細說明...
+<principle name="principle_1">
+**原則標題**
+原則內容說明...
+</principle>
+</essential_principles>
 
-## 使用時機
+<intake>
+**您想要執行什麼操作？**
 
-- 情境 1
-- 情境 2
+1. **操作一** - 操作描述
+2. **操作二** - 操作描述
 
-## 使用方式
+**等待回應後再繼續。**
+</intake>
 
-\`\`\`
-範例指令
-\`\`\``}</pre>
+<routing>
+| Response              | Workflow         | Description |
+|-----------------------|------------------|-------------|
+| 1, "keyword1"         | workflows/xxx.md | 操作描述    |
+| 2, "keyword2"         | workflows/yyy.md | 操作描述    |
+
+**讀取工作流程後，請完全遵循其步驟。**
+</routing>`}</pre>
+          </div>
+        </section>
+
+        {/* manifest.json Format */}
+        <section className="bg-white border border-gray-200 rounded-xl p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="text-2xl">📦</span>
+            manifest.json 格式
+          </h2>
+          <p className="text-gray-600 mb-4">
+            manifest.json 存放技能元資料，供 Claude Code 和前端共同使用：
+          </p>
+          <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+            <pre className="text-gray-100 text-sm leading-relaxed">{`{
+  "name": "my-skill",
+  "version": "0.1.0",
+  "displayName": "我的技能",
+  "description": "技能的完整描述",
+  "author": "作者名稱",
+  "license": "MIT",
+  "category": "indicator-monitoring",
+  "tags": ["標籤1", "標籤2"],
+  "dataLevel": "free-nolimit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": ["pandas>=1.5.0"]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/main.py"
+  },
+  "workflows": [
+    {
+      "id": "analyze",
+      "name": "分析",
+      "file": "workflows/analyze.md"
+    }
+  ]
+}`}</pre>
+          </div>
+        </section>
+
+        {/* skill.yaml Format */}
+        <section className="bg-white border border-gray-200 rounded-xl p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="text-2xl">🎨</span>
+            skill.yaml 格式
+          </h2>
+          <p className="text-gray-600 mb-4">
+            skill.yaml 存放前端展示專用設定，不影響 Claude Code 執行：
+          </p>
+          <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+            <pre className="text-gray-100 text-sm leading-relaxed">{`# 前端展示專用
+displayName: 我的技能
+emoji: "📊"
+authorUrl: https://github.com/username/repo
+
+tools:
+  - claude-code
+
+featured: false
+installCount: 0
+
+testQuestions:
+  - question: '範例問題'
+    expectedResult: |
+      預期結果說明...
+    imagePath: 'images/example.png'
+
+qualityScore:
+  overall: 75
+  badge: 白銀
+  metrics:
+    architecture: 80
+    maintainability: 80
+
+bestPractices:
+  - title: 最佳實踐
+    description: 說明...
+
+pitfalls:
+  - title: 常見陷阱
+    description: 陷阱描述
+    consequence: 導致的後果
+
+faq:
+  - question: 常見問題？
+    answer: 回答內容...`}</pre>
           </div>
         </section>
 
