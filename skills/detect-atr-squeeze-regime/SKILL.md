@@ -1,6 +1,6 @@
 ---
 name: detect-atr-squeeze-regime
-description: 以 14 日指數平滑 ATR（%）偵測市場是否從秩序型趨勢轉為「波動主導的擠壓（squeeze）行情」，並輸出對技術位、停損、交易持有期的可行性評估。
+description: 以 14 日指數平滑 ATR 偵測市場是否從秩序型趨勢轉為波動主導的擠壓（squeeze）行情，並輸出對技術位、停損、交易持有期的可行性評估。
 ---
 
 <essential_principles>
@@ -211,12 +211,12 @@ detect-atr-squeeze-regime/
 </templates_index>
 
 <scripts_index>
-| Script              | Command                              | Purpose              |
-|---------------------|--------------------------------------|----------------------|
-| atr_squeeze.py      | `--symbol SI=F --quick`              | 快速檢查當前狀態     |
-| atr_squeeze.py      | `--symbol SI=F --start DATE`         | 完整歷史分析         |
-| atr_squeeze.py      | `--scan SI=F,GC=F,CL=F`              | 多資產掃描           |
-| plot_atr_squeeze.py | `--symbol SI=F --output output/`     | 生成視覺化儀表盤     |
+| Script              | Command                          | Purpose          |
+|---------------------|----------------------------------|------------------|
+| atr_squeeze.py      | `--symbol SI=F --quick`          | 快速檢查當前狀態 |
+| atr_squeeze.py      | `--symbol SI=F --start DATE`     | 完整歷史分析     |
+| atr_squeeze.py      | `--scan SI=F,GC=F,CL=F`          | 多資產掃描       |
+| plot_atr_squeeze.py | `--symbol SI=F --output output/` | 生成視覺化儀表盤 |
 </scripts_index>
 
 <input_schema_summary>
