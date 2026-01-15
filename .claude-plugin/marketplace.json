@@ -10,6 +10,60 @@
   },
   "plugins": [
     {
+      "name": "zeberg-salomon-rotator",
+      "description": "用領先和即時指標建構景氣模型，並判讀兩種景氣階段：景氣擴張與景氣收縮期，並根據理論給出\"撞冰山\"與\"下沉\"事件訊號",
+      "version": "0.1.2",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/zeberg-salomon-rotator",
+      "category": "business-cycles",
+      "tags": [
+        "景氣循環",
+        "領先指標",
+        "同時指標",
+        "景氣擴張",
+        "景氣收縮",
+        "FRED"
+      ]
+    },
+    {
+      "name": "detect-atr-squeeze-regime",
+      "description": "以 14 日指數平滑 ATR 偵測市場是否從秩序型趨勢轉為波動主導的擠壓（squeeze）行情，並輸出對技術位、停損、交易持有期的可行性評估。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-atr-squeeze-regime",
+      "category": "indicator-monitoring",
+      "tags": [
+        "ATR",
+        "波動率",
+        "擠壓行情",
+        "停損管理",
+        "風險控制",
+        "技術分析"
+      ]
+    },
+    {
+      "name": "evaluate-exponential-trend-deviation-regimes",
+      "description": "計算資產價格相對長期指數成長趨勢線的偏離度，衡量當前是否處於歷史極端區間，並可選擇性地進行宏觀因子分析以判斷行情體質。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/evaluate-exponential-trend-deviation-regimes",
+      "category": "business-cycles",
+      "tags": [
+        "趨勢",
+        "偏離度",
+        "歷史峰值",
+        "指數成長",
+        "技術分析",
+        "宏觀分析"
+      ]
+    },
+    {
       "name": "wasde-ingestor",
       "description": "抓取並解析 USDA（美國農業部）每月發布的 WASDE（世界農產品供需估計）報告，擷取所有主要商品（穀物、油籽、棉花、畜產品、糖）的供需平衡表。產出經標準化、具版本控管的資料集，作為即時預測的基準錨點。",
       "version": "0.2.0",
@@ -39,24 +93,6 @@
       ]
     },
     {
-      "name": "zeberg-salomon-rotator",
-      "description": "用領先和即時指標建構景氣模型，並判讀兩種景氣階段：景氣擴張與景氣收縮期，並根據理論給出\"撞冰山\"與\"下沉\"事件訊號",
-      "version": "0.1.2",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/zeberg-salomon-rotator",
-      "category": "business-cycles",
-      "tags": [
-        "景氣循環",
-        "領先指標",
-        "同時指標",
-        "景氣擴張",
-        "景氣收縮",
-        "FRED"
-      ]
-    },
-    {
       "name": "us-cpi-pce-comparator",
       "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
       "version": "0.1.0",
@@ -64,7 +100,7 @@
         "name": "Ricky Wang"
       },
       "source": "./skills/us-cpi-pce-comparator",
-      "category": "macro-indicator",
+      "category": "inflation-analytics",
       "tags": [
         "CPI",
         "PCE",
@@ -72,42 +108,6 @@
         "Fed",
         "權重差異",
         "FRED"
-      ]
-    },
-    {
-      "name": "evaluate-exponential-trend-deviation-regimes",
-      "description": "計算資產價格相對長期指數成長趨勢線的偏離度，衡量當前是否處於歷史極端區間，並可選擇性地進行宏觀因子分析以判斷行情體質。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/evaluate-exponential-trend-deviation-regimes",
-      "category": "macro-indicator",
-      "tags": [
-        "趨勢分析",
-        "偏離度",
-        "歷史極端",
-        "regime",
-        "指數成長",
-        "技術分析"
-      ]
-    },
-    {
-      "name": "detect-atr-squeeze-regime",
-      "description": "以 14 日指數平滑 ATR 偵測市場是否從秩序型趨勢轉為波動主導的擠壓（squeeze）行情，並輸出對技術位、停損、交易持有期的可行性評估。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/detect-atr-squeeze-regime",
-      "category": "indicator-monitoring",
-      "tags": [
-        "ATR",
-        "波動率",
-        "擠壓行情",
-        "停損管理",
-        "風險控制",
-        "技術分析"
       ]
     },
     {

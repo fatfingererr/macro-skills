@@ -77,6 +77,8 @@ interface Skill {
   pitfalls?: Pitfall[];
   faq?: FAQ[];
   about?: About;
+  methodology?: string;
+  downloadUrl?: string;
 }
 
 // manifest.json 的欄位定義（技能元數據）
@@ -187,6 +189,29 @@ function loadSkillYaml(skillDir: string): SkillYaml | null {
   return null;
 }
 
+// 讀取 methodology.md（原理應用文件）
+function loadMethodology(skillDir: string): string | undefined {
+  // 優先檢查 references/methodology.md
+  const refPath = path.join(skillDir, 'references', 'methodology.md');
+  if (fs.existsSync(refPath)) {
+    try {
+      return fs.readFileSync(refPath, 'utf-8');
+    } catch {
+      return undefined;
+    }
+  }
+  // 備選：根目錄的 methodology.md
+  const rootPath = path.join(skillDir, 'methodology.md');
+  if (fs.existsSync(rootPath)) {
+    try {
+      return fs.readFileSync(rootPath, 'utf-8');
+    } catch {
+      return undefined;
+    }
+  }
+  return undefined;
+}
+
 async function buildMarketplace() {
   const skillsDir = path.join(process.cwd(), 'skills');
   const outputDir = path.join(process.cwd(), 'frontend/public/data');
@@ -212,8 +237,10 @@ async function buildMarketplace() {
       // 讀取 manifest.json（技能元數據）和 skill.yaml（前端展示）
       const manifest = loadManifestJson(skillDir);
       const yamlData = loadSkillYaml(skillDir);
+      const methodology = loadMethodology(skillDir);
       const hasManifest = manifest !== null;
       const hasYaml = yamlData !== null;
+      const hasMethodology = methodology !== undefined;
 
       // 從 manifest.json 提取 author（處理 string 或 {name: string} 格式）
       const manifestAuthor = manifest?.author
@@ -260,12 +287,15 @@ async function buildMarketplace() {
         pitfalls: yamlData?.pitfalls,
         faq: yamlData?.faq,
         about: yamlData?.about,
+        methodology,
+        downloadUrl: `downloads/${skillName}-${(manifest?.version || 'v1.0.0').replace(/^v/, '')}.zip`,
       };
 
       skills.push(skill);
       const sources: string[] = [];
       if (hasManifest) sources.push('manifest');
       if (hasYaml) sources.push('yaml');
+      if (hasMethodology) sources.push('method');
       const source = sources.length > 0 ? `(${sources.join('+')})` : '(md)';
       console.log(`✓ 載入: ${skill.displayName} ${source}`);
     } catch (error) {

@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "description": "Claude Code 技能市集",
   "private": true,
-  "workspaces": ["frontend"],
+  "workspaces": [
+    "frontend"
+  ],
   "scripts": {
     "dev": "bun run --filter frontend dev",
-    "build": "bun run build:marketplace && bun run --filter frontend build",
+    "build": "bun run build:marketplace; bun run pack:skills; bun run --filter frontend build",
     "build:marketplace": "bun run scripts/build-marketplace.ts",
+    "pack:skills": "bun run scripts/pack-skills.ts",
     "preview": "bun run --filter frontend preview"
   },
   "devDependencies": {
