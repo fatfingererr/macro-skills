@@ -1,0 +1,114 @@
+{
+  "name": "detect-atr-squeeze-regime",
+  "version": "0.1.0",
+  "displayName": "ATR 擠壓行情偵測",
+  "description": "以 14 日指數平滑 ATR（%）偵測市場是否從秩序型趨勢轉為「波動主導的擠壓（squeeze）行情」，並輸出對技術位、停損、交易持有期的可行性評估。",
+  "author": "Ricky Wang",
+  "license": "MIT",
+  "category": "indicator-monitoring",
+  "tags": [
+    "ATR",
+    "波動率",
+    "擠壓行情",
+    "停損管理",
+    "風險控制",
+    "技術分析",
+    "反身性",
+    "市場微結構"
+  ],
+  "dataLevel": "free-nolimit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "yfinance>=0.2.0",
+      "pandas_ta>=0.3.0"
+    ],
+    "optional": [
+      "matplotlib>=3.5.0",
+      "plotly>=5.0.0",
+      "scipy>=1.10.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/atr_squeeze.py"
+  },
+  "workflows": [
+    {
+      "id": "detect",
+      "name": "快速偵測",
+      "description": "快速偵測單一資產的 ATR 擠壓行情",
+      "file": "workflows/detect.md"
+    },
+    {
+      "id": "monitor",
+      "name": "多資產監控",
+      "description": "持續監控多個資產的擠壓行情狀態",
+      "file": "workflows/monitor.md"
+    },
+    {
+      "id": "backtest",
+      "name": "歷史回測",
+      "description": "回測擠壓行情識別的準確性",
+      "file": "workflows/backtest.md"
+    }
+  ],
+  "references": [
+    "references/methodology.md",
+    "references/input-schema.md",
+    "references/data-sources.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md"
+  ],
+  "examples": [
+    "examples/xagusd-squeeze-2024.json"
+  ],
+  "dataSources": [
+    {
+      "name": "Yahoo Finance",
+      "type": "primary",
+      "url": "https://finance.yahoo.com",
+      "api": "yfinance package",
+      "tickers": [
+        "SI=F",
+        "GC=F",
+        "CL=F",
+        "^VIX"
+      ]
+    },
+    {
+      "name": "Stooq",
+      "type": "alternative",
+      "url": "https://stooq.com",
+      "api": "CSV download"
+    }
+  ],
+  "modelConfig": {
+    "defaultParams": {
+      "atr_period": 14,
+      "atr_smoothing": "ema",
+      "use_percent_atr": true,
+      "baseline_window_days": 756,
+      "spike_threshold_x": 2.0,
+      "high_vol_threshold_pct": 6.0,
+      "rsi_period": 14
+    },
+    "regimeThresholds": {
+      "squeeze": {
+        "ratio_min": 2.0,
+        "atr_pct_min": 6.0
+      },
+      "elevated": {
+        "ratio_min": 1.2,
+        "ratio_max": 2.0
+      },
+      "orderly": {
+        "ratio_max": 1.2
+      }
+    }
+  }
+}

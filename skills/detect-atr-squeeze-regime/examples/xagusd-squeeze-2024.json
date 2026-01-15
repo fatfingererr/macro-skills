@@ -1,0 +1,63 @@
+{
+  "skill": "detect-atr-squeeze-regime",
+  "symbol": "SI=F",
+  "as_of": "2024-08-05",
+  "data_range": {
+    "start": "2019-08-05",
+    "end": "2024-08-05",
+    "trading_days": 1260
+  },
+  "regime": "volatility_dominated_squeeze",
+  "atr_pct": 8.92,
+  "atr_ratio_to_baseline": 2.97,
+  "baseline_atr_pct": 3.0,
+  "baseline_period_days": 756,
+  "tech_level_reliability": "low",
+  "tech_level_reliability_score": 31,
+  "risk_adjustments": {
+    "suggested_stop_atr_mult": 2.7,
+    "position_scale": 0.34,
+    "recommended_timeframe": "weekly",
+    "instrument_suggestion": "options_or_spreads"
+  },
+  "interpretation": {
+    "regime_explanation": "當前市場處於「波動主導的擠壓行情」。價格運動更多反映「被迫流」：保證金調整、期權避險、空頭回補。技術位可靠度下降，停損容易被噪音掃掉。",
+    "tactics": [
+      "偏向較長週期決策，降低被日內噪音主導的風險。",
+      "若要參與趨勢，優先考慮 defined-risk（期權/價差）結構。",
+      "避免緊停損的短線交易，結構性受損。",
+      "宏觀方向對也難撐：短期雜訊大到足以讓正確部位先被洗掉。"
+    ],
+    "microstructure_notes": {
+      "forced_flows": [
+        "保證金調整 / 槓桿去化",
+        "期權 Delta/Gamma 避險",
+        "空頭回補",
+        "被動風險平價再平衡"
+      ],
+      "technical_unreliability": "突破/跌破更常是流動性與風控觸發的結果，而非市場共識改變。",
+      "stop_vulnerability": "同一口波動可掃過多層 stops，低時間尺度交易結構性受損。"
+    }
+  },
+  "auxiliary_indicators": {
+    "rsi_14": 28.5,
+    "latest_close": 26.82
+  },
+  "context": {
+    "event": "2024 年 8 月日圓套利平倉風暴",
+    "description": "日本央行升息引發日圓套利交易大規模平倉，導致跨資產去槓桿連鎖反應，白銀作為高波動貴金屬資產首當其衝。",
+    "peak_date": "2024-08-05",
+    "duration_days": 37,
+    "recovery_date": "2024-08-28"
+  },
+  "metadata": {
+    "generated_at": "2024-08-05T16:30:00Z",
+    "parameters": {
+      "atr_period": 14,
+      "atr_smoothing": "ema",
+      "baseline_window_days": 756,
+      "spike_threshold_x": 2.0,
+      "high_vol_threshold_pct": 6.0
+    }
+  }
+}
