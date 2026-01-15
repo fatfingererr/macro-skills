@@ -5,7 +5,7 @@
 ```json
 {
   "skill": "zeberg-salomon-rotator",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "as_of": "2026-01-15",
   "params_used": {
     "start_date": "2000-01-01",
@@ -249,45 +249,45 @@
 
 ### current_state
 
-| 欄位 | 說明 |
-|------|------|
-| state | 當前狀態（RISK_ON 或 RISK_OFF） |
-| since | 進入當前狀態的日期 |
-| months_in_state | 在當前狀態的月數 |
+| 欄位            | 說明                            |
+|-----------------|---------------------------------|
+| state           | 當前狀態（RISK_ON 或 RISK_OFF） |
+| since           | 進入當前狀態的日期              |
+| months_in_state | 在當前狀態的月數                |
 
 ### latest_indices
 
-| 欄位 | 說明 |
-|------|------|
-| LeadingIndex | 領先指標合成值 |
-| CoincidentIndex | 同時指標合成值 |
-| dL | 領先指標月變化 |
-| dC | 同時指標月變化 |
-| iceberg_event | 是否觸發冰山事件 |
-| sinking_event | 是否觸發下沉事件 |
+| 欄位                | 說明                         |
+|---------------------|------------------------------|
+| LeadingIndex        | 領先指標合成值               |
+| CoincidentIndex     | 同時指標合成值               |
+| dL                  | 領先指標月變化               |
+| dC                  | 同時指標月變化               |
+| iceberg_event       | 是否觸發冰山事件             |
+| sinking_event       | 是否觸發下沉事件             |
 | distance_to_iceberg | 距離冰山門檻的距離（標準差） |
 | distance_to_sinking | 距離下沉門檻的距離（標準差） |
 
 ### switch_events
 
-| 欄位 | 說明 |
-|------|------|
-| date | 切換日期 |
-| action | 執行動作 |
-| from_state | 原狀態 |
-| to_state | 新狀態 |
-| reason | 觸發原因詳情 |
+| 欄位       | 說明         |
+|------------|--------------|
+| date       | 切換日期     |
+| action     | 執行動作     |
+| from_state | 原狀態       |
+| to_state   | 新狀態       |
+| reason     | 觸發原因詳情 |
 
 ### backtest_summary.performance
 
-| 欄位 | 說明 |
-|------|------|
-| cumulative_return | 累積報酬倍數 |
-| cagr | 年化複合成長率 |
-| annualized_volatility | 年化波動率 |
-| sharpe_ratio | Sharpe 比率 |
-| max_drawdown | 最大回撤 |
-| calmar_ratio | Calmar 比率（CAGR / MaxDD） |
+| 欄位                  | 說明                        |
+|-----------------------|-----------------------------|
+| cumulative_return     | 累積報酬倍數                |
+| cagr                  | 年化複合成長率              |
+| annualized_volatility | 年化波動率                  |
+| sharpe_ratio          | Sharpe 比率                 |
+| max_drawdown          | 最大回撤                    |
+| calmar_ratio          | Calmar 比率（CAGR / MaxDD） |
 
 ## 精簡輸出（--quick 模式）
 
