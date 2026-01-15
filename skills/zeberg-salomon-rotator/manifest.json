@@ -1,6 +1,6 @@
 {
   "name": "zeberg-salomon-rotator",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "displayName": "澤伯格–所羅門景氣循環",
   "description": "用領先和即時指標建構景氣模型，並判讀兩種景氣階段：景氣擴張期 (Risk-On) 與景氣收縮期 (Risk-Off)，並根據理論給出\"撞冰山\"與\"下沉\"事件訊號",
   "author": "Ricky Wang",
