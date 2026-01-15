@@ -1,0 +1,177 @@
+{
+  "name": "zeberg-salomon-rotator",
+  "version": "0.1.0",
+  "displayName": "澤伯格–所羅門景氣循環",
+  "description": "用「領先/同時」景氣循環合成指標，實作 Zeberg–Salomon 兩態切換器：在 Risk-On（股票）與 Risk-Off（長天期公債）間切換，並輸出可回測的進出場事件與績效。",
+  "author": "Ricky Wang",
+  "license": "MIT",
+  "category": "macro-rotation",
+  "tags": [
+    "景氣循環",
+    "領先指標",
+    "同時指標",
+    "兩態切換",
+    "Risk-On",
+    "Risk-Off",
+    "回測",
+    "FRED",
+    "宏觀經濟",
+    "Zeberg",
+    "Salomon"
+  ],
+  "dataLevel": "free-nolimit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "yfinance>=0.2.0",
+      "pandas-datareader>=0.10.0",
+      "requests>=2.28.0"
+    ],
+    "optional": [
+      "matplotlib>=3.5.0",
+      "statsmodels>=0.14.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/rotator.py"
+  },
+  "workflows": [
+    {
+      "id": "backtest",
+      "name": "完整回測",
+      "description": "執行完整歷史回測與績效分析",
+      "file": "workflows/backtest.md"
+    },
+    {
+      "id": "monitor",
+      "name": "監控模式",
+      "description": "持續監控狀態與切換警報",
+      "file": "workflows/monitor.md"
+    },
+    {
+      "id": "analyze",
+      "name": "深度分析",
+      "description": "深度分析當前市場狀態與指標貢獻",
+      "file": "workflows/analyze.md"
+    }
+  ],
+  "references": [
+    "references/data-sources.md",
+    "references/methodology.md",
+    "references/input-schema.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md"
+  ],
+  "examples": [],
+  "dataSources": [
+    {
+      "name": "FRED",
+      "type": "primary",
+      "url": "https://fred.stlouisfed.org",
+      "api": "CSV endpoint (no API key required)",
+      "series": {
+        "leading": [
+          "T10Y3M",
+          "T10Y2Y",
+          "PERMIT",
+          "ACDGNO",
+          "UMCSENT"
+        ],
+        "coincident": [
+          "PAYEMS",
+          "INDPRO",
+          "W875RX1",
+          "CMRMTSPL"
+        ]
+      }
+    },
+    {
+      "name": "Yahoo Finance",
+      "type": "primary",
+      "url": "https://finance.yahoo.com",
+      "api": "yfinance package",
+      "tickers": [
+        "SPY",
+        "TLT",
+        "^VIX"
+      ]
+    }
+  ],
+  "modelConfig": {
+    "defaultParams": {
+      "freq": "M",
+      "standardize_window": 120,
+      "smooth_window": 3,
+      "iceberg_threshold": -0.3,
+      "sinking_threshold": -0.5,
+      "confirm_periods": 2,
+      "hysteresis": 0.15,
+      "rebalance_on": "next_month_open",
+      "transaction_cost_bps": 5,
+      "slippage_bps": 0
+    },
+    "leadingSeries": [
+      {
+        "id": "T10Y3M",
+        "transform": "level",
+        "direction": 1,
+        "weight": 0.25
+      },
+      {
+        "id": "T10Y2Y",
+        "transform": "level",
+        "direction": 1,
+        "weight": 0.15
+      },
+      {
+        "id": "PERMIT",
+        "transform": "yoy",
+        "direction": 1,
+        "weight": 0.20
+      },
+      {
+        "id": "ACDGNO",
+        "transform": "yoy",
+        "direction": 1,
+        "weight": 0.20
+      },
+      {
+        "id": "UMCSENT",
+        "transform": "level",
+        "direction": 1,
+        "weight": 0.20
+      }
+    ],
+    "coincidentSeries": [
+      {
+        "id": "PAYEMS",
+        "transform": "yoy",
+        "direction": 1,
+        "weight": 0.30
+      },
+      {
+        "id": "INDPRO",
+        "transform": "yoy",
+        "direction": 1,
+        "weight": 0.30
+      },
+      {
+        "id": "W875RX1",
+        "transform": "yoy",
+        "direction": 1,
+        "weight": 0.20
+      },
+      {
+        "id": "CMRMTSPL",
+        "transform": "yoy",
+        "direction": 1,
+        "weight": 0.20
+      }
+    ]
+  }
+}
