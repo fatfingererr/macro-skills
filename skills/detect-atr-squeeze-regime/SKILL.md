@@ -112,6 +112,18 @@ python scripts/atr_squeeze.py --symbol SI=F --quick
 python scripts/atr_squeeze.py --symbol XAGUSD --start 2020-01-01 --end 2026-01-01 --output result.json
 ```
 
+**生成視覺化儀表盤**：
+```bash
+pip install matplotlib  # 首次使用
+python scripts/plot_atr_squeeze.py --symbol SI=F --output output/
+```
+
+儀表盤包含：
+- 價格走勢圖
+- ATR% 波動率時間序列
+- ATR 倍率儀表盤
+- 當前狀態與風控建議面板
+
 </quick_start>
 
 <intake>
@@ -157,7 +169,8 @@ detect-atr-squeeze-regime/
 │   ├── output-json.md                 # JSON 輸出模板
 │   └── output-markdown.md             # Markdown 報告模板
 ├── scripts/
-│   └── atr_squeeze.py                 # 主偵測腳本
+│   ├── atr_squeeze.py                 # 主偵測腳本
+│   └── plot_atr_squeeze.py            # 視覺化儀表盤腳本
 └── examples/
     └── xagusd-squeeze-2024.json       # 範例輸出
 ```
@@ -198,11 +211,12 @@ detect-atr-squeeze-regime/
 </templates_index>
 
 <scripts_index>
-| Script         | Command                      | Purpose          |
-|----------------|------------------------------|------------------|
-| atr_squeeze.py | `--symbol SI=F --quick`      | 快速檢查當前狀態 |
-| atr_squeeze.py | `--symbol SI=F --start DATE` | 完整歷史分析     |
-| atr_squeeze.py | `--scan SI=F,GC=F,CL=F`      | 多資產掃描       |
+| Script              | Command                              | Purpose              |
+|---------------------|--------------------------------------|----------------------|
+| atr_squeeze.py      | `--symbol SI=F --quick`              | 快速檢查當前狀態     |
+| atr_squeeze.py      | `--symbol SI=F --start DATE`         | 完整歷史分析         |
+| atr_squeeze.py      | `--scan SI=F,GC=F,CL=F`              | 多資產掃描           |
+| plot_atr_squeeze.py | `--symbol SI=F --output output/`     | 生成視覺化儀表盤     |
 </scripts_index>
 
 <input_schema_summary>
@@ -274,4 +288,5 @@ detect-atr-squeeze-regime/
 - [ ] 建議倉位縮放係數
 - [ ] 行情解釋與戰術建議
 - [ ] 時間序列資料（可選，用於視覺化）
+- [ ] 視覺化儀表盤 PNG（可選，使用 plot_atr_squeeze.py）
 </success_criteria>
