@@ -1,0 +1,89 @@
+{
+  "name": "evaluate-exponential-trend-deviation-regimes",
+  "version": "0.1.0",
+  "displayName": "評估行情與指數趨勢偏離程度",
+  "description": "計算資產價格相對長期指數成長趨勢線的偏離度，衡量當前是否處於歷史極端區間，並可選擇性地進行宏觀因子分析以判斷行情體質。",
+  "author": "Ricky Wang",
+  "license": "MIT",
+  "category": "macro-indicator",
+  "tags": [
+    "趨勢分析",
+    "偏離度",
+    "歷史極端",
+    "regime",
+    "指數成長",
+    "技術分析",
+    "宏觀分析"
+  ],
+  "dataLevel": "free-nolimit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "yfinance>=0.2.0",
+      "pandas-datareader>=0.10.0",
+      "statsmodels>=0.13.0"
+    ],
+    "optional": [
+      "matplotlib>=3.5.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/trend_deviation.py"
+  },
+  "workflows": [
+    {
+      "id": "detect",
+      "name": "單資產偵測",
+      "description": "計算單一黃金標的的趨勢偏離度與行情體質",
+      "file": "workflows/detect.md"
+    },
+    {
+      "id": "compare",
+      "name": "歷史對照分析",
+      "description": "將當前偏離度與歷史峰值進行詳細比較",
+      "file": "workflows/compare.md"
+    },
+    {
+      "id": "macro",
+      "name": "宏觀因子分解",
+      "description": "詳細拆解各宏觀代理指標對體質判定的貢獻",
+      "file": "workflows/macro.md"
+    }
+  ],
+  "references": [
+    "references/input-schema.md",
+    "references/methodology.md",
+    "references/regime-rules.md",
+    "references/data-sources.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md"
+  ],
+  "examples": [
+    "examples/gold-deviation-2026.json"
+  ],
+  "dataSources": [
+    {
+      "name": "Yahoo Finance",
+      "type": "primary",
+      "url": "https://finance.yahoo.com",
+      "api": "yfinance 套件（支援股票、期貨、ETF、加密貨幣等）"
+    },
+    {
+      "name": "FRED",
+      "type": "optional",
+      "url": "https://fred.stlouisfed.org",
+      "api": "pandas-datareader（宏觀因子：實質利率、通膨、美元指數等）"
+    },
+    {
+      "name": "Stooq",
+      "type": "fallback",
+      "url": "https://stooq.com",
+      "api": "CSV 下載（各類資產歷史數據）"
+    }
+  ]
+}

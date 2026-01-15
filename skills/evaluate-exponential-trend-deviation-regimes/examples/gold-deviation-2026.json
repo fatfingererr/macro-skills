@@ -1,0 +1,80 @@
+{
+  "skill": "evaluate-exponential-trend-deviation-regimes",
+  "asset": "GC=F",
+  "trend_model": "exponential_log_linear",
+  "date_range": {
+    "start": "1970-01-31",
+    "end": "2026-01-14"
+  },
+  "metrics": {
+    "current_distance_pct": 92.4,
+    "current_percentile": 97.8,
+    "reference": {
+      "2011-09-06": 83.5,
+      "1980-01-21": 318.2,
+      "2011_max": 85.1,
+      "1980_max": 320.7
+    },
+    "verdict": {
+      "surpassed_2011_by_this_metric": true,
+      "distance_to_1980_peak_pct_points": 228.3
+    }
+  },
+  "regime": {
+    "regime_label": "1970s_like",
+    "drivers": [
+      "Real rates negative / falling",
+      "Inflation risk rising",
+      "Geopolitical tension proxy rising"
+    ],
+    "confidence": 0.72,
+    "factor_breakdown": {
+      "real_rate": {
+        "value": -0.5,
+        "trend": "falling",
+        "score": 1.0,
+        "contribution": 0.30
+      },
+      "inflation": {
+        "value": 2.8,
+        "trend": "rising",
+        "score": 0.7,
+        "contribution": 0.175
+      },
+      "geopolitical": {
+        "percentile": 75,
+        "trend": "rising",
+        "score": 0.8,
+        "contribution": 0.20
+      },
+      "usd": {
+        "trend": "weakening",
+        "score": 0.7,
+        "contribution": 0.14
+      }
+    }
+  },
+  "insights": [
+    "Gold is trading at an extreme positive deviation from its long-run exponential trendline, above the 2011 deviation peak.",
+    "Compared with 1980-style blow-off, deviation is still materially lower (228 pct points), leaving room for extension if 1970s-like conditions persist.",
+    "If real rates re-anchor higher and inflation expectations cool, mean-reversion risk increases even if the long-term trend remains up."
+  ],
+  "trend_parameters": {
+    "a": 3.555,
+    "b": 0.00456,
+    "annualized_growth_rate_pct": 5.5
+  },
+  "auxiliary": {
+    "latest_price": 2650.5,
+    "trend_price": 1379.2,
+    "data_points": 660
+  },
+  "metadata": {
+    "generated_at": "2026-01-15T10:30:00Z",
+    "data_sources": {
+      "gold": "Yahoo Finance (GC=F)",
+      "macro": "FRED"
+    },
+    "warnings": []
+  }
+}
