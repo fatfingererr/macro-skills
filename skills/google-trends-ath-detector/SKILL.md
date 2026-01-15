@@ -1,6 +1,6 @@
 ---
 name: google-trends-ath-detector
-displayName: Google Trends 歷史新高 (ATH) 偵測器
+displayName: 解讀 Google Trends 歷史新高
 description: 專注於 Google Trends 數據擷取與分析，使用 Selenium 模擬真人瀏覽器行為抓取數據，自動判定搜尋趨勢是否創下歷史新高（ATH）或出現異常飆升，並提供訊號分型（季節性/事件驅動/結構性轉變）。
 emoji: "\U0001F4C8"
 version: v0.1.1
@@ -343,20 +343,20 @@ python scripts/trend_fetcher.py \
 
 **CLI 參數說明：**
 
-| 參數            | 說明                             | 預設值                |
-|-----------------|----------------------------------|-----------------------|
-| `--topic`       | 搜尋主題（必要）                 | -                     |
-| `--geo`         | 地區代碼                         | US                    |
-| `--timeframe`   | 時間範圍                         | 2004-01-01 2025-12-31 |
-| `--threshold`   | 異常 z-score 門檻                | 2.5                   |
-| `--compare`     | 比較主題（逗號分隔）             | -                     |
-| `--no-related`  | 跳過 related queries             | false                 |
-| `--no-headless` | 顯示瀏覽器視窗                   | false                 |
-| `--login`       | 強制啟用登入模式                 | false                 |
-| `--login-wait`  | 登入等待秒數（0=互動式 Enter）   | 120                   |
-| `--csv`         | CSV 檔案路徑或 'auto' 自動尋找   | -                     |
-| `--debug`       | 啟用調試模式                     | false                 |
-| `--output`      | 輸出 JSON 檔案路徑               | -                     |
+| 參數            | 說明                           | 預設值                |
+|-----------------|--------------------------------|-----------------------|
+| `--topic`       | 搜尋主題（必要）               | -                     |
+| `--geo`         | 地區代碼                       | US                    |
+| `--timeframe`   | 時間範圍                       | 2004-01-01 2025-12-31 |
+| `--threshold`   | 異常 z-score 門檻              | 2.5                   |
+| `--compare`     | 比較主題（逗號分隔）           | -                     |
+| `--no-related`  | 跳過 related queries           | false                 |
+| `--no-headless` | 顯示瀏覽器視窗                 | false                 |
+| `--login`       | 強制啟用登入模式               | false                 |
+| `--login-wait`  | 登入等待秒數（0=互動式 Enter） | 120                   |
+| `--csv`         | CSV 檔案路徑或 'auto' 自動尋找 | -                     |
+| `--debug`       | 啟用調試模式                   | false                 |
+| `--output`      | 輸出 JSON 檔案路徑             | -                     |
 </quick_start>
 
 <success_criteria>

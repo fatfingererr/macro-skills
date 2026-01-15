@@ -1,6 +1,6 @@
 ---
 name: cost-density-net-rr-calculator
-displayName: 成本密度淨風報比計算器
+displayName: 計算成本密度淨風報比
 description: 計算交易成本對風險報酬比的非線性衰減影響。將固定佣金與點差整合為「成本密度」指標，揭示停損大小與策略效率的雙曲線關係，識別「獲利事件視界」閾值。
 emoji: "🧮"
 version: v0.1.0

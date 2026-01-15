@@ -1,6 +1,6 @@
 ---
 name: us-cpi-pce-comparator
-displayName: 美國 CPI/PCE 通膨比較器
+displayName: 美國 CPI/PCE 通膨比較
 description: 自動比較美國 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。
 emoji: "\U0001F4CA"
 version: v0.1.0
