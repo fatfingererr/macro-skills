@@ -38,15 +38,22 @@ def fetch_asset_yahoo(symbol: str, start: str, end: str) -> pd.DataFrame:
 | 以太坊 | ETH-USD | ~2017 年起 |
 | 黃金 ETF | GLD | ~2004 年起 |
 
-### 替代：Stooq
+### 替代：Stooq（黃金長期分析推薦）
 
-適用於需要更長歷史數據的情況。
+適用於需要更長歷史數據的情況。**黃金完整歷史分析（1970+）建議使用 Stooq**。
 
 | 項目 | 說明 |
 |------|------|
 | API | CSV 下載 |
 | 費用 | 免費 |
 | 歷史 | 部分資產可達 1970 年代 |
+
+**黃金專用**：使用 `xauusd` 符號可取得 1970 年起的月頻數據：
+
+```python
+url = 'https://stooq.com/q/d/l/?s=xauusd&d1=19700101&d2=20260115&i=m'
+gold = pd.read_csv(url)
+```
 
 ```python
 import pandas as pd

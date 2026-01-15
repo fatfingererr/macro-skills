@@ -66,6 +66,9 @@ python scripts/trend_deviation.py --symbol GC=F --start 1970-01-01 --include-mac
 
 # 指定歷史參考日期
 python scripts/trend_deviation.py --symbol GC=F --compare-peaks "2011-09-06,2020-08-07"
+
+# 生成視覺化圖表（輸出 PNG + JSON）
+python scripts/generate_chart.py --output ./output/
 ```
 </quick_start>
 
@@ -99,6 +102,7 @@ python scripts/trend_deviation.py --symbol GC=F --compare-peaks "2011-09-06,2020
 | Script | Purpose |
 |--------|---------|
 | trend_deviation.py | 主要分析腳本：趨勢擬合、偏離度計算、體質判定 |
+| generate_chart.py | 視覺化圖表生成：偏離度歷史圖表與峰值標註 |
 </scripts_index>
 
 <examples_index>
@@ -116,4 +120,5 @@ Skill 成功執行時：
 - [ ] 與 2011/1980 峰值進行有效比較
 - [ ] 綜合宏觀代理指標得出 regime 判定（1970s-like / 2000s-like）
 - [ ] 輸出完整的 JSON 或 Markdown 報告
+- [ ] （選用）生成視覺化圖表（PNG）標註歷史峰值與當前位置
 </success_criteria>
