@@ -337,13 +337,13 @@ class BalanceNowcast:
 
 
 class PriceRegime:
-    """價格制度分析"""
+    """價格型態分析"""
 
     def __init__(self, config: LithiumConfig):
         self.config = config
 
     def compute(self) -> Dict[str, Any]:
-        """計算價格制度"""
+        """計算價格型態"""
         logger.info("Computing price regime...")
 
         # 載入價格數據
@@ -360,7 +360,7 @@ class PriceRegime:
             # 計算指標
             indicators = self._compute_indicators(price_series)
 
-            # 分類制度
+            # 分類型態
             regime = self._classify_regime(indicators)
 
             results[chem] = {
@@ -379,7 +379,7 @@ class PriceRegime:
         return results
 
     def _compute_indicators(self, price_series: pd.Series) -> Dict[str, float]:
-        """計算制度指標"""
+        """計算型態指標"""
         # ROC
         roc_12w = (price_series.iloc[-1] / price_series.iloc[-12] - 1) * 100 if len(price_series) > 12 else 0
         roc_26w = (price_series.iloc[-1] / price_series.iloc[-26] - 1) * 100 if len(price_series) > 26 else 0
@@ -409,7 +409,7 @@ class PriceRegime:
         }
 
     def _classify_regime(self, indicators: Dict) -> Dict[str, Any]:
-        """分類價格制度"""
+        """分類價格型態"""
         roc_12w = indicators["roc_12w"]
         slope = indicators["slope"]
         deviation = indicators["mean_deviation"]
@@ -623,7 +623,7 @@ class LithiumSupplyDemandRadar:
         return self.balance.compute()
 
     def price_regime(self) -> Dict[str, Any]:
-        """僅價格制度分析"""
+        """僅價格型態分析"""
         return self.price.compute()
 
     def etf_exposure(self) -> Dict[str, Any]:
@@ -679,7 +679,7 @@ class LithiumSupplyDemandRadar:
             },
             {
                 "condition": "regime == downtrend",
-                "description": "價格制度再次轉弱",
+                "description": "價格型態再次轉弱",
                 "severity": "medium"
             },
             {

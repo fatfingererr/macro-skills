@@ -3,7 +3,7 @@
 """
 Lithium Price Regime Classification
 
-鋰價制度分類（Downtrend → Bottoming → Uptrend → Overheat）
+鋰價型態分類（Downtrend → Bottoming → Uptrend → Overheat）
 """
 
 import logging
@@ -172,9 +172,9 @@ def classify_regime(
     thresholds: Optional[Dict[str, float]] = None
 ) -> Dict[str, Any]:
     """
-    根據技術指標分類價格制度
+    根據技術指標分類價格型態
 
-    制度定義：
+    型態定義：
     - downtrend: ROC < -5%, slope < 0
     - bottoming: ROC 接近 0, volatility 下降, deviation < -20%
     - uptrend: ROC > 5%, slope > 0
@@ -189,7 +189,7 @@ def classify_regime(
         thresholds: 自定義閾值
 
     Returns:
-        regime: 制度分類
+        regime: 型態分類
         confidence: 置信度
         reasoning: 判斷理由
     """
@@ -270,7 +270,7 @@ def compute_price_regime(
     thresholds: Optional[Dict[str, float]] = None
 ) -> RegimeResult:
     """
-    完整價格制度計算
+    完整價格型態計算
 
     Args:
         prices: 價格序列（週頻，最新在最後）
