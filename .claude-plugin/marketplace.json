@@ -64,6 +64,17 @@
       ]
     },
     {
+      "name": "wasde-ingestor",
+      "description": "抓取並解析 USDA（美國農業部）每月發布的 WASDE（世界農產品供需估計）報告，擷取所有主要商品（穀物、油籽、棉花、畜產品、糖）的供需平衡表。產出經標準化、具版本控管的資料集，作為即時預測的基準錨點。",
+      "version": "0.2.0",
+      "author": {
+        "name": "macro-skills"
+      },
+      "source": "./skills/wasde-ingestor",
+      "category": "nowcasting",
+      "tags": []
+    },
+    {
       "name": "us-cpi-pce-comparator",
       "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
       "version": "0.1.0",
@@ -79,6 +90,24 @@
         "Fed",
         "權重差異",
         "FRED"
+      ]
+    },
+    {
+      "name": "lithium-supply-demand-gap-radar",
+      "description": "將鋰產業鏈（礦端 → 精煉化學品 → 電池與終端需求），整合為一套可運算的替代指標；再把這些指標映射到鋰主題 ETF（如 LIT）的成分暴露與長期價格走勢，形成可供決策的依據。 ",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/lithium-supply-demand-gap-radar",
+      "category": "commodity-sd",
+      "tags": [
+        "鋰",
+        "供需分析",
+        "ETF",
+        "LIT",
+        "原物料",
+        "電池"
       ]
     },
     {
@@ -118,35 +147,6 @@
       ]
     },
     {
-      "name": "wasde-ingestor",
-      "description": "抓取並解析 USDA（美國農業部）每月發布的 WASDE（世界農產品供需估計）報告，擷取所有主要商品（穀物、油籽、棉花、畜產品、糖）的供需平衡表。產出經標準化、具版本控管的資料集，作為即時預測的基準錨點。",
-      "version": "0.2.0",
-      "author": {
-        "name": "macro-skills"
-      },
-      "source": "./skills/wasde-ingestor",
-      "category": "nowcasting",
-      "tags": []
-    },
-    {
-      "name": "lithium-supply-demand-gap-radar",
-      "description": "將鋰產業鏈（礦端 → 精煉化學品 → 電池與終端需求），整合為一套可運算的替代指標；再把這些指標映射到鋰主題 ETF（如 LIT）的成分暴露與長期價格走勢，形成可供決策的依據。 ",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/lithium-supply-demand-gap-radar",
-      "category": "commodity-sd",
-      "tags": [
-        "鋰",
-        "供需分析",
-        "ETF",
-        "LIT",
-        "原物料",
-        "電池"
-      ]
-    },
-    {
       "name": "cost-density-net-rr-calculator",
       "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
       "version": "0.1.0",
@@ -156,6 +156,24 @@
       "source": "./skills/cost-density-net-rr-calculator",
       "category": "indicator-monitoring",
       "tags": []
+    },
+    {
+      "name": "detect-palladium-lead-silver-turns",
+      "description": "以鈀金的先行轉向作為確認條件，檢驗白銀短期漲跌是否獲得工業景氣與風險情緒的同步支持，並標記缺乏鈀金參與度的失敗走勢。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-palladium-lead-silver-turns",
+      "category": "indicator-monitoring",
+      "tags": [
+        "鈀金",
+        "白銀",
+        "貴金屬",
+        "拐點偵測",
+        "領先指標",
+        "跨金屬確認"
+      ]
     }
   ]
 }
