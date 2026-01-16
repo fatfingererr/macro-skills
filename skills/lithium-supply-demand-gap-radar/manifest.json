@@ -61,7 +61,7 @@
     },
     {
       "id": "price-regime",
-      "name": "價格制度分析",
+      "name": "價格型態分析",
       "description": "分析鋰價週期位置與趨勢",
       "file": "workflows/price-regime.md"
     },
