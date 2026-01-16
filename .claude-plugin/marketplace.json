@@ -75,21 +75,21 @@
       "tags": []
     },
     {
-      "name": "google-trends-ath-detector",
-      "description": "模擬真人操作瀏覽器抓取 Google Trends 數據，自動判定搜尋趨勢是否創下歷史新高（ATH）或出現異常飆升，並提供訊號分類。",
-      "version": "0.1.1",
+      "name": "nickel-concentration-risk-analyzer",
+      "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
+      "version": "0.1.0",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/google-trends-ath-detector",
-      "category": "indicator-monitoring",
+      "source": "./skills/nickel-concentration-risk-analyzer",
+      "category": "event-scenario",
       "tags": [
-        "Google Trends",
-        "ATH",
-        "歷史新高",
-        "情緒指標",
-        "異常偵測",
-        "搜尋趨勢"
+        "鎳",
+        "供給集中度",
+        "原物料",
+        "印尼",
+        "採礦",
+        "地緣政治"
       ]
     },
     {
@@ -108,6 +108,24 @@
         "Fed",
         "權重差異",
         "FRED"
+      ]
+    },
+    {
+      "name": "google-trends-ath-detector",
+      "description": "模擬真人操作瀏覽器抓取 Google Trends 數據，自動判定搜尋趨勢是否創下歷史新高（ATH）或出現異常飆升，並提供訊號分類。",
+      "version": "0.1.1",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/google-trends-ath-detector",
+      "category": "indicator-monitoring",
+      "tags": [
+        "Google Trends",
+        "ATH",
+        "歷史新高",
+        "情緒指標",
+        "異常偵測",
+        "搜尋趨勢"
       ]
     },
     {
