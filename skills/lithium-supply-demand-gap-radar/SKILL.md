@@ -66,7 +66,7 @@ li_demand_kt = battery_gwh * kg_per_kwh * 1000  # 單位: kt LCE
 </principle>
 
 <principle name="regime_classification">
-**價格制度分類（Price Regime Classification）**
+**價格型態分類（Price Regime Classification）**
 
 鋰價週期分為四個階段：
 
@@ -111,7 +111,7 @@ ETF_beta_li = Σ(weight_i * beta_i_to_lithium)
 
 1. **Full Analysis** - 完整供需×價格×傳導整合分析（生成完整報告）
 2. **Balance Nowcast** - 僅計算供需平衡即時估計（缺口擴大/縮小）
-3. **Price Regime** - 僅分析價格制度與週期位置
+3. **Price Regime** - 僅分析價格型態與週期位置
 4. **ETF Exposure** - 僅分析 ETF 持股結構與鋰價敏感度
 5. **Ingest Data** - 從各數據源擷取並標準化數據
 
@@ -123,7 +123,7 @@ ETF_beta_li = Σ(weight_i * beta_i_to_lithium)
 |---------------------------------------------------|------------------------------|----------------------------|
 | 1, "full", "analyze", "完整", "報告", "LIT"       | workflows/full-analysis.md   | 完整供需×價格×傳導整合分析 |
 | 2, "balance", "nowcast", "供需", "缺口", "gap"    | workflows/balance-nowcast.md | 供需平衡即時估計           |
-| 3, "price", "regime", "價格", "週期", "制度"      | workflows/price-regime.md    | 價格制度與週期分析         |
+| 3, "price", "regime", "價格", "週期", "型態"      | workflows/price-regime.md    | 價格型態與週期分析         |
 | 4, "etf", "exposure", "holding", "傳導", "敏感度" | workflows/etf-exposure.md    | ETF 暴露與傳導分析         |
 | 5, "ingest", "data", "fetch", "抓取", "擷取"      | workflows/ingest.md          | 數據擷取與標準化           |
 
@@ -148,7 +148,7 @@ ETF_beta_li = Σ(weight_i * beta_i_to_lithium)
 |--------------------|----------------------------|
 | full-analysis.md   | 完整供需×價格×傳導整合分析 |
 | balance-nowcast.md | 供需平衡即時估計           |
-| price-regime.md    | 價格制度與週期分析         |
+| price-regime.md    | 價格型態與週期分析         |
 | etf-exposure.md    | ETF 持股暴露與傳導分析     |
 | ingest.md          | 數據擷取與標準化           |
 </workflows_index>
@@ -163,14 +163,15 @@ ETF_beta_li = Σ(weight_i * beta_i_to_lithium)
 </templates_index>
 
 <scripts_index>
-| Script                | Purpose            |
-|-----------------------|--------------------|
-| lithium_pipeline.py   | 核心數據管線       |
-| ingest_sources.py     | 數據來源擷取       |
-| compute_balance.py    | 供需平衡計算       |
-| classify_regime.py    | 價格制度分類       |
-| compute_etf_beta.py   | ETF 傳導敏感度計算 |
-| visualize_analysis.py | 分析結果視覺化     |
+| Script                    | Purpose                    |
+|---------------------------|----------------------------|
+| lithium_pipeline.py       | 核心數據管線               |
+| ingest_sources.py         | 數據來源擷取               |
+| compute_balance.py        | 供需平衡計算               |
+| classify_regime.py        | 價格型態分類               |
+| compute_etf_beta.py       | ETF 傳導敏感度計算         |
+| visualize_analysis.py     | 分析結果綜合視覺化         |
+| inflection_point_chart.py | **拐點分析專用視覺化** ⭐ |
 </scripts_index>
 
 <quick_start>
@@ -183,15 +184,22 @@ python scripts/lithium_pipeline.py analyze --ticker=LIT --lookback=10 --freq=wee
 # 僅計算供需平衡 Nowcast
 python scripts/lithium_pipeline.py balance --asof=2026-01-16
 
-# 分析價格制度（碳酸鋰 + 氫氧化鋰）
+# 分析價格型態（碳酸鋰 + 氫氧化鋰）
 python scripts/lithium_pipeline.py regime --chem=both
 
 # 計算 ETF 對鋰價的傳導敏感度
 python scripts/lithium_pipeline.py etf-beta --ticker=LIT --window=52
 
-# 生成視覺化圖表
+# ✨ 生成視覺化圖表（完整儀表板）
 python scripts/visualize_analysis.py
+# 輸出：output/lithium_analysis_YYYY-MM-DD.png
 ```
+
+**視覺化輸出**：
+- 📊 6合1 專業儀表板（18" × 12"，300 DPI）
+- 📁 自動保存至 `output/` 目錄
+- 📅 檔名包含當天日期
+- 🎨 完整中文支持
 
 **Library 快速開始：**
 
@@ -219,11 +227,13 @@ print(f"Thesis: {result['thesis']}")
 Skill 成功執行時：
 - [ ] 正確識別數據等級並使用對應來源
 - [ ] 供需平衡指數計算正確（含三情境）
-- [ ] 價格制度分類明確（downtrend/bottoming/uptrend/overheat）
+- [ ] 價格型態分類明確（downtrend/bottoming/uptrend/overheat）
 - [ ] ETF 傳導敏感度計算正確（rolling beta）
 - [ ] 輸出包含完整的失效條件（invalidation）
 - [ ] 數據來源可追溯（source_id, data_level）
 - [ ] 單位轉換假設明確標註
+- [ ] **視覺化圖表已生成且符合規格**（300 DPI, PNG, 檔名含日期）
+- [ ] **報告與圖表在 output/ 目錄下一起輸出**
 </success_criteria>
 
 <input_schema>

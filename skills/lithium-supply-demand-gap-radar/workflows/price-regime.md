@@ -1,4 +1,4 @@
-# Workflow: Price Regime（價格制度分析）
+# Workflow: Price Regime（價格型態分析）
 
 <required_reading>
 **Read these reference files NOW:**
@@ -151,12 +151,12 @@ def classify_regime(momentum, slope, volatility, mean_dev):
     """
     四階段分類邏輯：
 
-    | Regime     | ROC_12w | Slope | Volatility | 判斷優先級 |
-    |------------|---------|-------|------------|------------|
-    | downtrend  | < 0     | < 0   | any        | slope < 0 且 ROC < -5% |
-    | bottoming  | 收斂    | 趨緩  | 下降       | -5% < ROC < 5%, slope 收斂 |
-    | uptrend    | > 0     | > 0   | any        | slope > 0 且 ROC > 5% |
-    | overheat   | 極端+   | +     | 擴大       | ROC > 30% 或 deviation > 30% |
+    | Regime    | ROC_12w | Slope | Volatility | 判斷優先級                   |
+    |-----------|---------|-------|------------|------------------------------|
+    | downtrend | < 0     | < 0   | any        | slope < 0 且 ROC < -5%       |
+    | bottoming | 收斂    | 趨緩  | 下降       | -5% < ROC < 5%, slope 收斂   |
+    | uptrend   | > 0     | > 0   | any        | slope > 0 且 ROC > 5%        |
+    | overheat  | 極端+   | +     | 擴大       | ROC > 30% 或 deviation > 30% |
     """
 
     roc_12w = momentum["roc_12w"]
@@ -236,7 +236,7 @@ def analyze_both_chemicals(carbonate_price, hydroxide_price):
 ```python
 def generate_confirmation_signals(regime_result):
     """
-    生成制度轉換確認訊號
+    生成型態轉換確認訊號
     """
 
     signals = []
@@ -278,7 +278,7 @@ def format_regime_report(regime_results, confirmation_signals):
 **Markdown 輸出：**
 
 ```markdown
-# 鋰價制度分析報告
+# 鋰價型態分析報告
 
 ## 分析日期: [YYYY-MM-DD]
 ## 數據來源: [Fastmarkets/SMM/CME/Proxy]
@@ -286,15 +286,15 @@ def format_regime_report(regime_results, confirmation_signals):
 ---
 ## 碳酸鋰 (Lithium Carbonate)
 
-| 指標 | 當前值 | 判讀 |
-|------|--------|------|
-| 12週動能 (ROC) | [值]% | [說明] |
-| 26週動能 (ROC) | [值]% | [說明] |
-| 趨勢斜率 | [值] | [說明] |
-| 波動率 (ATR%) | [值]% | [說明] |
-| 均值偏離度 | [值]% | [說明] |
+| 指標           | 當前值 | 判讀   |
+|----------------|--------|--------|
+| 12週動能 (ROC) | [值]%  | [說明] |
+| 26週動能 (ROC) | [值]%  | [說明] |
+| 趨勢斜率       | [值]   | [說明] |
+| 波動率 (ATR%)  | [值]%  | [說明] |
+| 均值偏離度     | [值]%  | [說明] |
 
-**制度判定**: [DOWNTREND/BOTTOMING/UPTREND/OVERHEAT]
+**型態判定**: [DOWNTREND/BOTTOMING/UPTREND/OVERHEAT]
 
 ---
 ## 氫氧化鋰 (Lithium Hydroxide)
@@ -304,10 +304,10 @@ def format_regime_report(regime_results, confirmation_signals):
 ---
 ## 碳酸鋰/氫氧化鋰價差
 
-| 指標 | 當前值 | 歷史分位 |
-|------|--------|----------|
-| 價差 | [值] | [%] |
-| 價差方向 | [擴大/收斂] | - |
+| 指標     | 當前值      | 歷史分位 |
+|----------|-------------|----------|
+| 價差     | [值]        | [%]      |
+| 價差方向 | [擴大/收斂] | -        |
 
 ---
 ## 週期位置
@@ -321,15 +321,15 @@ DOWNTREND → [BOTTOMING] → UPTREND → OVERHEAT
 ---
 ## 轉換確認訊號
 
-| 訊號 | 狀態 | 重要性 |
-|------|------|--------|
+| 訊號    | 狀態             | 重要性        |
+|---------|------------------|---------------|
 | [訊號1] | [pending/active] | [high/medium] |
-| [訊號2] | ... | ... |
+| [訊號2] | ...              | ...           |
 
 ---
 ## 交易含義
 
-[根據制度生成的交易建議]
+[根據型態生成的交易建議]
 ```
 </output_template>
 
@@ -337,7 +337,7 @@ DOWNTREND → [BOTTOMING] → UPTREND → OVERHEAT
 此工作流程完成時：
 - [ ] 價格數據已載入（含 fallback）
 - [ ] 四個指標都已計算（動能/斜率/波動/均值偏離）
-- [ ] 制度分類明確（四階段之一）
+- [ ] 型態分類明確（四階段之一）
 - [ ] 碳酸鋰/氫氧化鋰分開分析
 - [ ] 確認訊號已生成
 - [ ] 數據來源已標註

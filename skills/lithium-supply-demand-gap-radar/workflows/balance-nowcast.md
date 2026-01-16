@@ -234,6 +234,47 @@ def format_balance_report(balance_results, inflection, supply_proxy, demand_prox
         "interpretation": generate_interpretation(balance_results, inflection)
     }
 ```
+
+## Step 8: Generate Inflection Point Chart
+
+**強制執行**：每次 Balance Nowcast 都必須生成拐點分析視覺化圖表
+
+```python
+# 生成拐點分析圖表
+from scripts.inflection_point_chart import generate_inflection_point_chart
+
+chart_path = generate_inflection_point_chart(
+    output_dir='output',
+    asof_date=date.today().strftime("%Y-%m-%d")
+)
+
+# 輸出檔案：output/lithium_inflection_analysis_YYYY-MM-DD.png
+```
+
+**圖表內容**：
+1. 供需平衡指數演變（2020-2027）
+   - 歷史數據（實線）
+   - 未來預測（虛線，含三情境區間）
+2. 碳酸鋰價格走勢
+   - 歷史價格
+   - 預測價格
+3. 關鍵拐點標註
+   - 歷史拐點：2023Q2（供給反超需求）
+   - 預期拐點：2026Q4（中性情境）
+   - 當前位置
+4. 市場階段背景色塊
+   - 綠色：需求缺口期（2020-2023Q2）
+   - 紅色：供給過剩期（2023Q2-2025Q4）
+   - 黃色：預期反彈期（2026Q3+）
+5. 關鍵催化劑時間軸
+   - IEA EV Outlook、澳洲REQ更新等
+
+**技術規格**：
+- 解析度：300 DPI
+- 格式：PNG
+- 尺寸：16" × 12"
+- 中文支持：自動配置中文字體
+- 檔名格式：`lithium_inflection_analysis_YYYY-MM-DD.png`
 </process>
 
 <output_template>

@@ -173,7 +173,7 @@ invalidation = build_invalidation_rules(
 # [
 #   {"condition": "price < 38.50", "description": "跌破關鍵支撐"},
 #   {"condition": "balance_index < 0", "description": "供需平衡轉負"},
-#   {"condition": "regime == downtrend", "description": "價格制度轉弱"},
+#   {"condition": "regime == downtrend", "description": "價格型態轉弱"},
 #   {"condition": "beta_li < 0.3 for 8w", "description": "傳導斷裂"}
 # ]
 ```
@@ -198,22 +198,72 @@ elif params["output_format"] == "json":
     report = format_json_output(...)
 ```
 
-## Step 6: Generate Visualizations (Optional)
+## Step 6: Generate Visualizations
 
-如果需要視覺化：
+**強制執行**：每次完整分析都必須生成視覺化圖表
+
+### 6.1 生成綜合儀表板
 
 ```python
-# 生成圖表
-charts = [
-    generate_balance_chart(balance_index),      # 供需平衡趨勢
-    generate_regime_chart(price_regime),        # 價格制度指標
-    generate_transmission_chart(beta_map),      # 傳導敏感度
-    generate_etf_chart(lit_px, targets)         # ETF 技術位置
-]
+# 生成完整儀表板（包含所有關鍵圖表）
+from scripts.visualize_analysis import generate_comprehensive_dashboard
 
-# 保存到 output/ 目錄
-save_charts(charts, prefix=f"lithium_analysis_{date}")
+dashboard_path = generate_comprehensive_dashboard(
+    output_dir='output',
+    asof_date=params['asof_date']
+)
+
+# 輸出檔案：output/lithium_analysis_YYYY-MM-DD.png
 ```
+
+**儀表板內容**：
+1. 投資論述摘要（Thesis + Confidence + 關鍵指標）
+2. 供需平衡演變圖（2024-2026，含缺口）
+3. 供需平衡指數（三情境：保守/中性/積極）
+4. 碳酸鋰價格走勢（歷史價格 + 市況型態）
+5. ETF 傳導敏感度分析（Beta to 鋰價/EV需求）
+6. LIT ETF 目標路徑（支撐/目標/上軌）
+
+**技術規格**：
+- 解析度：300 DPI（高畫質輸出）
+- 格式：PNG
+- 尺寸：18" × 12"（適合報告與簡報）
+- 中文支持：自動配置中文字體
+- 檔名格式：`lithium_analysis_YYYY-MM-DD.png`
+
+### 6.2 生成拐點分析圖表
+
+```python
+# 生成拐點分析專用圖表
+from scripts.inflection_point_chart import generate_inflection_point_chart
+
+inflection_chart_path = generate_inflection_point_chart(
+    output_dir='output',
+    asof_date=params['asof_date']
+)
+
+# 輸出檔案：output/lithium_inflection_analysis_YYYY-MM-DD.png
+```
+
+**拐點圖表內容**：
+1. 供需平衡指數演變（2020-2027）
+   - 歷史數據（2020-2025）
+   - 未來預測（2026-2027，含三情境區間）
+2. 碳酸鋰價格走勢（歷史 + 預測）
+3. 關鍵拐點標註
+   - ⭐ 歷史拐點：2023Q2（供給反超需求）
+   - ⭐ 預期拐點：2026Q4（中性情境）
+   - 🔵 當前位置標記
+4. 市場階段背景色塊
+   - 需求缺口期 vs 供給過剩期 vs 預期反彈期
+5. 關鍵催化劑時間軸
+
+**技術規格**：
+- 解析度：300 DPI
+- 格式：PNG
+- 尺寸：16" × 12"
+- 中文支持：自動配置中文字體
+- 檔名格式：`lithium_inflection_analysis_YYYY-MM-DD.png`
 </process>
 
 <output_template>
@@ -237,7 +287,7 @@ save_charts(charts, prefix=f"lithium_analysis_{date}")
   - 中性：[值]
   - 積極：[值]
 
-## 3) 價格制度（Regime）
+## 3) 價格型態（Regime）
 - 碳酸鋰：[downtrend/bottoming/uptrend/overheat]
 - 氫氧化鋰：[...]
 - 關鍵指標：
@@ -263,12 +313,12 @@ save_charts(charts, prefix=f"lithium_analysis_{date}")
 ## 6) 催化劑地圖
 | 事件 | 預期時間 | 方向 |
 |------|----------|------|
-| ... | ... | ... |
+| ...  | ...      | ...  |
 
 ## 7) 數據來源追溯
 | 指標 | 來源 | 更新頻率 | 置信度 |
 |------|------|----------|--------|
-| ... | ... | ... | ... |
+| ...  | ...  | ...      | ...    |
 ```
 </output_template>
 
@@ -280,4 +330,8 @@ save_charts(charts, prefix=f"lithium_analysis_{date}")
 - [ ] 失效條件完整（供給/需求/市場端）
 - [ ] 數據來源可追溯
 - [ ] 輸出格式正確（markdown/json）
+- [ ] **綜合儀表板已生成**（`output/lithium_analysis_YYYY-MM-DD.png`）
+- [ ] **拐點分析圖表已生成**（`output/lithium_inflection_analysis_YYYY-MM-DD.png`）
+- [ ] **報告與圖表檔名日期一致**
+- [ ] **拐點判斷包含歷史與預期拐點**
 </success_criteria>
