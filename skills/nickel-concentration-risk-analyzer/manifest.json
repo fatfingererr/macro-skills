@@ -1,0 +1,116 @@
+{
+  "name": "nickel-concentration-risk-analyzer",
+  "version": "0.1.0",
+  "displayName": "分析鎳供給集中度風險",
+  "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
+  "author": "Ricky Wang",
+  "license": "MIT",
+  "category": "event-scenario",
+  "tags": [
+    "鎳",
+    "供給集中度",
+    "原物料",
+    "印尼",
+    "採礦",
+    "地緣政治",
+    "情境分析"
+  ],
+  "dataLevel": "free-nolimit",
+  "dependencies": {
+    "python": ">=3.9",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "pydantic>=2.0.0",
+      "requests>=2.28.0",
+      "beautifulsoup4>=4.11.0"
+    ],
+    "optional": [
+      "selenium>=4.10.0",
+      "webdriver-manager>=4.0.0",
+      "camelot-py>=0.11.0",
+      "tabula-py>=2.6.0",
+      "matplotlib>=3.5.0",
+      "plotly>=5.0.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/nickel_pipeline.py"
+  },
+  "workflows": [
+    {
+      "id": "analyze",
+      "name": "供給集中度分析",
+      "description": "分析全球鎳供給結構與集中度指標",
+      "file": "workflows/analyze.md"
+    },
+    {
+      "id": "scenario",
+      "name": "政策情境模擬",
+      "description": "模擬政策/減產對供給衝擊的影響",
+      "file": "workflows/scenario-engine.md"
+    },
+    {
+      "id": "validate",
+      "name": "數據來源驗證",
+      "description": "驗證數據口徑與來源可靠度",
+      "file": "workflows/validate-sources.md"
+    },
+    {
+      "id": "ingest",
+      "name": "數據擷取",
+      "description": "從各來源擷取鎳供給數據",
+      "file": "workflows/ingest.md"
+    }
+  ],
+  "references": [
+    "references/data-sources.md",
+    "references/unit-conversion.md",
+    "references/concentration-metrics.md",
+    "references/indonesia-supply-structure.md",
+    "references/mine-level-anchors.md",
+    "references/failure-modes.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md",
+    "templates/config.yaml",
+    "templates/data-schema.yaml"
+  ],
+  "examples": [
+    "examples/concentration_analysis.json",
+    "examples/scenario_result.json",
+    "examples/analysis_report.md"
+  ],
+  "dataSources": [
+    {
+      "name": "USGS MCS",
+      "type": "primary",
+      "tier": 0,
+      "url": "https://www.usgs.gov/centers/national-minerals-information-center/nickel-statistics-and-information",
+      "description": "每年全球與主要國家 mine production（鎳含量），免費、口徑一致"
+    },
+    {
+      "name": "INSG",
+      "type": "primary",
+      "tier": 0,
+      "url": "https://insg.org/",
+      "description": "供需平衡、產量增長率、結構敘事"
+    },
+    {
+      "name": "S&P Global Market Intelligence",
+      "type": "secondary",
+      "tier": 2,
+      "url": "https://www.spglobal.com/marketintelligence/",
+      "description": "付費來源，印尼市佔 60.2% 的數據錨點"
+    },
+    {
+      "name": "Company Reports",
+      "type": "secondary",
+      "tier": 1,
+      "url": "varies",
+      "description": "Weda Bay, Nickel Industries, PT Vale, Eramet 等公司財報"
+    }
+  ]
+}

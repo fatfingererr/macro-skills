@@ -1,0 +1,103 @@
+{
+  "metadata": {
+    "skill": "nickel-concentration-risk-analyzer",
+    "version": "0.1.0",
+    "generated_at": "2026-01-16T14:30:00Z",
+    "asof_date": "2026-01-16",
+    "workflow": "scenario"
+  },
+  "scope": {
+    "commodity": "nickel",
+    "supply_type": "mined",
+    "unit": "t_Ni_content"
+  },
+  "baseline": {
+    "year": 2024,
+    "indonesia_production_kt": 2280,
+    "global_production_kt": 3780,
+    "indonesia_share": 0.602,
+    "source": "S&P Global Market Intelligence"
+  },
+  "scenarios": [
+    {
+      "name": "ID_RKAB_cut_2026",
+      "description": "Indonesia RKAB ore quota reduction scenario",
+      "parameters": {
+        "target_country": "Indonesia",
+        "policy_variable": "ore_quota_RKAB",
+        "cut_type": "pct_country",
+        "cut_value": 0.20,
+        "start_year": 2026,
+        "end_year": 2026,
+        "execution_prob": 0.5
+      },
+      "results": {
+        "hard_cut": {
+          "name": "完全執行",
+          "execution_rate": 1.0,
+          "cut_amount_kt": 456,
+          "global_hit_pct": 0.121,
+          "equivalent_days_consumption": 44,
+          "risk_level": "極高風險",
+          "description": "政策 100% 落地"
+        },
+        "half_success": {
+          "name": "半成功",
+          "execution_rate": 0.5,
+          "cut_amount_kt": 228,
+          "global_hit_pct": 0.060,
+          "equivalent_days_consumption": 22,
+          "risk_level": "高風險",
+          "description": "執行 50%"
+        },
+        "soft_landing": {
+          "name": "軟著陸",
+          "execution_rate": 0.25,
+          "cut_amount_kt": 114,
+          "global_hit_pct": 0.030,
+          "equivalent_days_consumption": 11,
+          "risk_level": "中等風險",
+          "description": "只延遲新增產能/部分執行"
+        }
+      },
+      "sensitivity": [
+        {"execution_rate": 1.00, "cut_kt": 456, "global_hit_pct": 0.121},
+        {"execution_rate": 0.75, "cut_kt": 342, "global_hit_pct": 0.090},
+        {"execution_rate": 0.50, "cut_kt": 228, "global_hit_pct": 0.060},
+        {"execution_rate": 0.25, "cut_kt": 114, "global_hit_pct": 0.030},
+        {"execution_rate": 0.00, "cut_kt": 0, "global_hit_pct": 0.000}
+      ]
+    }
+  ],
+  "key_findings": {
+    "summary": "即使只有『半成功』執行，印尼減產對全球供給仍有 6% 衝擊",
+    "price_implication": "價格影響可能是非對稱的（上行風險大於下行）",
+    "market_context": "6% 衝擊相當於全球約 22 天的消費量",
+    "comparison": "類似於 2022 年俄烏衝突對鎳市場的短期衝擊規模"
+  },
+  "assumptions": [
+    "Baseline 使用 S&P Global 2024 數據",
+    "execution_prob = 0.5（政策不需完美執行）",
+    "cut_type = pct_country（印尼產量的 20%）",
+    "未考慮其他國家的供給響應",
+    "未考慮庫存緩衝效應"
+  ],
+  "data_sources_used": [
+    {
+      "name": "S&P Global Market Intelligence",
+      "tier": 2,
+      "confidence": 0.90,
+      "note": "Indonesia production 2024"
+    }
+  ],
+  "warnings": [
+    {
+      "type": "unit_mismatch",
+      "code": "RKAB_ORE_QUOTA",
+      "message": "RKAB ore quota is typically in ore wet tonnes, not nickel content",
+      "impact": "Direct percentage application to nickel content may underestimate actual impact",
+      "recommendation": "Consider ore-to-content conversion: 250 Mt ore @ 1.5% Ni = ~2.6 Mt Ni content"
+    }
+  ],
+  "errors": []
+}

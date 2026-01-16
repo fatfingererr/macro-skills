@@ -1,0 +1,145 @@
+{
+  "metadata": {
+    "skill": "nickel-concentration-risk-analyzer",
+    "version": "0.1.0",
+    "generated_at": "2026-01-16T12:00:00Z",
+    "asof_date": "2026-01-16",
+    "workflow": "analyze"
+  },
+  "scope": {
+    "commodity": "nickel",
+    "supply_type": "mined",
+    "unit": "t_Ni_content",
+    "horizon": {
+      "history_start_year": 2015,
+      "history_end_year": 2024,
+      "analysis_year": 2024
+    }
+  },
+  "concentration": {
+    "analysis_year": 2024,
+    "indonesia_share": 0.602,
+    "cr1": 0.602,
+    "cr3": 0.758,
+    "cr5": 0.843,
+    "hhi": 3950,
+    "market_structure": "高集中 (Highly Concentrated)",
+    "top_countries": {
+      "Indonesia": 0.602,
+      "Philippines": 0.106,
+      "Russia": 0.056,
+      "Canada": 0.040,
+      "Australia": 0.037
+    }
+  },
+  "time_series": [
+    {
+      "year": 2015,
+      "indonesia_share": 0.054,
+      "cr5": 0.62,
+      "hhi": 1180,
+      "market_structure": "低集中 (Unconcentrated)"
+    },
+    {
+      "year": 2016,
+      "indonesia_share": 0.071,
+      "cr5": 0.62,
+      "hhi": 1150,
+      "market_structure": "低集中 (Unconcentrated)"
+    },
+    {
+      "year": 2017,
+      "indonesia_share": 0.131,
+      "cr5": 0.65,
+      "hhi": 1280,
+      "market_structure": "低集中 (Unconcentrated)"
+    },
+    {
+      "year": 2018,
+      "indonesia_share": 0.208,
+      "cr5": 0.68,
+      "hhi": 1520,
+      "market_structure": "中等集中 (Moderately Concentrated)"
+    },
+    {
+      "year": 2019,
+      "indonesia_share": 0.259,
+      "cr5": 0.72,
+      "hhi": 1780,
+      "market_structure": "中等集中 (Moderately Concentrated)"
+    },
+    {
+      "year": 2020,
+      "indonesia_share": 0.315,
+      "cr5": 0.74,
+      "hhi": 2100,
+      "market_structure": "中等集中 (Moderately Concentrated)"
+    },
+    {
+      "year": 2021,
+      "indonesia_share": 0.371,
+      "cr5": 0.77,
+      "hhi": 2450,
+      "market_structure": "中等集中 (Moderately Concentrated)"
+    },
+    {
+      "year": 2022,
+      "indonesia_share": 0.480,
+      "cr5": 0.81,
+      "hhi": 3020,
+      "market_structure": "高集中 (Highly Concentrated)"
+    },
+    {
+      "year": 2023,
+      "indonesia_share": 0.543,
+      "cr5": 0.83,
+      "hhi": 3500,
+      "market_structure": "高集中 (Highly Concentrated)"
+    },
+    {
+      "year": 2024,
+      "indonesia_share": 0.602,
+      "cr5": 0.843,
+      "hhi": 3950,
+      "market_structure": "高集中 (Highly Concentrated)"
+    }
+  ],
+  "key_facts": {
+    "indonesia_share_2024": 0.602,
+    "share_source": "S&P Global Market Intelligence",
+    "indonesia_share_2020": 0.315,
+    "share_growth_4yr": 0.287,
+    "share_growth_pct": "91%",
+    "dominant_product": "NPI (~70% of Indonesia production)",
+    "key_insight": "Indonesia's market share nearly doubled from 2020 to 2024"
+  },
+  "risk_assessment": {
+    "concentration_risk": "極高",
+    "policy_sensitivity": "高",
+    "single_point_of_failure": true,
+    "mitigation_difficulty": "高 - 短期內無替代供給來源"
+  },
+  "data_sources_used": [
+    {
+      "name": "USGS MCS 2025 (Nickel)",
+      "tier": 0,
+      "confidence": 0.95,
+      "records": 150,
+      "url": "https://www.usgs.gov/centers/national-minerals-information-center/nickel-statistics-and-information"
+    },
+    {
+      "name": "INSG World Nickel Statistics",
+      "tier": 0,
+      "confidence": 0.90,
+      "records": 50
+    },
+    {
+      "name": "S&P Global Market Intelligence",
+      "tier": 2,
+      "confidence": 0.90,
+      "note": "Used for Indonesia share validation (60.2%)"
+    }
+  ],
+  "warnings": [],
+  "errors": []
+}

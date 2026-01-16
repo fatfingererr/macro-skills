@@ -1,0 +1,349 @@
+# Nickel Supply Data Schema Definition
+# All ingested data should conform to this schema
+
+# =============================================================================
+# Standard Record Schema
+# =============================================================================
+
+record_schema:
+  type: object
+  required:
+    - year
+    - country
+    - supply_type
+    - value
+    - unit
+    - source_id
+    - confidence
+  properties:
+    # Year of the data point
+    year:
+      type: integer
+      minimum: 2000
+      maximum: 2030
+      description: "Calendar year of the production data"
+
+    # Country or region
+    country:
+      type: string
+      description: "Country name (standardized)"
+      enum:
+        - Indonesia
+        - Philippines
+        - Russia
+        - Canada
+        - Australia
+        - New Caledonia
+        - China
+        - Brazil
+        - Cuba
+        - South Africa
+        - Other
+        - World
+
+    # Supply type
+    supply_type:
+      type: string
+      description: "Type of supply measurement"
+      enum:
+        - mined      # Mine production (nickel content)
+        - refined    # Refined/processed production
+
+    # Product group (optional granularity)
+    product_group:
+      type: string
+      description: "Product category"
+      enum:
+        - all         # Aggregate
+        - NPI         # Nickel Pig Iron
+        - matte       # Nickel matte
+        - MHP         # Mixed Hydroxide Precipitate
+        - ferronickel # Ferronickel
+        - class1      # Class 1 (high purity)
+        - class2      # Class 2 (lower purity)
+      default: all
+
+    # Production value
+    value:
+      type: number
+      minimum: 0
+      description: "Production quantity"
+
+    # Unit of measurement (CRITICAL)
+    unit:
+      type: string
+      description: "Unit of the value field"
+      enum:
+        - t_Ni_content    # Tonnes of nickel metal content (PREFERRED)
+        - t_ore_wet       # Tonnes of ore (wet)
+        - t_ore_dry       # Tonnes of ore (dry)
+        - t_NPI_product   # Tonnes of NPI product
+        - t_matte         # Tonnes of nickel matte
+        - t_MHP           # Tonnes of MHP
+        - t_ferronickel   # Tonnes of ferronickel
+
+    # Data source identifier
+    source_id:
+      type: string
+      description: "Identifier for data source"
+      enum:
+        - USGS           # US Geological Survey
+        - INSG           # International Nickel Study Group
+        - SP_GLOBAL      # S&P Global Market Intelligence
+        - COMPANY        # Company reports
+        - WOOD_MAC       # Wood Mackenzie
+        - ESTIMATE       # Estimated/calculated
+
+    # Confidence score
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+      description: "Data reliability score (0-1)"
+
+    # Optional: specific company source
+    company_source:
+      type: string
+      description: "Company name if source_id is COMPANY"
+
+    # Optional: estimation flag
+    is_estimate:
+      type: boolean
+      default: false
+      description: "True if value is estimated/calculated"
+
+    # Optional: revision flag
+    revision_flag:
+      type: string
+      enum:
+        - original
+        - revised
+        - preliminary
+      default: original
+
+    # Optional: notes
+    notes:
+      type: string
+      description: "Additional context or caveats"
+
+# =============================================================================
+# Concentration Metrics Schema
+# =============================================================================
+
+concentration_schema:
+  type: object
+  required:
+    - year
+    - indonesia_share
+    - hhi
+  properties:
+    year:
+      type: integer
+
+    indonesia_share:
+      type: number
+      minimum: 0
+      maximum: 1
+      description: "Indonesia's share of global production"
+
+    cr1:
+      type: number
+      minimum: 0
+      maximum: 1
+      description: "Top 1 country concentration ratio"
+
+    cr3:
+      type: number
+      minimum: 0
+      maximum: 1
+      description: "Top 3 countries concentration ratio"
+
+    cr5:
+      type: number
+      minimum: 0
+      maximum: 1
+      description: "Top 5 countries concentration ratio"
+
+    hhi:
+      type: number
+      minimum: 0
+      maximum: 10000
+      description: "Herfindahl-Hirschman Index"
+
+    market_structure:
+      type: string
+      enum:
+        - "低集中 (Unconcentrated)"
+        - "中等集中 (Moderately Concentrated)"
+        - "高集中 (Highly Concentrated)"
+
+    top_countries:
+      type: object
+      description: "Top countries and their shares"
+      additionalProperties:
+        type: number
+
+# =============================================================================
+# Scenario Result Schema
+# =============================================================================
+
+scenario_result_schema:
+  type: object
+  required:
+    - scenario_name
+    - cut_amount_kt
+    - global_hit_pct
+  properties:
+    scenario_name:
+      type: string
+
+    execution_rate:
+      type: number
+      minimum: 0
+      maximum: 1
+
+    cut_amount_kt:
+      type: number
+      description: "Cut amount in thousand tonnes Ni"
+
+    global_hit_pct:
+      type: number
+      minimum: 0
+      maximum: 1
+      description: "Percentage of global supply affected"
+
+    equivalent_days:
+      type: number
+      description: "Equivalent days of global consumption"
+
+    risk_level:
+      type: string
+      enum:
+        - "低風險"
+        - "中等風險"
+        - "高風險"
+        - "極高風險"
+
+# =============================================================================
+# Validation Schema
+# =============================================================================
+
+validation_schema:
+  type: object
+  required:
+    - claim
+    - verdict
+    - confidence
+  properties:
+    claim_id:
+      type: integer
+
+    claim:
+      type: string
+      description: "Original claim text"
+
+    verdict:
+      type: string
+      enum:
+        - correct
+        - partially_correct
+        - incorrect
+        - unverifiable
+
+    confidence:
+      type: number
+      minimum: 0
+      maximum: 1
+
+    validated_value:
+      type: number
+
+    validated_unit:
+      type: string
+
+    validated_year:
+      type: integer
+
+    source_chain:
+      type: array
+      items:
+        type: object
+        properties:
+          source:
+            type: string
+          value:
+            type: number
+          tier:
+            type: integer
+          confidence:
+            type: number
+
+    caveats:
+      type: array
+      items:
+        type: string
+
+    recommended_statement:
+      type: string
+
+# =============================================================================
+# Unit Conversion Rules
+# =============================================================================
+
+unit_conversions:
+  ore_wet_to_ni_content:
+    formula: "value * (1 - moisture) * ni_grade"
+    default_moisture: 0.30
+    default_ni_grade: 0.015
+    confidence_penalty: 0.20
+
+  npi_to_ni_content:
+    formula: "value * ni_content_pct"
+    default_ni_content_pct: 0.12
+    confidence_penalty: 0.10
+
+  matte_to_ni_content:
+    formula: "value * ni_content_pct"
+    default_ni_content_pct: 0.75
+    confidence_penalty: 0.05
+
+  mhp_to_ni_content:
+    formula: "value * ni_content_pct"
+    default_ni_content_pct: 0.38
+    confidence_penalty: 0.10
+
+# =============================================================================
+# Data Quality Tiers
+# =============================================================================
+
+data_tiers:
+  tier_0:
+    name: "Official Statistics"
+    sources:
+      - USGS
+      - INSG
+    base_confidence: 0.95
+    description: "Free, stable, consistent methodology"
+
+  tier_1:
+    name: "Company Reports"
+    sources:
+      - COMPANY
+    base_confidence: 0.80
+    description: "Free but scattered, requires integration"
+
+  tier_2:
+    name: "Paid Research"
+    sources:
+      - SP_GLOBAL
+      - WOOD_MAC
+    base_confidence: 0.90
+    description: "Paid, more comprehensive"
+
+  tier_3:
+    name: "News/Policy"
+    sources:
+      - NEWS
+      - POLICY
+    base_confidence: 0.60
+    description: "Real-time but unverified"

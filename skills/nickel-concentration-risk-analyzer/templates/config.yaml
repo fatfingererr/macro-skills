@@ -1,0 +1,158 @@
+# Nickel Concentration Risk Analyzer Configuration Template
+# Copy this file and modify as needed
+
+# =============================================================================
+# Analysis Parameters
+# =============================================================================
+
+# Analysis reference date (ISO format)
+asof_date: "2026-01-16"
+
+# Time horizon for analysis
+horizon:
+  history_start_year: 2015
+  history_end_year: 2024
+  forecast_end_year: 2027
+
+# =============================================================================
+# Scope Configuration
+# =============================================================================
+
+scope:
+  # Supply type (REQUIRED)
+  # Options: mined | refined | nickel_content
+  supply_type: "mined"
+
+  # Product group (optional)
+  # Options: class1 | class2 | NPI | matte | MHP | mixed | all
+  product_group: "all"
+
+  # Countries to analyze (optional, default shown)
+  countries:
+    - Indonesia
+    - Philippines
+    - Russia
+    - Canada
+    - Australia
+    - New Caledonia
+    - Other
+
+# =============================================================================
+# Data Level Configuration
+# =============================================================================
+
+# Data source tier preference
+# Options:
+#   - free_nolimit: Only use Tier 0 (USGS, INSG) - FREE
+#   - free_limit: Use Tier 0 + Tier 1 (company reports) - FREE
+#   - paid_low: Include Tier 2 summary data - REQUIRES SUBSCRIPTION
+#   - paid_high: Full Tier 2 access - REQUIRES SUBSCRIPTION
+data_level: "free_nolimit"
+
+# =============================================================================
+# Policy Scenarios (for scenario workflow)
+# =============================================================================
+
+policy_scenarios:
+  - name: "ID_RKAB_cut_moderate"
+    description: "Indonesia RKAB ore quota reduction - moderate scenario"
+    target_country: "Indonesia"
+
+    # Policy variable being affected
+    # Options: ore_quota_RKAB | mine_permit | export_rule | smelter_capacity
+    policy_variable: "ore_quota_RKAB"
+
+    # How the cut is specified
+    # Options: pct_global | pct_country | absolute
+    cut_type: "pct_country"
+
+    # Cut magnitude (0.20 = 20% reduction)
+    cut_value: 0.20
+
+    # Time period
+    start_year: 2026
+    end_year: 2026
+
+    # Probability of full execution (0-1)
+    # Default 0.5 = "half success" scenario
+    execution_prob: 0.5
+
+  # Additional scenario example
+  - name: "ID_RKAB_cut_severe"
+    description: "Indonesia RKAB ore quota reduction - severe scenario"
+    target_country: "Indonesia"
+    policy_variable: "ore_quota_RKAB"
+    cut_type: "pct_country"
+    cut_value: 0.35
+    start_year: 2026
+    end_year: 2027
+    execution_prob: 0.3
+
+# =============================================================================
+# Output Configuration
+# =============================================================================
+
+output:
+  # Output directory
+  dir: "./output/nickel"
+
+  # Output formats
+  formats:
+    - json
+    - markdown
+    # - parquet  # Uncomment for data export
+
+  # Include time series in output
+  include_time_series: true
+
+  # Include mine-level analysis (requires Tier 1 data)
+  include_mine_level: false
+
+# =============================================================================
+# Validation Configuration (for validate workflow)
+# =============================================================================
+
+validation:
+  # Confidence threshold for accepting a data point
+  min_confidence: 0.70
+
+  # Require cross-validation from multiple sources
+  require_cross_validation: true
+
+  # Minimum number of sources for cross-validation
+  min_sources: 2
+
+# =============================================================================
+# Unit Conversion Assumptions
+# =============================================================================
+
+# These are used when source data doesn't specify exact parameters
+conversion_assumptions:
+  # Default nickel grade for Indonesian laterite ore
+  indonesia_ni_grade: 0.015  # 1.5%
+
+  # Default moisture content for wet ore
+  moisture_content: 0.30  # 30%
+
+  # Default NPI nickel content
+  npi_ni_content: 0.12  # 12%
+
+  # Default matte nickel content
+  matte_ni_content: 0.75  # 75%
+
+# =============================================================================
+# Advanced Settings
+# =============================================================================
+
+advanced:
+  # Enable debug logging
+  debug: false
+
+  # Cache downloaded data (hours)
+  cache_ttl_hours: 24
+
+  # Retry failed downloads
+  max_retries: 3
+
+  # Request timeout (seconds)
+  timeout_seconds: 30
