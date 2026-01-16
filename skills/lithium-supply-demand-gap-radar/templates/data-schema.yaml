@@ -1,0 +1,393 @@
+# Lithium Data Schema 定義
+# 定義所有數據表的標準 Schema
+
+# ========================================
+# 核心數據表
+# ========================================
+
+tables:
+  # 標準化的鋰數據表
+  lithium_data:
+    description: "所有鋰相關數據的統一存儲表"
+    columns:
+      date:
+        type: DATE
+        description: "數據日期"
+        nullable: false
+
+      metric_type:
+        type: VARCHAR
+        description: "指標類型"
+        nullable: false
+        enum:
+          - supply
+          - demand
+          - price
+          - etf
+          - balance
+
+      metric_name:
+        type: VARCHAR
+        description: "具體指標名稱"
+        nullable: false
+        examples:
+          - world_production
+          - australia_exports
+          - battery_demand_gwh
+          - carbonate_price
+          - etf_nav
+          - balance_index
+
+      value:
+        type: DOUBLE
+        description: "數值"
+        nullable: false
+
+      unit:
+        type: VARCHAR
+        description: "單位"
+        nullable: false
+        enum:
+          - kt_LCE
+          - kt_Li
+          - kt_SC6
+          - GWh
+          - USD_per_kg
+          - USD_per_t
+          - CNY_per_t
+          - pct
+          - index
+
+      region:
+        type: VARCHAR
+        description: "國家/區域"
+        nullable: true
+        examples:
+          - World
+          - Australia
+          - Chile
+          - China
+          - US
+          - EU
+
+      source_id:
+        type: VARCHAR
+        description: "數據來源標識"
+        nullable: false
+        enum:
+          - USGS
+          - IEA
+          - AU_REQ
+          - ABS
+          - Fastmarkets
+          - SMM
+          - CME
+          - GlobalX
+          - Derived
+
+      data_level:
+        type: VARCHAR
+        description: "數據等級"
+        nullable: false
+        enum:
+          - free_nolimit
+          - free_limit
+          - paid_low
+          - paid_high
+          - proxy
+
+      confidence:
+        type: DOUBLE
+        description: "數據置信度 (0-1)"
+        nullable: false
+        constraints:
+          min: 0
+          max: 1
+
+      ingested_at:
+        type: TIMESTAMP
+        description: "數據擷取時間"
+        nullable: false
+        default: CURRENT_TIMESTAMP
+
+    primary_key:
+      - date
+      - metric_type
+      - metric_name
+      - region
+      - source_id
+
+    indexes:
+      - columns: [date]
+      - columns: [metric_type, metric_name]
+      - columns: [source_id]
+
+  # ETF 持股表
+  etf_holdings:
+    description: "ETF 持股明細"
+    columns:
+      asof_date:
+        type: DATE
+        description: "持股截止日期"
+        nullable: false
+
+      etf_ticker:
+        type: VARCHAR
+        description: "ETF 代碼"
+        nullable: false
+
+      stock_ticker:
+        type: VARCHAR
+        description: "持股代碼"
+        nullable: false
+
+      stock_name:
+        type: VARCHAR
+        description: "持股名稱"
+        nullable: true
+
+      weight:
+        type: DOUBLE
+        description: "權重 (%)"
+        nullable: false
+        constraints:
+          min: 0
+          max: 100
+
+      segment:
+        type: VARCHAR
+        description: "產業鏈段"
+        nullable: false
+        enum:
+          - upstream
+          - midstream
+          - downstream
+          - unknown
+
+      country:
+        type: VARCHAR
+        description: "國家"
+        nullable: true
+
+      source_id:
+        type: VARCHAR
+        description: "數據來源"
+        nullable: false
+
+      ingested_at:
+        type: TIMESTAMP
+        description: "數據擷取時間"
+        nullable: false
+        default: CURRENT_TIMESTAMP
+
+    primary_key:
+      - asof_date
+      - etf_ticker
+      - stock_ticker
+
+  # 計算結果表
+  analysis_results:
+    description: "分析計算結果存儲"
+    columns:
+      analysis_date:
+        type: DATE
+        description: "分析日期"
+        nullable: false
+
+      analysis_type:
+        type: VARCHAR
+        description: "分析類型"
+        nullable: false
+        enum:
+          - full_analysis
+          - balance_nowcast
+          - price_regime
+          - etf_exposure
+
+      result_key:
+        type: VARCHAR
+        description: "結果鍵值"
+        nullable: false
+        examples:
+          - balance_index_neutral
+          - price_regime_carbonate
+          - beta_li_current
+
+      result_value:
+        type: DOUBLE
+        description: "結果數值"
+        nullable: true
+
+      result_text:
+        type: VARCHAR
+        description: "結果文字"
+        nullable: true
+
+      result_json:
+        type: JSON
+        description: "結果 JSON（複雜結構）"
+        nullable: true
+
+      parameters:
+        type: JSON
+        description: "分析參數"
+        nullable: true
+
+      created_at:
+        type: TIMESTAMP
+        description: "創建時間"
+        nullable: false
+        default: CURRENT_TIMESTAMP
+
+    primary_key:
+      - analysis_date
+      - analysis_type
+      - result_key
+
+# ========================================
+# 數據驗證規則
+# ========================================
+
+validation_rules:
+  # 供給數據驗證
+  supply_production:
+    field: value
+    conditions:
+      - metric_type == 'supply' AND metric_name == 'world_production'
+    rules:
+      - name: range_check
+        min: 50    # kt LCE
+        max: 5000  # kt LCE
+      - name: yoy_change
+        max_change_pct: 50
+
+  # 需求數據驗證
+  demand_battery:
+    field: value
+    conditions:
+      - metric_type == 'demand' AND metric_name == 'battery_demand_gwh'
+    rules:
+      - name: range_check
+        min: 100   # GWh
+        max: 10000 # GWh
+      - name: yoy_change
+        max_change_pct: 100
+
+  # 價格數據驗證
+  price_carbonate:
+    field: value
+    conditions:
+      - metric_type == 'price' AND metric_name LIKE '%carbonate%'
+    rules:
+      - name: range_check
+        min: 5000   # USD/t
+        max: 100000 # USD/t
+      - name: weekly_change
+        max_change_pct: 30
+
+# ========================================
+# 單位轉換定義
+# ========================================
+
+unit_conversions:
+  Li_to_LCE:
+    factor: 5.323
+    description: "鋰金屬 → 碳酸鋰當量"
+
+  LCE_to_Li:
+    factor: 0.1879
+    description: "碳酸鋰當量 → 鋰金屬"
+
+  LCE_to_LHE:
+    factor: 1.136
+    description: "碳酸鋰當量 → 氫氧化鋰當量"
+
+  SC6_to_LCE:
+    factor: 0.136
+    description: "鋰輝石精礦 → 碳酸鋰當量 (6% Li2O, 8% 損失)"
+    parameters:
+      li2o_pct: 6.0
+      loss_pct: 8.0
+
+  GWh_to_kt_Li:
+    description: "電池容量 → 鋰金屬需求"
+    formula: "GWh * kg_per_kwh / 1000"
+    parameters:
+      kg_per_kwh:
+        conservative: 0.12
+        neutral: 0.15
+        aggressive: 0.18
+
+# ========================================
+# 數據來源映射
+# ========================================
+
+source_mappings:
+  USGS:
+    url: "https://www.usgs.gov/centers/national-minerals-information-center/lithium-statistics-and-information"
+    update_frequency: annual
+    default_confidence: 0.95
+    provided_metrics:
+      - world_production
+      - production_by_country
+      - reserves
+      - apparent_consumption
+
+  IEA:
+    url: "https://www.iea.org/reports/global-ev-outlook-2024"
+    update_frequency: annual
+    default_confidence: 0.90
+    provided_metrics:
+      - ev_sales
+      - battery_demand_gwh
+      - lithium_demand
+
+  AU_REQ:
+    url: "https://www.industry.gov.au/publications/resources-and-energy-quarterly"
+    update_frequency: quarterly
+    default_confidence: 0.90
+    provided_metrics:
+      - australia_production
+      - australia_exports
+      - price_outlook
+
+  ABS:
+    url: "https://www.abs.gov.au/"
+    update_frequency: monthly
+    default_confidence: 0.90
+    provided_metrics:
+      - export_value_aud
+      - export_quantity
+
+  Fastmarkets:
+    url: "https://www.fastmarkets.com/"
+    update_frequency: weekly
+    default_confidence: 0.90
+    data_level_required: paid_low
+    provided_metrics:
+      - carbonate_price
+      - hydroxide_price
+      - spodumene_price
+
+  SMM:
+    url: "https://www.smm.cn/"
+    update_frequency: daily
+    default_confidence: 0.85
+    data_level_required: paid_low
+    provided_metrics:
+      - carbonate_price_china
+
+  CME:
+    url: "https://www.cmegroup.com/"
+    update_frequency: realtime
+    default_confidence: 0.80
+    provided_metrics:
+      - lithium_futures
+
+  GlobalX:
+    url: "https://www.globalxetfs.com/funds/lit/"
+    update_frequency: daily
+    default_confidence: 0.90
+    provided_metrics:
+      - etf_holdings
+      - etf_nav

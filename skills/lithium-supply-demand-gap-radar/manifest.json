@@ -1,0 +1,158 @@
+{
+  "name": "lithium-supply-demand-gap-radar",
+  "version": "0.1.0",
+  "displayName": "鋰產業鏈供需雷達",
+  "description": "將鋰產業鏈（礦端 → 精煉化學品 → 電池與終端需求），整合為一套可運算的替代指標；再把這些指標映射到鋰主題 ETF（如 LIT）的成分暴露與長期價格走勢，形成可供決策的依據。 ",
+  "author": "Ricky Wang",
+  "license": "MIT",
+  "category": "commodity-sd",
+  "tags": [
+    "鋰",
+    "供需分析",
+    "ETF",
+    "LIT",
+    "原物料",
+    "電池",
+    "電動車",
+    "EV",
+    "價格週期",
+    "USGS",
+    "IEA"
+  ],
+  "dataLevel": "free-nolimit",
+  "dependencies": {
+    "python": ">=3.9",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "yfinance>=0.2.0",
+      "statsmodels>=0.14.0",
+      "requests>=2.28.0",
+      "beautifulsoup4>=4.11.0",
+      "pydantic>=2.0.0"
+    ],
+    "optional": [
+      "selenium>=4.10.0",
+      "webdriver-manager>=4.0.0",
+      "pyarrow>=12.0.0",
+      "duckdb>=0.9.0",
+      "matplotlib>=3.5.0",
+      "plotly>=5.0.0",
+      "camelot-py>=0.11.0",
+      "tabula-py>=2.6.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/lithium_pipeline.py"
+  },
+  "workflows": [
+    {
+      "id": "full-analysis",
+      "name": "完整供需×價格×傳導整合分析",
+      "description": "生成完整的鋰市場分析報告",
+      "file": "workflows/full-analysis.md"
+    },
+    {
+      "id": "balance-nowcast",
+      "name": "供需平衡即時估計",
+      "description": "計算供需缺口擴大/縮小趨勢",
+      "file": "workflows/balance-nowcast.md"
+    },
+    {
+      "id": "price-regime",
+      "name": "價格制度分析",
+      "description": "分析鋰價週期位置與趨勢",
+      "file": "workflows/price-regime.md"
+    },
+    {
+      "id": "etf-exposure",
+      "name": "ETF 暴露分析",
+      "description": "分析 ETF 持股結構與鋰價敏感度",
+      "file": "workflows/etf-exposure.md"
+    },
+    {
+      "id": "ingest",
+      "name": "數據擷取",
+      "description": "從各來源擷取鋰相關數據",
+      "file": "workflows/ingest.md"
+    }
+  ],
+  "references": [
+    "references/data-sources.md",
+    "references/unit-conversion.md",
+    "references/price-methodology.md",
+    "references/etf-holdings-structure.md",
+    "references/supply-chain-mapping.md",
+    "references/failure-modes.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md",
+    "templates/config.yaml",
+    "templates/data-schema.yaml"
+  ],
+  "examples": [
+    "examples/full_analysis.json",
+    "examples/balance_nowcast.json",
+    "examples/analysis_report.md"
+  ],
+  "dataSources": [
+    {
+      "name": "USGS Lithium Statistics",
+      "type": "primary",
+      "tier": 0,
+      "url": "https://www.usgs.gov/centers/national-minerals-information-center/lithium-statistics-and-information",
+      "description": "年度全球鋰供需統計、產量、消費、儲量"
+    },
+    {
+      "name": "IEA Global EV Outlook",
+      "type": "primary",
+      "tier": 0,
+      "url": "https://www.iea.org/reports/global-ev-outlook-2024",
+      "description": "EV 部署、電池需求、關鍵金屬需求拆解"
+    },
+    {
+      "name": "Australia Resources & Energy Quarterly",
+      "type": "primary",
+      "tier": 0,
+      "url": "https://www.industry.gov.au/publications/resources-and-energy-quarterly",
+      "description": "澳洲鋰出口、產量、展望（硬岩主力）"
+    },
+    {
+      "name": "ABS Lithium Exports",
+      "type": "primary",
+      "tier": 0,
+      "url": "https://www.abs.gov.au/",
+      "description": "澳洲統計局鋰出口金額/數量"
+    },
+    {
+      "name": "Fastmarkets",
+      "type": "secondary",
+      "tier": 2,
+      "url": "https://www.fastmarkets.com/",
+      "description": "碳酸鋰/氫氧化鋰價格報價（方法學免費、序列付費）"
+    },
+    {
+      "name": "SMM (上海有色)",
+      "type": "secondary",
+      "tier": 2,
+      "url": "https://www.smm.cn/",
+      "description": "中國碳酸鋰現貨指數（方法學免費、序列付費）"
+    },
+    {
+      "name": "CME Lithium Hydroxide Futures",
+      "type": "secondary",
+      "tier": 1,
+      "url": "https://www.cmegroup.com/markets/metals/battery-metals/lithium-hydroxide-cif-cjk-fastmarkets.html",
+      "description": "以 Fastmarkets 報價為基礎的可交易期貨"
+    },
+    {
+      "name": "Global X LIT",
+      "type": "primary",
+      "tier": 0,
+      "url": "https://www.globalxetfs.com/funds/lit/",
+      "description": "LIT ETF 官方頁面、持股、factsheet"
+    }
+  ]
+}

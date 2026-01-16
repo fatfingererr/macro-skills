@@ -1,0 +1,146 @@
+# Lithium Supply-Demand Gap Radar 配置模板
+# 複製此檔案並根據需求修改
+
+# ========================================
+# 基本參數
+# ========================================
+
+etf_ticker: "LIT"           # 目標 ETF
+lookback_years: 10          # 回看年限（建議 10-15）
+price_freq: "weekly"        # 價格頻率：weekly | daily
+
+# ========================================
+# 範圍參數
+# ========================================
+
+region_focus:               # 供應/需求重點區
+  - China
+  - Australia
+  - Chile
+  - Argentina
+  - US
+  - EU
+
+chem_focus: "both"          # 化學品焦點：carbonate | hydroxide | both
+
+# ========================================
+# 數據等級
+# ========================================
+
+# 選項說明：
+# - free_nolimit: 僅使用免費、無限制數據源（USGS, IEA, ABS, CME proxy）
+# - free_limit:   使用免費但可能有限制的數據源（加上 SMM 頁面等）
+# - paid_low:     使用低階付費數據（Fastmarkets 基本、SMM 完整）
+# - paid_high:    使用高階付費數據（BNEF, Benchmark, S&P）
+
+data_level: "free_nolimit"
+
+# ========================================
+# 數據源開關
+# ========================================
+
+sources:
+  # 供給數據
+  usgs: true                # USGS Lithium Statistics
+  australia_req: true       # Australia Resources & Energy Quarterly
+  abs_exports: true         # ABS Lithium Exports
+
+  # 需求數據
+  iea_ev_outlook: true      # IEA Global EV Outlook
+
+  # 價格數據
+  fastmarkets: false        # Fastmarkets（需 paid_low 以上）
+  smm: false                # SMM 上海有色（需 paid_low 以上）
+  cme_futures: true         # CME Lithium Futures（免費 proxy）
+
+  # ETF 數據
+  etf_holdings: true        # Global X LIT holdings
+
+# ========================================
+# Balance Nowcast 參數
+# ========================================
+
+balance:
+  # 需求轉換假設（kg Li per kWh）
+  kg_per_kwh:
+    conservative: 0.12      # LFP 佔比上升假設
+    neutral: 0.15           # 混合市場
+    aggressive: 0.18        # 高鎳 NMC 主導
+
+  # Z-score 計算視窗
+  zscore_window: 5          # 年
+
+# ========================================
+# Price Regime 參數
+# ========================================
+
+regime:
+  # 動能週期
+  momentum_periods:
+    - 12                    # 12 週 ROC
+    - 26                    # 26 週 ROC
+
+  # 趨勢斜率視窗
+  slope_window: 26          # 週
+
+  # 波動率視窗
+  volatility_window: 26     # 週
+
+  # 均值偏離計算
+  mean_window: 200          # 週（約 4 年）
+
+  # 制度閾值
+  thresholds:
+    roc_up: 5               # ROC > 5% 判定為上行
+    roc_down: -5            # ROC < -5% 判定為下行
+    roc_overheat: 30        # ROC > 30% 判定為過熱
+    deviation_extreme: 30   # 偏離 > 30% 判定為極端
+
+# ========================================
+# ETF Beta 參數
+# ========================================
+
+etf:
+  # Rolling beta 視窗
+  beta_window: 52           # 週
+
+  # 傳導斷裂閾值
+  transmission:
+    threshold: 0.3          # Beta 低於此值視為弱傳導
+    duration: 8             # 持續此週數視為斷裂
+
+  # 因子定義
+  factors:
+    lithium_price: true     # 使用鋰價因子
+    ev_demand: true         # 使用 EV 需求因子（DRIV ETF proxy）
+
+# ========================================
+# 輸出設定
+# ========================================
+
+output:
+  format: "markdown"        # markdown | json
+  include_charts: true      # 是否生成圖表
+  chart_dir: "output/"      # 圖表輸出目錄
+  chart_prefix: "lithium_"  # 圖表檔名前綴
+
+# ========================================
+# 進階設定
+# ========================================
+
+advanced:
+  # 緩存設定
+  cache:
+    enabled: true
+    dir: "data/cache/"
+    ttl_hours: 24           # 緩存有效期
+
+  # 日誌設定
+  logging:
+    level: "INFO"           # DEBUG | INFO | WARNING | ERROR
+    file: "logs/lithium.log"
+
+  # 重試設定
+  retry:
+    max_attempts: 3
+    delay_seconds: 2
