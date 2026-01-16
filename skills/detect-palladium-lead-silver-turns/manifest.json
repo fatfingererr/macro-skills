@@ -1,0 +1,146 @@
+{
+  "name": "detect-palladium-lead-silver-turns",
+  "version": "0.1.0",
+  "displayName": "辨識鈀金領先白銀轉折點",
+  "description": "以鈀金的先行轉向作為確認條件，檢驗白銀短期漲跌是否獲得工業景氣與風險情緒的同步支持，並標記缺乏鈀金參與度的失敗走勢。",
+  "author": "Ricky Wang",
+  "license": "MIT",
+  "category": "indicator-monitoring",
+  "tags": [
+    "鈀金",
+    "白銀",
+    "貴金屬",
+    "拐點偵測",
+    "領先指標",
+    "跨金屬確認",
+    "失敗走勢",
+    "流動性噪音",
+    "技術分析"
+  ],
+  "dataLevel": "free-nolimit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "yfinance>=0.2.0",
+      "scipy>=1.10.0",
+      "statsmodels>=0.14.0"
+    ],
+    "optional": [
+      "matplotlib>=3.5.0",
+      "plotly>=5.0.0",
+      "ta>=0.10.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/palladium_lead_silver.py"
+  },
+  "workflows": [
+    {
+      "id": "detect",
+      "name": "單次偵測",
+      "description": "偵測白銀拐點是否被鈀金確認",
+      "file": "workflows/detect.md"
+    },
+    {
+      "id": "backtest",
+      "name": "歷史回測",
+      "description": "回測跨金屬確認邏輯的有效性",
+      "file": "workflows/backtest.md"
+    },
+    {
+      "id": "monitor",
+      "name": "持續監控",
+      "description": "持續監控新拐點並發出警報",
+      "file": "workflows/monitor.md"
+    }
+  ],
+  "references": [
+    "references/methodology.md",
+    "references/input-schema.md",
+    "references/data-sources.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md"
+  ],
+  "examples": [
+    "examples/silver-palladium-2024.json"
+  ],
+  "dataSources": [
+    {
+      "name": "Yahoo Finance",
+      "type": "primary",
+      "url": "https://finance.yahoo.com",
+      "api": "yfinance package",
+      "tickers": [
+        "SI=F",
+        "PA=F",
+        "XAGUSD=X",
+        "XPDUSD"
+      ]
+    },
+    {
+      "name": "FRED",
+      "type": "macro_filter",
+      "url": "https://fred.stlouisfed.org",
+      "api": "FRED API / pandas_datareader",
+      "series": [
+        "DTWEXBGS",
+        "DFII10",
+        "VIXCLS"
+      ]
+    }
+  ],
+  "modelConfig": {
+    "defaultParams": {
+      "silver_symbol": "SI=F",
+      "palladium_symbol": "PA=F",
+      "timeframe": "1h",
+      "lookback_bars": 1000,
+      "turn_method": "pivot",
+      "pivot_left": 3,
+      "pivot_right": 3,
+      "confirm_window_bars": 6,
+      "lead_lag_max_bars": 24,
+      "participation_metric": "direction_agree",
+      "participation_threshold": 0.6,
+      "failure_rule": "no_confirm_then_revert"
+    },
+    "turnMethods": {
+      "pivot": {
+        "description": "左右 N 根K棒內的局部極值",
+        "params": [
+          "pivot_left",
+          "pivot_right"
+        ]
+      },
+      "peaks": {
+        "description": "scipy find_peaks + prominence",
+        "params": [
+          "prominence",
+          "distance"
+        ]
+      },
+      "slope_change": {
+        "description": "趨勢斜率由正轉負或反之",
+        "params": [
+          "slope_window",
+          "slope_threshold"
+        ]
+      }
+    },
+    "participationMetrics": [
+      "returns_corr",
+      "direction_agree",
+      "vol_expansion",
+      "breakout_confirm"
+    ],
+    "failureRules": [
+      "no_confirm_then_revert",
+      "no_confirm_then_break_fail"
+    ]
+  }
+}

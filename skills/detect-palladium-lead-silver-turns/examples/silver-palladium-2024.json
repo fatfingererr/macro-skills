@@ -1,0 +1,254 @@
+{
+  "skill": "detect-palladium-lead-silver-turns",
+  "symbol_pair": {
+    "silver": "SI=F",
+    "palladium": "PA=F"
+  },
+  "as_of": "2026-01-14",
+  "timeframe": "1h",
+  "lookback_bars": 1200,
+  "data_range": {
+    "start": "2025-09-01",
+    "end": "2026-01-14",
+    "trading_bars": 1180
+  },
+  "summary": {
+    "estimated_pd_leads_by_bars": 6,
+    "lead_lag_corr": 0.42,
+    "confirmation_rate": 0.708,
+    "unconfirmed_failure_rate": 0.643,
+    "total_ag_turns": 24,
+    "confirmed_turns": 17,
+    "unconfirmed_turns": 7,
+    "failed_moves": 5
+  },
+  "lead_lag_analysis": {
+    "best_lag": 6,
+    "correlation": 0.42,
+    "confidence_interval": [3, 9],
+    "stability": {
+      "rolling_windows": [
+        {"period": "2025-Q3", "lag": 5, "corr": 0.38},
+        {"period": "2025-Q4", "lag": 7, "corr": 0.45},
+        {"period": "2026-01", "lag": 6, "corr": 0.42}
+      ],
+      "is_stable": true,
+      "lag_std": 1.0
+    }
+  },
+  "confirmation_analysis": {
+    "by_type": {
+      "top": {"total": 12, "confirmed": 8, "rate": 0.667},
+      "bottom": {"total": 12, "confirmed": 9, "rate": 0.75}
+    },
+    "confirmation_lag_distribution": {
+      "mean": -2.3,
+      "median": -3,
+      "std": 1.8,
+      "min": -6,
+      "max": 4
+    }
+  },
+  "failure_analysis": {
+    "rule_used": "no_confirm_then_revert",
+    "unconfirmed_events": 7,
+    "failed_moves": 5,
+    "unconfirmed_failure_rate": 0.714,
+    "confirmed_failure_rate": 0.176,
+    "failure_rate_ratio": 4.06,
+    "average_revert_bars": {
+      "unconfirmed": 8.2,
+      "confirmed": 15.6
+    }
+  },
+  "events": [
+    {
+      "ts": "2025-09-15T08:00:00Z",
+      "idx": 50,
+      "turn": "bottom",
+      "ag_price": 28.15,
+      "confirmed": true,
+      "confirmation_lag_bars": -4,
+      "pd_turn_ts": "2025-09-15T04:00:00Z",
+      "pd_turn_price": 985.50,
+      "participation_ok": true,
+      "participation_score": 0.72,
+      "failed_move": false
+    },
+    {
+      "ts": "2025-09-28T14:00:00Z",
+      "idx": 120,
+      "turn": "top",
+      "ag_price": 29.85,
+      "confirmed": true,
+      "confirmation_lag_bars": -2,
+      "pd_turn_ts": "2025-09-28T12:00:00Z",
+      "pd_turn_price": 1025.00,
+      "participation_ok": true,
+      "participation_score": 0.68,
+      "failed_move": false
+    },
+    {
+      "ts": "2025-10-12T10:00:00Z",
+      "idx": 210,
+      "turn": "bottom",
+      "ag_price": 27.50,
+      "confirmed": false,
+      "confirmation_lag_bars": null,
+      "pd_turn_ts": null,
+      "pd_turn_price": null,
+      "participation_ok": false,
+      "participation_score": 0.35,
+      "failed_move": true
+    },
+    {
+      "ts": "2025-10-25T16:00:00Z",
+      "idx": 295,
+      "turn": "top",
+      "ag_price": 30.20,
+      "confirmed": true,
+      "confirmation_lag_bars": -5,
+      "pd_turn_ts": "2025-10-25T11:00:00Z",
+      "pd_turn_price": 1045.00,
+      "participation_ok": true,
+      "participation_score": 0.75,
+      "failed_move": false
+    },
+    {
+      "ts": "2025-11-08T12:00:00Z",
+      "idx": 380,
+      "turn": "bottom",
+      "ag_price": 28.80,
+      "confirmed": true,
+      "confirmation_lag_bars": -3,
+      "pd_turn_ts": "2025-11-08T09:00:00Z",
+      "pd_turn_price": 1010.50,
+      "participation_ok": true,
+      "participation_score": 0.71,
+      "failed_move": false
+    },
+    {
+      "ts": "2025-11-22T08:00:00Z",
+      "idx": 465,
+      "turn": "top",
+      "ag_price": 31.10,
+      "confirmed": false,
+      "confirmation_lag_bars": null,
+      "pd_turn_ts": null,
+      "pd_turn_price": null,
+      "participation_ok": false,
+      "participation_score": 0.28,
+      "failed_move": true
+    },
+    {
+      "ts": "2025-12-05T14:00:00Z",
+      "idx": 550,
+      "turn": "bottom",
+      "ag_price": 29.20,
+      "confirmed": true,
+      "confirmation_lag_bars": -6,
+      "pd_turn_ts": "2025-12-05T08:00:00Z",
+      "pd_turn_price": 998.00,
+      "participation_ok": true,
+      "participation_score": 0.78,
+      "failed_move": false
+    },
+    {
+      "ts": "2025-12-18T10:00:00Z",
+      "idx": 635,
+      "turn": "top",
+      "ag_price": 30.85,
+      "confirmed": true,
+      "confirmation_lag_bars": -4,
+      "pd_turn_ts": "2025-12-18T06:00:00Z",
+      "pd_turn_price": 1055.00,
+      "participation_ok": true,
+      "participation_score": 0.69,
+      "failed_move": false
+    },
+    {
+      "ts": "2026-01-02T16:00:00Z",
+      "idx": 720,
+      "turn": "bottom",
+      "ag_price": 29.50,
+      "confirmed": false,
+      "confirmation_lag_bars": null,
+      "pd_turn_ts": null,
+      "pd_turn_price": null,
+      "participation_ok": false,
+      "participation_score": 0.32,
+      "failed_move": true
+    },
+    {
+      "ts": "2026-01-08T10:00:00Z",
+      "idx": 780,
+      "turn": "bottom",
+      "ag_price": 29.85,
+      "confirmed": true,
+      "confirmation_lag_bars": -3,
+      "pd_turn_ts": "2026-01-08T07:00:00Z",
+      "pd_turn_price": 1025.50,
+      "participation_ok": true,
+      "participation_score": 0.72,
+      "failed_move": false
+    },
+    {
+      "ts": "2026-01-15T14:00:00Z",
+      "idx": 850,
+      "turn": "top",
+      "ag_price": 30.50,
+      "confirmed": false,
+      "confirmation_lag_bars": null,
+      "pd_turn_ts": null,
+      "pd_turn_price": null,
+      "participation_ok": false,
+      "participation_score": 0.35,
+      "failed_move": true
+    }
+  ],
+  "latest_event": {
+    "ts": "2026-01-15T14:00:00Z",
+    "idx": 850,
+    "turn": "top",
+    "ag_price": 30.50,
+    "confirmed": false,
+    "confirmation_lag_bars": null,
+    "pd_turn_ts": null,
+    "pd_turn_price": null,
+    "participation_ok": false,
+    "participation_score": 0.35,
+    "failed_move": true
+  },
+  "interpretation": {
+    "regime_assessment": "鈀金平均領先白銀 6 根 K 棒。中等相關（0.42）。跨金屬確認邏輯有效。",
+    "current_status": "最新白銀拐點未被確認，已判定為失敗走勢。",
+    "tactics": [
+      "避免基於未確認拐點進行方向性交易",
+      "等待下一個被鈀金確認的拐點再決策",
+      "當前拐點可能為流動性噪音，謹慎應對",
+      "歷史確認率良好，可繼續使用鈀金確認作為過濾條件",
+      "未確認事件失敗率高，建議將確認作為交易前置條件"
+    ]
+  },
+  "notes": [
+    "鈀金在本回溯窗口內對白銀報酬的最佳領先滯後為 +6 bars（鈀金先動）。",
+    "未被鈀金確認的白銀拐點事件，其後續回撤/回到區間的比例顯著較高（71% vs 18%）。",
+    "確認邏輯在底部拐點上表現更好（75%確認率 vs 頂部67%）。",
+    "建議將鈀金確認作為白銀交易的前置過濾條件。"
+  ],
+  "metadata": {
+    "generated_at": "2026-01-15T15:00:00Z",
+    "parameters": {
+      "turn_method": "pivot",
+      "pivot_left": 3,
+      "pivot_right": 3,
+      "confirm_window_bars": 6,
+      "lead_lag_max_bars": 24,
+      "participation_metric": "direction_agree",
+      "participation_threshold": 0.6,
+      "failure_rule": "no_confirm_then_revert"
+    },
+    "data_source": "yfinance",
+    "version": "0.1.0"
+  }
+}
