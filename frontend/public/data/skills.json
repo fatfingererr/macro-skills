@@ -357,228 +357,6 @@
     "downloadUrl": "downloads/detect-atr-squeeze-regime-0.1.0.zip"
   },
   {
-    "id": "wasde-ingestor",
-    "name": "wasde-ingestor",
-    "displayName": "下載與解析 WASDE 每月報告",
-    "description": "抓取並解析 USDA（美國農業部）每月發布的 WASDE（世界農產品供需估計）報告，擷取所有主要商品（穀物、油籽、棉花、畜產品、糖）的供需平衡表。產出經標準化、具版本控管的資料集，作為即時預測的基準錨點。",
-    "emoji": "🌾",
-    "version": "0.2.0",
-    "license": "MIT",
-    "author": "macro-skills",
-    "authorUrl": "https://github.com/fatfingererr/macro-skills",
-    "tags": [],
-    "category": "nowcasting",
-    "dataLevel": "free-nolimit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": false,
-    "installCount": 0,
-    "content": "<essential_principles>\r\n**WASDE Ingestor 核心原則**\r\n\r\n**1. 商品範圍**\r\n\r\nWASDE 涵蓋三大類商品，每類有不同的表格結構與單位：\r\n\r\n| 類別      | 商品                                     | US 單位                   | World 單位           |\r\n|-----------|------------------------------------------|---------------------------|----------------------|\r\n| Grains    | Wheat, Corn, Rice, Barley, Sorghum, Oats | million bushels / cwt     | million metric tons  |\r\n| Oilseeds  | Soybeans, Soybean Oil, Soybean Meal      | million bushels / pounds  | million metric tons  |\r\n| Cotton    | Upland, Pima                             | million 480-lb bales      | million 480-lb bales |\r\n| Livestock | Beef, Pork, Poultry, Eggs, Dairy         | million lbs / dozen / lbs | - (US only)          |\r\n| Sugar     | Sugar                                    | 1,000 short tons          | - (US + Mexico only) |\r\n\r\n**2. 表格結構一致性**\r\n\r\n所有供需表遵循相同的平衡公式：\r\n```\r\nEnding Stocks = Beginning Stocks + Production + Imports - Total Use - Exports\r\n```\r\n\r\n**3. 版本控制**\r\n\r\n- 每月報告可能修正前期數據\r\n- 使用 `content_hash` 追蹤數據變化\r\n- 保留 `revision_flag` 標記修正值\r\n\r\n**4. 解析優先級**\r\n\r\n1. PDF 結構化解析（優先）\r\n2. HTML 表格解析（fallback）\r\n3. TXT 固定寬度解析（legacy）\r\n</essential_principles>\r\n\r\n<intake>\r\n**您想要執行什麼操作？**\r\n\r\n1. **Ingest** - 抓取並解析最新或指定月份的 WASDE 報告\r\n2. **Backfill** - 批量回補歷史 WASDE 數據\r\n3. **Validate** - 驗證現有數據與最新報告的一致性\r\n4. **Configure** - 配置商品範圍、輸出路徑等參數\r\n\r\n**等待回應後再繼續。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                                | Workflow               | Description         |\r\n|-----------------------------------------|------------------------|---------------------|\r\n| 1, \"ingest\", \"fetch\", \"parse\", \"latest\" | workflows/ingest.md    | 抓取解析 WASDE 報告 |\r\n| 2, \"backfill\", \"historical\", \"batch\"    | workflows/backfill.md  | 批量回補歷史數據    |\r\n| 3, \"validate\", \"check\", \"verify\"        | workflows/validate.md  | 驗證數據一致性      |\r\n| 4, \"configure\", \"config\", \"setup\"       | workflows/configure.md | 配置參數            |\r\n\r\n**讀取工作流程後，請完全遵循其步驟。**\r\n</routing>\r\n\r\n<reference_index>\r\n**商品參考文件** (`references/`)\r\n\r\n| 文件                    | 內容                                               |\r\n|-------------------------|----------------------------------------------------|\r\n| commodities-overview.md | 所有商品總覽與單位對照                             |\r\n| grains.md               | 穀物類（Wheat, Corn, Rice, Barley, Sorghum, Oats） |\r\n| oilseeds.md             | 油籽類（Soybeans, Soybean Oil, Soybean Meal）      |\r\n| cotton.md               | 棉花（US & World）                                 |\r\n| livestock.md            | 畜產品（Beef, Pork, Poultry, Eggs, Dairy）         |\r\n| sugar.md                | 糖（US & Mexico）                                  |\r\n| validation-rules.md     | 驗證規則與合理性檢查                               |\r\n| failure-modes.md        | 失敗模式與緩解策略                                 |\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow     | Purpose                       |\r\n|--------------|-------------------------------|\r\n| ingest.md    | 抓取解析單一或多個 WASDE 報告 |\r\n| backfill.md  | 批量回補歷史數據              |\r\n| validate.md  | 驗證數據一致性與修正追蹤      |\r\n| configure.md | 配置商品範圍與輸出設定        |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template                  | Purpose             |\r\n|---------------------------|---------------------|\r\n| config.yaml               | 標準配置文件模板    |\r\n| us-balance-schema.yaml    | US 供需表 schema    |\r\n| world-balance-schema.yaml | World 供需表 schema |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script               | Purpose                   |\r\n|----------------------|---------------------------|\r\n| discover_releases.py | 發現 WASDE 發布日期與 URL |\r\n| fetch_report.py      | 下載 PDF/HTML 報告        |\r\n| parse_tables.py      | 解析表格提取數據          |\r\n| validate_data.py     | 執行驗證檢查              |\r\n</scripts_index>\r\n\r\n<examples_index>\r\n**範例輸出** (`examples/`)\r\n\r\n| 文件                       | 內容                   |\r\n|----------------------------|------------------------|\r\n| corn_us_balance.json       | 美國玉米供需平衡表範例 |\r\n| wheat_world_balance.json   | 世界小麥供需平衡表範例 |\r\n| ingest_status_success.json | 成功執行的狀態報告範例 |\r\n| backfill_result.json       | 批量回補作業結果範例   |\r\n</examples_index>\r\n\r\n<quick_start>\r\n**CLI 快速開始：**\r\n\r\n```bash\r\n# 抓取最新報告的所有商品\r\nmacro-skills wasde ingest --commodities=all --out=./data\r\n\r\n# 只抓取穀物類\r\nmacro-skills wasde ingest --commodities=grains --out=./data\r\n\r\n# 回補過去 24 個月的大豆數據\r\nmacro-skills wasde backfill --commodity=soybeans --months=24 --out=./data\r\n\r\n# 驗證現有數據\r\nmacro-skills wasde validate --data-dir=./data\r\n```\r\n\r\n**Library 快速開始：**\r\n\r\n```python\r\nfrom macro_skills.wasde import WASDEIngestor\r\n\r\ningestor = WASDEIngestor(\r\n    commodities=[\"wheat\", \"corn\", \"soybeans\"],\r\n    scope=[\"us\", \"world\"],\r\n    output_dir=\"./data/wasde\"\r\n)\r\n\r\nresult = ingestor.ingest_latest()\r\nprint(result.status)\r\n```\r\n</quick_start>\r\n\r\n<success_criteria>\r\nSkill 成功執行時：\r\n- [ ] 正確識別商品類別與對應表格\r\n- [ ] 解析所有指定商品的供需數據\r\n- [ ] 單位正確轉換與標記\r\n- [ ] 通過平衡公式驗證\r\n- [ ] 輸出標準化 parquet 數據集\r\n- [ ] 生成 ingest_status 報告\r\n</success_criteria>\r\n\r\n<detailed_usage_examples>\r\n**詳細使用範例**\r\n\r\n**範例 1：抓取最新玉米與大豆數據**\r\n```\r\nUser: 幫我抓取最新 WASDE 的玉米和大豆供需數據\r\n\r\nAssistant 執行步驟:\r\n1. 讀取 workflows/ingest.md\r\n2. 呼叫 discover_releases.py 找到最新發布 (2025-01-10)\r\n3. 下載 PDF 報告\r\n4. 解析 corn_us, corn_world, soybeans_us, soybeans_world 表格\r\n5. 驗證平衡公式\r\n6. 輸出 parquet 檔案\r\n7. 回報 ingest_status\r\n\r\n預期輸出:\r\n- ./data/wasde/curated/corn_us_balance.parquet\r\n- ./data/wasde/curated/corn_world_balance.parquet\r\n- ./data/wasde/curated/soybeans_us_balance.parquet\r\n- ./data/wasde/curated/soybeans_world_balance.parquet\r\n```\r\n\r\n**範例 2：回補歷史小麥數據並追蹤修正**\r\n```\r\nUser: 回補過去 12 個月的小麥數據，我想追蹤 USDA 的修正歷程\r\n\r\nAssistant 執行步驟:\r\n1. 讀取 workflows/backfill.md\r\n2. 確定日期範圍 (2024-01 至 2024-12)\r\n3. 依序處理 12 期報告\r\n4. 比對每期數據，標記修正值\r\n5. 輸出包含 revision_flag 的完整歷史數據\r\n\r\n預期輸出:\r\n- 12 期小麥數據\r\n- 修正追蹤報告\r\n```\r\n\r\n**範例 3：驗證現有數據一致性**\r\n```\r\nUser: 檢查我現有的 WASDE 數據是否與最新報告一致\r\n\r\nAssistant 執行步驟:\r\n1. 讀取 workflows/validate.md\r\n2. 載入現有 parquet 檔案\r\n3. 抓取最新報告\r\n4. 逐欄位比對\r\n5. 標記差異與修正\r\n6. 輸出驗證報告\r\n\r\n預期輸出:\r\n- validation_report.json (差異列表)\r\n- 修正建議\r\n```\r\n</detailed_usage_examples>\r\n\r\n<data_pipeline_architecture>\r\n**數據流水線架構**\r\n\r\n```\r\n[USDA WASDE Website]\r\n         |\r\n         v\r\n+-------------------+\r\n| discover_releases |  --> 找到 PDF URL 與發布日期\r\n+-------------------+\r\n         |\r\n         v\r\n+-------------------+\r\n|   fetch_report    |  --> 下載 PDF (fallback: HTML)\r\n+-------------------+\r\n         |\r\n         v\r\n+-------------------+\r\n|   parse_tables    |  --> 提取供需表格數據\r\n+-------------------+\r\n         |\r\n         v\r\n+-------------------+\r\n|   normalize_data  |  --> 標準化欄位與單位\r\n+-------------------+\r\n         |\r\n         v\r\n+-------------------+\r\n|   validate_data   |  --> 平衡公式與範圍檢查\r\n+-------------------+\r\n         |\r\n         v\r\n+-------------------+\r\n|   write_output    |  --> Parquet / JSON\r\n+-------------------+\r\n         |\r\n         v\r\n[Curated Dataset]\r\n```\r\n\r\n**目錄結構：**\r\n```\r\ndata/wasde/\r\n├── raw/                    # 原始 PDF 檔案\r\n│   └── 2025-01-10/\r\n│       └── wasde0125.pdf\r\n├── intermediate/           # 中間解析結果\r\n│   └── 2025-01-10/\r\n│       ├── tables.json\r\n│       └── ingest_status.json\r\n└── curated/                # 最終標準化數據\r\n    ├── corn_us_balance.parquet\r\n    ├── corn_world_balance.parquet\r\n    ├── wheat_us_balance.parquet\r\n    └── ...\r\n```\r\n</data_pipeline_architecture>",
-    "path": "skills/wasde-ingestor/SKILL.md",
-    "directoryStructure": "wasde-ingestor/\n├── examples\n│   ├── backfill_result.json\n│   ├── corn_us_balance.json\n│   ├── ingest_status_success.json\n│   └── wheat_world_balance.json\n├── manifest.json\n├── references\n│   ├── commodities-overview.md\n│   ├── cotton.md\n│   ├── failure-modes.md\n│   ├── grains.md\n│   ├── livestock.md\n│   ├── oilseeds.md\n│   ├── sugar.md\n│   └── validation-rules.md\n├── scripts\n│   ├── discover_releases.py\n│   ├── fetch_report.py\n│   ├── parse_tables.py\n│   └── validate_data.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── config.yaml\n│   ├── us-balance-schema.yaml\n│   └── world-balance-schema.yaml\n└── workflows\n    ├── backfill.md\n    ├── configure.md\n    ├── ingest.md\n    └── validate.md",
-    "lastUpdated": "2026-01-15",
-    "rating": 3,
-    "testQuestions": [
-      {
-        "question": "匯入最新一期 WASDE 報告中的所有穀物資料（小麥、玉米、稻米）",
-        "expectedResult": "此匯入器會：\n1. 找出最新一期 WASDE 發布版本\n2. 下載 PDF 並解析穀物相關表格\n3. 擷取美國與全球的小麥、玉米、稻米供需平衡表\n4. 輸出標準化的 Parquet 資料集\n"
-      },
-      {
-        "question": "回補過去 36 個月的 WASDE 玉米資料",
-        "expectedResult": "此匯入器會處理 36 期每月發布版本，擷取玉米供需平衡表，\n並維持一致的 schema、內容雜湊（content hashes）與資料驗證檢查。\n"
-      },
-      {
-        "question": "將既有 WASDE 資料與最新報告進行比對驗證",
-        "expectedResult": "驗證器會將已儲存的資料與最新解析結果比對，標記任何修訂，\n並回報 schema 漂移或資料更正。\n"
-      }
-    ],
-    "qualityScore": {
-      "overall": 70,
-      "badge": "白銀",
-      "metrics": {
-        "architecture": 80,
-        "maintainability": 85,
-        "content": 95,
-        "community": 30,
-        "security": 100,
-        "compliance": 70
-      },
-      "details": "**架構（80/100）**\n- ✅ 模組化 router pattern 設計\n- ✅ 完整涵蓋所有 WASDE 商品類別\n- ⚠️ Alpha 階段，需更多實際使用驗證\n\n**可維護性（85/100）**\n- ✅ 清晰的工作流程分離\n- ✅ 商品參考文件獨立維護\n\n**內容（95/100）**\n- ✅ 涵蓋所有 WASDE 商品\n- ✅ 詳細的欄位映射與驗證規則\n\n**社區（30/100）**\n- ⚠️ 新技能，尚無社區貢獻\n\n**安全（100/100）**\n- ✅ 僅讀取公開 USDA 數據\n\n**規範符合性（70/100）**\n- ✅ 遵循 Claude Code 規範\n- ⚠️ Alpha 階段\n"
-    },
-    "bestPractices": [
-      {
-        "title": "等待 WASDE 正式發布",
-        "description": "WASDE 通常在每月 10-12 日發布，確認官方發布後再執行 ingest"
-      },
-      {
-        "title": "保留原始 PDF 備份",
-        "description": "保存原始報告 PDF 以便在解析失敗時進行人工檢查"
-      },
-      {
-        "title": "監控 schema drift",
-        "description": "USDA 可能調整表格格式，定期檢查 schema_hash 變化"
-      },
-      {
-        "title": "使用 content_hash 進行版本控制",
-        "description": "利用 content_hash 確保數據冪等性"
-      },
-      {
-        "title": "注意數據修正",
-        "description": "WASDE 會在後續月份修正歷史數據，需追蹤修正值"
-      }
-    ],
-    "pitfalls": [
-      {
-        "title": "忽略 PDF 佈局變化",
-        "description": "USDA 可能在無預警情況下調整 PDF 格式",
-        "consequence": "可能產生錯誤數據或完全無法解析"
-      },
-      {
-        "title": "單位混淆",
-        "description": "不同商品使用不同單位（bushels, cwt, metric tons 等）",
-        "consequence": "供需計算完全錯誤"
-      },
-      {
-        "title": "忽略行銷年度差異",
-        "description": "不同商品的行銷年度起始月份不同",
-        "consequence": "時間序列對齊錯誤"
-      }
-    ],
-    "faq": [
-      {
-        "question": "WASDE 報告涵蓋哪些商品？",
-        "answer": "WASDE 涵蓋以下商品類別：\n\n**穀物 (Grains)**\n- 小麥 (Wheat) - 包含 by-class 細分\n- 玉米 (Corn)\n- 稻米 (Rice) - 長粒/中短粒\n- 大麥 (Barley)\n- 高粱 (Sorghum)\n- 燕麥 (Oats)\n\n**油籽 (Oilseeds)**\n- 大豆 (Soybeans)\n- 豆油 (Soybean Oil)\n- 豆粕 (Soybean Meal)\n\n**棉花 (Cotton)**\n- 美國棉花供需\n- 世界棉花供需\n\n**畜產品 (Livestock) - 僅美國**\n- 牛肉 (Beef)\n- 豬肉 (Pork)\n- 禽肉 (Poultry)\n- 雞蛋 (Eggs)\n- 乳製品 (Dairy/Milk)\n\n**糖 (Sugar)**\n- 美國糖供需\n- 墨西哥糖供需\n"
-      },
-      {
-        "question": "不同商品的行銷年度是什麼？",
-        "answer": "| 商品 | 美國行銷年度 | 世界行銷年度 |\n|------|--------------|--------------\n| 小麥 | Jun-May      | Jul-Jun      |\n| 玉米 | Sep-Aug      | Oct-Sep      |\n| 大豆 | Sep-Aug      | Oct-Sep      |\n| 稻米 | Aug-Jul      | Jan-Dec      |\n| 棉花 | Aug-Jul      | Aug-Jul      |\n"
-      },
-      {
-        "question": "數據來源與發布時間？",
-        "answer": "- **官網**: https://www.usda.gov/oce/commodity/wasde\n- **發布日期**: 每月約 10-12 日\n- **發布時間**: 美東時間中午 12:00\n- **格式**: PDF, TXT\n- **歷史檔案**: https://esmis.nal.usda.gov/\n"
-      }
-    ],
-    "about": {
-      "repository": "https://github.com/fatfingererr/macro-skills",
-      "branch": "main",
-      "additionalInfo": "## 數據來源\n\n所有數據來自 USDA 官方 WASDE 報告：\n- 官網：https://www.usda.gov/oce/commodity/wasde\n- 歷史檔案：https://esmis.nal.usda.gov/\n- 數據類型：公開、免費、無限制使用\n\n## 編製單位\n\nWASDE 由 World Agricultural Outlook Board (WAOB) 編製，\n整合以下機構資料：\n- Agricultural Marketing Service (AMS)\n- Economic Research Service (ERS)\n- Farm Service Agency (FSA)\n- Foreign Agricultural Service (FAS)\n- National Agricultural Statistics Service (NASS)\n"
-    },
-    "downloadUrl": "downloads/wasde-ingestor-0.2.0.zip"
-  },
-  {
-    "id": "us-cpi-pce-comparator",
-    "name": "us-cpi-pce-comparator",
-    "displayName": "美國 CPI/PCE 通膨比較",
-    "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
-    "emoji": "📊",
-    "version": "0.1.0",
-    "license": "MIT",
-    "author": "Ricky Wang",
-    "authorUrl": "https://github.com/fatfingererr/macro-skills",
-    "tags": [
-      "CPI",
-      "PCE",
-      "通膨",
-      "Fed",
-      "權重差異",
-      "FRED",
-      "BLS",
-      "風險訊號",
-      "宏觀經濟"
-    ],
-    "category": "inflation-analytics",
-    "dataLevel": "free-nolimit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": false,
-    "installCount": 0,
-    "content": "<essential_principles>\r\n\r\n<principle name=\"weight_difference\">\r\n**CPI vs PCE 權重差異是核心**\r\n\r\n- **CPI（固定權重）**: BLS Relative Importance，每年或每兩年更新，反映「固定籃子」\r\n- **PCE（動態/鏈結權重）**: BEA 名目支出占比，每月隨實際消費行為調整\r\n\r\n關鍵洞見：當消費者把錢花在「價格較不波動」的品項時，若這些品項的通膨走高，PCE 會比 CPI 更敏感地反映這個上行壓力。\r\n</principle>\r\n\r\n<principle name=\"volatility_matters\">\r\n**低波動 + 高權重 = PCE 上行風險訊號**\r\n\r\n識別邏輯：\r\n1. 找出 PCE 權重較高的消費桶（consumer spending buckets）\r\n2. 在這些桶中，篩選價格波動度較低者\r\n3. 若這些桶的通膨近期轉正或加速，標記為 PCE upside risk\r\n</principle>\r\n\r\n<principle name=\"scope_difference\">\r\n**CPI 與 PCE 的範圍差異**\r\n\r\nPCE 涵蓋項目比 CPI 更廣：\r\n- 第三方支付的醫療費用（employer-paid healthcare）\r\n- 非營利機構對家庭的服務\r\n- 某些金融服務的隱含費用\r\n\r\n這些 scope 差異也會造成 CPI/PCE 分歧。詳見 `references/cpi-pce-methodology.md`。\r\n</principle>\r\n\r\n<principle name=\"data_access\">\r\n**資料取得方式**\r\n\r\n本 skill 使用**無需 API key** 的資料來源：\r\n- **FRED CSV**: `https://fred.stlouisfed.org/graph/fredgraph.csv?id={SERIES_ID}`\r\n- **BLS Public API**: `https://api.bls.gov/publicAPI/v2/timeseries/data/`\r\n\r\n腳本位於 `scripts/` 目錄，可直接執行。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n比較 CPI 與 PCE 通膨訊號的分歧，並識別「低波動、高 PCE 權重」的消費桶是否正在推升 Fed 關注的 PCE 通膨路徑。\r\n\r\n輸出三層訊號：\r\n1. **Headline level**: CPI vs PCE divergence（bps）\r\n2. **Attribution**: 哪些 buckets 在推升 PCE（weighted contribution）\r\n3. **Risk framing**: 觀察點與延續性風險評估\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：執行快速檢查**\r\n\r\n```bash\r\ncd skills/us-cpi-pce-comparator\r\npip install pandas numpy requests  # 首次使用\r\npython scripts/cpi_pce_analyzer.py --quick\r\n```\r\n\r\n輸出範例：\r\n```json\r\n{\r\n  \"headline\": {\"cpi_yoy\": 2.65, \"pce_yoy\": 2.79, \"gap_bps\": 14},\r\n  \"core\": {\"cpi_core_yoy\": 2.65, \"pce_core_yoy\": 2.83, \"gap_bps\": 18},\r\n  \"momentum\": {\"cpi_3m_saar\": 2.07, \"pce_3m_saar\": 2.82}\r\n}\r\n```\r\n\r\n**完整分析**：\r\n```bash\r\npython scripts/cpi_pce_analyzer.py --start 2020-01-01 --measure yoy\r\n```\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼分析？\r\n\r\n1. **快速檢查** - 查看最新的 CPI/PCE 分歧數據\r\n2. **完整分析** - 執行完整的三步驟分析工作流\r\n3. **方法論學習** - 了解 CPI/PCE 差異的深層原因\r\n\r\n**請選擇或直接提供分析參數。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                     | Action                                            |\r\n|------------------------------|---------------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"check\"  | 執行 `python scripts/cpi_pce_analyzer.py --quick` |\r\n| 2, \"完整\", \"full\", \"analyze\" | 閱讀 `workflows/analyze.md` 並執行                |\r\n| 3, \"學習\", \"方法論\", \"why\"   | 閱讀 `references/cpi-pce-methodology.md`          |\r\n| 提供參數 (如日期範圍)        | 閱讀 `workflows/analyze.md` 並使用參數執行        |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\nus-cpi-pce-comparator/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── workflows/\r\n│   ├── analyze.md                     # 完整分析工作流\r\n│   └── quick-check.md                 # 快速檢查工作流\r\n├── references/\r\n│   ├── data-sources.md                # FRED/BLS 系列代碼與資料來源\r\n│   ├── cpi-pce-methodology.md         # CPI/PCE 方法論深度解析\r\n│   └── implementation.md              # 計算公式與程式碼範例\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n└── scripts/\r\n    ├── fetch_fred_data.py             # FRED 資料抓取（無需 API key）\r\n    ├── fetch_bls_data.py              # BLS 資料抓取\r\n    └── cpi_pce_analyzer.py            # 主分析腳本\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**方法論**: references/cpi-pce-methodology.md\r\n- CPI vs PCE 的五大差異（權重、範圍、公式、住房、人口）\r\n- 分歧模式與交易含義\r\n- Fed 如何解讀兩指標\r\n\r\n**資料來源**: references/data-sources.md\r\n- FRED CSV endpoint（無需 API key）\r\n- FRED 系列代碼對照表\r\n- 桶位定義與近似計算\r\n\r\n**實作指南**: references/implementation.md\r\n- 通膨計算公式（YoY, MoM SAAR, QoQ SAAR）\r\n- 權重效應計算\r\n- 波動度分析\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow       | Purpose        | 使用時機           |\r\n|----------------|----------------|--------------------|\r\n| analyze.md     | 完整三步驟分析 | 需要深度分析時     |\r\n| quick-check.md | 快速檢查分歧   | 日常監控或快速回答 |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構定義 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script              | Command                      | Purpose           |\r\n|---------------------|------------------------------|-------------------|\r\n| cpi_pce_analyzer.py | `--quick`                    | 快速檢查最新分歧  |\r\n| cpi_pce_analyzer.py | `--start DATE --measure yoy` | 完整分析          |\r\n| fetch_fred_data.py  | `--series CPIAUCSL,PCEPI`    | 抓取 FRED 資料    |\r\n| fetch_bls_data.py   | `--full`                     | 抓取 BLS CPI 資料 |\r\n</scripts_index>\r\n\r\n<input_schema>\r\n\r\n<parameter name=\"start_date\" required=\"true\">\r\n**Type**: string (ISO YYYY-MM-DD)\r\n**Description**: 分析起始日\r\n</parameter>\r\n\r\n<parameter name=\"end_date\" required=\"false\" default=\"today\">\r\n**Type**: string (ISO YYYY-MM-DD)\r\n**Description**: 分析結束日\r\n</parameter>\r\n\r\n<parameter name=\"measure\" required=\"false\" default=\"yoy\">\r\n**Type**: string\r\n**Options**: `yoy` | `mom_saar` | `qoq_saar`\r\n</parameter>\r\n\r\n<parameter name=\"baseline\" required=\"false\">\r\n**Type**: string\r\n**Format**: `YYYY-MM-DD:YYYY-MM-DD`\r\n**Description**: 基準期範圍，用於計算偏離度\r\n</parameter>\r\n\r\n</input_schema>\r\n\r\n<output_schema>\r\n參見 `templates/output-json.md` 的完整結構定義。\r\n\r\n**摘要**：\r\n```json\r\n{\r\n  \"headline\": {\"cpi_yoy\": 2.65, \"pce_yoy\": 2.79, \"gap_bps\": 14},\r\n  \"low_vol_high_weight_buckets\": [{\"bucket\": \"...\", \"signal\": \"upside\"}],\r\n  \"attribution\": {\"top_contributors\": [...], \"weight_effect_bps\": 12},\r\n  \"interpretation\": [\"...\"],\r\n  \"caveats\": [\"...\"]\r\n}\r\n```\r\n</output_schema>\r\n\r\n<success_criteria>\r\n分析成功時應產出：\r\n\r\n- [ ] Headline level 的 CPI/PCE 分歧數值（bps）\r\n- [ ] 識別出低波動、高 PCE 權重的桶位\r\n- [ ] 各桶位的加權通膨貢獻（attribution）\r\n- [ ] 若有 baseline，產出「less baseline」偏離度\r\n- [ ] 可操作的解讀與風險提示\r\n- [ ] 明確標註資料限制與近似處理\r\n</success_criteria>",
-    "path": "skills/us-cpi-pce-comparator/SKILL.md",
-    "directoryStructure": "us-cpi-pce-comparator/\n├── manifest.json\n├── references\n│   ├── cpi-pce-methodology.md\n│   ├── data-sources.md\n│   └── implementation.md\n├── scripts\n│   ├── cpi_pce_analyzer.py\n│   ├── fetch_bls_data.py\n│   ├── fetch_fred_data.py\n│   └── __pycache__\n│       ├── fetch_bls_data.cpython-312.pyc\n│       └── fetch_fred_data.cpython-312.pyc\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    └── quick-check.md",
-    "lastUpdated": "2026-01-15",
-    "rating": 3,
-    "testQuestions": [
-      {
-        "question": "分析當前 CPI 與 PCE 的分歧情況",
-        "expectedResult": "此分析器會：\n1. 從 FRED 抓取最新 CPI 和 PCE 數據\n2. 計算 headline 層級的 YoY 分歧（bps）\n3. 識別低波動高權重桶位的風險訊號\n4. 輸出結構化 JSON 結果\n"
-      },
-      {
-        "question": "為什麼 PCE 比 CPI 更高？Fed 關注哪個指標？",
-        "expectedResult": "解釋 CPI/PCE 五大差異：\n- 權重方法（固定 vs 動態）\n- 涵蓋範圍（PCE 更廣）\n- 公式差異\n- 住房計算\n- 人口覆蓋\n"
-      }
-    ],
-    "qualityScore": {
-      "overall": 75,
-      "badge": "白銀",
-      "metrics": {
-        "architecture": 80,
-        "maintainability": 80,
-        "content": 85,
-        "community": 20,
-        "security": 95,
-        "compliance": 85
-      },
-      "details": "**架構（80/100）**\n- 清晰的三層訊號架構\n- 模組化腳本設計\n- 無需 API key 的數據獲取\n\n**可維護性（80/100）**\n- 工作流程分離清晰\n- 參數定義完整\n- 多數據源支援\n\n**內容（85/100）**\n- 完整的方法論文檔\n- CPI/PCE 差異深度解析\n- 實用的 CLI 工具\n\n**社區（20/100）**\n- 新技能，尚無社區貢獻\n\n**安全（95/100）**\n- 僅讀取公開經濟數據\n- 無需 API key\n\n**規範符合性（85/100）**\n- 遵循 Claude Code 規範\n- 完整的文件結構\n"
-    },
-    "bestPractices": [
-      {
-        "title": "關注 Core 而非 Headline",
-        "description": "Core CPI/PCE 排除食品與能源，更能反映趨勢性通膨"
-      },
-      {
-        "title": "使用 3M SAAR 觀察動量",
-        "description": "YoY 有滯後性，3 個月 SAAR 更能捕捉拐點"
-      },
-      {
-        "title": "理解權重效應",
-        "description": "PCE 動態權重會自動降低高通膨項目的權重（替代效應）"
-      },
-      {
-        "title": "結合兩個指標",
-        "description": "CPI 反映消費者體感，PCE 是 Fed 目標，兩者都重要"
-      }
-    ],
-    "pitfalls": [
-      {
-        "title": "只看 Headline",
-        "description": "Headline 受能源價格波動影響大",
-        "consequence": "錯過核心通膨趨勢"
-      },
-      {
-        "title": "忽略權重差異",
-        "description": "CPI/PCE 在醫療、住房等項目權重差異顯著",
-        "consequence": "無法解釋分歧來源"
-      },
-      {
-        "title": "過度解讀單月數據",
-        "description": "月度數據波動大，容易被噪音誤導",
-        "consequence": "錯誤判斷通膨趨勢"
-      }
-    ],
-    "faq": [
-      {
-        "question": "Fed 主要看哪個通膨指標？",
-        "answer": "Fed 的 2% 目標是針對 **Core PCE YoY**。\n但 Fed 也關注 CPI，因為它是市場預期的錨定點。\n"
-      },
-      {
-        "question": "為什麼 PCE 通常比 CPI 低？",
-        "answer": "主要原因：\n1. PCE 動態權重會因替代效應自動降低高通膨項目權重\n2. PCE 包含第三方支付的醫療，這部分通膨通常較溫和\n3. PCE 住房權重較低（約 15% vs CPI 約 33%）\n"
-      },
-      {
-        "question": "如何判斷 PCE 是否在 re-accelerate？",
-        "answer": "觀察指標：\n1. 3M SAAR 是否高於 YoY\n2. 低波動高權重桶位是否出現加速\n3. Core Services ex-Housing 是否持續偏高\n"
-      }
-    ],
-    "about": {
-      "repository": "https://github.com/fatfingererr/macro-skills",
-      "branch": "main",
-      "additionalInfo": "## 數據來源\n\n**FRED（免費，無需 API key）**\n- CPI: CPIAUCSL, CPILFESL\n- PCE: PCEPI, PCEPILFE\n- 使用 CSV endpoint 直接下載\n\n**BLS Public API**\n- 詳細 CPI 分項數據\n- 權重與相對重要性\n"
-    },
-    "downloadUrl": "downloads/us-cpi-pce-comparator-0.1.0.zip"
-  },
-  {
     "id": "nickel-concentration-risk-analyzer",
     "name": "nickel-concentration-risk-analyzer",
     "displayName": "分析鎳供給集中度風險",
@@ -607,7 +385,7 @@
     "installCount": 0,
     "content": "<essential_principles>\r\n**鎳供給集中度分析 核心原則**\r\n\r\n<principle name=\"unit_enforcement\">\r\n**口徑先行（Unit Enforcement）**\r\n\r\n所有分析必須先確定口徑，不同口徑會導致數量級差異：\r\n\r\n| 口徑            | 說明                        | 典型數值差異 |\r\n|-----------------|-----------------------------|--------------|\r\n| `t_Ni_content`  | 鎳金屬含量（本 Skill 預設） | 基準值       |\r\n| `t_ore_wet`     | 礦石濕噸                    | 可達 50-100x |\r\n| `t_NPI_product` | NPI 產品噸                  | 約 10-15% Ni |\r\n| `t_matte`       | 鎳鋶噸                      | 約 75% Ni    |\r\n\r\n**強制規則**：\r\n- 若輸入數據口徑不明確，必須標記為 `model_estimate`\r\n- 同一分析中不得混用不同口徑數據\r\n- 輸出必須包含 `unit` 欄位\r\n</principle>\r\n\r\n<principle name=\"supply_type_clarity\">\r\n**供給類型區分（Supply Type Clarity）**\r\n\r\n鎳供給鏈各階段必須分開計算：\r\n\r\n```\r\nMine Production (mined) → Intermediate (NPI/Matte/MHP) → Refined (class1/class2)\r\n```\r\n\r\n- **mined**: 礦場產量（鎳金屬含量）\r\n- **refined**: 精煉產量（含冶煉）\r\n- 「印尼 60% 市佔」通常指 **mined nickel content**\r\n</principle>\r\n\r\n<principle name=\"data_tiering\">\r\n**數據分層策略（Data Tiering）**\r\n\r\n| Tier | 特性                 | 來源           | 用途               |\r\n|------|----------------------|----------------|--------------------|\r\n| 0    | 免費、穩定、口徑一致 | USGS MCS, INSG | Baseline 主幹      |\r\n| 1    | 免費但分散、需整合   | 公司年報、財報 | Mine-level 錨點    |\r\n| 2    | 付費、更即時完整     | S&P Global MI  | 精度驗證、對齊口徑 |\r\n| 3    | 政策/配額近期訊息    | 新聞、官方公告 | 情境輸入           |\r\n\r\n**優先順序**：Tier 0 建立 baseline → Tier 1 補充 mine-level → Tier 2 驗證精度\r\n</principle>\r\n\r\n<principle name=\"execution_probability\">\r\n**政策執行機率（Execution Probability）**\r\n\r\n政策減產不需 100% 執行即可造成衝擊。預設模型：\r\n\r\n```python\r\nexpected_cut = cut_value * execution_prob  # 預設 execution_prob = 0.5\r\n```\r\n\r\n三層輸出：\r\n- **Hard cut**: 政策完全落地\r\n- **Half success**: 執行 50%（或指定值）\r\n- **Soft landing**: 只延遲投產/只砍新增產能\r\n</principle>\r\n\r\n<principle name=\"concentration_metrics\">\r\n**集中度指標定義**\r\n\r\n| 指標            | 公式                         | 解讀                     |\r\n|-----------------|------------------------------|--------------------------|\r\n| Country Share   | `country_prod / global_prod` | 單國佔比                 |\r\n| CR_n            | `Σ top_n_share`              | 前 N 國/礦集中度         |\r\n| HHI             | `Σ share²`                   | 市場集中度（0-10000）    |\r\n| Policy Leverage | `cut_amount / global_prod`   | 政策可撬動的全球供給比例 |\r\n\r\nHHI 判讀：< 1500 低集中、1500-2500 中等、> 2500 高集中\r\n</principle>\r\n</essential_principles>\r\n\r\n<intake>\r\n**您想要執行什麼操作？**\r\n\r\n1. **Analyze** - 分析全球鎳供給結構與集中度指標（CR_n, HHI, country share）\r\n2. **Scenario** - 模擬政策/減產情境對供給的衝擊（RKAB配額、出口限制等）\r\n3. **Validate** - 驗證市場說法的數據口徑與來源可靠度\r\n4. **Ingest** - 從各數據源擷取並標準化鎳供給數據\r\n\r\n**等待回應後再繼續。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                                                | Workflow                      | Description          |\r\n|---------------------------------------------------------|-------------------------------|----------------------|\r\n| 1, \"analyze\", \"concentration\", \"share\", \"hhi\", \"集中度\" | workflows/analyze.md          | 供給結構與集中度分析 |\r\n| 2, \"scenario\", \"policy\", \"cut\", \"減產\", \"情境\", \"RKAB\"  | workflows/scenario-engine.md  | 政策情境衝擊模擬     |\r\n| 3, \"validate\", \"verify\", \"check\", \"驗證\", \"來源\"        | workflows/validate-sources.md | 數據來源與口徑驗證   |\r\n| 4, \"ingest\", \"fetch\", \"data\", \"抓取\", \"擷取\"            | workflows/ingest.md           | 數據擷取與標準化     |\r\n\r\n**讀取工作流程後，請完全遵循其步驟。**\r\n</routing>\r\n\r\n<reference_index>\r\n**參考文件** (`references/`)\r\n\r\n| 文件                          | 內容                       |\r\n|-------------------------------|----------------------------|\r\n| data-sources.md               | 所有數據來源詳細說明與 URL |\r\n| unit-conversion.md            | 單位轉換規則與假設         |\r\n| concentration-metrics.md      | 集中度指標詳細計算方法     |\r\n| indonesia-supply-structure.md | 印尼鎳供給結構與關鍵園區   |\r\n| mine-level-anchors.md         | 主要礦區/園區產量錨點      |\r\n| failure-modes.md              | 失敗模式與緩解策略         |\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow            | Purpose                                  |\r\n|---------------------|------------------------------------------|\r\n| analyze.md          | 供給結構與集中度分析（CR_n, HHI, share） |\r\n| scenario-engine.md  | 政策情境衝擊模擬                         |\r\n| validate-sources.md | 數據來源與口徑驗證                       |\r\n| ingest.md           | 數據擷取與標準化                         |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構模板 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n| config.yaml        | 分析參數配置模板  |\r\n| data-schema.yaml   | 數據 Schema 定義  |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script                   | Purpose                |\r\n|--------------------------|------------------------|\r\n| nickel_pipeline.py       | 核心數據管線           |\r\n| ingest_sources.py        | 數據來源擷取           |\r\n| compute_concentration.py | 集中度指標計算         |\r\n| scenario_impact.py       | 情境衝擊模擬           |\r\n| visualize_concentration.py | 集中度分析視覺化圖表 |\r\n| visualize_scenario.py    | 情境衝擊視覺化圖表     |\r\n</scripts_index>\r\n\r\n<quick_start>\r\n**CLI 快速開始：**\r\n\r\n```bash\r\n# 分析當前全球鎳供給集中度\r\npython scripts/nickel_pipeline.py analyze --asof=2026-01-16 --scope=mined\r\n\r\n# 生成集中度視覺化圖表（輸出到 output/ 目錄，檔名包含日期）\r\npython scripts/visualize_concentration.py\r\n\r\n# 模擬印尼減產 20% 的情境衝擊\r\npython scripts/nickel_pipeline.py scenario --cut=20 --target=Indonesia --exec-prob=0.5\r\n\r\n# 生成情境衝擊視覺化圖表\r\npython scripts/visualize_scenario.py\r\n\r\n# 驗證「印尼 60% 市佔」的數據來源\r\npython scripts/nickel_pipeline.py validate --claim=\"Indonesia 60% share\"\r\n```\r\n\r\n**Library 快速開始：**\r\n\r\n```python\r\nfrom nickel_pipeline import NickelConcentrationAnalyzer\r\n\r\nanalyzer = NickelConcentrationAnalyzer(\r\n    asof_date=\"2026-01-16\",\r\n    scope={\"supply_type\": \"mined\", \"unit\": \"t_Ni_content\"},\r\n    data_level=\"free_nolimit\"\r\n)\r\n\r\n# 計算集中度指標\r\nresult = analyzer.compute_concentration()\r\nprint(f\"Indonesia share: {result['indonesia_share_2024']:.1%}\")\r\nprint(f\"HHI: {result['hhi_2024']:.0f}\")\r\n```\r\n</quick_start>\r\n\r\n<success_criteria>\r\nSkill 成功執行時：\r\n- [ ] 正確識別數據口徑（mined/refined/nickel content）\r\n- [ ] 輸出包含 unit 欄位標註\r\n- [ ] 集中度指標計算正確（share, CR_n, HHI）\r\n- [ ] 情境分析輸出三層結果（hard/half/soft）\r\n- [ ] 數據來源可追溯（source_id, confidence）\r\n- [ ] 單位警告正確觸發（ore vs content）\r\n</success_criteria>\r\n\r\n<input_schema>\r\n**輸入參數定義**\r\n\r\n```yaml\r\n# 必要參數\r\nasof_date: string (ISO)  # 分析基準日\r\nhorizon:\r\n  history_start_year: int\r\n  history_end_year: int\r\n  forecast_end_year: int\r\n\r\n# 範圍參數\r\nscope:\r\n  supply_type: string  # mined | refined | nickel_content (必填)\r\n  product_group: string  # class1 | class2 | NPI | matte | MHP | mixed (選填)\r\n  countries: array[string]  # 預設: Indonesia, Philippines, Russia, Canada, Australia, Other\r\n\r\n# 情境參數 (scenario workflow 專用)\r\npolicy_scenarios:\r\n  - name: string\r\n    target_country: string  # 預設: Indonesia\r\n    policy_variable: string  # ore_quota_RKAB | mine_permit | export_rule | smelter_capacity\r\n    cut_type: string  # pct_global | pct_country | absolute\r\n    cut_value: number\r\n    start_year: int\r\n    end_year: int\r\n    execution_prob: number  # 0-1, 預設 0.5\r\n\r\n# 數據等級\r\ndata_level: string  # free_nolimit | free_limit | paid_low | paid_high\r\n```\r\n</input_schema>\r\n\r\n<data_pipeline_architecture>\r\n**數據流水線架構**\r\n\r\n```\r\n[Data Sources]\r\n     |\r\n     v\r\n+-------------------+\r\n|   ingest_sources  |  --> Tier 0: USGS, INSG\r\n+-------------------+      Tier 1: Company reports\r\n     |                     Tier 2: S&P Global (optional)\r\n     v\r\n+-------------------+\r\n|   normalize       |  --> 統一 schema + 單位標註\r\n+-------------------+      (year, country, supply_type, value, unit, source_id)\r\n     |\r\n     v\r\n+-------------------+\r\n| compute_concentration | --> share, CR_n, HHI\r\n+-------------------+\r\n     |\r\n     v\r\n+-------------------+\r\n|   scenario_impact |  --> expected_cut, global_hit_pct\r\n+-------------------+\r\n     |\r\n     v\r\n+-------------------+\r\n|   generate_output |  --> JSON + Markdown\r\n+-------------------+\r\n     |\r\n     v\r\n[Analysis Result]\r\n```\r\n\r\n**標準化欄位 Schema：**\r\n\r\n| 欄位          | 類型   | 說明                                     |\r\n|---------------|--------|------------------------------------------|\r\n| year          | int    | 年度                                     |\r\n| country       | string | 國家                                     |\r\n| supply_type   | string | mined/refined                            |\r\n| product_group | string | NPI/matte/MHP/class1...                  |\r\n| value         | float  | 數值                                     |\r\n| unit          | string | t_Ni_content / t_ore_wet / t_NPI_product |\r\n| source_id     | string | USGS/INSG/S&P/Company/Other              |\r\n| confidence    | float  | 來源品質評分 (0-1)                       |\r\n</data_pipeline_architecture>",
     "path": "skills/nickel-concentration-risk-analyzer/SKILL.md",
-    "directoryStructure": "nickel-concentration-risk-analyzer/\n├── examples\n│   ├── analysis_report.md\n│   ├── concentration_analysis.json\n│   └── scenario_result.json\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── concentration-metrics.md\n│   ├── data-sources.md\n│   ├── failure-modes.md\n│   ├── indonesia-supply-structure.md\n│   ├── mine-level-anchors.md\n│   └── unit-conversion.md\n├── scripts\n│   ├── compute_concentration.py\n│   ├── ingest_sources.py\n│   ├── nickel_pipeline.py\n│   ├── scenario_impact.py\n│   ├── visualize_concentration.py\n│   └── visualize_scenario.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── config.yaml\n│   ├── data-schema.yaml\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    ├── ingest.md\n    ├── scenario-engine.md\n    └── validate-sources.md",
+    "directoryStructure": "nickel-concentration-risk-analyzer/\n├── examples\n│   ├── analysis_report.md\n│   ├── concentration_analysis.json\n│   └── scenario_result.json\n├── manifest.json\n├── methodology.md\n├── README.md\n├── references\n│   ├── concentration-metrics.md\n│   ├── data-sources.md\n│   ├── failure-modes.md\n│   ├── indonesia-supply-structure.md\n│   ├── mine-level-anchors.md\n│   └── unit-conversion.md\n├── scripts\n│   ├── compute_concentration.py\n│   ├── ingest_sources.py\n│   ├── nickel_pipeline.py\n│   ├── scenario_impact.py\n│   ├── visualize_concentration.py\n│   └── visualize_scenario.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── config.yaml\n│   ├── data-schema.yaml\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    ├── ingest.md\n    ├── scenario-engine.md\n    └── validate-sources.md",
     "lastUpdated": "2026-01-16",
     "rating": 3,
     "testQuestions": [
@@ -829,6 +607,355 @@
       "additionalInfo": "## 數據來源\n\n**專注於 Google Trends**\n- 官網：https://trends.google.com\n- 數據範圍：2004 年至今\n- 更新頻率：接近即時（2-3 天延遲）\n\n## 技術架構\n\n基於 [design-human-like-crawler.md](thoughts/shared/guide/design-human-like-crawler.md) 設計：\n- Selenium + Chrome headless 模擬真人瀏覽器\n- BeautifulSoup 解析 HTML\n- 多層防偵測策略\n"
     },
     "downloadUrl": "downloads/google-trends-ath-detector-0.1.1.zip"
+  },
+  {
+    "id": "lithium-supply-demand-gap-radar",
+    "name": "lithium-supply-demand-gap-radar",
+    "displayName": "鋰產業鏈供需雷達",
+    "description": "將鋰產業鏈（礦端 → 精煉化學品 → 電池與終端需求），整合為一套可運算的替代指標；再把這些指標映射到鋰主題 ETF（如 LIT）的成分暴露與長期價格走勢，形成可供決策的依據。 ",
+    "emoji": "🔋",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "鋰",
+      "供需分析",
+      "ETF",
+      "LIT",
+      "原物料",
+      "電池",
+      "電動車",
+      "EV",
+      "價格週期",
+      "USGS",
+      "IEA"
+    ],
+    "category": "commodity-sd",
+    "dataLevel": "free-nolimit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\n**鋰產業鏈供需雷達 核心原則**\n\n<principle name=\"supply_chain_layers\">\n**供應鏈分層（Supply Chain Layers）**\n\n鋰產業鏈必須分層分析，不可混為一談：\n\n```\nMining → Processing → Battery\n(礦端)   (化學品)    (終端需求)\n```\n\n| 層級                 | 代表數據                 | 典型延遲  |\n|----------------------|--------------------------|-----------|\n| Upstream (礦端)      | 鋰礦產量、出口量         | 年度/季度 |\n| Midstream (化學品)   | 碳酸鋰/氫氧化鋰價格      | 週度/日度 |\n| Downstream (電池/EV) | EV 銷量、電池裝機量(GWh) | 月度      |\n\n**強制規則**：\n- 供給分析需指定層級（礦端 vs 精煉端）\n- 需求 proxy 需明確轉換假設（kWh → kg Li）\n- 價格分析需區分碳酸鋰 vs 氫氧化鋰\n</principle>\n\n<principle name=\"data_level_fallback\">\n**數據等級與備援策略（Data Level Fallback）**\n\n根據 `data_level` 參數自動選擇數據源：\n\n| data_level     | 價格數據             | 供需數據           | 可靠度 |\n|----------------|----------------------|--------------------|--------|\n| `free_nolimit` | CME 期貨/Proxy 指數  | USGS/IEA/澳洲政府  | 中     |\n| `free_limit`   | SMM/Fastmarkets 頁面 | + 公司財報         | 中高   |\n| `paid_low`     | SMM 完整序列         | + Benchmark 基本   | 高     |\n| `paid_high`    | Fastmarkets API      | + S&P/BNEF/WoodMac | 最高   |\n\n**強制規則**：\n- 價格數據不足時，使用 CME 合約或相關股籃子作為 proxy\n- 需在輸出中標註實際使用的數據等級\n</principle>\n\n<principle name=\"li_content_conversion\">\n**鋰含量轉換（Li Content Conversion）**\n\n電池需求到鋰需求的轉換必須明確假設：\n\n| 假設場景 | kg Li / kWh | 備註                |\n|----------|-------------|---------------------|\n| 保守估計 | 0.12        | 含 LFP 佔比上升假設 |\n| 中性估計 | 0.15        | 混合 NMC/LFP        |\n| 積極估計 | 0.18        | 高鎳 NMC 主導       |\n\n```python\nli_demand_kt = battery_gwh * kg_per_kwh * 1000  # 單位: kt LCE\n```\n\n**強制規則**：\n- 需求估計必須輸出三個情境（保守/中性/積極）\n- 輸出需包含 `kg_per_kwh_assumption` 欄位\n</principle>\n\n<principle name=\"regime_classification\">\n**價格制度分類（Price Regime Classification）**\n\n鋰價週期分為四個階段：\n\n| Regime      | 特徵                         | 交易含義           |\n|-------------|------------------------------|--------------------|\n| `downtrend` | 12-26 週動能 < 0, 斜率 < 0   | 空頭主導，避免做多 |\n| `bottoming` | 動能收斂，波動下降，均值回歸 | 觀望，等待確認     |\n| `uptrend`   | 動能 > 0, 斜率 > 0           | 做多視窗開啟       |\n| `overheat`  | 動能極端正值，波動放大       | 獲利了結風險       |\n\n**指標組合**：\n- 12 週 / 26 週動能（ROC）\n- 趨勢斜率（線性回歸）\n- 波動率（ATR / 標準差）\n- 均值回歸強度（距 MA 偏離度）\n</principle>\n\n<principle name=\"etf_transmission\">\n**ETF 傳導敏感度（ETF Transmission）**\n\nETF 對鋰價的敏感度受持股結構影響：\n\n| 持股類型          | 對鋰價 Beta | 波動特性            |\n|-------------------|-------------|---------------------|\n| Upstream (礦商)   | 1.5 - 2.5   | 高槓桿、高波動      |\n| Midstream (精煉)  | 0.8 - 1.2   | 跟隨但有加工費緩衝  |\n| Downstream (電池) | 0.3 - 0.8   | 受競爭/技術路線影響 |\n\n**計算公式**：\n```python\nETF_beta_li = Σ(weight_i * beta_i_to_lithium)\n```\n\n**強制規則**：\n- 需計算 rolling beta（建議 52 週滾動）\n- 傳導斷裂判斷：beta < 0.3 且持續 > 8 週\n</principle>\n</essential_principles>\n\n<intake>\n**您想要執行什麼操作？**\n\n1. **Full Analysis** - 完整供需×價格×傳導整合分析（生成完整報告）\n2. **Balance Nowcast** - 僅計算供需平衡即時估計（缺口擴大/縮小）\n3. **Price Regime** - 僅分析價格制度與週期位置\n4. **ETF Exposure** - 僅分析 ETF 持股結構與鋰價敏感度\n5. **Ingest Data** - 從各數據源擷取並標準化數據\n\n**等待回應後再繼續。**\n</intake>\n\n<routing>\n| Response                                          | Workflow                     | Description                |\n|---------------------------------------------------|------------------------------|----------------------------|\n| 1, \"full\", \"analyze\", \"完整\", \"報告\", \"LIT\"       | workflows/full-analysis.md   | 完整供需×價格×傳導整合分析 |\n| 2, \"balance\", \"nowcast\", \"供需\", \"缺口\", \"gap\"    | workflows/balance-nowcast.md | 供需平衡即時估計           |\n| 3, \"price\", \"regime\", \"價格\", \"週期\", \"制度\"      | workflows/price-regime.md    | 價格制度與週期分析         |\n| 4, \"etf\", \"exposure\", \"holding\", \"傳導\", \"敏感度\" | workflows/etf-exposure.md    | ETF 暴露與傳導分析         |\n| 5, \"ingest\", \"data\", \"fetch\", \"抓取\", \"擷取\"      | workflows/ingest.md          | 數據擷取與標準化           |\n\n**讀取工作流程後，請完全遵循其步驟。**\n</routing>\n\n<reference_index>\n**參考文件** (`references/`)\n\n| 文件                      | 內容                               |\n|---------------------------|------------------------------------|\n| data-sources.md           | 所有數據來源詳細說明與 URL         |\n| unit-conversion.md        | 單位轉換規則（LCE/Li/GWh）         |\n| price-methodology.md      | 價格數據方法學（Fastmarkets/SMM）  |\n| etf-holdings-structure.md | LIT 持股結構與產業鏈分段           |\n| supply-chain-mapping.md   | 鋰供應鏈完整映射（礦→化學品→電池） |\n| failure-modes.md          | 失敗模式與緩解策略                 |\n</reference_index>\n\n<workflows_index>\n| Workflow           | Purpose                    |\n|--------------------|----------------------------|\n| full-analysis.md   | 完整供需×價格×傳導整合分析 |\n| balance-nowcast.md | 供需平衡即時估計           |\n| price-regime.md    | 價格制度與週期分析         |\n| etf-exposure.md    | ETF 持股暴露與傳導分析     |\n| ingest.md          | 數據擷取與標準化           |\n</workflows_index>\n\n<templates_index>\n| Template           | Purpose           |\n|--------------------|-------------------|\n| output-json.md     | JSON 輸出結構模板 |\n| output-markdown.md | Markdown 報告模板 |\n| config.yaml        | 分析參數配置模板  |\n| data-schema.yaml   | 數據 Schema 定義  |\n</templates_index>\n\n<scripts_index>\n| Script                | Purpose            |\n|-----------------------|--------------------|\n| lithium_pipeline.py   | 核心數據管線       |\n| ingest_sources.py     | 數據來源擷取       |\n| compute_balance.py    | 供需平衡計算       |\n| classify_regime.py    | 價格制度分類       |\n| compute_etf_beta.py   | ETF 傳導敏感度計算 |\n| visualize_analysis.py | 分析結果視覺化     |\n</scripts_index>\n\n<quick_start>\n**CLI 快速開始：**\n\n```bash\n# 完整分析 LIT ETF（預設 10 年回看、週度頻率）\npython scripts/lithium_pipeline.py analyze --ticker=LIT --lookback=10 --freq=weekly\n\n# 僅計算供需平衡 Nowcast\npython scripts/lithium_pipeline.py balance --asof=2026-01-16\n\n# 分析價格制度（碳酸鋰 + 氫氧化鋰）\npython scripts/lithium_pipeline.py regime --chem=both\n\n# 計算 ETF 對鋰價的傳導敏感度\npython scripts/lithium_pipeline.py etf-beta --ticker=LIT --window=52\n\n# 生成視覺化圖表\npython scripts/visualize_analysis.py\n```\n\n**Library 快速開始：**\n\n```python\nfrom lithium_pipeline import LithiumSupplyDemandRadar\n\nradar = LithiumSupplyDemandRadar(\n    etf_ticker=\"LIT\",\n    lookback_years=10,\n    price_freq=\"weekly\",\n    chem_focus=\"both\",\n    data_level=\"free_nolimit\"\n)\n\n# 完整分析\nresult = radar.full_analysis()\nprint(f\"Balance Index: {result['balance_index']:.2f}\")\nprint(f\"Price Regime: {result['price_regime']}\")\nprint(f\"ETF Beta to Li: {result['etf_beta_li']:.2f}\")\nprint(f\"Thesis: {result['thesis']}\")\n```\n</quick_start>\n\n<success_criteria>\nSkill 成功執行時：\n- [ ] 正確識別數據等級並使用對應來源\n- [ ] 供需平衡指數計算正確（含三情境）\n- [ ] 價格制度分類明確（downtrend/bottoming/uptrend/overheat）\n- [ ] ETF 傳導敏感度計算正確（rolling beta）\n- [ ] 輸出包含完整的失效條件（invalidation）\n- [ ] 數據來源可追溯（source_id, data_level）\n- [ ] 單位轉換假設明確標註\n</success_criteria>\n\n<input_schema>\n**輸入參數定義**\n\n```yaml\n# 必要參數\netf_ticker: string      # 目標 ETF（預設 LIT）\nlookback_years: int     # 回看年限（建議 10-15）\nprice_freq: string      # weekly | daily（建議 weekly）\n\n# 範圍參數\nregion_focus:           # 供應/需求重點區（選填）\n  - China\n  - Australia\n  - Chile\n  - Argentina\n  - US\n  - EU\n\nchem_focus: string      # carbonate | hydroxide | both（預設 both）\n\n# 數據等級\ndata_level: string      # free_nolimit | free_limit | paid_low | paid_high\n\n# 數據源開關\nsources:\n  usgs: boolean\n  iea_ev_outlook: boolean\n  australia_req: boolean\n  abs_exports: boolean\n  fastmarkets: boolean\n  smm: boolean\n  etf_holdings: boolean\n\n# 輸出格式\noutput_format: string   # markdown | json（預設 markdown）\n```\n</input_schema>\n\n<data_pipeline_architecture>\n**數據流水線架構**\n\n```\n[Data Sources]\n     |\n     v\n+--------------------+\n|   ingest_sources   |  --> USGS, IEA, Australia REQ/ABS\n+--------------------+      Fastmarkets/SMM (方法學/價格)\n     |                      Global X LIT factsheet\n     v\n+--------------------+\n|   normalize        |  --> 統一 schema + 單位標註\n+--------------------+\n     |\n     +-------------------+-------------------+\n     |                   |                   |\n     v                   v                   v\n+-----------+    +-----------+    +-----------+\n| supply_   |    | price_    |    | etf_      |\n| demand    |    | series    |    | holdings  |\n+-----------+    +-----------+    +-----------+\n     |                   |                   |\n     v                   v                   v\n+-----------+    +-----------+    +-----------+\n| balance_  |    | classify_ |    | compute_  |\n| nowcast   |    | regime    |    | etf_beta  |\n+-----------+    +-----------+    +-----------+\n     |                   |                   |\n     +-------------------+-------------------+\n                         |\n                         v\n              +--------------------+\n              |   generate_insight |  --> Thesis + Targets + Invalidation\n              +--------------------+\n                         |\n                         v\n              +--------------------+\n              |   format_output    |  --> JSON + Markdown\n              +--------------------+\n```\n\n**標準化欄位 Schema：**\n\n| 欄位        | 類型   | 說明                         |\n|-------------|--------|------------------------------|\n| date        | date   | 數據日期                     |\n| metric_type | string | supply/demand/price/etf      |\n| metric_name | string | 具體指標名稱                 |\n| value       | float  | 數值                         |\n| unit        | string | kt_LCE/USD_per_kg/GWh/pct    |\n| region      | string | 國家/區域                    |\n| source_id   | string | USGS/IEA/SMM/Fastmarkets/etc |\n| data_level  | string | 數據等級                     |\n| confidence  | float  | 來源品質評分 (0-1)           |\n</data_pipeline_architecture>",
+    "path": "skills/lithium-supply-demand-gap-radar/SKILL.md",
+    "directoryStructure": "lithium-supply-demand-gap-radar/\n├── examples\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── data-sources.md\n│   ├── etf-holdings-structure.md\n│   ├── failure-modes.md\n│   ├── price-methodology.md\n│   ├── supply-chain-mapping.md\n│   └── unit-conversion.md\n├── scripts\n│   ├── classify_regime.py\n│   ├── compute_balance.py\n│   ├── compute_etf_beta.py\n│   ├── ingest_sources.py\n│   ├── lithium_pipeline.py\n│   └── visualize_analysis.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── config.yaml\n│   ├── data-schema.yaml\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── balance-nowcast.md\n    ├── etf-exposure.md\n    ├── full-analysis.md\n    ├── ingest.md\n    └── price-regime.md",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "幫我做一份鋰主題 ETF 的整合評估",
+        "expectedResult": "# LIT（鋰產業鏈 ETF）供需×價格×傳導整合評估\n\n## 1) 數據源摘要（本次使用）\n- 供給基準：USGS 世界產量 / 年度統計\n- 需求 proxy：IEA EV/電池需求（GWh）\n- 澳洲供應與出口：Resources & Energy Quarterly + ABS exports\n- 價格：碳酸鋰/氫氧化鋰（Fastmarkets/SMM；不足則用可交易替代）\n- ETF 暴露：Global X LIT factsheet / holdings\n\n## 2) 供需平衡 Nowcast\n- Balance Index：+0.85（上行；缺口持續擴大）\n- 主要驅動：需求（EV/儲能）增長快於供給擴產\n\n## 3) 價格制度（Regime）\n- 碳酸鋰：bottoming（築底中，等待確認）\n- 氫氧化鋰：bottoming（同步築底）\n- 12週動能：-2.3%（收斂中）\n- 波動率：下降趨勢\n\n## 4) 鋰→股票→ETF 傳導\n- ETF 對鋰價因子 beta：0.72（中等傳導）\n- ETF 對需求因子 beta：0.58\n- 傳導狀態：正常（未斷裂）\n\n## 5) 結論與路徑\n- Thesis：中性偏多（等待價格制度確認轉多）\n- 目標路徑：\n  - 中軌：$48.50\n  - 前高：$56.20\n  - 上軌：$68.00\n- 失效條件：\n  - 跌破 $38.50 支撐\n  - Balance Index 轉負\n  - 價格 Regime 再次轉為 downtrend\n"
+      },
+      {
+        "question": "計算當前鋰的市場供需，並判斷缺口方向與拐點",
+        "expectedResult": "# 鋰供需平衡 Nowcast 報告\n\n## 分析日期: 2026-01-16\n## 數據來源: USGS + IEA + Australia REQ/ABS\n\n---\n## 供給側 (Supply Proxy)\n┌──────┬──────────────┬────────────────────┐\n│ 年份 │ 全球產量(kt) │ YoY 增長           │\n├──────┼──────────────┼────────────────────┤\n│ 2022 │ 130          │ +21.5%             │\n├──────┼──────────────┼────────────────────┤\n│ 2023 │ 180          │ +38.5%             │\n├──────┼──────────────┼────────────────────┤\n│ 2024 │ 220          │ +22.2%             │\n├──────┼──────────────┼────────────────────┤\n│ 2025E│ 260          │ +18.2% (估計)      │\n└──────┴──────────────┴────────────────────┘\n\n## 需求側 (Demand Proxy)\n┌──────┬────────────┬──────────────┬────────────────┐\n│ 年份 │ 電池需求GWh│ 鋰需求(kt)   │ 假設 kg/kWh    │\n├──────┼────────────┼──────────────┼────────────────┤\n│ 2024 │ 1,200      │ 180 (保守)   │ 0.15           │\n│      │            │ 216 (積極)   │ 0.18           │\n├──────┼────────────┼──────────────┼────────────────┤\n│ 2025E│ 1,500      │ 225 (保守)   │ 0.15           │\n│      │            │ 270 (積極)   │ 0.18           │\n└──────┴────────────┴──────────────┴────────────────┘\n\n## Balance Index 計算\n- Balance Index = zscore(demand_proxy - supply_proxy)\n- 當前值：+0.85\n- 趨勢：上行（缺口擴大中）\n- 判讀：需求增速 > 供給增速，缺口擴大\n\n## 關鍵發現\n1. 📈 電池需求以 25% CAGR 增長\n2. ⚡ 供給擴產週期約 2-3 年滯後\n3. 🎯 2025-2026 可能出現結構性缺口\n"
+      },
+      {
+        "question": "分析鋰價目前處於什麼週期階段",
+        "expectedResult": "# 鋰價制度分析報告\n\n## 分析日期: 2026-01-16\n## 數據來源: SMM 碳酸鋰指數 + Fastmarkets 氫氧化鋰\n\n---\n## 碳酸鋰 (Lithium Carbonate)\n┌────────────────┬────────────┬──────────────────┐\n│      指標      │   當前值   │       判讀       │\n├────────────────┼────────────┼──────────────────┤\n│ 12週動能 (ROC) │ -2.3%      │ 收斂中（接近0）  │\n├────────────────┼────────────┼──────────────────┤\n│ 26週動能 (ROC) │ -8.5%      │ 仍為負但改善中   │\n├────────────────┼────────────┼──────────────────┤\n│ 趨勢斜率       │ -0.12      │ 下跌斜率趨緩     │\n├────────────────┼────────────┼──────────────────┤\n│ 波動率 (ATR%)  │ 4.2%       │ 下降（盤整）     │\n├────────────────┼────────────┼──────────────────┤\n│ 均值偏離度     │ -12%       │ 低於200週均線    │\n└────────────────┴────────────┴──────────────────┘\n\n**制度判定**: 🟡 BOTTOMING（築底中）\n\n## 氫氧化鋰 (Lithium Hydroxide)\n**制度判定**: 🟡 BOTTOMING（同步築底）\n\n## 週期位置判讀\n```\nDOWNTREND → [BOTTOMING] → UPTREND → OVERHEAT\n                 ↑\n             目前位置\n```\n\n## 交易含義\n- 🔸 尚未確認轉多，不宜重倉\n- 🔸 觀察動能是否轉正（12週ROC > 0）\n- 🔸 等待波動率收縮後的突破確認\n- 🔸 若 Balance Index 同步轉多，可信度提升\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 65,
+      "badge": "白銀",
+      "metrics": {
+        "architecture": 80,
+        "maintainability": 70,
+        "content": 80,
+        "community": 20,
+        "security": 80,
+        "compliance": 70
+      },
+      "details": "**架構（80/100）**\n- Router pattern 正確分離職責\n- 三層中介數據設計完善\n\n**可維護性（70/100）**\n- 多數據源需長期維護\n- 價格數據 fallback 邏輯需定期驗證\n\n**內容（80/100）**\n- 完整的供需分析框架\n- 清晰的價格制度定義\n\n**社群（20/100）**\n- 新建技能，尚無社群回饋\n\n**安全（80/100）**\n- 無敏感資料處理\n- 外部 URL 需適當處理\n\n**合規（70/100）**\n- 付費數據源授權需注意\n- 價格數據抓取需遵守 ToS\n"
+    },
+    "bestPractices": [
+      {
+        "title": "數據等級先決",
+        "description": "分析前確認 data_level 參數，決定使用哪些數據源和 fallback 策略"
+      },
+      {
+        "title": "三層中介架構",
+        "description": "Balance Nowcast + Price Regime + ETF Transmission 三層分開計算，最後整合判斷"
+      },
+      {
+        "title": "失效條件明確",
+        "description": "每個分析報告必須包含明確的失效條件（invalidation），支持決策追蹤"
+      },
+      {
+        "title": "單位轉換透明",
+        "description": "電池需求到鋰需求的轉換必須明確假設（kg/kWh），並輸出三情境"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "忽略數據延遲",
+        "description": "不同數據源更新頻率不同（年度/季度/週度）",
+        "consequence": "可能導致供需判斷滯後或混淆"
+      },
+      {
+        "title": "價格數據不可得",
+        "description": "免費等級無法取得完整價格序列",
+        "consequence": "需使用 CME 期貨或股價 proxy，精度下降"
+      },
+      {
+        "title": "ETF 持股變動",
+        "description": "ETF 持股會定期調整",
+        "consequence": "傳導敏感度計算可能失準"
+      },
+      {
+        "title": "單位混淆",
+        "description": "LCE（碳酸鋰當量）與純鋰金屬混用",
+        "consequence": "數量級差異約 5.3 倍"
+      }
+    ],
+    "faq": [
+      {
+        "question": "為什麼要區分碳酸鋰和氫氧化鋰？",
+        "answer": "兩者用途不同：\n- 碳酸鋰：主要用於 LFP 電池\n- 氫氧化鋰：主要用於高鎳 NMC/NCA 電池\n價格可能出現分化，需分開追蹤\n"
+      },
+      {
+        "question": "如何判斷價格制度是否已轉多？",
+        "answer": "關鍵確認訊號：\n1. 12週動能轉正（ROC > 0）\n2. 波動率開始擴大\n3. 價格突破近期高點\n4. Balance Index 同步上行\n"
+      },
+      {
+        "question": "為什麼 ETF 對鋰價的敏感度會變化？",
+        "answer": "影響因素：\n1. 持股結構調整（上游 vs 下游比例）\n2. 個股特殊事件（併購、產能變動）\n3. 競爭格局變化（電池技術路線）\n4. 市場情緒與資金流向\n"
+      },
+      {
+        "question": "免費數據等級夠用嗎？",
+        "answer": "`free_nolimit` 可以完成基本分析：\n- USGS 提供年度供需基準\n- IEA 提供電池需求趨勢\n- 澳洲政府提供季度出口\n- CME 期貨提供價格 proxy\n\n但若需要更即時/更細緻的分析，建議升級到 `paid_low` 或以上\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 設計背景\n\n此技能源於「LIT 值不值得做多？」這個實際投資問題。\n市場上有大量關於鋰的敘事（供應過剩、結構成長），\n但很少有人把這些敘事轉化為可量化、可追蹤的框架。\n\n## 核心洞察\n\n1. **三層中介架構**: 供需平衡、價格制度、ETF傳導三者需同步判斷\n2. **數據等級決定精度**: 免費數據可用，但付費數據提供更即時的訊號\n3. **失效條件是關鍵**: 任何多空判斷都必須有明確的失效條件\n4. **傳導可能斷裂**: ETF 對鋰價的敏感度會隨市場結構變化\n"
+    },
+    "methodology": "這個技能原理分成四層，每一層都對應可取得的資料與可運算的指標：\r\n\r\n### 1. 供給需求：建立 **缺口指標** \r\n**原理**：鋰的價格中期走勢，往往由 **供需邊際變化** 主導。即使無法拿到完整、精準的全市場平衡表，也能用公開資料做出穩定的替代指標。\r\n\r\n- **供給替代指標（供給端）**：國別產量、出口、產能展望（例如：美國地質調查機構的年度基準資料 + 澳洲季度展望／出口資料）\r\n- **需求替代指標（需求端）**：電動車銷量／電池裝機（例如：國際能源總署的電動車展望報告中，電池需求的趨勢）\r\n\r\n把兩者標準化後做差，得到 **缺口指標** ：\r\n- **缺口指標 ≈ 標準化(需求替代指標 − 供給替代指標)**  \r\n  - 缺口指標上行：缺口擴大（市場更偏向供應偏緊）\r\n  - 缺口指標下行：寬鬆／過剩（市場更偏向供應偏鬆）\r\n\r\n> 重點：你不需要精準算到 **缺口幾萬噸** ，而是要能抓到 **缺口方向** 與 **拐點** 。\r\n\r\n### 2. 價格型態：確認市場是否開始為缺口定價\r\n**原理**：供需指標只是 **基本面** ，市場不一定立刻反應；因此要加一層 **價格型態** 判斷：鋰價是否已從下跌／築底，轉為上行趨勢。\r\n\r\n常用的型態分類：下行, 築底, 上行, 過熱，常用指標（以週線為主，更貼近產業節奏）：\r\n- 動能（例如 12–26 週）\r\n- 趨勢斜率（滾動斜率）\r\n- 波動型態（波動擴張）\r\n\r\n> 若 **缺口指標上行** 但鋰價仍處於下行型態，代表市場尚未認同，或仍在消化庫存與供給重啟的預期。\r\n\r\n### 3. 傳導速度：鋰價是否真的影響到股票與主題基金？\r\n**原理**：即使鋰價上漲，也可能因為公司成本、合約定價、庫存週期、或下游競爭而造成 **股價不跟** 。  \r\n所以必須檢驗 **鋰 → 公司 → 主題基金** 這條傳導鏈是否有效。\r\n\r\n做法：\r\n- 將主題基金的成分股分段：**上游（礦）／中游（精煉化學）／下游（電池材料與製造）**\r\n- 計算：\r\n  - **主題基金對鋰價因子的敏感度（滾動敏感度）**\r\n  - **各分段的主導貢獻（是誰在帶動主題基金上漲）**\r\n\r\n> 傳導有效的典型特徵：鋰價的型態轉為偏多後，主題基金對鋰價因子的敏感度回升，且上游／中游權重股開始領漲。\r\n\r\n### 4. 趨勢判斷：把結論落到 **交易／配置路徑** \r\n**原理**：你最後要回答的是 **能不能做多**  **何時可能走到哪**  **什麼情況算失效** 。  \r\n因此要把基本面與傳導結論，落到主題基金的長週期結構（例如：週線通道、前高、支撐區）。\r\n\r\n常見輸出：\r\n- **目標路徑**：中軌 → 前高 → 上軌（以區間而非精準點位）\r\n- **失效條件**：跌破關鍵週線支撐、或傳導敏感度轉弱、或缺口指標反轉\r\n\r\n## 這個技能為什麼實用\r\n- **把敘事變成可驗證條件**：不是聽到 **即將出現缺口** 就追，而是看缺口指標與價格型態是否真的轉向\r\n- **把主題投資拆成可追蹤的儀表板**：每週／每月更新一次，就能維持一致邏輯\r\n- **能清楚定義失效**：多頭觀點不是信仰，而是有明確的破局條件",
+    "downloadUrl": "downloads/lithium-supply-demand-gap-radar-0.1.0.zip"
+  },
+  {
+    "id": "us-cpi-pce-comparator",
+    "name": "us-cpi-pce-comparator",
+    "displayName": "美國 CPI/PCE 通膨比較",
+    "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
+    "emoji": "📊",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "CPI",
+      "PCE",
+      "通膨",
+      "Fed",
+      "權重差異",
+      "FRED",
+      "BLS",
+      "風險訊號",
+      "宏觀經濟"
+    ],
+    "category": "inflation-analytics",
+    "dataLevel": "free-nolimit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\r\n\r\n<principle name=\"weight_difference\">\r\n**CPI vs PCE 權重差異是核心**\r\n\r\n- **CPI（固定權重）**: BLS Relative Importance，每年或每兩年更新，反映「固定籃子」\r\n- **PCE（動態/鏈結權重）**: BEA 名目支出占比，每月隨實際消費行為調整\r\n\r\n關鍵洞見：當消費者把錢花在「價格較不波動」的品項時，若這些品項的通膨走高，PCE 會比 CPI 更敏感地反映這個上行壓力。\r\n</principle>\r\n\r\n<principle name=\"volatility_matters\">\r\n**低波動 + 高權重 = PCE 上行風險訊號**\r\n\r\n識別邏輯：\r\n1. 找出 PCE 權重較高的消費桶（consumer spending buckets）\r\n2. 在這些桶中，篩選價格波動度較低者\r\n3. 若這些桶的通膨近期轉正或加速，標記為 PCE upside risk\r\n</principle>\r\n\r\n<principle name=\"scope_difference\">\r\n**CPI 與 PCE 的範圍差異**\r\n\r\nPCE 涵蓋項目比 CPI 更廣：\r\n- 第三方支付的醫療費用（employer-paid healthcare）\r\n- 非營利機構對家庭的服務\r\n- 某些金融服務的隱含費用\r\n\r\n這些 scope 差異也會造成 CPI/PCE 分歧。詳見 `references/cpi-pce-methodology.md`。\r\n</principle>\r\n\r\n<principle name=\"data_access\">\r\n**資料取得方式**\r\n\r\n本 skill 使用**無需 API key** 的資料來源：\r\n- **FRED CSV**: `https://fred.stlouisfed.org/graph/fredgraph.csv?id={SERIES_ID}`\r\n- **BLS Public API**: `https://api.bls.gov/publicAPI/v2/timeseries/data/`\r\n\r\n腳本位於 `scripts/` 目錄，可直接執行。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n比較 CPI 與 PCE 通膨訊號的分歧，並識別「低波動、高 PCE 權重」的消費桶是否正在推升 Fed 關注的 PCE 通膨路徑。\r\n\r\n輸出三層訊號：\r\n1. **Headline level**: CPI vs PCE divergence（bps）\r\n2. **Attribution**: 哪些 buckets 在推升 PCE（weighted contribution）\r\n3. **Risk framing**: 觀察點與延續性風險評估\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：執行快速檢查**\r\n\r\n```bash\r\ncd skills/us-cpi-pce-comparator\r\npip install pandas numpy requests  # 首次使用\r\npython scripts/cpi_pce_analyzer.py --quick\r\n```\r\n\r\n輸出範例：\r\n```json\r\n{\r\n  \"headline\": {\"cpi_yoy\": 2.65, \"pce_yoy\": 2.79, \"gap_bps\": 14},\r\n  \"core\": {\"cpi_core_yoy\": 2.65, \"pce_core_yoy\": 2.83, \"gap_bps\": 18},\r\n  \"momentum\": {\"cpi_3m_saar\": 2.07, \"pce_3m_saar\": 2.82}\r\n}\r\n```\r\n\r\n**完整分析**：\r\n```bash\r\npython scripts/cpi_pce_analyzer.py --start 2020-01-01 --measure yoy\r\n```\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼分析？\r\n\r\n1. **快速檢查** - 查看最新的 CPI/PCE 分歧數據\r\n2. **完整分析** - 執行完整的三步驟分析工作流\r\n3. **方法論學習** - 了解 CPI/PCE 差異的深層原因\r\n\r\n**請選擇或直接提供分析參數。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                     | Action                                            |\r\n|------------------------------|---------------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"check\"  | 執行 `python scripts/cpi_pce_analyzer.py --quick` |\r\n| 2, \"完整\", \"full\", \"analyze\" | 閱讀 `workflows/analyze.md` 並執行                |\r\n| 3, \"學習\", \"方法論\", \"why\"   | 閱讀 `references/cpi-pce-methodology.md`          |\r\n| 提供參數 (如日期範圍)        | 閱讀 `workflows/analyze.md` 並使用參數執行        |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\nus-cpi-pce-comparator/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── workflows/\r\n│   ├── analyze.md                     # 完整分析工作流\r\n│   └── quick-check.md                 # 快速檢查工作流\r\n├── references/\r\n│   ├── data-sources.md                # FRED/BLS 系列代碼與資料來源\r\n│   ├── cpi-pce-methodology.md         # CPI/PCE 方法論深度解析\r\n│   └── implementation.md              # 計算公式與程式碼範例\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n└── scripts/\r\n    ├── fetch_fred_data.py             # FRED 資料抓取（無需 API key）\r\n    ├── fetch_bls_data.py              # BLS 資料抓取\r\n    └── cpi_pce_analyzer.py            # 主分析腳本\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**方法論**: references/cpi-pce-methodology.md\r\n- CPI vs PCE 的五大差異（權重、範圍、公式、住房、人口）\r\n- 分歧模式與交易含義\r\n- Fed 如何解讀兩指標\r\n\r\n**資料來源**: references/data-sources.md\r\n- FRED CSV endpoint（無需 API key）\r\n- FRED 系列代碼對照表\r\n- 桶位定義與近似計算\r\n\r\n**實作指南**: references/implementation.md\r\n- 通膨計算公式（YoY, MoM SAAR, QoQ SAAR）\r\n- 權重效應計算\r\n- 波動度分析\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow       | Purpose        | 使用時機           |\r\n|----------------|----------------|--------------------|\r\n| analyze.md     | 完整三步驟分析 | 需要深度分析時     |\r\n| quick-check.md | 快速檢查分歧   | 日常監控或快速回答 |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構定義 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script              | Command                      | Purpose           |\r\n|---------------------|------------------------------|-------------------|\r\n| cpi_pce_analyzer.py | `--quick`                    | 快速檢查最新分歧  |\r\n| cpi_pce_analyzer.py | `--start DATE --measure yoy` | 完整分析          |\r\n| fetch_fred_data.py  | `--series CPIAUCSL,PCEPI`    | 抓取 FRED 資料    |\r\n| fetch_bls_data.py   | `--full`                     | 抓取 BLS CPI 資料 |\r\n</scripts_index>\r\n\r\n<input_schema>\r\n\r\n<parameter name=\"start_date\" required=\"true\">\r\n**Type**: string (ISO YYYY-MM-DD)\r\n**Description**: 分析起始日\r\n</parameter>\r\n\r\n<parameter name=\"end_date\" required=\"false\" default=\"today\">\r\n**Type**: string (ISO YYYY-MM-DD)\r\n**Description**: 分析結束日\r\n</parameter>\r\n\r\n<parameter name=\"measure\" required=\"false\" default=\"yoy\">\r\n**Type**: string\r\n**Options**: `yoy` | `mom_saar` | `qoq_saar`\r\n</parameter>\r\n\r\n<parameter name=\"baseline\" required=\"false\">\r\n**Type**: string\r\n**Format**: `YYYY-MM-DD:YYYY-MM-DD`\r\n**Description**: 基準期範圍，用於計算偏離度\r\n</parameter>\r\n\r\n</input_schema>\r\n\r\n<output_schema>\r\n參見 `templates/output-json.md` 的完整結構定義。\r\n\r\n**摘要**：\r\n```json\r\n{\r\n  \"headline\": {\"cpi_yoy\": 2.65, \"pce_yoy\": 2.79, \"gap_bps\": 14},\r\n  \"low_vol_high_weight_buckets\": [{\"bucket\": \"...\", \"signal\": \"upside\"}],\r\n  \"attribution\": {\"top_contributors\": [...], \"weight_effect_bps\": 12},\r\n  \"interpretation\": [\"...\"],\r\n  \"caveats\": [\"...\"]\r\n}\r\n```\r\n</output_schema>\r\n\r\n<success_criteria>\r\n分析成功時應產出：\r\n\r\n- [ ] Headline level 的 CPI/PCE 分歧數值（bps）\r\n- [ ] 識別出低波動、高 PCE 權重的桶位\r\n- [ ] 各桶位的加權通膨貢獻（attribution）\r\n- [ ] 若有 baseline，產出「less baseline」偏離度\r\n- [ ] 可操作的解讀與風險提示\r\n- [ ] 明確標註資料限制與近似處理\r\n</success_criteria>",
+    "path": "skills/us-cpi-pce-comparator/SKILL.md",
+    "directoryStructure": "us-cpi-pce-comparator/\n├── manifest.json\n├── references\n│   ├── cpi-pce-methodology.md\n│   ├── data-sources.md\n│   └── implementation.md\n├── scripts\n│   ├── cpi_pce_analyzer.py\n│   ├── fetch_bls_data.py\n│   ├── fetch_fred_data.py\n│   └── __pycache__\n│       ├── fetch_bls_data.cpython-312.pyc\n│       └── fetch_fred_data.cpython-312.pyc\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    └── quick-check.md",
+    "lastUpdated": "2026-01-15",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "分析當前 CPI 與 PCE 的分歧情況",
+        "expectedResult": "此分析器會：\n1. 從 FRED 抓取最新 CPI 和 PCE 數據\n2. 計算 headline 層級的 YoY 分歧（bps）\n3. 識別低波動高權重桶位的風險訊號\n4. 輸出結構化 JSON 結果\n"
+      },
+      {
+        "question": "為什麼 PCE 比 CPI 更高？Fed 關注哪個指標？",
+        "expectedResult": "解釋 CPI/PCE 五大差異：\n- 權重方法（固定 vs 動態）\n- 涵蓋範圍（PCE 更廣）\n- 公式差異\n- 住房計算\n- 人口覆蓋\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 75,
+      "badge": "白銀",
+      "metrics": {
+        "architecture": 80,
+        "maintainability": 80,
+        "content": 85,
+        "community": 20,
+        "security": 95,
+        "compliance": 85
+      },
+      "details": "**架構（80/100）**\n- 清晰的三層訊號架構\n- 模組化腳本設計\n- 無需 API key 的數據獲取\n\n**可維護性（80/100）**\n- 工作流程分離清晰\n- 參數定義完整\n- 多數據源支援\n\n**內容（85/100）**\n- 完整的方法論文檔\n- CPI/PCE 差異深度解析\n- 實用的 CLI 工具\n\n**社區（20/100）**\n- 新技能，尚無社區貢獻\n\n**安全（95/100）**\n- 僅讀取公開經濟數據\n- 無需 API key\n\n**規範符合性（85/100）**\n- 遵循 Claude Code 規範\n- 完整的文件結構\n"
+    },
+    "bestPractices": [
+      {
+        "title": "關注 Core 而非 Headline",
+        "description": "Core CPI/PCE 排除食品與能源，更能反映趨勢性通膨"
+      },
+      {
+        "title": "使用 3M SAAR 觀察動量",
+        "description": "YoY 有滯後性，3 個月 SAAR 更能捕捉拐點"
+      },
+      {
+        "title": "理解權重效應",
+        "description": "PCE 動態權重會自動降低高通膨項目的權重（替代效應）"
+      },
+      {
+        "title": "結合兩個指標",
+        "description": "CPI 反映消費者體感，PCE 是 Fed 目標，兩者都重要"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "只看 Headline",
+        "description": "Headline 受能源價格波動影響大",
+        "consequence": "錯過核心通膨趨勢"
+      },
+      {
+        "title": "忽略權重差異",
+        "description": "CPI/PCE 在醫療、住房等項目權重差異顯著",
+        "consequence": "無法解釋分歧來源"
+      },
+      {
+        "title": "過度解讀單月數據",
+        "description": "月度數據波動大，容易被噪音誤導",
+        "consequence": "錯誤判斷通膨趨勢"
+      }
+    ],
+    "faq": [
+      {
+        "question": "Fed 主要看哪個通膨指標？",
+        "answer": "Fed 的 2% 目標是針對 **Core PCE YoY**。\n但 Fed 也關注 CPI，因為它是市場預期的錨定點。\n"
+      },
+      {
+        "question": "為什麼 PCE 通常比 CPI 低？",
+        "answer": "主要原因：\n1. PCE 動態權重會因替代效應自動降低高通膨項目權重\n2. PCE 包含第三方支付的醫療，這部分通膨通常較溫和\n3. PCE 住房權重較低（約 15% vs CPI 約 33%）\n"
+      },
+      {
+        "question": "如何判斷 PCE 是否在 re-accelerate？",
+        "answer": "觀察指標：\n1. 3M SAAR 是否高於 YoY\n2. 低波動高權重桶位是否出現加速\n3. Core Services ex-Housing 是否持續偏高\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 數據來源\n\n**FRED（免費，無需 API key）**\n- CPI: CPIAUCSL, CPILFESL\n- PCE: PCEPI, PCEPILFE\n- 使用 CSV endpoint 直接下載\n\n**BLS Public API**\n- 詳細 CPI 分項數據\n- 權重與相對重要性\n"
+    },
+    "downloadUrl": "downloads/us-cpi-pce-comparator-0.1.0.zip"
+  },
+  {
+    "id": "wasde-ingestor",
+    "name": "wasde-ingestor",
+    "displayName": "下載與解析 WASDE 每月報告",
+    "description": "抓取並解析 USDA（美國農業部）每月發布的 WASDE（世界農產品供需估計）報告，擷取所有主要商品（穀物、油籽、棉花、畜產品、糖）的供需平衡表。產出經標準化、具版本控管的資料集，作為即時預測的基準錨點。",
+    "emoji": "🌾",
+    "version": "0.2.0",
+    "license": "MIT",
+    "author": "macro-skills",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [],
+    "category": "nowcasting",
+    "dataLevel": "free-nolimit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\r\n**WASDE Ingestor 核心原則**\r\n\r\n**1. 商品範圍**\r\n\r\nWASDE 涵蓋三大類商品，每類有不同的表格結構與單位：\r\n\r\n| 類別      | 商品                                     | US 單位                   | World 單位           |\r\n|-----------|------------------------------------------|---------------------------|----------------------|\r\n| Grains    | Wheat, Corn, Rice, Barley, Sorghum, Oats | million bushels / cwt     | million metric tons  |\r\n| Oilseeds  | Soybeans, Soybean Oil, Soybean Meal      | million bushels / pounds  | million metric tons  |\r\n| Cotton    | Upland, Pima                             | million 480-lb bales      | million 480-lb bales |\r\n| Livestock | Beef, Pork, Poultry, Eggs, Dairy         | million lbs / dozen / lbs | - (US only)          |\r\n| Sugar     | Sugar                                    | 1,000 short tons          | - (US + Mexico only) |\r\n\r\n**2. 表格結構一致性**\r\n\r\n所有供需表遵循相同的平衡公式：\r\n```\r\nEnding Stocks = Beginning Stocks + Production + Imports - Total Use - Exports\r\n```\r\n\r\n**3. 版本控制**\r\n\r\n- 每月報告可能修正前期數據\r\n- 使用 `content_hash` 追蹤數據變化\r\n- 保留 `revision_flag` 標記修正值\r\n\r\n**4. 解析優先級**\r\n\r\n1. PDF 結構化解析（優先）\r\n2. HTML 表格解析（fallback）\r\n3. TXT 固定寬度解析（legacy）\r\n</essential_principles>\r\n\r\n<intake>\r\n**您想要執行什麼操作？**\r\n\r\n1. **Ingest** - 抓取並解析最新或指定月份的 WASDE 報告\r\n2. **Backfill** - 批量回補歷史 WASDE 數據\r\n3. **Validate** - 驗證現有數據與最新報告的一致性\r\n4. **Configure** - 配置商品範圍、輸出路徑等參數\r\n\r\n**等待回應後再繼續。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                                | Workflow               | Description         |\r\n|-----------------------------------------|------------------------|---------------------|\r\n| 1, \"ingest\", \"fetch\", \"parse\", \"latest\" | workflows/ingest.md    | 抓取解析 WASDE 報告 |\r\n| 2, \"backfill\", \"historical\", \"batch\"    | workflows/backfill.md  | 批量回補歷史數據    |\r\n| 3, \"validate\", \"check\", \"verify\"        | workflows/validate.md  | 驗證數據一致性      |\r\n| 4, \"configure\", \"config\", \"setup\"       | workflows/configure.md | 配置參數            |\r\n\r\n**讀取工作流程後，請完全遵循其步驟。**\r\n</routing>\r\n\r\n<reference_index>\r\n**商品參考文件** (`references/`)\r\n\r\n| 文件                    | 內容                                               |\r\n|-------------------------|----------------------------------------------------|\r\n| commodities-overview.md | 所有商品總覽與單位對照                             |\r\n| grains.md               | 穀物類（Wheat, Corn, Rice, Barley, Sorghum, Oats） |\r\n| oilseeds.md             | 油籽類（Soybeans, Soybean Oil, Soybean Meal）      |\r\n| cotton.md               | 棉花（US & World）                                 |\r\n| livestock.md            | 畜產品（Beef, Pork, Poultry, Eggs, Dairy）         |\r\n| sugar.md                | 糖（US & Mexico）                                  |\r\n| validation-rules.md     | 驗證規則與合理性檢查                               |\r\n| failure-modes.md        | 失敗模式與緩解策略                                 |\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow     | Purpose                       |\r\n|--------------|-------------------------------|\r\n| ingest.md    | 抓取解析單一或多個 WASDE 報告 |\r\n| backfill.md  | 批量回補歷史數據              |\r\n| validate.md  | 驗證數據一致性與修正追蹤      |\r\n| configure.md | 配置商品範圍與輸出設定        |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template                  | Purpose             |\r\n|---------------------------|---------------------|\r\n| config.yaml               | 標準配置文件模板    |\r\n| us-balance-schema.yaml    | US 供需表 schema    |\r\n| world-balance-schema.yaml | World 供需表 schema |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script               | Purpose                   |\r\n|----------------------|---------------------------|\r\n| discover_releases.py | 發現 WASDE 發布日期與 URL |\r\n| fetch_report.py      | 下載 PDF/HTML 報告        |\r\n| parse_tables.py      | 解析表格提取數據          |\r\n| validate_data.py     | 執行驗證檢查              |\r\n</scripts_index>\r\n\r\n<examples_index>\r\n**範例輸出** (`examples/`)\r\n\r\n| 文件                       | 內容                   |\r\n|----------------------------|------------------------|\r\n| corn_us_balance.json       | 美國玉米供需平衡表範例 |\r\n| wheat_world_balance.json   | 世界小麥供需平衡表範例 |\r\n| ingest_status_success.json | 成功執行的狀態報告範例 |\r\n| backfill_result.json       | 批量回補作業結果範例   |\r\n</examples_index>\r\n\r\n<quick_start>\r\n**CLI 快速開始：**\r\n\r\n```bash\r\n# 抓取最新報告的所有商品\r\nmacro-skills wasde ingest --commodities=all --out=./data\r\n\r\n# 只抓取穀物類\r\nmacro-skills wasde ingest --commodities=grains --out=./data\r\n\r\n# 回補過去 24 個月的大豆數據\r\nmacro-skills wasde backfill --commodity=soybeans --months=24 --out=./data\r\n\r\n# 驗證現有數據\r\nmacro-skills wasde validate --data-dir=./data\r\n```\r\n\r\n**Library 快速開始：**\r\n\r\n```python\r\nfrom macro_skills.wasde import WASDEIngestor\r\n\r\ningestor = WASDEIngestor(\r\n    commodities=[\"wheat\", \"corn\", \"soybeans\"],\r\n    scope=[\"us\", \"world\"],\r\n    output_dir=\"./data/wasde\"\r\n)\r\n\r\nresult = ingestor.ingest_latest()\r\nprint(result.status)\r\n```\r\n</quick_start>\r\n\r\n<success_criteria>\r\nSkill 成功執行時：\r\n- [ ] 正確識別商品類別與對應表格\r\n- [ ] 解析所有指定商品的供需數據\r\n- [ ] 單位正確轉換與標記\r\n- [ ] 通過平衡公式驗證\r\n- [ ] 輸出標準化 parquet 數據集\r\n- [ ] 生成 ingest_status 報告\r\n</success_criteria>\r\n\r\n<detailed_usage_examples>\r\n**詳細使用範例**\r\n\r\n**範例 1：抓取最新玉米與大豆數據**\r\n```\r\nUser: 幫我抓取最新 WASDE 的玉米和大豆供需數據\r\n\r\nAssistant 執行步驟:\r\n1. 讀取 workflows/ingest.md\r\n2. 呼叫 discover_releases.py 找到最新發布 (2025-01-10)\r\n3. 下載 PDF 報告\r\n4. 解析 corn_us, corn_world, soybeans_us, soybeans_world 表格\r\n5. 驗證平衡公式\r\n6. 輸出 parquet 檔案\r\n7. 回報 ingest_status\r\n\r\n預期輸出:\r\n- ./data/wasde/curated/corn_us_balance.parquet\r\n- ./data/wasde/curated/corn_world_balance.parquet\r\n- ./data/wasde/curated/soybeans_us_balance.parquet\r\n- ./data/wasde/curated/soybeans_world_balance.parquet\r\n```\r\n\r\n**範例 2：回補歷史小麥數據並追蹤修正**\r\n```\r\nUser: 回補過去 12 個月的小麥數據，我想追蹤 USDA 的修正歷程\r\n\r\nAssistant 執行步驟:\r\n1. 讀取 workflows/backfill.md\r\n2. 確定日期範圍 (2024-01 至 2024-12)\r\n3. 依序處理 12 期報告\r\n4. 比對每期數據，標記修正值\r\n5. 輸出包含 revision_flag 的完整歷史數據\r\n\r\n預期輸出:\r\n- 12 期小麥數據\r\n- 修正追蹤報告\r\n```\r\n\r\n**範例 3：驗證現有數據一致性**\r\n```\r\nUser: 檢查我現有的 WASDE 數據是否與最新報告一致\r\n\r\nAssistant 執行步驟:\r\n1. 讀取 workflows/validate.md\r\n2. 載入現有 parquet 檔案\r\n3. 抓取最新報告\r\n4. 逐欄位比對\r\n5. 標記差異與修正\r\n6. 輸出驗證報告\r\n\r\n預期輸出:\r\n- validation_report.json (差異列表)\r\n- 修正建議\r\n```\r\n</detailed_usage_examples>\r\n\r\n<data_pipeline_architecture>\r\n**數據流水線架構**\r\n\r\n```\r\n[USDA WASDE Website]\r\n         |\r\n         v\r\n+-------------------+\r\n| discover_releases |  --> 找到 PDF URL 與發布日期\r\n+-------------------+\r\n         |\r\n         v\r\n+-------------------+\r\n|   fetch_report    |  --> 下載 PDF (fallback: HTML)\r\n+-------------------+\r\n         |\r\n         v\r\n+-------------------+\r\n|   parse_tables    |  --> 提取供需表格數據\r\n+-------------------+\r\n         |\r\n         v\r\n+-------------------+\r\n|   normalize_data  |  --> 標準化欄位與單位\r\n+-------------------+\r\n         |\r\n         v\r\n+-------------------+\r\n|   validate_data   |  --> 平衡公式與範圍檢查\r\n+-------------------+\r\n         |\r\n         v\r\n+-------------------+\r\n|   write_output    |  --> Parquet / JSON\r\n+-------------------+\r\n         |\r\n         v\r\n[Curated Dataset]\r\n```\r\n\r\n**目錄結構：**\r\n```\r\ndata/wasde/\r\n├── raw/                    # 原始 PDF 檔案\r\n│   └── 2025-01-10/\r\n│       └── wasde0125.pdf\r\n├── intermediate/           # 中間解析結果\r\n│   └── 2025-01-10/\r\n│       ├── tables.json\r\n│       └── ingest_status.json\r\n└── curated/                # 最終標準化數據\r\n    ├── corn_us_balance.parquet\r\n    ├── corn_world_balance.parquet\r\n    ├── wheat_us_balance.parquet\r\n    └── ...\r\n```\r\n</data_pipeline_architecture>",
+    "path": "skills/wasde-ingestor/SKILL.md",
+    "directoryStructure": "wasde-ingestor/\n├── examples\n│   ├── backfill_result.json\n│   ├── corn_us_balance.json\n│   ├── ingest_status_success.json\n│   └── wheat_world_balance.json\n├── manifest.json\n├── references\n│   ├── commodities-overview.md\n│   ├── cotton.md\n│   ├── failure-modes.md\n│   ├── grains.md\n│   ├── livestock.md\n│   ├── oilseeds.md\n│   ├── sugar.md\n│   └── validation-rules.md\n├── scripts\n│   ├── discover_releases.py\n│   ├── fetch_report.py\n│   ├── parse_tables.py\n│   └── validate_data.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── config.yaml\n│   ├── us-balance-schema.yaml\n│   └── world-balance-schema.yaml\n└── workflows\n    ├── backfill.md\n    ├── configure.md\n    ├── ingest.md\n    └── validate.md",
+    "lastUpdated": "2026-01-15",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "匯入最新一期 WASDE 報告中的所有穀物資料（小麥、玉米、稻米）",
+        "expectedResult": "此匯入器會：\n1. 找出最新一期 WASDE 發布版本\n2. 下載 PDF 並解析穀物相關表格\n3. 擷取美國與全球的小麥、玉米、稻米供需平衡表\n4. 輸出標準化的 Parquet 資料集\n"
+      },
+      {
+        "question": "回補過去 36 個月的 WASDE 玉米資料",
+        "expectedResult": "此匯入器會處理 36 期每月發布版本，擷取玉米供需平衡表，\n並維持一致的 schema、內容雜湊（content hashes）與資料驗證檢查。\n"
+      },
+      {
+        "question": "將既有 WASDE 資料與最新報告進行比對驗證",
+        "expectedResult": "驗證器會將已儲存的資料與最新解析結果比對，標記任何修訂，\n並回報 schema 漂移或資料更正。\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 70,
+      "badge": "白銀",
+      "metrics": {
+        "architecture": 80,
+        "maintainability": 85,
+        "content": 95,
+        "community": 30,
+        "security": 100,
+        "compliance": 70
+      },
+      "details": "**架構（80/100）**\n- ✅ 模組化 router pattern 設計\n- ✅ 完整涵蓋所有 WASDE 商品類別\n- ⚠️ Alpha 階段，需更多實際使用驗證\n\n**可維護性（85/100）**\n- ✅ 清晰的工作流程分離\n- ✅ 商品參考文件獨立維護\n\n**內容（95/100）**\n- ✅ 涵蓋所有 WASDE 商品\n- ✅ 詳細的欄位映射與驗證規則\n\n**社區（30/100）**\n- ⚠️ 新技能，尚無社區貢獻\n\n**安全（100/100）**\n- ✅ 僅讀取公開 USDA 數據\n\n**規範符合性（70/100）**\n- ✅ 遵循 Claude Code 規範\n- ⚠️ Alpha 階段\n"
+    },
+    "bestPractices": [
+      {
+        "title": "等待 WASDE 正式發布",
+        "description": "WASDE 通常在每月 10-12 日發布，確認官方發布後再執行 ingest"
+      },
+      {
+        "title": "保留原始 PDF 備份",
+        "description": "保存原始報告 PDF 以便在解析失敗時進行人工檢查"
+      },
+      {
+        "title": "監控 schema drift",
+        "description": "USDA 可能調整表格格式，定期檢查 schema_hash 變化"
+      },
+      {
+        "title": "使用 content_hash 進行版本控制",
+        "description": "利用 content_hash 確保數據冪等性"
+      },
+      {
+        "title": "注意數據修正",
+        "description": "WASDE 會在後續月份修正歷史數據，需追蹤修正值"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "忽略 PDF 佈局變化",
+        "description": "USDA 可能在無預警情況下調整 PDF 格式",
+        "consequence": "可能產生錯誤數據或完全無法解析"
+      },
+      {
+        "title": "單位混淆",
+        "description": "不同商品使用不同單位（bushels, cwt, metric tons 等）",
+        "consequence": "供需計算完全錯誤"
+      },
+      {
+        "title": "忽略行銷年度差異",
+        "description": "不同商品的行銷年度起始月份不同",
+        "consequence": "時間序列對齊錯誤"
+      }
+    ],
+    "faq": [
+      {
+        "question": "WASDE 報告涵蓋哪些商品？",
+        "answer": "WASDE 涵蓋以下商品類別：\n\n**穀物 (Grains)**\n- 小麥 (Wheat) - 包含 by-class 細分\n- 玉米 (Corn)\n- 稻米 (Rice) - 長粒/中短粒\n- 大麥 (Barley)\n- 高粱 (Sorghum)\n- 燕麥 (Oats)\n\n**油籽 (Oilseeds)**\n- 大豆 (Soybeans)\n- 豆油 (Soybean Oil)\n- 豆粕 (Soybean Meal)\n\n**棉花 (Cotton)**\n- 美國棉花供需\n- 世界棉花供需\n\n**畜產品 (Livestock) - 僅美國**\n- 牛肉 (Beef)\n- 豬肉 (Pork)\n- 禽肉 (Poultry)\n- 雞蛋 (Eggs)\n- 乳製品 (Dairy/Milk)\n\n**糖 (Sugar)**\n- 美國糖供需\n- 墨西哥糖供需\n"
+      },
+      {
+        "question": "不同商品的行銷年度是什麼？",
+        "answer": "| 商品 | 美國行銷年度 | 世界行銷年度 |\n|------|--------------|--------------\n| 小麥 | Jun-May      | Jul-Jun      |\n| 玉米 | Sep-Aug      | Oct-Sep      |\n| 大豆 | Sep-Aug      | Oct-Sep      |\n| 稻米 | Aug-Jul      | Jan-Dec      |\n| 棉花 | Aug-Jul      | Aug-Jul      |\n"
+      },
+      {
+        "question": "數據來源與發布時間？",
+        "answer": "- **官網**: https://www.usda.gov/oce/commodity/wasde\n- **發布日期**: 每月約 10-12 日\n- **發布時間**: 美東時間中午 12:00\n- **格式**: PDF, TXT\n- **歷史檔案**: https://esmis.nal.usda.gov/\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 數據來源\n\n所有數據來自 USDA 官方 WASDE 報告：\n- 官網：https://www.usda.gov/oce/commodity/wasde\n- 歷史檔案：https://esmis.nal.usda.gov/\n- 數據類型：公開、免費、無限制使用\n\n## 編製單位\n\nWASDE 由 World Agricultural Outlook Board (WAOB) 編製，\n整合以下機構資料：\n- Agricultural Marketing Service (AMS)\n- Economic Research Service (ERS)\n- Farm Service Agency (FSA)\n- Foreign Agricultural Service (FAS)\n- National Agricultural Statistics Service (NASS)\n"
+    },
+    "downloadUrl": "downloads/wasde-ingestor-0.2.0.zip"
   },
   {
     "id": "cost-density-net-rr-calculator",
