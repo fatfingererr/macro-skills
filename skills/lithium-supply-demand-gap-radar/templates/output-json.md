@@ -118,7 +118,7 @@
   "thesis": {
     "direction": "neutral_bullish",
     "confidence": 0.70,
-    "summary": "供需缺口擴大中，價格制度築底待確認，傳導正常",
+    "summary": "供需缺口擴大中，價格型態築底待確認，傳導正常",
     "components": {
       "balance_score": 0.85,
       "regime_score": 0.50,
@@ -146,7 +146,7 @@
     },
     {
       "condition": "regime == downtrend",
-      "description": "價格制度再次轉弱",
+      "description": "價格型態再次轉弱",
       "severity": "medium"
     },
     {
@@ -410,17 +410,17 @@
 
 ### 數據品質標記
 
-| 欄位 | 類型 | 說明 |
-|------|------|------|
-| `confidence` | float | 數據置信度 (0-1) |
-| `source` | string | 數據來源 |
-| `asof_date` | string | 數據截止日期 |
-| `data_level` | string | 數據等級 |
+| 欄位         | 類型   | 說明             |
+|--------------|--------|------------------|
+| `confidence` | float  | 數據置信度 (0-1) |
+| `source`     | string | 數據來源         |
+| `asof_date`  | string | 數據截止日期     |
+| `data_level` | string | 數據等級         |
 
 ### 判讀標記
 
-| 欄位 | 類型 | 說明 |
-|------|------|------|
-| `trend` | string | 趨勢方向 |
-| `signal` | string | 交易信號 |
+| 欄位             | 類型   | 說明         |
+|------------------|--------|--------------|
+| `trend`          | string | 趨勢方向     |
+| `signal`         | string | 交易信號     |
 | `interpretation` | string | 人類可讀解釋 |

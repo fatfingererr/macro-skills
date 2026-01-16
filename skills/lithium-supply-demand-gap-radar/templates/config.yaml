@@ -89,7 +89,7 @@ regime:
   # 均值偏離計算
   mean_window: 200          # 週（約 4 年）
 
-  # 制度閾值
+  # 型態閾值
   thresholds:
     roc_up: 5               # ROC > 5% 判定為上行
     roc_down: -5            # ROC < -5% 判定為下行
