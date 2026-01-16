@@ -128,7 +128,24 @@ def classify_hhi(hhi):
 - 印尼市佔從 2020 的 ~31.5% 增至 2024 的 ~60.2%（S&P 口徑）
 - 這個增長主要來自 NPI 產能擴張
 
-## Step 6: 輸出結果
+## Step 6: 生成視覺化圖表（可選）
+
+使用 scripts/visualize_concentration.py 生成視覺化圖表：
+
+```bash
+python scripts/visualize_concentration.py
+```
+
+**生成的圖表**：
+1. `nickel_indonesia_share_trend_YYYYMMDD.png` - 印尼市佔率與HHI時序趨勢
+2. `nickel_country_share_pie_YYYYMMDD.png` - 2024年國家份額餅圖
+3. `nickel_concentration_metrics_YYYYMMDD.png` - 集中度指標演進（CR1, CR3, CR5）
+4. `nickel_production_volume_YYYYMMDD.png` - 印尼vs全球產量對比
+5. `nickel_risk_matrix_YYYYMMDD.png` - 集中度風險矩陣
+
+圖表自動保存到項目根目錄的 `output/` 資料夾，檔名包含當天日期。
+
+## Step 7: 輸出結果
 
 使用 templates/output-json.md 和 templates/output-markdown.md 生成輸出。
 

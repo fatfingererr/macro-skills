@@ -134,12 +134,14 @@ HHI 判讀：< 1500 低集中、1500-2500 中等、> 2500 高集中
 </templates_index>
 
 <scripts_index>
-| Script                   | Purpose        |
-|--------------------------|----------------|
-| nickel_pipeline.py       | 核心數據管線   |
-| ingest_sources.py        | 數據來源擷取   |
-| compute_concentration.py | 集中度指標計算 |
-| scenario_impact.py       | 情境衝擊模擬   |
+| Script                   | Purpose                |
+|--------------------------|------------------------|
+| nickel_pipeline.py       | 核心數據管線           |
+| ingest_sources.py        | 數據來源擷取           |
+| compute_concentration.py | 集中度指標計算         |
+| scenario_impact.py       | 情境衝擊模擬           |
+| visualize_concentration.py | 集中度分析視覺化圖表 |
+| visualize_scenario.py    | 情境衝擊視覺化圖表     |
 </scripts_index>
 
 <quick_start>
@@ -149,8 +151,14 @@ HHI 判讀：< 1500 低集中、1500-2500 中等、> 2500 高集中
 # 分析當前全球鎳供給集中度
 python scripts/nickel_pipeline.py analyze --asof=2026-01-16 --scope=mined
 
+# 生成集中度視覺化圖表（輸出到 output/ 目錄，檔名包含日期）
+python scripts/visualize_concentration.py
+
 # 模擬印尼減產 20% 的情境衝擊
 python scripts/nickel_pipeline.py scenario --cut=20 --target=Indonesia --exec-prob=0.5
+
+# 生成情境衝擊視覺化圖表
+python scripts/visualize_scenario.py
 
 # 驗證「印尼 60% 市佔」的數據來源
 python scripts/nickel_pipeline.py validate --claim="Indonesia 60% share"
