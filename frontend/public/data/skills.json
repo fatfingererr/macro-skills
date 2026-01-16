@@ -114,6 +114,127 @@
     "downloadUrl": "downloads/zeberg-salomon-rotator-0.1.2.zip"
   },
   {
+    "id": "evaluate-exponential-trend-deviation-regimes",
+    "name": "evaluate-exponential-trend-deviation-regimes",
+    "displayName": "評估行情與指數趨勢偏離程度",
+    "description": "計算資產價格相對長期指數成長趨勢線的偏離度，衡量當前是否處於歷史極端區間，並可選擇性地進行宏觀因子分析以判斷行情體質。",
+    "emoji": "📈",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "趨勢",
+      "偏離度",
+      "歷史峰值",
+      "指數成長",
+      "技術分析",
+      "宏觀分析"
+    ],
+    "category": "business-cycles",
+    "dataLevel": "free-nolimit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": true,
+    "installCount": 0,
+    "content": "<essential_principles>\n**資產趨勢偏離度分析 核心原則**\n\n<principle name=\"exponential_trend_fitting\">\n**指數趨勢線擬合**\n多數資產在長期（數十年）尺度上遵循指數成長路徑。透過對數價格線性回歸（y = a + b*t where y = log(price)）擬合趨勢線，trend = exp(a + b*t)。偏離度 = (price / trend - 1) × 100%。\n</principle>\n\n<principle name=\"historical_context\">\n**歷史極端對照**\n透過計算當前偏離度在歷史分布中的分位數，以及與歷史峰值/谷值的比較，提供市場位置的脈絡。使用者可指定特定日期作為參考點，或由系統自動識別歷史極端值。\n</principle>\n\n<principle name=\"regime_classification\">\n**行情體質判定（選用）**\n針對特定資產（如黃金、股指），可結合宏觀因子進行行情體質分析。不同資產有不同的體質分類框架，使用者可自定義判定規則與因子權重。\n</principle>\n\n<principle name=\"universal_applicability\">\n**通用適用性**\n本技能適用於任何具有長期指數成長特性的資產：商品（黃金、原油）、股票指數、加密貨幣、房地產等。核心邏輯不預設特定資產或歷史峰值。\n</principle>\n</essential_principles>\n\n<intake>\n**您想要執行什麼操作？**\n\n1. **單資產偵測** - 計算單一資產的趨勢偏離度與歷史分位數\n2. **歷史對照分析** - 將當前偏離度與使用者指定的歷史日期或自動識別的極端值進行比較\n3. **宏觀因子分解** - 詳細拆解各宏觀代理指標對行情體質判定的貢獻（適用於支援的資產類別）\n\n**等待回應後再繼續。**\n</intake>\n\n<routing>\n| Response                           | Workflow              | Description |\n|------------------------------------|-----------------------|-------------|\n| 1, \"detect\", \"single\", \"偵測\"      | workflows/detect.md   | 單資產趨勢偏離度偵測與體質判定 |\n| 2, \"compare\", \"historical\", \"對照\" | workflows/compare.md  | 歷史峰值詳細對照分析 |\n| 3, \"macro\", \"breakdown\", \"因子\"    | workflows/macro.md    | 宏觀因子分解與貢獻度分析 |\n\n**讀取工作流程後，請完全遵循其步驟。**\n</routing>\n\n<quick_start>\n**快速開始**\n\n```bash\n# 安裝依賴\npip install pandas numpy yfinance pandas-datareader statsmodels\n\n# 快速偵測（範例：黃金期貨）\ncd skills/evaluate-exponential-trend-deviation-regimes\npython scripts/trend_deviation.py --symbol GC=F --quick\n\n# 分析其他資產（範例：S&P 500）\npython scripts/trend_deviation.py --symbol ^GSPC --start 1950-01-01\n\n# 完整分析（含宏觀因子，目前支援黃金）\npython scripts/trend_deviation.py --symbol GC=F --start 1970-01-01 --include-macro\n\n# 指定歷史參考日期\npython scripts/trend_deviation.py --symbol GC=F --compare-peaks \"2011-09-06,2020-08-07\"\n\n# 生成視覺化圖表（輸出 PNG + JSON）\npython scripts/generate_chart.py --output ./output/\n```\n</quick_start>\n\n<reference_index>\n**參考文件** (`references/`)\n\n| 文件 | 內容 |\n|------|------|\n| input-schema.md | 輸入參數詳細定義與驗證規則 |\n| methodology.md | 指數趨勢擬合與偏離度計算方法論 |\n| regime-rules.md | 1970s-like vs 2000s-like 體質判定規則 |\n| data-sources.md | 數據來源與替代方案說明 |\n</reference_index>\n\n<workflows_index>\n| Workflow | Purpose |\n|----------|---------|\n| detect.md | 單資產趨勢偏離度偵測與體質判定 |\n| compare.md | 歷史峰值詳細對照分析 |\n| macro.md | 宏觀因子分解與貢獻度分析 |\n</workflows_index>\n\n<templates_index>\n| Template | Purpose |\n|----------|---------|\n| output-json.md | JSON 輸出結構定義 |\n| output-markdown.md | Markdown 報告輸出模板 |\n</templates_index>\n\n<scripts_index>\n| Script | Purpose |\n|--------|---------|\n| trend_deviation.py | 主要分析腳本：趨勢擬合、偏離度計算、體質判定 |\n| generate_chart.py | 視覺化圖表生成：偏離度歷史圖表與峰值標註 |\n</scripts_index>\n\n<examples_index>\n**範例輸出** (`examples/`)\n\n| 文件 | 內容 |\n|------|------|\n| gold-deviation-2026.json | 2026 年黃金趨勢偏離度分析範例 |\n</examples_index>\n\n<success_criteria>\nSkill 成功執行時：\n- [ ] 成功擬合黃金價格的指數趨勢線\n- [ ] 計算出當前偏離度百分比與歷史分位數\n- [ ] 與 2011/1980 峰值進行有效比較\n- [ ] 綜合宏觀代理指標得出 regime 判定（1970s-like / 2000s-like）\n- [ ] 輸出完整的 JSON 或 Markdown 報告\n- [ ] （選用）生成視覺化圖表（PNG）標註歷史峰值與當前位置\n</success_criteria>",
+    "path": "skills/evaluate-exponential-trend-deviation-regimes/SKILL.md",
+    "directoryStructure": "evaluate-exponential-trend-deviation-regimes/\n├── examples\n│   ├── gold-deviation-2026.json\n│   └── gold-trend-deviation.md\n├── images\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   ├── methodology.md\n│   └── regime-rules.md\n├── scripts\n│   ├── generate_chart.py\n│   └── trend_deviation.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── compare.md\n    ├── detect.md\n    └── macro.md",
+    "lastUpdated": "2026-01-15",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "黃金目前的指數趨勢偏離度是多少？是否已超過 2011 年峰值？",
+        "imagePath": "images/gold-deviation-analysis-2026-01-15.png",
+        "expectedResult": "黃金指數趨勢偏離度分析結果\n\n當前狀態（截至 2025 年 12 月）\n┌────────────┬───────────┐\n│    指標    │   數值    │\n├────────────┼───────────┤\n│ 當前金價   │ $4,318.59 │\n├────────────┼───────────┤\n│ 趨勢線價格 │ $2,161.81 │\n├────────────┼───────────┤\n│ 當前偏離度 │ 99.8%     │\n├────────────┼───────────┤\n│ 歷史分位數 │ 94.8%     │\n└────────────┴───────────┘\n歷史峰值比較\n┌──────────────┬────────┬──────────────────────┐\n│   峰值時期   │ 偏離度 │      與當前差距      │\n├──────────────┼────────┼──────────────────────┤\n│ 1980 年 1 月 │ 288.5% │ -188.7 ppt（未超過） │\n├──────────────┼────────┼──────────────────────┤\n│ 2011 年 8 月 │ 83.1%  │ +16.7 ppt（已超過）  │\n└──────────────┴────────┴──────────────────────┘\n---\n結論\n\n是的，黃金已超越 2011 年峰值偏離度。\n當前黃金偏離指數趨勢線 99.8%，超過 2011 年峰值（83.1%）約 16.7 個百分點。這意味著以趨勢偏離度衡量，黃金的「泡沫程度」已超過 2011 年那波行情。\n然而，與 1980 年那種 blow-off 式的峰值（288.5%）相比，當前偏離度仍有相當距離。若行情體質類似 1970 年代（高通膨、負實質利率），理論上仍有延伸空間。\n"
+      },
+      {
+        "question": "分析 S&P 500 的指數趨勢偏離度",
+        "imagePath": "images/sp500-trend-deviation-2026-01-15.png",
+        "expectedResult": "S&P 500 指數趨勢偏離度分析報告\n\n分析日期: 2026-01-15\n數據範圍: 1950-01-31 至 2026-01-31（76 年，913 個月）\n\n---\n趨勢擬合參數\n┌────────────┬────────────────────────────────────┐\n│    參數    │                數值                │\n├────────────┼────────────────────────────────────┤\n│ 年化成長率 │ 7.34%                              │\n├────────────┼────────────────────────────────────┤\n│ 趨勢公式   │ trend = exp(3.0619 + 0.005899 × t) │\n└────────────┴────────────────────────────────────┘\n---\n當前狀態\n┌────────────┬──────────┬────────────────────────────────────────┐\n│    指標    │   數值   │                  解讀                  │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 當前價格   │ 6,926.60 │ -                                      │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 趨勢價值   │ 4,637.36 │ 長期指數趨勢的「公允值」               │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 偏離度     │ +49.4%   │ 價格高於趨勢近 50%                     │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 歷史分位數 │ 94.9%    │ 在 76 年歷史中僅有 5% 時間比現在更偏離 │\n└────────────┴──────────┴────────────────────────────────────────┘\n---\n歷史分布統計\n┌───────────────┬───────────────────┐\n│    分位數     │      偏離度       │\n├───────────────┼───────────────────┤\n│ 25%           │ -16.0%            │\n├───────────────┼───────────────────┤\n│ 50%（中位數） │ -0.4%             │\n├───────────────┼───────────────────┤\n│ 75%           │ +23.2%            │\n├───────────────┼───────────────────┤\n│ 90%           │ +38.8%            │\n├───────────────┼───────────────────┤\n│ 95%           │ +49.4% ← 當前位置 │\n├───────────────┼───────────────────┤\n│ 99%           │ +88.5%            │\n└───────────────┴───────────────────┘\n---\n歷史極端值對照\n┌─────────────────────┬────────────┬─────────┬────────────────┐\n│        事件         │    日期    │ 偏離度  │   與當前比較   │\n├─────────────────────┼────────────┼─────────┼────────────────┤\n│ 2000 年網路泡沫頂點 │ 2000-03-31 │ +101.2% │ 當前僅達其 49% │\n├─────────────────────┼────────────┼─────────┼────────────────┤\n│ 1982 年沃克緊縮谷底 │ 1982-07-31 │ -49.8%  │ 歷史最悲觀時刻 │\n└─────────────────────┴────────────┴─────────┴────────────────┘\n---\n關鍵洞察\n\n1. 極端但未達歷史峰值\n當前 +49.4% 的偏離度位於歷史第 95 分位，屬於「偏高但非極端」區間。2000 年網路泡沫時偏離度達 +101.2%，是當前的兩倍。\n2. 長期趨勢穩健\nS&P 500 在 76 年間維持約 7.3% 的年化複合成長率，這反映了美國經濟與企業盈利的長期成長。\n3. 當前定價隱含樂觀預期\n價格高於趨勢 49%，暗示市場正在計入：\n  - AI 革命帶來的生產力躍升\n  - 企業盈利持續超預期成長\n  - 流動性環境相對寬鬆\n4. 風險提示\n歷史上當偏離度超過 +40% 後，未來 3-5 年的回報率通常低於長期平均。這不是「崩盤訊號」，而是「預期回報降低」的警示。\n\n---\n結論\n\nS&P 500 當前處於 歷史高偏離區間（95 分位），但距離 2000 年的泡沫極端值仍有相當距離。這表明市場定價偏向樂觀，但尚未進入「非理性繁榮」的極端狀態。\n\n---\n圖表說明：\n\n上圖 - 價格與趨勢線\n- 藍線：S&P 500 實際價格（對數尺度）\n- 紅色虛線：長期指數趨勢線（年化 7.3%）\n- 可見價格圍繞趨勢線上下波動，目前明顯高於趨勢\n\n下圖 - 偏離度\n- 紅色區域：高於趨勢的時期\n- 綠色區域：低於趨勢的時期\n- 紅色虛線：95 分位（約 +50%）\n- 綠色虛線：5 分位（約 -40%）\n\n關鍵觀察：\n1. 2000 年網路泡沫 創下 +101.2% 的歷史最高偏離度\n2. 1982 年 是歷史最悲觀時刻（-49.8%）\n3. 當前 +49.4% 正好位於 95 分位線上，偏離度較高但遠未達到泡沫極端\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 75,
+      "badge": "白銀",
+      "metrics": {
+        "architecture": 80,
+        "maintainability": 75,
+        "content": 85,
+        "community": 20,
+        "security": 95,
+        "compliance": 80
+      },
+      "details": "**架構（80/100）**\n- 清晰的指數趨勢擬合方法論\n- 歷史對照機制完整\n- 宏觀因子整合設計合理\n\n**可維護性（75/100）**\n- 參數定義完整\n- 多數據來源支援\n- 工作流程分離\n\n**內容（85/100）**\n- 1970s vs 2000s 行情體質分類有理論依據\n- 歷史峰值對照（2011/1980）有實際意義\n- 宏觀代理指標選擇合理\n\n**社區（20/100）**\n- 新技能，尚無社區貢獻\n\n**安全（95/100）**\n- 僅讀取公開價格數據\n- 無需 API key\n\n**規範符合性（80/100）**\n- 遵循 Claude Code 規範\n- 完整的文件結構\n"
+    },
+    "bestPractices": [
+      {
+        "title": "使用足夠長的歷史數據",
+        "description": "建議至少 10-20 年歷史數據，以捕捉完整的週期。不同資產需要不同的起始日期"
+      },
+      {
+        "title": "月頻數據降低噪音",
+        "description": "長期趨勢分析建議使用月頻數據，日頻噪音太大。腳本會自動轉換"
+      },
+      {
+        "title": "不預設歷史峰值",
+        "description": "讓系統自動識別歷史極端值，或由使用者根據資產特性指定有意義的參考日期"
+      },
+      {
+        "title": "理解偏離度的含義",
+        "description": "偏離度是風險評估工具，不是交易訊號。高偏離可能持續很久，也可能快速回歸"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "把偏離度當作交易訊號",
+        "description": "偏離度是風險評估工具，不是做多做空訊號",
+        "consequence": "過早逆勢操作可能遭遇趨勢延續的虧損"
+      },
+      {
+        "title": "使用固定的歷史參考點",
+        "description": "不同資產有不同的週期特性，不應套用其他資產的歷史峰值",
+        "consequence": "參考點失去意義，誤導決策"
+      },
+      {
+        "title": "趨勢線擬合區間選擇不當",
+        "description": "若只用近期數據擬合，趨勢斜率會被近期行情扭曲",
+        "consequence": "偏離度計算失真"
+      },
+      {
+        "title": "忽略結構性變化",
+        "description": "資產的長期成長率可能因市場結構、制度變化而改變",
+        "consequence": "簡單的全樣本擬合可能不適用於有結構性轉折的資產"
+      }
+    ],
+    "faq": [
+      {
+        "question": "什麼是「指數趨勢偏離度」？",
+        "answer": "指數趨勢偏離度衡量當前價格與長期指數成長趨勢線的距離，以百分比表示。\n\n計算方式：\n1. 對歷史價格取對數：y = log(price)\n2. 對時間做線性回歸：y = a + b*t\n3. 趨勢價格：trend = exp(a + b*t)\n4. 偏離度：(price / trend - 1) × 100%\n\n正偏離表示價格高於趨勢，負偏離表示低於趨勢。\n"
+      },
+      {
+        "question": "這個工具適用於哪些資產？",
+        "answer": "適用於具有長期指數成長特性的資產：\n\n**商品**：黃金、白銀、原油、銅等\n**股票指數**：S&P 500、納斯達克、全球指數等\n**加密貨幣**：比特幣、以太坊等（需注意歷史較短）\n**ETF**：各類 ETF\n**房地產指數**：房價指數、REIT 等\n\n核心要求：有足夠長的歷史數據（建議 ≥ 10 年）\n"
+      },
+      {
+        "question": "如何選擇歷史參考日期？",
+        "answer": "有兩種方式：\n\n**1. 自動識別**（推薦）：\n- 讓系統自動找出歷史最大偏離度\n- 不需要預先知道資產的歷史\n\n**2. 手動指定**：\n- 根據資產特性指定有意義的歷史峰值/谷值\n- 例如：黃金可參考 1980、2011；股市可參考 2000、2008、2020\n\n**黃金範例**：`--compare-peaks \"2011-09-06,1980-01-21\"`\n**股市範例**：`--compare-peaks \"2000-03-24,2007-10-09,2020-02-19\"`\n"
+      },
+      {
+        "question": "宏觀因子分析支援哪些資產？",
+        "answer": "目前宏觀因子分析主要針對黃金設計（1970s-like vs 2000s-like 體質）。\n\n其他資產的宏觀分析需要自定義因子和判定規則。\n\n若不使用 `--include-macro` 參數，工具會純粹計算偏離度，\n適用於所有資產。\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 參考來源\n\n- 靈感來自 Twitter/X 上關於「% distance from exponential growth trendline」的討論\n- 適用於多種資產類別的指數趨勢偏離度分析\n\n## 數據來源\n\n**Yahoo Finance（免費，無需 API key）**\n- 支援：股票、期貨、ETF、指數、加密貨幣等\n- 使用 yfinance 套件抓取\n\n**FRED（免費，無需 API key，選用）**\n- 宏觀因子：實質利率、通膨預期、美元指數等\n- 使用 pandas-datareader 套件抓取\n\n**Stooq（替代來源）**\n- 各類資產歷史數據\n- CSV 下載\n\n## 適用場景\n\n- 長期投資配置決策\n- 評估資產是否處於歷史極端區間\n- 風險管理與倉位調整\n- 多資產比較分析\n\n## 黃金專用功能\n\n針對黃金，可使用 `--include-macro` 參數進行：\n- 1970s-like vs 2000s-like 行情體質判定\n- 基於實質利率、通膨、地緣風險、美元的多因子分析\n\n參考範例：`examples/gold-deviation-2026.json`\n"
+    },
+    "methodology": "### 資產長期遵循指數成長\n\n許多資產在長期（數十年）尺度上遵循指數成長路徑，主要原因：\n\n1. **經濟成長**：全球經濟、貨幣供應量長期以指數方式增長\n2. **複利效應**：任何穩定的成長率在長期都會表現為指數形式\n3. **通膨因素**：名目價格會隨著通膨而增長\n\n**適用資產範例**：\n- **商品**：黃金、白銀、原油（受貨幣供應與購買力影響）\n- **股票指數**：S&P 500、NASDAQ（受經濟成長與盈利成長驅動）\n- **加密貨幣**：比特幣、以太坊（受採用率與網絡效應驅動）\n- **房地產**：房價指數（受收入成長與都市化影響）\n\n### 偏離度的意義\n\n偏離度衡量當前價格與「公允長期趨勢」的距離：\n\n- **正偏離**：價格高於趨勢，可能反映過度樂觀或極端事件\n- **負偏離**：價格低於趨勢，可能反映過度悲觀或錯誤定價\n",
+    "downloadUrl": "downloads/evaluate-exponential-trend-deviation-regimes-0.1.0.zip"
+  },
+  {
     "id": "detect-atr-squeeze-regime",
     "name": "detect-atr-squeeze-regime",
     "displayName": "波動擠壓行情偵測",
@@ -236,127 +357,6 @@
     "downloadUrl": "downloads/detect-atr-squeeze-regime-0.1.0.zip"
   },
   {
-    "id": "evaluate-exponential-trend-deviation-regimes",
-    "name": "evaluate-exponential-trend-deviation-regimes",
-    "displayName": "評估行情與指數趨勢偏離程度",
-    "description": "計算資產價格相對長期指數成長趨勢線的偏離度，衡量當前是否處於歷史極端區間，並可選擇性地進行宏觀因子分析以判斷行情體質。",
-    "emoji": "📈",
-    "version": "0.1.0",
-    "license": "MIT",
-    "author": "Ricky Wang",
-    "authorUrl": "https://github.com/fatfingererr/macro-skills",
-    "tags": [
-      "趨勢",
-      "偏離度",
-      "歷史峰值",
-      "指數成長",
-      "技術分析",
-      "宏觀分析"
-    ],
-    "category": "business-cycles",
-    "dataLevel": "free-nolimit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": true,
-    "installCount": 0,
-    "content": "<essential_principles>\n**資產趨勢偏離度分析 核心原則**\n\n<principle name=\"exponential_trend_fitting\">\n**指數趨勢線擬合**\n多數資產在長期（數十年）尺度上遵循指數成長路徑。透過對數價格線性回歸（y = a + b*t where y = log(price)）擬合趨勢線，trend = exp(a + b*t)。偏離度 = (price / trend - 1) × 100%。\n</principle>\n\n<principle name=\"historical_context\">\n**歷史極端對照**\n透過計算當前偏離度在歷史分布中的分位數，以及與歷史峰值/谷值的比較，提供市場位置的脈絡。使用者可指定特定日期作為參考點，或由系統自動識別歷史極端值。\n</principle>\n\n<principle name=\"regime_classification\">\n**行情體質判定（選用）**\n針對特定資產（如黃金、股指），可結合宏觀因子進行行情體質分析。不同資產有不同的體質分類框架，使用者可自定義判定規則與因子權重。\n</principle>\n\n<principle name=\"universal_applicability\">\n**通用適用性**\n本技能適用於任何具有長期指數成長特性的資產：商品（黃金、原油）、股票指數、加密貨幣、房地產等。核心邏輯不預設特定資產或歷史峰值。\n</principle>\n</essential_principles>\n\n<intake>\n**您想要執行什麼操作？**\n\n1. **單資產偵測** - 計算單一資產的趨勢偏離度與歷史分位數\n2. **歷史對照分析** - 將當前偏離度與使用者指定的歷史日期或自動識別的極端值進行比較\n3. **宏觀因子分解** - 詳細拆解各宏觀代理指標對行情體質判定的貢獻（適用於支援的資產類別）\n\n**等待回應後再繼續。**\n</intake>\n\n<routing>\n| Response                           | Workflow              | Description |\n|------------------------------------|-----------------------|-------------|\n| 1, \"detect\", \"single\", \"偵測\"      | workflows/detect.md   | 單資產趨勢偏離度偵測與體質判定 |\n| 2, \"compare\", \"historical\", \"對照\" | workflows/compare.md  | 歷史峰值詳細對照分析 |\n| 3, \"macro\", \"breakdown\", \"因子\"    | workflows/macro.md    | 宏觀因子分解與貢獻度分析 |\n\n**讀取工作流程後，請完全遵循其步驟。**\n</routing>\n\n<quick_start>\n**快速開始**\n\n```bash\n# 安裝依賴\npip install pandas numpy yfinance pandas-datareader statsmodels\n\n# 快速偵測（範例：黃金期貨）\ncd skills/evaluate-exponential-trend-deviation-regimes\npython scripts/trend_deviation.py --symbol GC=F --quick\n\n# 分析其他資產（範例：S&P 500）\npython scripts/trend_deviation.py --symbol ^GSPC --start 1950-01-01\n\n# 完整分析（含宏觀因子，目前支援黃金）\npython scripts/trend_deviation.py --symbol GC=F --start 1970-01-01 --include-macro\n\n# 指定歷史參考日期\npython scripts/trend_deviation.py --symbol GC=F --compare-peaks \"2011-09-06,2020-08-07\"\n\n# 生成視覺化圖表（輸出 PNG + JSON）\npython scripts/generate_chart.py --output ./output/\n```\n</quick_start>\n\n<reference_index>\n**參考文件** (`references/`)\n\n| 文件 | 內容 |\n|------|------|\n| input-schema.md | 輸入參數詳細定義與驗證規則 |\n| methodology.md | 指數趨勢擬合與偏離度計算方法論 |\n| regime-rules.md | 1970s-like vs 2000s-like 體質判定規則 |\n| data-sources.md | 數據來源與替代方案說明 |\n</reference_index>\n\n<workflows_index>\n| Workflow | Purpose |\n|----------|---------|\n| detect.md | 單資產趨勢偏離度偵測與體質判定 |\n| compare.md | 歷史峰值詳細對照分析 |\n| macro.md | 宏觀因子分解與貢獻度分析 |\n</workflows_index>\n\n<templates_index>\n| Template | Purpose |\n|----------|---------|\n| output-json.md | JSON 輸出結構定義 |\n| output-markdown.md | Markdown 報告輸出模板 |\n</templates_index>\n\n<scripts_index>\n| Script | Purpose |\n|--------|---------|\n| trend_deviation.py | 主要分析腳本：趨勢擬合、偏離度計算、體質判定 |\n| generate_chart.py | 視覺化圖表生成：偏離度歷史圖表與峰值標註 |\n</scripts_index>\n\n<examples_index>\n**範例輸出** (`examples/`)\n\n| 文件 | 內容 |\n|------|------|\n| gold-deviation-2026.json | 2026 年黃金趨勢偏離度分析範例 |\n</examples_index>\n\n<success_criteria>\nSkill 成功執行時：\n- [ ] 成功擬合黃金價格的指數趨勢線\n- [ ] 計算出當前偏離度百分比與歷史分位數\n- [ ] 與 2011/1980 峰值進行有效比較\n- [ ] 綜合宏觀代理指標得出 regime 判定（1970s-like / 2000s-like）\n- [ ] 輸出完整的 JSON 或 Markdown 報告\n- [ ] （選用）生成視覺化圖表（PNG）標註歷史峰值與當前位置\n</success_criteria>",
-    "path": "skills/evaluate-exponential-trend-deviation-regimes/SKILL.md",
-    "directoryStructure": "evaluate-exponential-trend-deviation-regimes/\n├── examples\n│   ├── gold-deviation-2026.json\n│   └── gold-trend-deviation.md\n├── images\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   ├── methodology.md\n│   └── regime-rules.md\n├── scripts\n│   ├── generate_chart.py\n│   └── trend_deviation.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── compare.md\n    ├── detect.md\n    └── macro.md",
-    "lastUpdated": "2026-01-15",
-    "rating": 3,
-    "testQuestions": [
-      {
-        "question": "黃金目前的指數趨勢偏離度是多少？是否已超過 2011 年峰值？",
-        "imagePath": "images/gold-deviation-analysis-2026-01-15.png",
-        "expectedResult": "黃金指數趨勢偏離度分析結果\n\n當前狀態（截至 2025 年 12 月）\n┌────────────┬───────────┐\n│    指標    │   數值    │\n├────────────┼───────────┤\n│ 當前金價   │ $4,318.59 │\n├────────────┼───────────┤\n│ 趨勢線價格 │ $2,161.81 │\n├────────────┼───────────┤\n│ 當前偏離度 │ 99.8%     │\n├────────────┼───────────┤\n│ 歷史分位數 │ 94.8%     │\n└────────────┴───────────┘\n歷史峰值比較\n┌──────────────┬────────┬──────────────────────┐\n│   峰值時期   │ 偏離度 │      與當前差距      │\n├──────────────┼────────┼──────────────────────┤\n│ 1980 年 1 月 │ 288.5% │ -188.7 ppt（未超過） │\n├──────────────┼────────┼──────────────────────┤\n│ 2011 年 8 月 │ 83.1%  │ +16.7 ppt（已超過）  │\n└──────────────┴────────┴──────────────────────┘\n---\n結論\n\n是的，黃金已超越 2011 年峰值偏離度。\n當前黃金偏離指數趨勢線 99.8%，超過 2011 年峰值（83.1%）約 16.7 個百分點。這意味著以趨勢偏離度衡量，黃金的「泡沫程度」已超過 2011 年那波行情。\n然而，與 1980 年那種 blow-off 式的峰值（288.5%）相比，當前偏離度仍有相當距離。若行情體質類似 1970 年代（高通膨、負實質利率），理論上仍有延伸空間。\n"
-      },
-      {
-        "question": "分析 S&P 500 的指數趨勢偏離度",
-        "imagePath": "images/sp500-trend-deviation-2026-01-15.png",
-        "expectedResult": "S&P 500 指數趨勢偏離度分析報告\n\n分析日期: 2026-01-15\n數據範圍: 1950-01-31 至 2026-01-31（76 年，913 個月）\n\n---\n趨勢擬合參數\n┌────────────┬────────────────────────────────────┐\n│    參數    │                數值                │\n├────────────┼────────────────────────────────────┤\n│ 年化成長率 │ 7.34%                              │\n├────────────┼────────────────────────────────────┤\n│ 趨勢公式   │ trend = exp(3.0619 + 0.005899 × t) │\n└────────────┴────────────────────────────────────┘\n---\n當前狀態\n┌────────────┬──────────┬────────────────────────────────────────┐\n│    指標    │   數值   │                  解讀                  │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 當前價格   │ 6,926.60 │ -                                      │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 趨勢價值   │ 4,637.36 │ 長期指數趨勢的「公允值」               │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 偏離度     │ +49.4%   │ 價格高於趨勢近 50%                     │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 歷史分位數 │ 94.9%    │ 在 76 年歷史中僅有 5% 時間比現在更偏離 │\n└────────────┴──────────┴────────────────────────────────────────┘\n---\n歷史分布統計\n┌───────────────┬───────────────────┐\n│    分位數     │      偏離度       │\n├───────────────┼───────────────────┤\n│ 25%           │ -16.0%            │\n├───────────────┼───────────────────┤\n│ 50%（中位數） │ -0.4%             │\n├───────────────┼───────────────────┤\n│ 75%           │ +23.2%            │\n├───────────────┼───────────────────┤\n│ 90%           │ +38.8%            │\n├───────────────┼───────────────────┤\n│ 95%           │ +49.4% ← 當前位置 │\n├───────────────┼───────────────────┤\n│ 99%           │ +88.5%            │\n└───────────────┴───────────────────┘\n---\n歷史極端值對照\n┌─────────────────────┬────────────┬─────────┬────────────────┐\n│        事件         │    日期    │ 偏離度  │   與當前比較   │\n├─────────────────────┼────────────┼─────────┼────────────────┤\n│ 2000 年網路泡沫頂點 │ 2000-03-31 │ +101.2% │ 當前僅達其 49% │\n├─────────────────────┼────────────┼─────────┼────────────────┤\n│ 1982 年沃克緊縮谷底 │ 1982-07-31 │ -49.8%  │ 歷史最悲觀時刻 │\n└─────────────────────┴────────────┴─────────┴────────────────┘\n---\n關鍵洞察\n\n1. 極端但未達歷史峰值\n當前 +49.4% 的偏離度位於歷史第 95 分位，屬於「偏高但非極端」區間。2000 年網路泡沫時偏離度達 +101.2%，是當前的兩倍。\n2. 長期趨勢穩健\nS&P 500 在 76 年間維持約 7.3% 的年化複合成長率，這反映了美國經濟與企業盈利的長期成長。\n3. 當前定價隱含樂觀預期\n價格高於趨勢 49%，暗示市場正在計入：\n  - AI 革命帶來的生產力躍升\n  - 企業盈利持續超預期成長\n  - 流動性環境相對寬鬆\n4. 風險提示\n歷史上當偏離度超過 +40% 後，未來 3-5 年的回報率通常低於長期平均。這不是「崩盤訊號」，而是「預期回報降低」的警示。\n\n---\n結論\n\nS&P 500 當前處於 歷史高偏離區間（95 分位），但距離 2000 年的泡沫極端值仍有相當距離。這表明市場定價偏向樂觀，但尚未進入「非理性繁榮」的極端狀態。\n\n---\n圖表說明：\n\n上圖 - 價格與趨勢線\n- 藍線：S&P 500 實際價格（對數尺度）\n- 紅色虛線：長期指數趨勢線（年化 7.3%）\n- 可見價格圍繞趨勢線上下波動，目前明顯高於趨勢\n\n下圖 - 偏離度\n- 紅色區域：高於趨勢的時期\n- 綠色區域：低於趨勢的時期\n- 紅色虛線：95 分位（約 +50%）\n- 綠色虛線：5 分位（約 -40%）\n\n關鍵觀察：\n1. 2000 年網路泡沫 創下 +101.2% 的歷史最高偏離度\n2. 1982 年 是歷史最悲觀時刻（-49.8%）\n3. 當前 +49.4% 正好位於 95 分位線上，偏離度較高但遠未達到泡沫極端\n"
-      }
-    ],
-    "qualityScore": {
-      "overall": 75,
-      "badge": "白銀",
-      "metrics": {
-        "architecture": 80,
-        "maintainability": 75,
-        "content": 85,
-        "community": 20,
-        "security": 95,
-        "compliance": 80
-      },
-      "details": "**架構（80/100）**\n- 清晰的指數趨勢擬合方法論\n- 歷史對照機制完整\n- 宏觀因子整合設計合理\n\n**可維護性（75/100）**\n- 參數定義完整\n- 多數據來源支援\n- 工作流程分離\n\n**內容（85/100）**\n- 1970s vs 2000s 行情體質分類有理論依據\n- 歷史峰值對照（2011/1980）有實際意義\n- 宏觀代理指標選擇合理\n\n**社區（20/100）**\n- 新技能，尚無社區貢獻\n\n**安全（95/100）**\n- 僅讀取公開價格數據\n- 無需 API key\n\n**規範符合性（80/100）**\n- 遵循 Claude Code 規範\n- 完整的文件結構\n"
-    },
-    "bestPractices": [
-      {
-        "title": "使用足夠長的歷史數據",
-        "description": "建議至少 10-20 年歷史數據，以捕捉完整的週期。不同資產需要不同的起始日期"
-      },
-      {
-        "title": "月頻數據降低噪音",
-        "description": "長期趨勢分析建議使用月頻數據，日頻噪音太大。腳本會自動轉換"
-      },
-      {
-        "title": "不預設歷史峰值",
-        "description": "讓系統自動識別歷史極端值，或由使用者根據資產特性指定有意義的參考日期"
-      },
-      {
-        "title": "理解偏離度的含義",
-        "description": "偏離度是風險評估工具，不是交易訊號。高偏離可能持續很久，也可能快速回歸"
-      }
-    ],
-    "pitfalls": [
-      {
-        "title": "把偏離度當作交易訊號",
-        "description": "偏離度是風險評估工具，不是做多做空訊號",
-        "consequence": "過早逆勢操作可能遭遇趨勢延續的虧損"
-      },
-      {
-        "title": "使用固定的歷史參考點",
-        "description": "不同資產有不同的週期特性，不應套用其他資產的歷史峰值",
-        "consequence": "參考點失去意義，誤導決策"
-      },
-      {
-        "title": "趨勢線擬合區間選擇不當",
-        "description": "若只用近期數據擬合，趨勢斜率會被近期行情扭曲",
-        "consequence": "偏離度計算失真"
-      },
-      {
-        "title": "忽略結構性變化",
-        "description": "資產的長期成長率可能因市場結構、制度變化而改變",
-        "consequence": "簡單的全樣本擬合可能不適用於有結構性轉折的資產"
-      }
-    ],
-    "faq": [
-      {
-        "question": "什麼是「指數趨勢偏離度」？",
-        "answer": "指數趨勢偏離度衡量當前價格與長期指數成長趨勢線的距離，以百分比表示。\n\n計算方式：\n1. 對歷史價格取對數：y = log(price)\n2. 對時間做線性回歸：y = a + b*t\n3. 趨勢價格：trend = exp(a + b*t)\n4. 偏離度：(price / trend - 1) × 100%\n\n正偏離表示價格高於趨勢，負偏離表示低於趨勢。\n"
-      },
-      {
-        "question": "這個工具適用於哪些資產？",
-        "answer": "適用於具有長期指數成長特性的資產：\n\n**商品**：黃金、白銀、原油、銅等\n**股票指數**：S&P 500、納斯達克、全球指數等\n**加密貨幣**：比特幣、以太坊等（需注意歷史較短）\n**ETF**：各類 ETF\n**房地產指數**：房價指數、REIT 等\n\n核心要求：有足夠長的歷史數據（建議 ≥ 10 年）\n"
-      },
-      {
-        "question": "如何選擇歷史參考日期？",
-        "answer": "有兩種方式：\n\n**1. 自動識別**（推薦）：\n- 讓系統自動找出歷史最大偏離度\n- 不需要預先知道資產的歷史\n\n**2. 手動指定**：\n- 根據資產特性指定有意義的歷史峰值/谷值\n- 例如：黃金可參考 1980、2011；股市可參考 2000、2008、2020\n\n**黃金範例**：`--compare-peaks \"2011-09-06,1980-01-21\"`\n**股市範例**：`--compare-peaks \"2000-03-24,2007-10-09,2020-02-19\"`\n"
-      },
-      {
-        "question": "宏觀因子分析支援哪些資產？",
-        "answer": "目前宏觀因子分析主要針對黃金設計（1970s-like vs 2000s-like 體質）。\n\n其他資產的宏觀分析需要自定義因子和判定規則。\n\n若不使用 `--include-macro` 參數，工具會純粹計算偏離度，\n適用於所有資產。\n"
-      }
-    ],
-    "about": {
-      "repository": "https://github.com/fatfingererr/macro-skills",
-      "branch": "main",
-      "additionalInfo": "## 參考來源\n\n- 靈感來自 Twitter/X 上關於「% distance from exponential growth trendline」的討論\n- 適用於多種資產類別的指數趨勢偏離度分析\n\n## 數據來源\n\n**Yahoo Finance（免費，無需 API key）**\n- 支援：股票、期貨、ETF、指數、加密貨幣等\n- 使用 yfinance 套件抓取\n\n**FRED（免費，無需 API key，選用）**\n- 宏觀因子：實質利率、通膨預期、美元指數等\n- 使用 pandas-datareader 套件抓取\n\n**Stooq（替代來源）**\n- 各類資產歷史數據\n- CSV 下載\n\n## 適用場景\n\n- 長期投資配置決策\n- 評估資產是否處於歷史極端區間\n- 風險管理與倉位調整\n- 多資產比較分析\n\n## 黃金專用功能\n\n針對黃金，可使用 `--include-macro` 參數進行：\n- 1970s-like vs 2000s-like 行情體質判定\n- 基於實質利率、通膨、地緣風險、美元的多因子分析\n\n參考範例：`examples/gold-deviation-2026.json`\n"
-    },
-    "methodology": "### 資產長期遵循指數成長\n\n許多資產在長期（數十年）尺度上遵循指數成長路徑，主要原因：\n\n1. **經濟成長**：全球經濟、貨幣供應量長期以指數方式增長\n2. **複利效應**：任何穩定的成長率在長期都會表現為指數形式\n3. **通膨因素**：名目價格會隨著通膨而增長\n\n**適用資產範例**：\n- **商品**：黃金、白銀、原油（受貨幣供應與購買力影響）\n- **股票指數**：S&P 500、NASDAQ（受經濟成長與盈利成長驅動）\n- **加密貨幣**：比特幣、以太坊（受採用率與網絡效應驅動）\n- **房地產**：房價指數（受收入成長與都市化影響）\n\n### 偏離度的意義\n\n偏離度衡量當前價格與「公允長期趨勢」的距離：\n\n- **正偏離**：價格高於趨勢，可能反映過度樂觀或極端事件\n- **負偏離**：價格低於趨勢，可能反映過度悲觀或錯誤定價\n",
-    "downloadUrl": "downloads/evaluate-exponential-trend-deviation-regimes-0.1.0.zip"
-  },
-  {
     "id": "wasde-ingestor",
     "name": "wasde-ingestor",
     "displayName": "下載與解析 WASDE 每月報告",
@@ -465,116 +465,6 @@
       "additionalInfo": "## 數據來源\n\n所有數據來自 USDA 官方 WASDE 報告：\n- 官網：https://www.usda.gov/oce/commodity/wasde\n- 歷史檔案：https://esmis.nal.usda.gov/\n- 數據類型：公開、免費、無限制使用\n\n## 編製單位\n\nWASDE 由 World Agricultural Outlook Board (WAOB) 編製，\n整合以下機構資料：\n- Agricultural Marketing Service (AMS)\n- Economic Research Service (ERS)\n- Farm Service Agency (FSA)\n- Foreign Agricultural Service (FAS)\n- National Agricultural Statistics Service (NASS)\n"
     },
     "downloadUrl": "downloads/wasde-ingestor-0.2.0.zip"
-  },
-  {
-    "id": "nickel-concentration-risk-analyzer",
-    "name": "nickel-concentration-risk-analyzer",
-    "displayName": "分析鎳供給集中度風險",
-    "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
-    "emoji": "🪨",
-    "version": "0.1.0",
-    "license": "MIT",
-    "author": "Ricky Wang",
-    "authorUrl": "https://github.com/fatfingererr/macro-skills",
-    "tags": [
-      "鎳",
-      "供給集中度",
-      "原物料",
-      "印尼",
-      "採礦",
-      "地緣政治",
-      "情境分析"
-    ],
-    "category": "event-scenario",
-    "dataLevel": "free-nolimit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": false,
-    "installCount": 0,
-    "content": "<essential_principles>\r\n**鎳供給集中度分析 核心原則**\r\n\r\n<principle name=\"unit_enforcement\">\r\n**口徑先行（Unit Enforcement）**\r\n\r\n所有分析必須先確定口徑，不同口徑會導致數量級差異：\r\n\r\n| 口徑            | 說明                        | 典型數值差異 |\r\n|-----------------|-----------------------------|--------------|\r\n| `t_Ni_content`  | 鎳金屬含量（本 Skill 預設） | 基準值       |\r\n| `t_ore_wet`     | 礦石濕噸                    | 可達 50-100x |\r\n| `t_NPI_product` | NPI 產品噸                  | 約 10-15% Ni |\r\n| `t_matte`       | 鎳鋶噸                      | 約 75% Ni    |\r\n\r\n**強制規則**：\r\n- 若輸入數據口徑不明確，必須標記為 `model_estimate`\r\n- 同一分析中不得混用不同口徑數據\r\n- 輸出必須包含 `unit` 欄位\r\n</principle>\r\n\r\n<principle name=\"supply_type_clarity\">\r\n**供給類型區分（Supply Type Clarity）**\r\n\r\n鎳供給鏈各階段必須分開計算：\r\n\r\n```\r\nMine Production (mined) → Intermediate (NPI/Matte/MHP) → Refined (class1/class2)\r\n```\r\n\r\n- **mined**: 礦場產量（鎳金屬含量）\r\n- **refined**: 精煉產量（含冶煉）\r\n- 「印尼 60% 市佔」通常指 **mined nickel content**\r\n</principle>\r\n\r\n<principle name=\"data_tiering\">\r\n**數據分層策略（Data Tiering）**\r\n\r\n| Tier | 特性                 | 來源           | 用途               |\r\n|------|----------------------|----------------|--------------------|\r\n| 0    | 免費、穩定、口徑一致 | USGS MCS, INSG | Baseline 主幹      |\r\n| 1    | 免費但分散、需整合   | 公司年報、財報 | Mine-level 錨點    |\r\n| 2    | 付費、更即時完整     | S&P Global MI  | 精度驗證、對齊口徑 |\r\n| 3    | 政策/配額近期訊息    | 新聞、官方公告 | 情境輸入           |\r\n\r\n**優先順序**：Tier 0 建立 baseline → Tier 1 補充 mine-level → Tier 2 驗證精度\r\n</principle>\r\n\r\n<principle name=\"execution_probability\">\r\n**政策執行機率（Execution Probability）**\r\n\r\n政策減產不需 100% 執行即可造成衝擊。預設模型：\r\n\r\n```python\r\nexpected_cut = cut_value * execution_prob  # 預設 execution_prob = 0.5\r\n```\r\n\r\n三層輸出：\r\n- **Hard cut**: 政策完全落地\r\n- **Half success**: 執行 50%（或指定值）\r\n- **Soft landing**: 只延遲投產/只砍新增產能\r\n</principle>\r\n\r\n<principle name=\"concentration_metrics\">\r\n**集中度指標定義**\r\n\r\n| 指標            | 公式                         | 解讀                     |\r\n|-----------------|------------------------------|--------------------------|\r\n| Country Share   | `country_prod / global_prod` | 單國佔比                 |\r\n| CR_n            | `Σ top_n_share`              | 前 N 國/礦集中度         |\r\n| HHI             | `Σ share²`                   | 市場集中度（0-10000）    |\r\n| Policy Leverage | `cut_amount / global_prod`   | 政策可撬動的全球供給比例 |\r\n\r\nHHI 判讀：< 1500 低集中、1500-2500 中等、> 2500 高集中\r\n</principle>\r\n</essential_principles>\r\n\r\n<intake>\r\n**您想要執行什麼操作？**\r\n\r\n1. **Analyze** - 分析全球鎳供給結構與集中度指標（CR_n, HHI, country share）\r\n2. **Scenario** - 模擬政策/減產情境對供給的衝擊（RKAB配額、出口限制等）\r\n3. **Validate** - 驗證市場說法的數據口徑與來源可靠度\r\n4. **Ingest** - 從各數據源擷取並標準化鎳供給數據\r\n\r\n**等待回應後再繼續。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                                                | Workflow                      | Description          |\r\n|---------------------------------------------------------|-------------------------------|----------------------|\r\n| 1, \"analyze\", \"concentration\", \"share\", \"hhi\", \"集中度\" | workflows/analyze.md          | 供給結構與集中度分析 |\r\n| 2, \"scenario\", \"policy\", \"cut\", \"減產\", \"情境\", \"RKAB\"  | workflows/scenario-engine.md  | 政策情境衝擊模擬     |\r\n| 3, \"validate\", \"verify\", \"check\", \"驗證\", \"來源\"        | workflows/validate-sources.md | 數據來源與口徑驗證   |\r\n| 4, \"ingest\", \"fetch\", \"data\", \"抓取\", \"擷取\"            | workflows/ingest.md           | 數據擷取與標準化     |\r\n\r\n**讀取工作流程後，請完全遵循其步驟。**\r\n</routing>\r\n\r\n<reference_index>\r\n**參考文件** (`references/`)\r\n\r\n| 文件                          | 內容                       |\r\n|-------------------------------|----------------------------|\r\n| data-sources.md               | 所有數據來源詳細說明與 URL |\r\n| unit-conversion.md            | 單位轉換規則與假設         |\r\n| concentration-metrics.md      | 集中度指標詳細計算方法     |\r\n| indonesia-supply-structure.md | 印尼鎳供給結構與關鍵園區   |\r\n| mine-level-anchors.md         | 主要礦區/園區產量錨點      |\r\n| failure-modes.md              | 失敗模式與緩解策略         |\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow            | Purpose                                  |\r\n|---------------------|------------------------------------------|\r\n| analyze.md          | 供給結構與集中度分析（CR_n, HHI, share） |\r\n| scenario-engine.md  | 政策情境衝擊模擬                         |\r\n| validate-sources.md | 數據來源與口徑驗證                       |\r\n| ingest.md           | 數據擷取與標準化                         |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構模板 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n| config.yaml        | 分析參數配置模板  |\r\n| data-schema.yaml   | 數據 Schema 定義  |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script                   | Purpose        |\r\n|--------------------------|----------------|\r\n| nickel_pipeline.py       | 核心數據管線   |\r\n| ingest_sources.py        | 數據來源擷取   |\r\n| compute_concentration.py | 集中度指標計算 |\r\n| scenario_impact.py       | 情境衝擊模擬   |\r\n</scripts_index>\r\n\r\n<quick_start>\r\n**CLI 快速開始：**\r\n\r\n```bash\r\n# 分析當前全球鎳供給集中度\r\npython scripts/nickel_pipeline.py analyze --asof=2026-01-16 --scope=mined\r\n\r\n# 模擬印尼減產 20% 的情境衝擊\r\npython scripts/nickel_pipeline.py scenario --cut=20 --target=Indonesia --exec-prob=0.5\r\n\r\n# 驗證「印尼 60% 市佔」的數據來源\r\npython scripts/nickel_pipeline.py validate --claim=\"Indonesia 60% share\"\r\n```\r\n\r\n**Library 快速開始：**\r\n\r\n```python\r\nfrom nickel_pipeline import NickelConcentrationAnalyzer\r\n\r\nanalyzer = NickelConcentrationAnalyzer(\r\n    asof_date=\"2026-01-16\",\r\n    scope={\"supply_type\": \"mined\", \"unit\": \"t_Ni_content\"},\r\n    data_level=\"free_nolimit\"\r\n)\r\n\r\n# 計算集中度指標\r\nresult = analyzer.compute_concentration()\r\nprint(f\"Indonesia share: {result['indonesia_share_2024']:.1%}\")\r\nprint(f\"HHI: {result['hhi_2024']:.0f}\")\r\n```\r\n</quick_start>\r\n\r\n<success_criteria>\r\nSkill 成功執行時：\r\n- [ ] 正確識別數據口徑（mined/refined/nickel content）\r\n- [ ] 輸出包含 unit 欄位標註\r\n- [ ] 集中度指標計算正確（share, CR_n, HHI）\r\n- [ ] 情境分析輸出三層結果（hard/half/soft）\r\n- [ ] 數據來源可追溯（source_id, confidence）\r\n- [ ] 單位警告正確觸發（ore vs content）\r\n</success_criteria>\r\n\r\n<input_schema>\r\n**輸入參數定義**\r\n\r\n```yaml\r\n# 必要參數\r\nasof_date: string (ISO)  # 分析基準日\r\nhorizon:\r\n  history_start_year: int\r\n  history_end_year: int\r\n  forecast_end_year: int\r\n\r\n# 範圍參數\r\nscope:\r\n  supply_type: string  # mined | refined | nickel_content (必填)\r\n  product_group: string  # class1 | class2 | NPI | matte | MHP | mixed (選填)\r\n  countries: array[string]  # 預設: Indonesia, Philippines, Russia, Canada, Australia, Other\r\n\r\n# 情境參數 (scenario workflow 專用)\r\npolicy_scenarios:\r\n  - name: string\r\n    target_country: string  # 預設: Indonesia\r\n    policy_variable: string  # ore_quota_RKAB | mine_permit | export_rule | smelter_capacity\r\n    cut_type: string  # pct_global | pct_country | absolute\r\n    cut_value: number\r\n    start_year: int\r\n    end_year: int\r\n    execution_prob: number  # 0-1, 預設 0.5\r\n\r\n# 數據等級\r\ndata_level: string  # free_nolimit | free_limit | paid_low | paid_high\r\n```\r\n</input_schema>\r\n\r\n<data_pipeline_architecture>\r\n**數據流水線架構**\r\n\r\n```\r\n[Data Sources]\r\n     |\r\n     v\r\n+-------------------+\r\n|   ingest_sources  |  --> Tier 0: USGS, INSG\r\n+-------------------+      Tier 1: Company reports\r\n     |                     Tier 2: S&P Global (optional)\r\n     v\r\n+-------------------+\r\n|   normalize       |  --> 統一 schema + 單位標註\r\n+-------------------+      (year, country, supply_type, value, unit, source_id)\r\n     |\r\n     v\r\n+-------------------+\r\n| compute_concentration | --> share, CR_n, HHI\r\n+-------------------+\r\n     |\r\n     v\r\n+-------------------+\r\n|   scenario_impact |  --> expected_cut, global_hit_pct\r\n+-------------------+\r\n     |\r\n     v\r\n+-------------------+\r\n|   generate_output |  --> JSON + Markdown\r\n+-------------------+\r\n     |\r\n     v\r\n[Analysis Result]\r\n```\r\n\r\n**標準化欄位 Schema：**\r\n\r\n| 欄位          | 類型   | 說明                                     |\r\n|---------------|--------|------------------------------------------|\r\n| year          | int    | 年度                                     |\r\n| country       | string | 國家                                     |\r\n| supply_type   | string | mined/refined                            |\r\n| product_group | string | NPI/matte/MHP/class1...                  |\r\n| value         | float  | 數值                                     |\r\n| unit          | string | t_Ni_content / t_ore_wet / t_NPI_product |\r\n| source_id     | string | USGS/INSG/S&P/Company/Other              |\r\n| confidence    | float  | 來源品質評分 (0-1)                       |\r\n</data_pipeline_architecture>",
-    "path": "skills/nickel-concentration-risk-analyzer/SKILL.md",
-    "directoryStructure": "nickel-concentration-risk-analyzer/\n├── examples\n│   ├── analysis_report.md\n│   ├── concentration_analysis.json\n│   └── scenario_result.json\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── concentration-metrics.md\n│   ├── data-sources.md\n│   ├── failure-modes.md\n│   ├── indonesia-supply-structure.md\n│   ├── mine-level-anchors.md\n│   └── unit-conversion.md\n├── scripts\n│   ├── compute_concentration.py\n│   ├── ingest_sources.py\n│   ├── nickel_pipeline.py\n│   └── scenario_impact.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── config.yaml\n│   ├── data-schema.yaml\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    ├── ingest.md\n    ├── scenario-engine.md\n    └── validate-sources.md",
-    "rating": 3,
-    "testQuestions": [
-      {
-        "question": "分析全球鎳供給的國家集中度，特別是印尼的市佔率",
-        "expectedResult": "輸出包含：\n- Indonesia share（約 60%）with 資料來源標註\n- CR3, CR5 前 N 國集中度\n- HHI 指數\n- 數據口徑說明（mined nickel content）\n"
-      },
-      {
-        "question": "如果印尼減產 20%，對全球供給會有什麼衝擊？",
-        "expectedResult": "輸出政策情境分析：\n- Hard cut: 完全執行的衝擊\n- Half success: 執行 50% 的衝擊\n- expected_global_hit_pct 計算\n- 口徑警告（ore quota vs nickel content）\n"
-      },
-      {
-        "question": "驗證「印尼控制 60-70% 鎳供給」這個說法",
-        "expectedResult": "驗證報告包含：\n- 數據來源交叉比對\n- S&P Global 60.2% 與 USGS/INSG 的口徑差異\n- 信心度評估\n- wet tonnes vs nickel content 的單位警告\n"
-      }
-    ],
-    "qualityScore": {
-      "overall": 70,
-      "badge": "白銀",
-      "metrics": {
-        "architecture": 80,
-        "maintainability": 75,
-        "content": 85,
-        "community": 20,
-        "security": 80,
-        "compliance": 75
-      },
-      "details": "**架構（80/100）**\n- Router pattern 正確分離職責\n- 多層數據來源設計完善\n\n**可維護性（75/100）**\n- 單位轉換邏輯需長期維護\n- 資料來源可能變動\n\n**內容（85/100）**\n- 完整的集中度指標定義\n- 清晰的數據口徑說明\n\n**社群（20/100）**\n- 新建技能，尚無社群回饋\n\n**安全（80/100）**\n- 無敏感資料處理\n- 外部 URL 需適當處理\n\n**合規（75/100）**\n- 需注意付費數據源授權\n"
-    },
-    "bestPractices": [
-      {
-        "title": "口徑先行",
-        "description": "分析前務必先確認數據口徑（mined/refined/nickel content），避免將 ore wet tonnes 與鎳金屬含量混淆"
-      },
-      {
-        "title": "數據分層",
-        "description": "優先使用 Tier 0 免費數據源（USGS/INSG）建立 baseline，付費數據用於精度驗證"
-      },
-      {
-        "title": "情境分析三層",
-        "description": "政策情境分析輸出 Hard cut / Half success / Soft landing 三層，避免過度樂觀或悲觀"
-      }
-    ],
-    "pitfalls": [
-      {
-        "title": "單位混淆",
-        "description": "ore wet tonnes（濕噸）與 nickel content（鎳含量）混用",
-        "consequence": "可能導致 10x 以上的數量級錯誤"
-      },
-      {
-        "title": "口徑不一致",
-        "description": "mined production 與 refined production 混合比較",
-        "consequence": "集中度計算完全失真"
-      },
-      {
-        "title": "過度依賴單一來源",
-        "description": "只看 S&P 或只看社群貼文數字",
-        "consequence": "無法驗證數據可靠度"
-      }
-    ],
-    "faq": [
-      {
-        "question": "為什麼印尼市佔有 60% 和 70% 兩種說法？",
-        "answer": "這通常是口徑差異：\n- 60.2%（S&P Global）: mined nickel content\n- 更高數字可能來自 ore production（濕噸）\n- 本 Skill 會強制標註口徑來源\n"
-      },
-      {
-        "question": "如何確認數據可靠度？",
-        "answer": "使用 validate-sources workflow：\n1. 交叉比對 USGS + INSG + S&P\n2. 檢查時間口徑（同一年度）\n3. 檢查單位口徑（同為 Ni content）\n4. 輸出 confidence score\n"
-      },
-      {
-        "question": "mine-level 數據從哪裡取得？",
-        "answer": "Tier 1 來源（免費但分散）：\n- Weda Bay Nickel 官網\n- Nickel Industries 年報\n- PT Vale Indonesia 財報\n- Eramet 股東報告\n"
-      }
-    ],
-    "about": {
-      "repository": "https://github.com/fatfingererr/macro-skills",
-      "branch": "main",
-      "additionalInfo": "## 設計背景\n\n此技能源於對「印尼控制全球 60-70% 鎳供給」這類說法的驗證需求。\n市場上充斥著各種數字，但很少有人驗證口徑是否一致。\n\n## 關鍵洞察\n\n1. **口徑決定一切**: ore wet tonnes vs nickel content 可差 10x\n2. **政策不需完美執行**: 半成功也可能造成重大衝擊\n3. **集中度有上限**: HHI 和 CR5 的理論意義與實務解讀\n"
-    },
-    "methodology": "### 1. 供給集中度（Concentration）= 控制力的上限\r\n當某國家佔全球供給 **X%**，任何「對該國供給的變化」都能近似映射到全球供給衝擊：\r\n\r\n- **全球供給衝擊比例 ≈ X% × 該國供給變動比例**\r\n\r\n換句話說，若印尼佔全球鎳供給約 **60%**，印尼國內供給只要變動 **10%**，全球供給理論衝擊就可能達到 **~6%**（同口徑下）。\r\n\r\n> 這是「供給槓桿」的第一層：**國家份額越大，政策/供應變動的全球傳導越直接**。\r\n\r\n### 2. 「少數資產」可控性（Top mines / Industrial parks）= 槓桿的開關\r\n即使一國份額很高，真正能快速施力的常常不是「全國每個礦」，而是：\r\n\r\n- 產量極大、集中於少數礦山/園區\r\n- 許可與配額制度能鎖住上游（礦）或下游（冶煉/轉化）的擴張\r\n- 物流、環評、用電、港口等基礎設施形成瓶頸\r\n\r\n因此，分析上要做第二層拆解：\r\n\r\n- **Top N mines / Top N industrial parks 佔全球供給多少？**\r\n- 如果只「拴緊」這些關鍵節點，就可能快速造成可觀的供給缺口\r\n\r\n> 這是「供給槓桿」的第二層：**槓桿不只來自份額，也來自供給是否集中在少數可被管理的節點**。\r\n\r\n### 3. 市場定價（Consensus / Positioning）= 非對稱的來源\r\n供給槓桿不一定立刻導致行情，真正會引爆「非對稱」的是：\r\n\r\n- 市場長期看空、共識極度悲觀\r\n- 價格把「最壞情境」當成常態\r\n- 此時只要供給端出現「比預期少一點的利空」或「半成功的減產」，就可能造成**向上急拉**（short covering + re-pricing）\r\n\r\n> 這是「供給槓桿」的第三層：**供給衝擊 × 市場已定價程度 = 非對稱走勢的觸發條件**。\r\n\r\n用同一套工具，你也可以把它平移到其他商品（如鈀金、油、鋰、銅）去比較「誰才是真的單點槓桿」。",
-    "downloadUrl": "downloads/nickel-concentration-risk-analyzer-0.1.0.zip"
   },
   {
     "id": "us-cpi-pce-comparator",
@@ -687,6 +577,120 @@
       "additionalInfo": "## 數據來源\n\n**FRED（免費，無需 API key）**\n- CPI: CPIAUCSL, CPILFESL\n- PCE: PCEPI, PCEPILFE\n- 使用 CSV endpoint 直接下載\n\n**BLS Public API**\n- 詳細 CPI 分項數據\n- 權重與相對重要性\n"
     },
     "downloadUrl": "downloads/us-cpi-pce-comparator-0.1.0.zip"
+  },
+  {
+    "id": "nickel-concentration-risk-analyzer",
+    "name": "nickel-concentration-risk-analyzer",
+    "displayName": "分析鎳供給集中度風險",
+    "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
+    "emoji": "🪨",
+    "version": "0.1.1",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "鎳",
+      "供給集中度",
+      "原物料",
+      "採礦",
+      "地緣政治",
+      "情境分析",
+      "USGS",
+      "INSG"
+    ],
+    "category": "event-scenario",
+    "dataLevel": "free-nolimit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\r\n**鎳供給集中度分析 核心原則**\r\n\r\n<principle name=\"unit_enforcement\">\r\n**口徑先行（Unit Enforcement）**\r\n\r\n所有分析必須先確定口徑，不同口徑會導致數量級差異：\r\n\r\n| 口徑            | 說明                        | 典型數值差異 |\r\n|-----------------|-----------------------------|--------------|\r\n| `t_Ni_content`  | 鎳金屬含量（本 Skill 預設） | 基準值       |\r\n| `t_ore_wet`     | 礦石濕噸                    | 可達 50-100x |\r\n| `t_NPI_product` | NPI 產品噸                  | 約 10-15% Ni |\r\n| `t_matte`       | 鎳鋶噸                      | 約 75% Ni    |\r\n\r\n**強制規則**：\r\n- 若輸入數據口徑不明確，必須標記為 `model_estimate`\r\n- 同一分析中不得混用不同口徑數據\r\n- 輸出必須包含 `unit` 欄位\r\n</principle>\r\n\r\n<principle name=\"supply_type_clarity\">\r\n**供給類型區分（Supply Type Clarity）**\r\n\r\n鎳供給鏈各階段必須分開計算：\r\n\r\n```\r\nMine Production (mined) → Intermediate (NPI/Matte/MHP) → Refined (class1/class2)\r\n```\r\n\r\n- **mined**: 礦場產量（鎳金屬含量）\r\n- **refined**: 精煉產量（含冶煉）\r\n- 「印尼 60% 市佔」通常指 **mined nickel content**\r\n</principle>\r\n\r\n<principle name=\"data_tiering\">\r\n**數據分層策略（Data Tiering）**\r\n\r\n| Tier | 特性                 | 來源           | 用途               |\r\n|------|----------------------|----------------|--------------------|\r\n| 0    | 免費、穩定、口徑一致 | USGS MCS, INSG | Baseline 主幹      |\r\n| 1    | 免費但分散、需整合   | 公司年報、財報 | Mine-level 錨點    |\r\n| 2    | 付費、更即時完整     | S&P Global MI  | 精度驗證、對齊口徑 |\r\n| 3    | 政策/配額近期訊息    | 新聞、官方公告 | 情境輸入           |\r\n\r\n**優先順序**：Tier 0 建立 baseline → Tier 1 補充 mine-level → Tier 2 驗證精度\r\n</principle>\r\n\r\n<principle name=\"execution_probability\">\r\n**政策執行機率（Execution Probability）**\r\n\r\n政策減產不需 100% 執行即可造成衝擊。預設模型：\r\n\r\n```python\r\nexpected_cut = cut_value * execution_prob  # 預設 execution_prob = 0.5\r\n```\r\n\r\n三層輸出：\r\n- **Hard cut**: 政策完全落地\r\n- **Half success**: 執行 50%（或指定值）\r\n- **Soft landing**: 只延遲投產/只砍新增產能\r\n</principle>\r\n\r\n<principle name=\"concentration_metrics\">\r\n**集中度指標定義**\r\n\r\n| 指標            | 公式                         | 解讀                     |\r\n|-----------------|------------------------------|--------------------------|\r\n| Country Share   | `country_prod / global_prod` | 單國佔比                 |\r\n| CR_n            | `Σ top_n_share`              | 前 N 國/礦集中度         |\r\n| HHI             | `Σ share²`                   | 市場集中度（0-10000）    |\r\n| Policy Leverage | `cut_amount / global_prod`   | 政策可撬動的全球供給比例 |\r\n\r\nHHI 判讀：< 1500 低集中、1500-2500 中等、> 2500 高集中\r\n</principle>\r\n</essential_principles>\r\n\r\n<intake>\r\n**您想要執行什麼操作？**\r\n\r\n1. **Analyze** - 分析全球鎳供給結構與集中度指標（CR_n, HHI, country share）\r\n2. **Scenario** - 模擬政策/減產情境對供給的衝擊（RKAB配額、出口限制等）\r\n3. **Validate** - 驗證市場說法的數據口徑與來源可靠度\r\n4. **Ingest** - 從各數據源擷取並標準化鎳供給數據\r\n\r\n**等待回應後再繼續。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                                                | Workflow                      | Description          |\r\n|---------------------------------------------------------|-------------------------------|----------------------|\r\n| 1, \"analyze\", \"concentration\", \"share\", \"hhi\", \"集中度\" | workflows/analyze.md          | 供給結構與集中度分析 |\r\n| 2, \"scenario\", \"policy\", \"cut\", \"減產\", \"情境\", \"RKAB\"  | workflows/scenario-engine.md  | 政策情境衝擊模擬     |\r\n| 3, \"validate\", \"verify\", \"check\", \"驗證\", \"來源\"        | workflows/validate-sources.md | 數據來源與口徑驗證   |\r\n| 4, \"ingest\", \"fetch\", \"data\", \"抓取\", \"擷取\"            | workflows/ingest.md           | 數據擷取與標準化     |\r\n\r\n**讀取工作流程後，請完全遵循其步驟。**\r\n</routing>\r\n\r\n<reference_index>\r\n**參考文件** (`references/`)\r\n\r\n| 文件                          | 內容                       |\r\n|-------------------------------|----------------------------|\r\n| data-sources.md               | 所有數據來源詳細說明與 URL |\r\n| unit-conversion.md            | 單位轉換規則與假設         |\r\n| concentration-metrics.md      | 集中度指標詳細計算方法     |\r\n| indonesia-supply-structure.md | 印尼鎳供給結構與關鍵園區   |\r\n| mine-level-anchors.md         | 主要礦區/園區產量錨點      |\r\n| failure-modes.md              | 失敗模式與緩解策略         |\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow            | Purpose                                  |\r\n|---------------------|------------------------------------------|\r\n| analyze.md          | 供給結構與集中度分析（CR_n, HHI, share） |\r\n| scenario-engine.md  | 政策情境衝擊模擬                         |\r\n| validate-sources.md | 數據來源與口徑驗證                       |\r\n| ingest.md           | 數據擷取與標準化                         |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構模板 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n| config.yaml        | 分析參數配置模板  |\r\n| data-schema.yaml   | 數據 Schema 定義  |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script                   | Purpose                |\r\n|--------------------------|------------------------|\r\n| nickel_pipeline.py       | 核心數據管線           |\r\n| ingest_sources.py        | 數據來源擷取           |\r\n| compute_concentration.py | 集中度指標計算         |\r\n| scenario_impact.py       | 情境衝擊模擬           |\r\n| visualize_concentration.py | 集中度分析視覺化圖表 |\r\n| visualize_scenario.py    | 情境衝擊視覺化圖表     |\r\n</scripts_index>\r\n\r\n<quick_start>\r\n**CLI 快速開始：**\r\n\r\n```bash\r\n# 分析當前全球鎳供給集中度\r\npython scripts/nickel_pipeline.py analyze --asof=2026-01-16 --scope=mined\r\n\r\n# 生成集中度視覺化圖表（輸出到 output/ 目錄，檔名包含日期）\r\npython scripts/visualize_concentration.py\r\n\r\n# 模擬印尼減產 20% 的情境衝擊\r\npython scripts/nickel_pipeline.py scenario --cut=20 --target=Indonesia --exec-prob=0.5\r\n\r\n# 生成情境衝擊視覺化圖表\r\npython scripts/visualize_scenario.py\r\n\r\n# 驗證「印尼 60% 市佔」的數據來源\r\npython scripts/nickel_pipeline.py validate --claim=\"Indonesia 60% share\"\r\n```\r\n\r\n**Library 快速開始：**\r\n\r\n```python\r\nfrom nickel_pipeline import NickelConcentrationAnalyzer\r\n\r\nanalyzer = NickelConcentrationAnalyzer(\r\n    asof_date=\"2026-01-16\",\r\n    scope={\"supply_type\": \"mined\", \"unit\": \"t_Ni_content\"},\r\n    data_level=\"free_nolimit\"\r\n)\r\n\r\n# 計算集中度指標\r\nresult = analyzer.compute_concentration()\r\nprint(f\"Indonesia share: {result['indonesia_share_2024']:.1%}\")\r\nprint(f\"HHI: {result['hhi_2024']:.0f}\")\r\n```\r\n</quick_start>\r\n\r\n<success_criteria>\r\nSkill 成功執行時：\r\n- [ ] 正確識別數據口徑（mined/refined/nickel content）\r\n- [ ] 輸出包含 unit 欄位標註\r\n- [ ] 集中度指標計算正確（share, CR_n, HHI）\r\n- [ ] 情境分析輸出三層結果（hard/half/soft）\r\n- [ ] 數據來源可追溯（source_id, confidence）\r\n- [ ] 單位警告正確觸發（ore vs content）\r\n</success_criteria>\r\n\r\n<input_schema>\r\n**輸入參數定義**\r\n\r\n```yaml\r\n# 必要參數\r\nasof_date: string (ISO)  # 分析基準日\r\nhorizon:\r\n  history_start_year: int\r\n  history_end_year: int\r\n  forecast_end_year: int\r\n\r\n# 範圍參數\r\nscope:\r\n  supply_type: string  # mined | refined | nickel_content (必填)\r\n  product_group: string  # class1 | class2 | NPI | matte | MHP | mixed (選填)\r\n  countries: array[string]  # 預設: Indonesia, Philippines, Russia, Canada, Australia, Other\r\n\r\n# 情境參數 (scenario workflow 專用)\r\npolicy_scenarios:\r\n  - name: string\r\n    target_country: string  # 預設: Indonesia\r\n    policy_variable: string  # ore_quota_RKAB | mine_permit | export_rule | smelter_capacity\r\n    cut_type: string  # pct_global | pct_country | absolute\r\n    cut_value: number\r\n    start_year: int\r\n    end_year: int\r\n    execution_prob: number  # 0-1, 預設 0.5\r\n\r\n# 數據等級\r\ndata_level: string  # free_nolimit | free_limit | paid_low | paid_high\r\n```\r\n</input_schema>\r\n\r\n<data_pipeline_architecture>\r\n**數據流水線架構**\r\n\r\n```\r\n[Data Sources]\r\n     |\r\n     v\r\n+-------------------+\r\n|   ingest_sources  |  --> Tier 0: USGS, INSG\r\n+-------------------+      Tier 1: Company reports\r\n     |                     Tier 2: S&P Global (optional)\r\n     v\r\n+-------------------+\r\n|   normalize       |  --> 統一 schema + 單位標註\r\n+-------------------+      (year, country, supply_type, value, unit, source_id)\r\n     |\r\n     v\r\n+-------------------+\r\n| compute_concentration | --> share, CR_n, HHI\r\n+-------------------+\r\n     |\r\n     v\r\n+-------------------+\r\n|   scenario_impact |  --> expected_cut, global_hit_pct\r\n+-------------------+\r\n     |\r\n     v\r\n+-------------------+\r\n|   generate_output |  --> JSON + Markdown\r\n+-------------------+\r\n     |\r\n     v\r\n[Analysis Result]\r\n```\r\n\r\n**標準化欄位 Schema：**\r\n\r\n| 欄位          | 類型   | 說明                                     |\r\n|---------------|--------|------------------------------------------|\r\n| year          | int    | 年度                                     |\r\n| country       | string | 國家                                     |\r\n| supply_type   | string | mined/refined                            |\r\n| product_group | string | NPI/matte/MHP/class1...                  |\r\n| value         | float  | 數值                                     |\r\n| unit          | string | t_Ni_content / t_ore_wet / t_NPI_product |\r\n| source_id     | string | USGS/INSG/S&P/Company/Other              |\r\n| confidence    | float  | 來源品質評分 (0-1)                       |\r\n</data_pipeline_architecture>",
+    "path": "skills/nickel-concentration-risk-analyzer/SKILL.md",
+    "directoryStructure": "nickel-concentration-risk-analyzer/\n├── examples\n│   ├── analysis_report.md\n│   ├── concentration_analysis.json\n│   └── scenario_result.json\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── concentration-metrics.md\n│   ├── data-sources.md\n│   ├── failure-modes.md\n│   ├── indonesia-supply-structure.md\n│   ├── mine-level-anchors.md\n│   └── unit-conversion.md\n├── scripts\n│   ├── compute_concentration.py\n│   ├── ingest_sources.py\n│   ├── nickel_pipeline.py\n│   ├── scenario_impact.py\n│   ├── visualize_concentration.py\n│   └── visualize_scenario.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── config.yaml\n│   ├── data-schema.yaml\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    ├── ingest.md\n    ├── scenario-engine.md\n    └── validate-sources.md",
+    "lastUpdated": "2026-01-16",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "分析全球鎳供給的國家集中度，特別是印尼的市佔率",
+        "imagePath": "images/nickel-concentration-2026-01-16.png",
+        "expectedResult": "全球鎳供給集中度分析報告\n\n分析日期: 2026-01-16\n數據口徑: Mined nickel content (礦場產量的鎳金屬含量)\n數據來源: USGS Mineral Commodity Summaries, INSG World Nickel Statistics\n\n---\n執行摘要\n\n全球鎳供給呈現極高集中度，印尼已成為絕對主導的供給國。2024年印尼鎳產量達到220萬噸(鎳金屬含量)，佔全球總產量的57.9%，市場集中度指標HHI達到3779，遠超2500的高集中門檻。這種極端集中的供給結構使全球鎳市場面臨顯著的政策風險與供給中斷風險。\n\n---\n關鍵發現\n┌──────────────┬────────────┬──────────────────────────────┐\n│     指標     │ 2024年數值 │             解讀             │\n├──────────────┼────────────┼──────────────────────────────┤\n│ 印尼市佔率   │ 57.9%      │ 單一國家主導全球供給         │\n├──────────────┼────────────┼──────────────────────────────┤\n│ CR1 (最大國) │ 57.9%      │ 極高單國集中度               │\n├──────────────┼────────────┼──────────────────────────────┤\n│ CR3 (前三國) │ 84.2%      │ 前三國控制絕大部分供給       │\n├──────────────┼────────────┼──────────────────────────────┤\n│ CR5 (前五國) │ 93.7%      │ 前五國幾乎壟斷全球產能       │\n├──────────────┼────────────┼──────────────────────────────┤\n│ HHI          │ 3779       │ 高集中 (Highly Concentrated) │\n└──────────────┴────────────┴──────────────────────────────┘\n風險評級: 🔴 極高風險\n\n---\n印尼市佔率時序趨勢 (2015-2024)\n┌──────┬──────────────────┬──────────────────┬────────────┬───────┬──────────┐\n│ 年份 │ 印尼產量 (kt Ni) │ 全球產量 (kt Ni) │ 印尼市佔率 │  HHI  │ 市場結構 │\n├──────┼──────────────────┼──────────────────┼────────────┼───────┼──────────┤\n│ 2015 │ 130              │ 2,566            │ 5.1%       │ 2,279 │ 中等集中 │\n├──────┼──────────────────┼──────────────────┼────────────┼───────┼──────────┤\n│ 2016 │ 170              │ 2,545            │ 6.7%       │ 2,250 │ 中等集中 │\n├──────┼──────────────────┼──────────────────┼────────────┼───────┼──────────┤\n│ 2017 │ 345              │ 2,635            │ 13.1%      │ 2,350 │ 中等集中 │\n├──────┼──────────────────┼──────────────────┼────────────┼───────┼──────────┤\n│ 2018 │ 560              │ 2,690            │ 20.8%      │ 2,194 │ 中等集中 │\n├──────┼──────────────────┼──────────────────┼────────────┼───────┼──────────┤\n│ 2019 │ 800              │ 3,090            │ 25.9%      │ 2,280 │ 中等集中 │\n├──────┼──────────────────┼──────────────────┼────────────┼───────┼──────────┤\n│ 2020 │ 760              │ 2,440            │ 31.1%      │ 1,999 │ 中等集中 │\n├──────┼──────────────────┼──────────────────┼────────────┼───────┼──────────┤\n│ 2021 │ 1,000            │ 2,690            │ 37.2%      │ 2,259 │ 中等集中 │\n├──────┼──────────────────┼──────────────────┼────────────┼───────┼──────────┤\n│ 2022 │ 1,600            │ 3,170            │ 50.5%      │ 3,121 │ 高集中   │\n├──────┼──────────────────┼──────────────────┼────────────┼───────┼──────────┤\n│ 2023 │ 1,900            │ 3,510            │ 54.1%      │ 3,434 │ 高集中   │\n├──────┼──────────────────┼──────────────────┼────────────┼───────┼──────────┤\n│ 2024 │ 2,200            │ 3,800            │ 57.9%      │ 3,779 │ 高集中   │\n└──────┴──────────────────┴──────────────────┴────────────┴───────┴──────────┘\n趨勢觀察:\n- 📈 印尼市佔率10年間增長11倍(5.1% → 57.9%)\n- 🔄 2020年礦石出口禁令實施後,市佔率從31.1%持續攀升\n- 🎯 2022年首次突破50%門檻,市場結構轉變為\"高集中\"\n- ⚡ 2020-2024年間,印尼產量增長189%(0.76 → 2.2 Mt)\n\n---\n國家份額分布 (2024)\n┌──────┬──────────────────┬──────────────┬───────┬──────────┐\n│ 排名 │       國家       │ 產量 (kt Ni) │ 份額  │ 累積份額 │\n├──────┼──────────────────┼──────────────┼───────┼──────────┤\n│ 1    │ 🇮🇩 Indonesia     │ 2,200        │ 57.9% │ 57.9%    │\n├──────┼──────────────────┼──────────────┼───────┼──────────┤\n│ 2    │ 🌍 Other         │ 600          │ 15.8% │ 73.7%    │\n├──────┼──────────────────┼──────────────┼───────┼──────────┤\n│ 3    │ 🇵🇭 Philippines   │ 400          │ 10.5% │ 84.2%    │\n├──────┼──────────────────┼──────────────┼───────┼──────────┤\n│ 4    │ 🇷🇺 Russia        │ 210          │ 5.5%  │ 89.7%    │\n├──────┼──────────────────┼──────────────┼───────┼──────────┤\n│ 5    │ 🇨🇦 Canada        │ 150          │ 3.9%  │ 93.7%    │\n├──────┼──────────────────┼──────────────┼───────┼──────────┤\n│ 6    │ 🇦🇺 Australia     │ 140          │ 3.7%  │ 97.4%    │\n├──────┼──────────────────┼──────────────┼───────┼──────────┤\n│ 7    │ 🇳🇨 New Caledonia │ 100          │ 2.6%  │ 100.0%   │\n├──────┼──────────────────┼──────────────┼───────┼──────────┤\n│ 總計 │                  │ 3,800        │ 100%  │          │\n└──────┴──────────────────┴──────────────┴───────┴──────────┘\n---\n印尼供給結構與成長驅動因素\n\n產品結構 (2024估計):\n- NPI (Nickel Pig Iron): ~70% - 主要用於不鏽鋼生產\n- Matte (鎳鋶): ~15% - Class 1 鎳(PT Vale Indonesia)\n- MHP (Mixed Hydroxide Precipitate): ~10% - 電池級鎳(HPAL工藝)\n- Ferronickel (鐵鎳合金): ~5%\n\n關鍵工業園區:\n- IMIP (Indonesia Morowali Industrial Park) - Central Sulawesi\n  - 全球最大鎳加工園區\n  - 主要產品: NPI, 不鏽鋼\n- IWIP (Indonesia Weda Bay Industrial Park) - North Maluku\n  - Eramet合資\n  - 產品: NPI, HPAL(電池級鎳)\n\n成長驅動因素:\n1. ✅ 2020年礦石出口禁令 → 強制在地加工\n2. ✅ 大規模NPI產能投資(主要來自中國資本)\n3. ✅ HPAL產能擴張(支援電動車電池需求)\n4. ✅ 政府產業政策支持\n\n---\n集中度風險矩陣\n\n根據HHI與CR1的雙重指標,全球鎳市場定位於極高風險區間:\n┌────────────┬────────────┬───────────────┬─────────────┐\n│            │ HHI < 1500 │ HHI 1500-2500 │ HHI > 2500  │\n├────────────┼────────────┼───────────────┼─────────────┤\n│ CR1 < 30%  │ 低風險     │ 中風險        │ 中高風險    │\n├────────────┼────────────┼───────────────┼─────────────┤\n│ CR1 30-50% │ 中風險     │ 中高風險      │ 高風險      │\n├────────────┼────────────┼───────────────┼─────────────┤\n│ CR1 > 50%  │ 中高風險   │ 高風險        │ 🔴 極高風險 │\n└────────────┴────────────┴───────────────┴─────────────┘\n2024鎳市場: CR1 = 57.9%, HHI = 3,779 → 極高風險\n\n---\n政策風險評估\n\nRKAB配額政策:\n- RKAB (Rencana Kerja Anggaran Biaya): 印尼年度礦石開採配額制度\n- 單位: Ore wet tonnes (礦石濕噸) - 非 nickel content\n- 傳聞: 2026年配額可能從2025年的379 Mt降至250 Mt (減少34%)\n\n政策槓桿計算 (假設印尼減產20%):\n- 受影響供給: 2.2 Mt × 20% = 440 kt Ni\n- 全球衝擊: 440 kt / 3.8 Mt = 11.6%\n- 相當於: 42天全球消費量\n- 風險等級: 🔴 極高風險\n\n---\n與S&P Global數據的比對\n\nS&P Global Market Intelligence公開引用數據:\n- 2024年印尼市佔率: 60.2%\n- 本分析計算結果: 57.9%\n- 差異: 2.3個百分點\n\n差異原因:\n1. 數據來源口徑微差(USGS vs S&P的統計範圍)\n2. S&P可能包含更多mine-level細節數據\n3. 估計值的假設差異\n\n結論: 兩個數據來源高度一致,均確認印尼已主導全球鎳供給\n\n---\n數據來源\n┌───────────────────────────────────────────┬──────┬────────┬──────────────────────┐\n│                   來源                    │ Tier │ 置信度 │         說明         │\n├───────────────────────────────────────────┼──────┼────────┼──────────────────────┤\n│ USGS Mineral Commodity Summaries (Nickel) │ 0    │ 0.95   │ 免費、穩定、口徑一致 │\n├───────────────────────────────────────────┼──────┼────────┼──────────────────────┤\n│ INSG World Nickel Statistics              │ 0    │ 0.90   │ 全球權威鎳業統計機構 │\n├───────────────────────────────────────────┼──────┼────────┼──────────────────────┤\n│ S&P Global Market Intelligence            │ 2    │ 0.90   │ 交叉驗證用(付費數據) │\n└───────────────────────────────────────────┴──────┴────────┴──────────────────────┘\n---\n口徑說明\n\n⚠️ 重要提醒:\n\n本分析使用 mined nickel content (礦場產量的鎳金屬含量) 口徑:\n- ✅ 鎳金屬含量 (metric tons Ni)\n- ❌ 非 ore wet tonnes (礦石濕噸)\n- ❌ 非 refined production (精煉產量)\n- ❌ 非 NPI product tonnes (NPI產品噸)\n\n單位轉換警示:\n- Ore wet tonnes → Ni content: 需考慮品位(~1.5%)和水分(~30%)\n- NPI product tonnes → Ni content: 需乘以 Ni% (約12-15%)\n- Matte tonnes → Ni content: 需乘以 Ni% (約75%)\n\n---\n結論與建議\n\n核心發現:\n1. 🎯 印尼已成為全球鎳供給的絕對主導者(57.9%市佔率)\n2. 📊 市場集中度極高(HHI = 3,779),遠超反壟斷警戒線\n3. ⚡ 集中度仍在持續上升中(2023: 54.1% → 2024: 57.9%)\n4. 🔴 單一國家政策變動可造成全球供給顯著衝擊\n\n風險提示:\n- 政策風險: RKAB配額、出口規則、環境法規變動\n- 地緣政治風險: 單一國家主導帶來的供給脆弱性\n- 基礎設施風險: 電力供應、物流瓶頸\n- ESG風險: 碳足跡、海洋排放爭議(歐盟CBAM)\n\n建議:\n1. 📡 密切監控印尼政策動態(RKAB配額、出口規則)\n2. 🔍 追蹤替代供給來源開發(菲律賓、澳洲、加拿大)\n3. 💼 考慮供給鏈多元化策略\n4. 📊 定期更新集中度指標監控\n\n所有圖表已保存在 output/ 目錄，檔名包含日期 20260116：\n┌─────┬─────────────────────┬───────────────────────────────────────────┬────────┐\n│  #  │        圖表         │                   檔名                    │  大小  │\n├─────┼─────────────────────┼───────────────────────────────────────────┼────────┤\n│ 1   │ 印尼市佔率與HHI趨勢 │ nickel_indonesia_share_trend_20260116.png │ 281 KB │\n├─────┼─────────────────────┼───────────────────────────────────────────┼────────┤\n│ 2   │ 國家份額餅圖        │ nickel_country_share_pie_20260116.png     │ 275 KB │\n├─────┼─────────────────────┼───────────────────────────────────────────┼────────┤\n│ 3   │ 集中度指標演進      │ nickel_concentration_metrics_20260116.png │ 206 KB │\n├─────┼─────────────────────┼───────────────────────────────────────────┼────────┤\n│ 4   │ 產量對比堆疊圖      │ nickel_production_volume_20260116.png     │ 182 KB │\n└─────┴─────────────────────┴───────────────────────────────────────────┴────────┘\n"
+      },
+      {
+        "question": "如果印尼減產 20%，對全球供給會有什麼衝擊？",
+        "imagePath": "images/nickel-scenario-2026-01-16.png",
+        "expectedResult": "📊 印尼減產20%情境衝擊分析總結\n\n我為您生成了完整的情境報告和3張視覺化圖表。以下是關鍵發現：\n\n---\n🎯 三層情境分析結果\n┌──────────┬────────┬────────┬──────────┬──────────┬─────────────┐\n│   情境   │ 執行率 │ 減產量 │ 全球衝擊 │ 消費天數 │  風險等級   │\n├──────────┼────────┼────────┼──────────┼──────────┼─────────────┤\n│ 完全執行 │ 100%   │ 456 kt │ 12.1%    │ 44天     │ 🔴 極高風險 │\n├──────────┼────────┼────────┼──────────┼──────────┼─────────────┤\n│ 半成功   │ 50%    │ 228 kt │ 6.0%     │ 22天     │ 🟡 高風險   │\n├──────────┼────────┼────────┼──────────┼──────────┼─────────────┤\n│ 軟著陸   │ 25%    │ 114 kt │ 3.0%     │ 11天     │ 🟢 中等風險 │\n└──────────┴────────┴────────┴──────────┴──────────┴─────────────┘\n---\n🔴 最可能情境：半成功（50%執行）\n\n預期衝擊：\n- 減產量：228,000 噸鎳（相當於加拿大+澳洲總產量）\n- 全球供給缺口：6.0%\n- 相當於：22天全球消費量\n- 價格影響：預期LME鎳價上漲 20-40%\n\n為什麼是50%？\n1. 政治阻力：完全執行會嚴重衝擊印尼經濟\n2. 經濟考量：鎳產業是印尼重要外匯來源\n3. 歷史經驗：類似政策通常部分執行\n4. 豁免機制：大型園區可能獲得配額優待\n\n---\n⚠️ 關鍵警示：單位陷阱\n\n重要提醒：RKAB配額通常以「礦石濕噸」計算，非「鎳金屬含量」！\n\n實際風險可能更大：\n傳聞：2026年RKAB配額 250 Mt ore vs 2025年 379 Mt ore\n減少：-129 Mt ore (-34%)\n\n轉換為鎳金屬含量（假設1.5%品位）：\n實際減產 ≈ 1,350 kt Ni\n全球衝擊 ≈ 35.7% 🚨🚨🚨\n\n結論：若RKAB配額真的大幅削減，實際衝擊將是本分析的 3倍 以上！\n\n---\n📈 已生成的圖表\n\n位置：output/ 目錄\n\n1. ✅ 情境衝擊對比圖 (nickel_scenario_impact_20260116.png)\n  - 雙柱狀圖：減產量 vs 全球衝擊%\n  - 清晰展示三種情境的差異\n2. ✅ 敏感度分析圖 (nickel_scenario_sensitivity_20260116.png)\n  - 執行率 vs 全球衝擊曲線\n  - 標記關鍵閾值（40%進入高風險，80%進入極高風險）\n  - 風險區域著色\n3. ✅ 庫存時間線圖 (nickel_scenario_timeline_20260116.png)\n  - 示意不同情境下的庫存消耗速度\n  - 完全執行情境：13個月庫存耗盡\n\n---\n💡 核心發現\n\n1. 高槓桿效應：印尼單國20%減產 → 全球6-12%供給衝擊\n2. 缺乏緩衝：全球其他國家短期內無法補充這個缺口\n3. 價格敏感：供給衝擊將直接引發價格劇烈波動\n4. 連鎖反應：\n  - 下游產業（不銹鋼、電池）原料成本飆升\n  - 投機性囤貨加劇供給緊張\n  - 替代供給至少需要12-18個月才能釋放\n\n---\n🛡️ 對沖建議\n\n立即行動：\n1. 📡 建立印尼RKAB配額監控機制\n2. 📦 增加戰略庫存至3-6個月消費量\n3. 🤝 與菲律賓、加拿大、澳洲供應商簽訂框架協議\n\n金融對沖：\n4. 💰 LME鎳期貨買入套保\n5. 📈 期權組合策略（買入看漲期權）\n6. 🏦 鎖定長期供應合約價格\n\n供應鏈：\n7. 🔄 供應鏈多元化（降低對印尼依賴）\n8. ♻️ 提高回收鎳比例\n9. 🔬 研發低鎳/無鎳替代材料\n\n---\n📄 完整報告\n\n已生成詳細報告：\noutput/Indonesia_20pct_Cut_Scenario_Analysis_20260116.md        \n"
+      },
+      {
+        "question": "驗證「印尼控制 60-70% 鎳供給」這個說法",
+        "expectedResult": "驗證結果總結：「印尼控制 60-70% 鎳供給」\n\n---\n🎯 快速判定\n┌───────────────────────┬─────────┬──────────────────┐\n│         說法          │  判定   │     實際數值     │\n├───────────────────────┼─────────┼──────────────────┤\n│ \"印尼控制 60% 鎳供給\" │ ✅ 正確 │ 57.9% - 60.2%    │\n├───────────────────────┼─────────┼──────────────────┤\n│ \"印尼控制 70% 鎳供給\" │ ⚠️ 偏高 │ 高估約10個百分點 │\n└───────────────────────┴─────────┴──────────────────┘\n綜合判定: ⚠️ 部分正確 - \"60%\" 準確，\"70%\" 偏高\n\n---\n📊 交叉驗證結果\n\n數據來源對比：\n┌────────────┬────────────┬──────────┬──────────┬──────┬───────────┐\n│    來源    │ 2024市佔率 │ 印尼產量 │ 全球產量 │ Tier │  置信度   │\n├────────────┼────────────┼──────────┼──────────┼──────┼───────────┤\n│ USGS       │ 57.9%      │ 2,200 kt │ 3,800 kt │ 0    │ 0.90-0.95 │\n├────────────┼────────────┼──────────┼──────────┼──────┼───────────┤\n│ S&P Global │ 60.2%      │ 2,280 kt │ 3,787 kt │ 2    │ 0.90      │\n├────────────┼────────────┼──────────┼──────────┼──────┼───────────┤\n│ 平均值     │ ~59%       │ 2,240 kt │ 3,794 kt │ -    │ -         │\n└────────────┴────────────┴──────────┴──────────┴──────┴───────────┘\n結論：\n- ✅ 兩個獨立權威來源高度一致\n- ✅ 差異僅2.3個百分點（誤差範圍內）\n- ✅ 數據口徑統一：mined nickel content\n\n---\n⚠️ \"70%\" 說法可能來源\n\n可能產生誇大的3種情境：\n\n1️⃣ 混淆 NPI 產品\n\n- 印尼 NPI（鎳鐵）產量佔全球 70-80% ✅\n- 但 NPI ≠ 全部鎳供給（只是不鏽鋼用鎳）\n- 正確說法：\"印尼控制全球70-80%的NPI供給\"\n\n2️⃣ 混淆礦石噸數與鎳含量\n\n- RKAB配額新聞常用「礦石濕噸」\n- 數量級大70-100倍，易混淆\n- 陷阱：150 Mt ore ≠ 150 Mt Ni\n\n3️⃣ 混淆增量與存量\n\n- 2022-2024年新增產量中，印尼貢獻70%+\n- 陷阱：增量佔比 ≠ 總量佔比\n\n---\n📈 歷史趨勢證明\n\n印尼市佔率演進：\n\n2015:  5.1%  ▁\n2016:  6.7%  ▁\n2017: 13.1%  ▂\n2018: 20.8%  ▃\n2019: 25.9%  ▄\n2020: 31.1%  ▅  ← 礦石出口禁令\n2021: 37.2%  ▆\n2022: 50.5%  ▇  ← 首次突破50%\n2023: 54.1%  ▇\n2024: 57.9%  █  ← 接近60%\n\n關鍵發現：\n- 📊 10年增長 11.3倍\n- 🚀 2020年後加速增長\n- 📈 趨勢仍在上升中\n- 🎯 2025-2026可能突破65%\n\n---\n✅ 推薦正確表述\n\n最精確版本\n\n\"根據USGS和S&P Global數據，2024年印尼鎳產量（鎳金屬含量）佔全球 約60%（57.9%-60.2%），為全球最大單一供給國。\"\n\n簡潔版本\n\n\"印尼控制全球鎳供給的 約六成\"\n\n動態版本\n\n\"印尼市佔率從2020年的31%快速增長至2024年的 接近60%\"\n\n---\n❌ 避免使用\n\n- ❌ \"印尼壟斷了70%的全球鎳供給\"（高估）\n- ❌ \"印尼控制大部分鎳\"（不精確）\n- ❌ \"印尼控制60-70%\"（區間過寬）\n\n---\n🔍 數據口徑極其重要！\n\n同一個印尼，不同口徑差異巨大：\n┌──────────────────────┬────────────┬─────────────────────┐\n│         口徑         │ 印尼市佔率 │        說明         │\n├──────────────────────┼────────────┼─────────────────────┤\n│ Mined Ni content     │ ~60%       │ ✅ 標準口徑         │\n├──────────────────────┼────────────┼─────────────────────┤\n│ NPI product          │ ~70-80%    │ ⚠️ 只包含不鏽鋼用鎳 │\n├──────────────────────┼────────────┼─────────────────────┤\n│ Refined Ni (Class 1) │ ~15-20%    │ ⚠️ 低估印尼影響     │\n├──────────────────────┼────────────┼─────────────────────┤\n│ Ore wet tonnes       │ ~60%       │ ⚠️ 數量級放大70倍   │\n└──────────────────────┴────────────┴─────────────────────┘\n結論：必須明確說明是 \"mined nickel content\" 口徑！\n\n---\n📌 關鍵要點\n\n1. 60% 正確 ✅\n  - 與USGS（57.9%）和S&P（60.2%）數據吻合\n  - 口徑：mined nickel content\n2. 70% 偏高 ⚠️\n  - 高估約10個百分點\n  - 可能來自NPI產品口徑或未來預測\n3. 趨勢上升 📈\n  - 2024年已達60%\n  - 可能在2026-2027年接近65%\n  - 長期可能達到70%（但目前未達）\n4. 極端風險 🔴\n  - 60%已屬極高集中度\n  - 遠超反壟斷警戒線（40%）\n  - 單一國家政策可撬動全球供給\n\n---\n📄 完整驗證報告\n\n已生成詳細報告：\noutput/Indonesia_Market_Share_Validation_20260116.md\n\n內容包括：\n- ✅ 多來源交叉驗證\n- ✅ 歷史趨勢分析\n- ✅ 口徑陷阱檢查\n- ✅ 推薦/避免表述\n- ✅ 驗證方法論\n\n---\n最終結論：市場常說的 \"印尼控制60-70%鎳供給\" 中，\"60%\"是準確的，\"70%\"則是高估。正確表述應該是：\"印尼控制約60%的全球鎳供給（mined nickel content）\"。✅\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 70,
+      "badge": "白銀",
+      "metrics": {
+        "architecture": 80,
+        "maintainability": 75,
+        "content": 85,
+        "community": 20,
+        "security": 80,
+        "compliance": 75
+      },
+      "details": "**架構（80/100）**\n- Router pattern 正確分離職責\n- 多層數據來源設計完善\n\n**可維護性（75/100）**\n- 單位轉換邏輯需長期維護\n- 資料來源可能變動\n\n**內容（85/100）**\n- 完整的集中度指標定義\n- 清晰的數據口徑說明\n\n**社群（20/100）**\n- 新建技能，尚無社群回饋\n\n**安全（80/100）**\n- 無敏感資料處理\n- 外部 URL 需適當處理\n\n**合規（75/100）**\n- 需注意付費數據源授權\n"
+    },
+    "bestPractices": [
+      {
+        "title": "口徑先行",
+        "description": "分析前務必先確認數據口徑（mined/refined/nickel content），避免將 ore wet tonnes 與鎳金屬含量混淆"
+      },
+      {
+        "title": "數據分層",
+        "description": "優先使用 Tier 0 免費數據源（USGS/INSG）建立 baseline，付費數據用於精度驗證"
+      },
+      {
+        "title": "情境分析三層",
+        "description": "政策情境分析輸出 Hard cut / Half success / Soft landing 三層，避免過度樂觀或悲觀"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "單位混淆",
+        "description": "ore wet tonnes（濕噸）與 nickel content（鎳含量）混用",
+        "consequence": "可能導致 10x 以上的數量級錯誤"
+      },
+      {
+        "title": "口徑不一致",
+        "description": "mined production 與 refined production 混合比較",
+        "consequence": "集中度計算完全失真"
+      },
+      {
+        "title": "過度依賴單一來源",
+        "description": "只看 S&P 或只看社群貼文數字",
+        "consequence": "無法驗證數據可靠度"
+      }
+    ],
+    "faq": [
+      {
+        "question": "為什麼印尼市佔有 60% 和 70% 兩種說法？",
+        "answer": "這通常是口徑差異：\n- 60.2%（S&P Global）: mined nickel content\n- 更高數字可能來自 ore production（濕噸）\n- 本 Skill 會強制標註口徑來源\n"
+      },
+      {
+        "question": "如何確認數據可靠度？",
+        "answer": "使用 validate-sources workflow：\n1. 交叉比對 USGS + INSG + S&P\n2. 檢查時間口徑（同一年度）\n3. 檢查單位口徑（同為 Ni content）\n4. 輸出 confidence score\n"
+      },
+      {
+        "question": "mine-level 數據從哪裡取得？",
+        "answer": "Tier 1 來源（免費但分散）：\n- Weda Bay Nickel 官網\n- Nickel Industries 年報\n- PT Vale Indonesia 財報\n- Eramet 股東報告\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 設計背景\n\n此技能源於對「印尼控制全球 60-70% 鎳供給」這類說法的驗證需求。\n市場上充斥著各種數字，但很少有人驗證口徑是否一致。\n\n## 關鍵洞察\n\n1. **口徑決定一切**: ore wet tonnes vs nickel content 可差 10x\n2. **政策不需完美執行**: 半成功也可能造成重大衝擊\n3. **集中度有上限**: HHI 和 CR5 的理論意義與實務解讀\n"
+    },
+    "methodology": "### 1. 供給集中度（Concentration）= 控制力的上限\r\n當某國家佔全球供給 **X%**，任何「對該國供給的變化」都能近似映射到全球供給衝擊：\r\n\r\n- **全球供給衝擊比例 ≈ X% × 該國供給變動比例**\r\n\r\n換句話說，若印尼佔全球鎳供給約 **60%**，印尼國內供給只要變動 **10%**，全球供給理論衝擊就可能達到 **~6%**（同口徑下）。\r\n\r\n> 這是「供給槓桿」的第一層：**國家份額越大，政策/供應變動的全球傳導越直接**。\r\n\r\n### 2. 「少數資產」可控性（Top mines / Industrial parks）= 槓桿的開關\r\n即使一國份額很高，真正能快速施力的常常不是「全國每個礦」，而是：\r\n\r\n- 產量極大、集中於少數礦山/園區\r\n- 許可與配額制度能鎖住上游（礦）或下游（冶煉/轉化）的擴張\r\n- 物流、環評、用電、港口等基礎設施形成瓶頸\r\n\r\n因此，分析上要做第二層拆解：\r\n\r\n- **Top N mines / Top N industrial parks 佔全球供給多少？**\r\n- 如果只「拴緊」這些關鍵節點，就可能快速造成可觀的供給缺口\r\n\r\n> 這是「供給槓桿」的第二層：**槓桿不只來自份額，也來自供給是否集中在少數可被管理的節點**。\r\n\r\n### 3. 市場定價（Consensus / Positioning）= 非對稱的來源\r\n供給槓桿不一定立刻導致行情，真正會引爆「非對稱」的是：\r\n\r\n- 市場長期看空、共識極度悲觀\r\n- 價格把「最壞情境」當成常態\r\n- 此時只要供給端出現「比預期少一點的利空」或「半成功的減產」，就可能造成**向上急拉**（short covering + re-pricing）\r\n\r\n> 這是「供給槓桿」的第三層：**供給衝擊 × 市場已定價程度 = 非對稱走勢的觸發條件**。\r\n\r\n用同一套工具，你也可以把它平移到其他商品（如鈀金、油、鋰、銅）去比較「誰才是真的單點槓桿」。",
+    "downloadUrl": "downloads/nickel-concentration-risk-analyzer-0.1.1.zip"
   },
   {
     "id": "google-trends-ath-detector",
