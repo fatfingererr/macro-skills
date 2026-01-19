@@ -581,241 +581,6 @@
     "downloadUrl": "downloads/nickel-concentration-risk-analyzer-0.1.1.zip"
   },
   {
-    "id": "us-cpi-pce-comparator",
-    "name": "us-cpi-pce-comparator",
-    "displayName": "美國 CPI/PCE 通膨比較",
-    "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
-    "emoji": "📊",
-    "version": "0.1.0",
-    "license": "MIT",
-    "author": "Ricky Wang",
-    "authorUrl": "https://github.com/fatfingererr/macro-skills",
-    "tags": [
-      "CPI",
-      "PCE",
-      "通膨",
-      "Fed",
-      "權重差異",
-      "FRED",
-      "BLS",
-      "風險訊號",
-      "宏觀經濟"
-    ],
-    "category": "inflation-analytics",
-    "dataLevel": "free-nolimit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": false,
-    "installCount": 0,
-    "content": "<essential_principles>\r\n\r\n<principle name=\"weight_difference\">\r\n**CPI vs PCE 權重差異是核心**\r\n\r\n- **CPI（固定權重）**: BLS Relative Importance，每年或每兩年更新，反映「固定籃子」\r\n- **PCE（動態/鏈結權重）**: BEA 名目支出占比，每月隨實際消費行為調整\r\n\r\n關鍵洞見：當消費者把錢花在「價格較不波動」的品項時，若這些品項的通膨走高，PCE 會比 CPI 更敏感地反映這個上行壓力。\r\n</principle>\r\n\r\n<principle name=\"volatility_matters\">\r\n**低波動 + 高權重 = PCE 上行風險訊號**\r\n\r\n識別邏輯：\r\n1. 找出 PCE 權重較高的消費桶（consumer spending buckets）\r\n2. 在這些桶中，篩選價格波動度較低者\r\n3. 若這些桶的通膨近期轉正或加速，標記為 PCE upside risk\r\n</principle>\r\n\r\n<principle name=\"scope_difference\">\r\n**CPI 與 PCE 的範圍差異**\r\n\r\nPCE 涵蓋項目比 CPI 更廣：\r\n- 第三方支付的醫療費用（employer-paid healthcare）\r\n- 非營利機構對家庭的服務\r\n- 某些金融服務的隱含費用\r\n\r\n這些 scope 差異也會造成 CPI/PCE 分歧。詳見 `references/cpi-pce-methodology.md`。\r\n</principle>\r\n\r\n<principle name=\"data_access\">\r\n**資料取得方式**\r\n\r\n本 skill 使用**無需 API key** 的資料來源：\r\n- **FRED CSV**: `https://fred.stlouisfed.org/graph/fredgraph.csv?id={SERIES_ID}`\r\n- **BLS Public API**: `https://api.bls.gov/publicAPI/v2/timeseries/data/`\r\n\r\n腳本位於 `scripts/` 目錄，可直接執行。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n比較 CPI 與 PCE 通膨訊號的分歧，並識別「低波動、高 PCE 權重」的消費桶是否正在推升 Fed 關注的 PCE 通膨路徑。\r\n\r\n輸出三層訊號：\r\n1. **Headline level**: CPI vs PCE divergence（bps）\r\n2. **Attribution**: 哪些 buckets 在推升 PCE（weighted contribution）\r\n3. **Risk framing**: 觀察點與延續性風險評估\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：執行快速檢查**\r\n\r\n```bash\r\ncd skills/us-cpi-pce-comparator\r\npip install pandas numpy requests  # 首次使用\r\npython scripts/cpi_pce_analyzer.py --quick\r\n```\r\n\r\n輸出範例：\r\n```json\r\n{\r\n  \"headline\": {\"cpi_yoy\": 2.65, \"pce_yoy\": 2.79, \"gap_bps\": 14},\r\n  \"core\": {\"cpi_core_yoy\": 2.65, \"pce_core_yoy\": 2.83, \"gap_bps\": 18},\r\n  \"momentum\": {\"cpi_3m_saar\": 2.07, \"pce_3m_saar\": 2.82}\r\n}\r\n```\r\n\r\n**完整分析**：\r\n```bash\r\npython scripts/cpi_pce_analyzer.py --start 2020-01-01 --measure yoy\r\n```\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼分析？\r\n\r\n1. **快速檢查** - 查看最新的 CPI/PCE 分歧數據\r\n2. **完整分析** - 執行完整的三步驟分析工作流\r\n3. **方法論學習** - 了解 CPI/PCE 差異的深層原因\r\n\r\n**請選擇或直接提供分析參數。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                     | Action                                            |\r\n|------------------------------|---------------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"check\"  | 執行 `python scripts/cpi_pce_analyzer.py --quick` |\r\n| 2, \"完整\", \"full\", \"analyze\" | 閱讀 `workflows/analyze.md` 並執行                |\r\n| 3, \"學習\", \"方法論\", \"why\"   | 閱讀 `references/cpi-pce-methodology.md`          |\r\n| 提供參數 (如日期範圍)        | 閱讀 `workflows/analyze.md` 並使用參數執行        |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\nus-cpi-pce-comparator/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── workflows/\r\n│   ├── analyze.md                     # 完整分析工作流\r\n│   └── quick-check.md                 # 快速檢查工作流\r\n├── references/\r\n│   ├── data-sources.md                # FRED/BLS 系列代碼與資料來源\r\n│   ├── cpi-pce-methodology.md         # CPI/PCE 方法論深度解析\r\n│   └── implementation.md              # 計算公式與程式碼範例\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n└── scripts/\r\n    ├── fetch_fred_data.py             # FRED 資料抓取（無需 API key）\r\n    ├── fetch_bls_data.py              # BLS 資料抓取\r\n    └── cpi_pce_analyzer.py            # 主分析腳本\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**方法論**: references/cpi-pce-methodology.md\r\n- CPI vs PCE 的五大差異（權重、範圍、公式、住房、人口）\r\n- 分歧模式與交易含義\r\n- Fed 如何解讀兩指標\r\n\r\n**資料來源**: references/data-sources.md\r\n- FRED CSV endpoint（無需 API key）\r\n- FRED 系列代碼對照表\r\n- 桶位定義與近似計算\r\n\r\n**實作指南**: references/implementation.md\r\n- 通膨計算公式（YoY, MoM SAAR, QoQ SAAR）\r\n- 權重效應計算\r\n- 波動度分析\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow       | Purpose        | 使用時機           |\r\n|----------------|----------------|--------------------|\r\n| analyze.md     | 完整三步驟分析 | 需要深度分析時     |\r\n| quick-check.md | 快速檢查分歧   | 日常監控或快速回答 |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構定義 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script              | Command                      | Purpose           |\r\n|---------------------|------------------------------|-------------------|\r\n| cpi_pce_analyzer.py | `--quick`                    | 快速檢查最新分歧  |\r\n| cpi_pce_analyzer.py | `--start DATE --measure yoy` | 完整分析          |\r\n| fetch_fred_data.py  | `--series CPIAUCSL,PCEPI`    | 抓取 FRED 資料    |\r\n| fetch_bls_data.py   | `--full`                     | 抓取 BLS CPI 資料 |\r\n</scripts_index>\r\n\r\n<input_schema>\r\n\r\n<parameter name=\"start_date\" required=\"true\">\r\n**Type**: string (ISO YYYY-MM-DD)\r\n**Description**: 分析起始日\r\n</parameter>\r\n\r\n<parameter name=\"end_date\" required=\"false\" default=\"today\">\r\n**Type**: string (ISO YYYY-MM-DD)\r\n**Description**: 分析結束日\r\n</parameter>\r\n\r\n<parameter name=\"measure\" required=\"false\" default=\"yoy\">\r\n**Type**: string\r\n**Options**: `yoy` | `mom_saar` | `qoq_saar`\r\n</parameter>\r\n\r\n<parameter name=\"baseline\" required=\"false\">\r\n**Type**: string\r\n**Format**: `YYYY-MM-DD:YYYY-MM-DD`\r\n**Description**: 基準期範圍，用於計算偏離度\r\n</parameter>\r\n\r\n</input_schema>\r\n\r\n<output_schema>\r\n參見 `templates/output-json.md` 的完整結構定義。\r\n\r\n**摘要**：\r\n```json\r\n{\r\n  \"headline\": {\"cpi_yoy\": 2.65, \"pce_yoy\": 2.79, \"gap_bps\": 14},\r\n  \"low_vol_high_weight_buckets\": [{\"bucket\": \"...\", \"signal\": \"upside\"}],\r\n  \"attribution\": {\"top_contributors\": [...], \"weight_effect_bps\": 12},\r\n  \"interpretation\": [\"...\"],\r\n  \"caveats\": [\"...\"]\r\n}\r\n```\r\n</output_schema>\r\n\r\n<success_criteria>\r\n分析成功時應產出：\r\n\r\n- [ ] Headline level 的 CPI/PCE 分歧數值（bps）\r\n- [ ] 識別出低波動、高 PCE 權重的桶位\r\n- [ ] 各桶位的加權通膨貢獻（attribution）\r\n- [ ] 若有 baseline，產出「less baseline」偏離度\r\n- [ ] 可操作的解讀與風險提示\r\n- [ ] 明確標註資料限制與近似處理\r\n</success_criteria>",
-    "path": "skills/us-cpi-pce-comparator/SKILL.md",
-    "directoryStructure": "us-cpi-pce-comparator/\n├── manifest.json\n├── references\n│   ├── cpi-pce-methodology.md\n│   ├── data-sources.md\n│   └── implementation.md\n├── scripts\n│   ├── cpi_pce_analyzer.py\n│   ├── fetch_bls_data.py\n│   ├── fetch_fred_data.py\n│   └── __pycache__\n│       ├── fetch_bls_data.cpython-312.pyc\n│       └── fetch_fred_data.cpython-312.pyc\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    └── quick-check.md",
-    "lastUpdated": "2026-01-15",
-    "rating": 3,
-    "testQuestions": [
-      {
-        "question": "分析當前 CPI 與 PCE 的分歧情況",
-        "expectedResult": "此分析器會：\n1. 從 FRED 抓取最新 CPI 和 PCE 數據\n2. 計算 headline 層級的 YoY 分歧（bps）\n3. 識別低波動高權重桶位的風險訊號\n4. 輸出結構化 JSON 結果\n"
-      },
-      {
-        "question": "為什麼 PCE 比 CPI 更高？Fed 關注哪個指標？",
-        "expectedResult": "解釋 CPI/PCE 五大差異：\n- 權重方法（固定 vs 動態）\n- 涵蓋範圍（PCE 更廣）\n- 公式差異\n- 住房計算\n- 人口覆蓋\n"
-      }
-    ],
-    "qualityScore": {
-      "overall": 75,
-      "badge": "白銀",
-      "metrics": {
-        "architecture": 80,
-        "maintainability": 80,
-        "content": 85,
-        "community": 20,
-        "security": 95,
-        "compliance": 85
-      },
-      "details": "**架構（80/100）**\n- 清晰的三層訊號架構\n- 模組化腳本設計\n- 無需 API key 的數據獲取\n\n**可維護性（80/100）**\n- 工作流程分離清晰\n- 參數定義完整\n- 多數據源支援\n\n**內容（85/100）**\n- 完整的方法論文檔\n- CPI/PCE 差異深度解析\n- 實用的 CLI 工具\n\n**社區（20/100）**\n- 新技能，尚無社區貢獻\n\n**安全（95/100）**\n- 僅讀取公開經濟數據\n- 無需 API key\n\n**規範符合性（85/100）**\n- 遵循 Claude Code 規範\n- 完整的文件結構\n"
-    },
-    "bestPractices": [
-      {
-        "title": "關注 Core 而非 Headline",
-        "description": "Core CPI/PCE 排除食品與能源，更能反映趨勢性通膨"
-      },
-      {
-        "title": "使用 3M SAAR 觀察動量",
-        "description": "YoY 有滯後性，3 個月 SAAR 更能捕捉拐點"
-      },
-      {
-        "title": "理解權重效應",
-        "description": "PCE 動態權重會自動降低高通膨項目的權重（替代效應）"
-      },
-      {
-        "title": "結合兩個指標",
-        "description": "CPI 反映消費者體感，PCE 是 Fed 目標，兩者都重要"
-      }
-    ],
-    "pitfalls": [
-      {
-        "title": "只看 Headline",
-        "description": "Headline 受能源價格波動影響大",
-        "consequence": "錯過核心通膨趨勢"
-      },
-      {
-        "title": "忽略權重差異",
-        "description": "CPI/PCE 在醫療、住房等項目權重差異顯著",
-        "consequence": "無法解釋分歧來源"
-      },
-      {
-        "title": "過度解讀單月數據",
-        "description": "月度數據波動大，容易被噪音誤導",
-        "consequence": "錯誤判斷通膨趨勢"
-      }
-    ],
-    "faq": [
-      {
-        "question": "Fed 主要看哪個通膨指標？",
-        "answer": "Fed 的 2% 目標是針對 **Core PCE YoY**。\n但 Fed 也關注 CPI，因為它是市場預期的錨定點。\n"
-      },
-      {
-        "question": "為什麼 PCE 通常比 CPI 低？",
-        "answer": "主要原因：\n1. PCE 動態權重會因替代效應自動降低高通膨項目權重\n2. PCE 包含第三方支付的醫療，這部分通膨通常較溫和\n3. PCE 住房權重較低（約 15% vs CPI 約 33%）\n"
-      },
-      {
-        "question": "如何判斷 PCE 是否在 re-accelerate？",
-        "answer": "觀察指標：\n1. 3M SAAR 是否高於 YoY\n2. 低波動高權重桶位是否出現加速\n3. Core Services ex-Housing 是否持續偏高\n"
-      }
-    ],
-    "about": {
-      "repository": "https://github.com/fatfingererr/macro-skills",
-      "branch": "main",
-      "additionalInfo": "## 數據來源\n\n**FRED（免費，無需 API key）**\n- CPI: CPIAUCSL, CPILFESL\n- PCE: PCEPI, PCEPILFE\n- 使用 CSV endpoint 直接下載\n\n**BLS Public API**\n- 詳細 CPI 分項數據\n- 權重與相對重要性\n"
-    },
-    "downloadUrl": "downloads/us-cpi-pce-comparator-0.1.0.zip"
-  },
-  {
-    "id": "usd-reserve-loss-gold-revaluation",
-    "name": "usd-reserve-loss-gold-revaluation",
-    "displayName": "美元失去儲備地位下金價重估",
-    "description": "在「美元／某貨幣失去儲備地位、黃金成為唯一錨」的假設下，用央行貨幣負債 ÷ 黃金儲備，推演「資產負債表可承受的隱含金價」，並輸出各國/各貨幣的槓桿程度、缺口與排名",
-    "emoji": "🥇",
-    "version": "0.1.0",
-    "license": "MIT",
-    "author": "Ricky Wang",
-    "authorUrl": "https://github.com/fatfingererr/macro-skills",
-    "tags": [
-      "黃金",
-      "央行",
-      "儲備貨幣",
-      "美元",
-      "M0",
-      "M2",
-      "資產負債表",
-      "壓力測試",
-      "外匯",
-      "去美元化"
-    ],
-    "category": "fx-factors",
-    "dataLevel": "free-limit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": false,
-    "installCount": 0,
-    "content": "<essential_principles>\r\n\r\n<principle name=\"gold_anchor_hypothesis\">\r\n**黃金錨定假說**\r\n\r\n本模型基於極端情境假設：若法定貨幣體系瓦解、黃金成為唯一錨定資產，則：\r\n- **隱含金價** = 貨幣負債 ÷ 黃金儲備\r\n- 這不是「預測」，而是「壓力測試」：資產負債表要撐得住需要多高的金價\r\n\r\n典型論述來源：VanEck「$39k gold」分析（M0 + FX turnover 加權）\r\n</principle>\r\n\r\n<principle name=\"two_aggregates\">\r\n**兩種貨幣口徑差異**\r\n\r\n| 口徑 | 定義 | 隱含金價 | 解讀 |\r\n|------|------|----------|------|\r\n| M0 (Monetary Base) | 央行直接負債（通貨 + 準備金） | ~$39k | 央行資產負債表壓力 |\r\n| M2 (Broad Money) | 含銀行體系信用擴張 | ~$184k | 全體信用體系壓力 |\r\n\r\n**關鍵洞察**：兩者差距反映「信用乘數」的槓桿效應。\r\n</principle>\r\n\r\n<principle name=\"weighting_logic\">\r\n**加權方法的直覺**\r\n\r\n| 方法 | 數據來源 | 直覺 |\r\n|------|----------|------|\r\n| fx_turnover | BIS 三年調查 | 外匯交易份額 ≈ 國際結算/儲備使用強度 |\r\n| reserve_share | IMF COFER | 官方外匯儲備幣別佔比 |\r\n| equal | - | 不考慮貨幣重要性差異 |\r\n| custom | 用戶自訂 | 可配合特定情境分析 |\r\n\r\n加權的直覺：份額越高的貨幣，在「重新錨定」時需吸收的負債壓力越大。\r\n</principle>\r\n\r\n<principle name=\"backing_ratio\">\r\n**黃金支撐率 (Backing Ratio)**\r\n\r\n```\r\nbacking_ratio = (gold_oz × gold_spot) / money_base\r\n```\r\n\r\n解讀：\r\n- backing_ratio ≈ 3% → 黃金僅支撐 3% 的貨幣負債（高槓桿）\r\n- backing_ratio ≈ 60% → 黃金接近完全支撐（低槓桿）\r\n\r\n貼文中「日本黃金只支撐約 3% 的 M0」即此概念。\r\n</principle>\r\n\r\n<principle name=\"data_access\">\r\n**資料取得方式**\r\n\r\n本 skill 使用**公開數據**：\r\n- **黃金儲備**：World Gold Council / IMF IFS（tonnes）\r\n- **貨幣量**：各國央行 / FRED / IMF IFS（M0/M2）\r\n- **FX Turnover**：BIS Triennial Survey（每三年更新）\r\n- **金價**：Yahoo Finance / FRED（XAU/USD）\r\n\r\n腳本位於 `scripts/` 目錄，可直接執行。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n實作「美元失去儲備地位下的黃金重估」壓力測試模型：\r\n\r\n1. **數據整合**：抓取各國 M0/M2、黃金儲備、匯率、FX turnover 權重\r\n2. **計算隱含金價**：未加權與加權版本\r\n3. **計算黃金支撐率**：衡量各國槓桿程度\r\n4. **計算缺口**：需要再買多少黃金才能達到目標支撐率\r\n5. **排名輸出**：誰最槓桿、誰最穩健\r\n\r\n輸出：隱含金價、支撐率排名、缺口分析、敘事洞察。\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：執行預設情境分析**\r\n\r\n```bash\r\ncd skills/usd-reserve-loss-gold-revaluation\r\npip install pandas numpy requests yfinance  # 首次使用\r\npython scripts/gold_revaluation.py --quick\r\n```\r\n\r\n輸出範例：\r\n```json\r\n{\r\n  \"headline\": {\r\n    \"implied_gold_price_m0_weighted\": 39210.0,\r\n    \"implied_gold_price_m2_weighted\": 184500.0,\r\n    \"interpretation\": \"壓力測試數字，非價格預測\"\r\n  },\r\n  \"ranking\": [\r\n    {\"entity\": \"JPY\", \"backing_ratio\": 0.03, \"lever_multiple\": 41.0},\r\n    {\"entity\": \"USD\", \"backing_ratio\": 0.08, \"lever_multiple\": 12.5},\r\n    {\"entity\": \"ZAR\", \"backing_ratio\": 0.60, \"lever_multiple\": 0.16}\r\n  ]\r\n}\r\n```\r\n\r\n**完整情境分析**：\r\n```bash\r\npython scripts/gold_revaluation.py \\\r\n  --date 2026-01-07 \\\r\n  --entities USD,CNY,JPY,EUR,GBP \\\r\n  --aggregate M0 \\\r\n  --weighting fx_turnover \\\r\n  --output result.json\r\n```\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼操作？\r\n\r\n1. **快速計算** - 使用預設參數計算主要貨幣的隱含金價\r\n2. **完整分析** - 自訂參數進行情境分析（可選擇口徑、權重、實體）\r\n3. **比較分析** - 同時比較 M0 vs M2、不同加權方法的差異\r\n4. **監控模式** - 追蹤黃金支撐率的變化趨勢\r\n5. **方法論學習** - 了解計算邏輯與數據來源\r\n6. **視覺化圖表** - 生成分析結果的視覺化圖表\r\n\r\n**請選擇或直接提供分析參數。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                        | Action                                        |\r\n|---------------------------------|-----------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"計算\"      | 執行 `python scripts/gold_revaluation.py --quick` |\r\n| 2, \"完整\", \"full\", \"分析\"       | 閱讀 `workflows/analyze.md` 並執行            |\r\n| 3, \"比較\", \"compare\", \"對比\"    | 閱讀 `workflows/compare.md` 並執行            |\r\n| 4, \"監控\", \"monitor\", \"追蹤\"    | 閱讀 `workflows/monitor.md` 並執行            |\r\n| 5, \"學習\", \"方法論\", \"why\"      | 閱讀 `references/methodology.md`              |\r\n| 6, \"圖表\", \"畫圖\", \"視覺化\"     | 執行 `python scripts/visualize_revaluation.py` |\r\n| 提供參數 (如實體清單)            | 閱讀 `workflows/analyze.md` 並使用參數執行    |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\nusd-reserve-loss-gold-revaluation/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── manifest.json                      # 技能元數據\r\n├── workflows/\r\n│   ├── analyze.md                     # 完整情境分析工作流\r\n│   ├── compare.md                     # M0/M2 比較分析工作流\r\n│   └── monitor.md                     # 持續監控工作流\r\n├── references/\r\n│   ├── data-sources.md                # 數據來源與獲取方式\r\n│   ├── methodology.md                 # 方法論與計算邏輯\r\n│   └── input-schema.md                # 完整輸入參數定義\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n└── scripts/\r\n    ├── gold_revaluation.py            # 主計算腳本\r\n    └── visualize_revaluation.py       # 視覺化腳本\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**方法論**: references/methodology.md\r\n- 黃金錨定假說解析\r\n- 隱含金價計算公式\r\n- 支撐率與槓桿解讀\r\n\r\n**資料來源**: references/data-sources.md\r\n- 黃金儲備數據來源\r\n- 貨幣量 M0/M2 數據來源\r\n- BIS FX Turnover 數據\r\n- 匯率與金價來源\r\n\r\n**輸入參數**: references/input-schema.md\r\n- 完整參數定義\r\n- 預設值與建議範圍\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow    | Purpose          | 使用時機                   |\r\n|-------------|------------------|---------------------------|\r\n| analyze.md  | 完整情境分析     | 需要自訂參數進行壓力測試   |\r\n| compare.md  | M0/M2 比較分析   | 比較不同口徑的隱含金價差異 |\r\n| monitor.md  | 持續監控         | 追蹤支撐率變化趨勢         |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構定義 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script                    | Command                         | Purpose                |\r\n|---------------------------|---------------------------------|------------------------|\r\n| gold_revaluation.py       | `--quick`                       | 快速計算主要貨幣       |\r\n| gold_revaluation.py       | `--entities USD,CNY --agg M0`   | 自訂實體與口徑         |\r\n| gold_revaluation.py       | `--compare-aggregates`          | M0 vs M2 比較          |\r\n| visualize_revaluation.py  | `--mode usd`                    | 美元單一視覺化圖表     |\r\n| visualize_revaluation.py  | `--mode multi`                  | 多貨幣比較視覺化圖表   |\r\n| visualize_revaluation.py  | `--mode all --output-dir DIR`   | 生成所有圖表至指定目錄 |\r\n</scripts_index>\r\n\r\n<input_schema_summary>\r\n\r\n**核心參數**\r\n\r\n| 參數               | 類型   | 預設值       | 說明                       |\r\n|--------------------|--------|--------------|---------------------------|\r\n| scenario_date      | string | today        | 情境估算基準日期           |\r\n| entities           | array  | 主要貨幣     | 分析對象（國家/貨幣代碼）  |\r\n| monetary_aggregate | string | M0           | 貨幣口徑（M0/M2/MB/M1/M3） |\r\n| weighting_method   | string | fx_turnover  | 加權方式                   |\r\n| fx_base            | string | USD          | 計價幣別基準               |\r\n\r\n**進階參數**\r\n\r\n| 參數             | 類型   | 預設值     | 說明                   |\r\n|------------------|--------|------------|------------------------|\r\n| liability_scope  | string | broad_money | 負債口徑               |\r\n| gold_reserve_unit| string | troy_oz    | 黃金單位（oz/tonnes）  |\r\n| gold_price_spot  | float  | auto       | 基準日金價（可自動抓取）|\r\n| fx_rates         | object | auto       | 匯率（可自動抓取）     |\r\n\r\n完整參數定義見 `references/input-schema.md`。\r\n\r\n</input_schema_summary>\r\n\r\n<output_schema_summary>\r\n```json\r\n{\r\n  \"skill\": \"usd-reserve-loss-gold-revaluation\",\r\n  \"scenario_date\": \"2026-01-07\",\r\n  \"assumptions\": {\r\n    \"monetary_aggregate\": \"M0\",\r\n    \"weighting_method\": \"fx_turnover\",\r\n    \"fx_base\": \"USD\",\r\n    \"gold_spot_usd_per_oz\": 2050.0\r\n  },\r\n  \"headline\": {\r\n    \"implied_gold_price_weighted_usd_per_oz\": 39210.0,\r\n    \"interpretation\": \"資產負債表壓力測算（非價格預測）\"\r\n  },\r\n  \"table\": [...],\r\n  \"insights\": [...]\r\n}\r\n```\r\n\r\n完整輸出結構見 `templates/output-json.md`。\r\n</output_schema_summary>\r\n\r\n<success_criteria>\r\n執行成功時應產出：\r\n\r\n- [ ] 隱含金價（未加權與加權版本）\r\n- [ ] 各實體的黃金支撐率（backing_ratio）\r\n- [ ] 槓桿倍數排名（lever_multiple_vs_spot）\r\n- [ ] 黃金缺口分析（additional_gold_oz_needed）\r\n- [ ] 敘事洞察（M0 vs M2 差異、槓桿解讀）\r\n- [ ] 結果輸出為指定格式（JSON 或 Markdown）\r\n- [ ] 視覺化圖表（可選，包含金價比較、支撐率、信用乘數等 6 個面板）\r\n</success_criteria>",
-    "path": "skills/usd-reserve-loss-gold-revaluation/SKILL.md",
-    "directoryStructure": "usd-reserve-loss-gold-revaluation/\n├── examples\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   └── methods.md\n├── scripts\n│   ├── gold_revaluation.py\n│   ├── visualize_revaluation.py\n│   └── __pycache__\n│       └── gold_revaluation.cpython-312.pyc\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    ├── compare.md\n    └── monitor.md",
-    "lastUpdated": "2026-01-19",
-    "rating": 3,
-    "testQuestions": [
-      {
-        "question": "如果美元失去儲備地位，黃金需要重估到多少美元才能支撐 M0？",
-        "imagePath": "images/gold-revaluation-usd-2026-01-19.png",
-        "expectedResult": "分析結果：美元失去儲備地位下的黃金重估需求                                                                                                                                           \n\n基於目前的數據（2026-01-19），我已完成對美元在「失去儲備地位、黃金成為唯一錨定資產」情境下的壓力測試分析。                                                                                                                                                                                                                                                                  \n\n核心發現（M0 口徑）                                                                                                                                                                    \n┌──────────────────┬────────────────────────────────────┐\n│       指標       │                數值                │\n├──────────────────┼────────────────────────────────────┤\n│ 當前金價         │ $4,595/oz                          │\n├──────────────────┼────────────────────────────────────┤\n│ 隱含金價（加權） │ $19,574/oz                         │\n├──────────────────┼────────────────────────────────────┤\n│ 需重估倍數       │ 4.26x                              │\n├──────────────────┼────────────────────────────────────┤\n│ 黃金支撐率       │ 20.72%                             │\n├──────────────────┼────────────────────────────────────┤\n│ 需額外黃金       │ 10 億盎司（約為目前儲備的 3.8 倍） │\n└──────────────────┴────────────────────────────────────┘\n\nM0 vs M2 對比：信用乘數效應\n┌──────────────────┬────────────┬──────────┬────────┐\n│       口徑       │  隱含金價  │ 重估倍數 │ 支撐率 │\n├──────────────────┼────────────┼──────────┼────────┤\n│ M0（央行負債）   │ $19,574/oz │ 4.26x    │ 20.7%  │\n├──────────────────┼────────────┼──────────┼────────┤\n│ M2（含信用擴張） │ $70,533/oz │ 15.35x   │ 5.8%   │\n├──────────────────┼────────────┼──────────┼────────┤\n│ 信用乘數         │ 3.6 倍     │ -        │ -      │\n└──────────────────┴────────────┴──────────┴────────┘\n\n關鍵洞察\n\n1. M0 結論：若美元失去儲備地位且黃金成為唯一錨定資產，黃金需要從目前的 $4,595/oz 重估至約 $19,574/oz（約 4.26 倍）才能完全支撐美國的 M0 貨幣基礎（$5.8 兆）。\n2. 支撐率偏低：目前美國黃金儲備（8,133.5 噸 / 2.61 億盎司）僅能支撐 20.7% 的 M0，顯示美元體系高度依賴信用擴張而非實物資產。\n3. M2 口徑更極端：若考慮整個貨幣體系（M2 = $20.9 兆），隱含金價將達到 $70,533/oz，重估倍數高達 15.35 倍，反映銀行體系的巨大槓桿效應。\n4. 與 VanEck 論點對比：VanEck 著名的「$39k gold」分析使用了多國加權的 M0 口徑。本次分析顯示，單就美元而言，壓力測試數字約為 $19.6k（使用 FX turnover 權重）。\n\n重要提醒\n\n這是壓力測試數字，非價格預測。此分析基於極端假設情境：\n- 法定貨幣體系完全瓦解\n- 黃金成為唯一貨幣錨定資產\n- 資產負債表必須完全平衡\n\n實際上，現代貨幣體系建立在信用基礎上，不太可能完全回歸金本位制。此分析的意義在於：\n1. 衡量各國貨幣體系的「黃金槓桿」程度\n2. 理解 M0 與 M2 的信用乘數效應\n3. 評估極端情境下的系統性風險\n\n---\n數據來源：                                                                                                                                                                           \n- 黃金儲備：World Gold Council 2024 Q3\n- 貨幣供給：2024 估計值\n- 當前金價：Yahoo Finance（自動抓取）\n- FX Turnover 權重：BIS 2022 調查\n"
-      },
-      {
-        "question": "比較 M0 與 M2 口徑下的隱含金價差異",
-        "expectedResult": "完成了 M0 與 M2 口徑的完整比較分析! 以下是關鍵發現:\n\n📊 M0 vs M2 隱含金價比較\nHeadline 結果\n┌───────────────┬──────────┬──────────────┐\n│     口徑      │ 隱含金價 │ 相對現價倍數 │\n├───────────────┼──────────┼──────────────┤\n│ M0 (央行負債) │ $11,008  │ 5.37x        │\n├───────────────┼──────────┼──────────────┤\n│ M2 (廣義貨幣) │ $38,011  │ 8.27x        │\n├───────────────┼──────────┼──────────────┤\n│ 信用乘數      │ 3.45x    │ -            │\n└───────────────┴──────────┴──────────────┘\n關鍵洞察\n\n1. 信用擴張效應: M2 相對 M0 高出 3.45倍,反映銀行體系的信用創造槓桿\n2. 各國差異極大:\n  - 中國 (CNY): 信用擴張高達 25.14x (極端高槓桿)\n  - 美元 (USD): 標準 3.60x\n  - 日本 (JPY): 僅 1.76x (低槓桿)\n3. 黃金支撐率:\n  - USD M0: 9.24% → M2: 5.75%\n  - CNY M0: 9.19% → M2: 0.82% (驚人落差)\n\n使用場景區分\n\nM0 口徑 ($11,008):\n- 評估央行資產負債表壓力\n- VanEck \"$39k gold\" 論點採用此口徑\n- 相對保守的估計\n\nM2 口徑 ($38,011):\n- 評估整體金融體系極端壓力\n- 反映銀行信用擴張崩潰情境\n- 極端壓力測試\n\n生成文件\n\n1. 詳細分析報告: gold-revaluation-m0-vs-m2-analysis.md\n"
-      },
-      {
-        "question": "全球央行資產負債表需要多高的金價才能平衡？",
-        "expectedResult": "分析結果：全球央行資產負債表的黃金重估壓力測試\n\n基於 11 個主要經濟體的央行數據（2026-01-19），我已完成全球央行資產負債表平衡分析。\n\n🌍 全球央行總體數據\n┌─────────────────────┬──────────────────────────────┐\n│         指標        │             數值             │\n├─────────────────────┼──────────────────────────────┤\n│ 分析經濟體          │ 11 個（G7 + BRICS + 其他）   │\n├─────────────────────┼──────────────────────────────┤\n│ 全球央行總 M0       │ $21.40 兆美元                │\n├─────────────────────┼──────────────────────────────┤\n│ 全球央行總黃金儲備  │ 869.3 百萬盎司（27,017 噸）  │\n├─────────────────────┼──────────────────────────────┤\n│ 當前金價            │ $4,595/oz                    │\n├─────────────────────┼──────────────────────────────┤\n│ 全球隱含金價        │ $24,621/oz                   │\n├─────────────────────┼──────────────────────────────┤\n│ 需重估倍數          │ 5.36x                        │\n├─────────────────────┼──────────────────────────────┤\n│ 全球平均支撐率      │ 18.7%                        │\n└─────────────────────┴──────────────────────────────┘\n\n📊 主要經濟體槓桿排名（Top 5 最高槓桿）\n┌──────┬────────────┬──────────┬──────────┬──────────────┐\n│ 排名 │    貨幣    │ M0 (兆$) │ 支撐率   │ 槓桿倍數     │\n├──────┼────────────┼──────────┼──────────┼──────────────┤\n│  1   │ JPY (日圓) │ $4.62    │  2.7%    │ 37.0x (最高) │\n├──────┼────────────┼──────────┼──────────┼──────────────┤\n│  2   │ GBP (英鎊) │ $1.10    │  4.2%    │ 24.1x        │\n├──────┼────────────┼──────────┼──────────┼──────────────┤\n│  3   │ AUD (澳元) │ $0.08    │ 15.1%    │  6.6x        │\n├──────┼────────────┼──────────┼──────────┼──────────────┤\n│  4   │ CHF (瑞郎) │ $0.84    │ 18.2%    │  5.5x        │\n├──────┼────────────┼──────────┼──────────┼──────────────┤\n│  5   │ CNY (人民幣)│ $1.62    │ 20.6%    │  4.9x        │\n└──────┴────────────┴──────────┴──────────┴──────────────┘\n\n📊 黃金儲備最充足國家（Top 3）\n┌──────┬──────────────┬──────────┬──────────┬──────────────┐\n│ 排名 │    貨幣      │ 黃金儲備 │ 支撐率   │ 槓桿倍數     │\n├──────┼──────────────┼──────────┼──────────┼──────────────┤\n│  1   │ KZT (哈薩克) │  289 噸  │ 611.0%   │ 0.16x (最低) │\n├──────┼──────────────┼──────────┼──────────┼──────────────┤\n│  2   │ ZAR (南非)   │  125 噸  │ 233.1%   │ 0.43x        │\n├──────┼──────────────┼──────────┼──────────┼──────────────┤\n│  3   │ RUB (俄羅斯) │ 2,336 噸 │ 184.6%   │ 0.54x        │\n└──────┴──────────────┴──────────┴──────────┴──────────────┘\n\n💡 關鍵洞察\n\n1. 全球總體結論：若全球主要央行需用黃金 100% 支撐其 M0 負債，金價需從當前 $4,595/oz 重估至 $24,621/oz（5.36 倍），才能實現資產負債表平衡。\n\n2. 日本極度脆弱：日圓的黃金支撐率僅 2.7%，是全球最高槓桿貨幣。在「黃金唯一錨」情境下，需要金價暴漲 37 倍或大規模增持黃金（需額外 9.79 億盎司，相當於目前儲備的 36 倍）。\n\n3. 歐美相對平衡：美元（20.7%）、歐元（23.8%）、人民幣（20.6%）的支撐率相近，都在 20% 左右，槓桿倍數約 4-5 倍，反映發達經濟體的相似貨幣結構。\n\n4. 新興市場分化：\n   - 資源型國家（俄羅斯、哈薩克、南非）黃金儲備充足，支撐率超過 100%\n   - 但這些國家的貨幣在國際體系中份額較小，不影響全球隱含金價\n\n5. 與 VanEck 論點對比：VanEck 的「$39k gold」分析可能使用了：\n   - 較低的基準金價（$2,000 vs 當前 $4,595）\n   - FX turnover 加權（而非等權重平均）\n   - 更窄的經濟體範圍（可能只包含 G7）\n   本次分析的 $24.6k 是基於當前較高金價和更廣泛經濟體的結果\n\n📈 全球 M0 分布（前 5 名）\n1. 歐元區：$6.70T（31.3%）\n2. 美國：$5.80T（27.1%）\n3. 日本：$4.62T（21.6%）\n4. 中國：$1.62T（7.6%）\n5. 英國：$1.10T（5.1%）\n\n🏆 全球黃金儲備分布（前 5 名）\n1. 歐元區：346.4M oz（39.9%）\n2. 美國：261.5M oz（30.1%）\n3. 俄羅斯：75.1M oz（8.6%）\n4. 中國：72.8M oz（8.4%）\n5. 瑞士：33.4M oz（3.8%）\n\n⚠️ 重要提醒\n\n這是全球央行體系的壓力測試，非價格預測。此分析基於極端假設：\n- 法定貨幣體系完全瓦解\n- 黃金成為全球唯一貨幣錨定資產\n- 所有央行資產負債表必須完全平衡\n\n實際應用價值：\n1. 衡量全球貨幣體系的整體「黃金槓桿」程度\n2. 識別最脆弱的貨幣體系（日圓、英鎊）\n3. 理解去美元化敘事的數學基礎\n4. 評估央行黃金購買行為的戰略意義\n\n---\n分析範圍：USD, EUR, CNY, JPY, GBP, CHF, CAD, AUD, RUB, INR, ZAR, KZT\n數據來源：World Gold Council (2024 Q3), 各國央行, FRED, Yahoo Finance\n計算方法：未加權平均（全球總 M0 ÷ 全球總黃金儲備）\n"
-      }
-    ],
-    "qualityScore": {
-      "overall": 70,
-      "badge": "白銀",
-      "metrics": {
-        "architecture": 75,
-        "maintainability": 75,
-        "content": 80,
-        "community": 20,
-        "security": 90,
-        "compliance": 80
-      },
-      "details": "**架構（75/100）**\n- 清晰的壓力測試框架\n- 支援多口徑、多權重比較\n- 可擴展的實體清單\n\n**可維護性（75/100）**\n- 參數定義完整\n- 數據來源明確\n- 替代方案記錄\n\n**內容（80/100）**\n- 完整的方法論文檔\n- VanEck 模型邏輯解析\n- 實用的情境分析工具\n\n**社區（20/100）**\n- 新技能，尚無社區貢獻\n\n**安全（90/100）**\n- 使用公開經濟數據\n- 部分數據需手動更新\n\n**規範符合性（80/100）**\n- 遵循 Claude Code 規範\n- 完整的文件結構\n"
-    },
-    "bestPractices": [
-      {
-        "title": "明確這是壓力測試，非預測",
-        "description": "隱含金價是「若...則...」的情境計算，不是預測未來金價"
-      },
-      {
-        "title": "區分 M0 與 M2 的使用場景",
-        "description": "M0 評估央行壓力，M2 評估全體系極端壓力"
-      },
-      {
-        "title": "理解加權方法的直覺",
-        "description": "FX turnover 反映國際使用強度，reserve share 反映官方持有偏好"
-      },
-      {
-        "title": "注意數據更新頻率",
-        "description": "BIS 三年調查每三年更新，黃金儲備約季度更新"
-      }
-    ],
-    "pitfalls": [
-      {
-        "title": "誤將隱含金價當作預測",
-        "description": "這是極端情境壓力測試，不是合理的價格預測",
-        "consequence": "做出錯誤的投資決策"
-      },
-      {
-        "title": "忽略數據口徑差異",
-        "description": "各國 M0/M2 定義不完全一致",
-        "consequence": "跨國比較可能失真"
-      },
-      {
-        "title": "使用過時的權重數據",
-        "description": "BIS 數據每三年更新，可能不反映最新格局",
-        "consequence": "加權結果偏離實際"
-      }
-    ],
-    "faq": [
-      {
-        "question": "VanEck 的 \"$39k gold\" 是怎麼算出來的？",
-        "answer": "VanEck 使用 M0（貨幣基數）加上 BIS FX turnover 加權，\n計算「若黃金成為唯一錨，需要多高的金價才能支撐貨幣負債」。\n這是資產負債表壓力測試，不是價格預測。\n"
-      },
-      {
-        "question": "為什麼 M2 會算出 $184k 這麼極端的數字？",
-        "answer": "M2 包含銀行體系的信用擴張（存款等），\n比 M0（央行直接負債）大約 4-5 倍。\n用 M2 計算代表「整體金融體系完全由黃金支撐」的極端情境。\n"
-      },
-      {
-        "question": "黃金支撐率（backing ratio）如何解讀？",
-        "answer": "backing_ratio = (黃金盎司 × 金價) / 貨幣量\n\n- 3% = 黃金只支撐 3% 的貨幣負債（高槓桿，如日圓）\n- 60% = 黃金接近完全支撐（低槓桿，如某些新興市場）\n\n比率越低，在「黃金唯一錨」情境下需要金價重估的幅度越大。\n"
-      },
-      {
-        "question": "這個模型對投資有什麼用？",
-        "answer": "1. 理解去美元化敘事的數學基礎\n2. 比較不同國家的黃金槓桿程度\n3. 追蹤央行黃金儲備變化的含義\n4. 作為極端情境的 tail risk 參考\n\n但請記住：這是壓力測試框架，不是價格預測工具。\n"
-      }
-    ],
-    "about": {
-      "repository": "https://github.com/fatfingererr/macro-skills",
-      "branch": "main",
-      "additionalInfo": "## 參考來源\n\n- VanEck Gold Report: https://www.vaneck.com/us/en/blogs/gold-investing/\n- World Gold Council: https://www.gold.org/goldhub/data/gold-reserves-by-country\n- BIS Triennial Survey: https://www.bis.org/statistics/rpfx22.htm\n\n## 數據來源\n\n**黃金儲備**\n- World Gold Council（各國央行黃金持有量）\n- IMF IFS（官方儲備資產中黃金欄位）\n\n**貨幣量**\n- FRED（美國 M0/M2）\n- 各國央行統計（其他國家）\n- IMF IFS（國際可比數據）\n\n**FX Turnover 權重**\n- BIS Triennial Survey（2022 年版）\n- 每三年更新，目前最新為 2022 年調查\n\n**金價**\n- FRED: GOLDAMGBD228NLBM\n- Yahoo Finance: GC=F, GLD\n"
-    },
-    "methodology": "\r\n這不是在「預測金價」，而是在做一個**資產負債表壓力測試（balance-sheet stress test）**：\r\n\r\n**假設**：若美元（或某貨幣）失去儲備地位，全球體系需要更「硬」的錨（anchor），而黃金成為主要或唯一錨。  \r\n\r\n**問題**：在這種極端情境下，金價需要被**重估到多少**，才能讓「貨幣負債」與「黃金儲備」之間的缺口被吸收？\r\n\r\n因此它本質上是一個「**錨定定價（anchor pricing）／儲備比率重估（reserve-ratio revaluation）**」的算術模型：  \r\n\r\n用央行（或貨幣體系）的**貨幣負債（money liabilities）**去對比可用的**黃金儲備（gold reserves）**。\r\n\r\n**這套方法是「用資產負債表視角，把儲備地位流失的系統性壓力映射成黃金的隱含重估價格」：**  \r\n\r\n它不回答短期走勢，但能提供一個極端情境下的「壓力上限」與「體系脆弱度地圖」。",
-    "downloadUrl": "downloads/usd-reserve-loss-gold-revaluation-0.1.0.zip"
-  },
-  {
     "id": "lithium-supply-demand-gap-radar",
     "name": "lithium-supply-demand-gap-radar",
     "displayName": "鋰產業鏈供需雷達",
@@ -1084,6 +849,363 @@
     "downloadUrl": "downloads/google-trends-ath-detector-0.1.1.zip"
   },
   {
+    "id": "detect-palladium-lead-silver-turns",
+    "name": "detect-palladium-lead-silver-turns",
+    "displayName": "辨識鈀金領先白銀轉折點",
+    "description": "以鈀金的先行轉向作為確認條件，檢驗白銀短期漲跌是否獲得工業景氣與風險情緒的同步支持，並標記缺乏鈀金參與度的失敗走勢。",
+    "emoji": "⤴️",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "鈀金",
+      "白銀",
+      "貴金屬",
+      "拐點偵測",
+      "領先指標",
+      "跨金屬確認",
+      "失敗走勢",
+      "流動性噪音",
+      "技術分析"
+    ],
+    "category": "indicator-monitoring",
+    "dataLevel": "free-nolimit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\r\n\r\n<principle name=\"cross_metal_confirmation\">\r\n**跨金屬確認核心**\r\n\r\n「鈀金領先白銀」的假說需要可量化驗證：\r\n- 以 cross-correlation 估計最佳領先滯後（lead-lag）\r\n- 當銀出現拐點時，檢查鈀金是否在確認窗口內先行或同步出現同向拐點\r\n- 未被確認的拐點視為「失敗推動」的候選\r\n\r\n```\r\nLead-Lag = argmax(cross_correlation(pd_ret[t-k:t], ag_ret[t:t+k]))\r\nConfirmed = pd_turn exists within [ag_turn.ts - window, ag_turn.ts + window]\r\n```\r\n</principle>\r\n\r\n<principle name=\"turning_point_detection\">\r\n**拐點偵測三法**\r\n\r\n| 方法           | 原理                          | 適用場景       |\r\n|----------------|-------------------------------|----------------|\r\n| `pivot`        | 左右 N 根K棒內的局部極值      | 結構明確的趨勢 |\r\n| `peaks`        | scipy find_peaks + prominence | 自動化密度控制 |\r\n| `slope_change` | 趨勢斜率由正轉負或反之        | 平滑趨勢追蹤   |\r\n\r\n建議從 `pivot` 開始，左右各 3-5 根K棒，再依需求調整。\r\n</principle>\r\n\r\n<principle name=\"participation_judgment\">\r\n**參與度判定**\r\n\r\n鈀金是否「參與」銀的走勢，有多種衡量方式：\r\n\r\n| 指標               | 定義               | 門檻建議          |\r\n|--------------------|--------------------|-------------------|\r\n| `returns_corr`     | 報酬率滾動相關係數 | > 0.5             |\r\n| `direction_agree`  | 同向漲跌的比例     | > 60%             |\r\n| `vol_expansion`    | 兩者波動同步擴張   | σ_pd / σ_ag > 0.8 |\r\n| `breakout_confirm` | 銀突破時鈀金也突破 | 同向突破          |\r\n\r\n未達門檻時，銀的動作可能是「流動性噪音」而非趨勢確認。\r\n</principle>\r\n\r\n<principle name=\"failure_move_detection\">\r\n**失敗走勢判定**\r\n\r\n將「無鈀金參與的銀動作」落地為可回測的規則：\r\n\r\n| 規則                         | 定義                            | 後果               |\r\n|------------------------------|---------------------------------|--------------------|\r\n| `no_confirm_then_revert`     | 無確認 + 銀在 N 根K內回撤過起點 | 標記為 failed_move |\r\n| `no_confirm_then_break_fail` | 無確認 + 銀突破後回落跌破突破點 | 假突破             |\r\n\r\n歷史統計：未確認事件的失敗率 vs 已確認事件的成功率。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n偵測「鈀金領先、白銀跟隨」的跨金屬拐點：\r\n\r\n1. **數據取得**：白銀與鈀金的 OHLCV（yfinance: SI=F, PA=F）\r\n2. **拐點偵測**：識別兩者的局部高低點（pivot / peaks / slope_change）\r\n3. **領先滯後估計**：cross-correlation 找最佳 lag\r\n4. **跨金屬確認**：銀的拐點是否在窗口內被鈀金同向拐點確認\r\n5. **失敗走勢判定**：未確認的銀拐點是否符合失敗規則\r\n\r\n輸出：確認率、失敗率、每個事件的詳細判定、風控建議。\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：偵測白銀近期拐點是否被鈀金確認**\r\n\r\n```bash\r\ncd skills/detect-palladium-lead-silver-turns\r\npip install pandas numpy yfinance scipy statsmodels  # 首次使用\r\npython scripts/palladium_lead_silver.py --silver SI=F --palladium PA=F --quick\r\n```\r\n\r\n輸出範例：\r\n```json\r\n{\r\n  \"symbol_pair\": {\"silver\": \"SI=F\", \"palladium\": \"PA=F\"},\r\n  \"as_of\": \"2026-01-14\",\r\n  \"timeframe\": \"1h\",\r\n  \"estimated_pd_leads_by_bars\": 6,\r\n  \"lead_lag_corr\": 0.42,\r\n  \"confirmation_rate\": 0.71,\r\n  \"unconfirmed_failure_rate\": 0.64,\r\n  \"latest_event\": {\r\n    \"ts\": \"2026-01-15T14:00:00Z\",\r\n    \"turn\": \"top\",\r\n    \"confirmed\": false,\r\n    \"participation_ok\": false,\r\n    \"failed_move\": true\r\n  }\r\n}\r\n```\r\n\r\n**完整分析**：\r\n```bash\r\npython scripts/palladium_lead_silver.py --silver SI=F --palladium PA=F --timeframe 1h --lookback 1000 --output result.json\r\n```\r\n\r\n**生成視覺化圖表**：\r\n```bash\r\npip install matplotlib  # 首次使用\r\npython scripts/plot_palladium_silver.py --silver SI=F --palladium PA=F --output output/\r\n```\r\n\r\n圖表包含：\r\n- 銀/鈀價格疊加與拐點標記\r\n- 確認/未確認事件分布\r\n- 滾動相關係數時間序列\r\n- 失敗走勢統計\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼操作？\r\n\r\n1. **快速偵測** - 檢查最近白銀拐點是否被鈀金確認\r\n2. **歷史回測** - 回溯分析跨金屬確認的有效性\r\n3. **持續監控** - 設定警報當出現新拐點時通知\r\n4. **參數調校** - 找出最佳的確認窗口與參與度門檻\r\n5. **方法論學習** - 了解跨金屬領先滯後的理論基礎\r\n\r\n**請選擇或直接提供分析參數開始。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                           | Action                                                 |\r\n|------------------------------------|--------------------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"check\"        | 執行 `python scripts/palladium_lead_silver.py --quick` |\r\n| 2, \"回測\", \"backtest\", \"history\"   | 閱讀 `workflows/backtest.md` 並執行                    |\r\n| 3, \"監控\", \"monitor\", \"alert\"      | 閱讀 `workflows/monitor.md` 並執行                     |\r\n| 4, \"調校\", \"optimize\", \"tune\"      | 閱讀 `workflows/detect.md` 的參數調校部分              |\r\n| 5, \"學習\", \"方法論\", \"why\"         | 閱讀 `references/methodology.md`                       |\r\n| 提供參數（如 timeframe, lookback） | 閱讀 `workflows/detect.md` 並使用參數執行              |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\ndetect-palladium-lead-silver-turns/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── manifest.json                      # 技能元數據\r\n├── workflows/\r\n│   ├── detect.md                      # 單次偵測工作流\r\n│   ├── backtest.md                    # 歷史回測工作流\r\n│   └── monitor.md                     # 持續監控工作流\r\n├── references/\r\n│   ├── methodology.md                 # 跨金屬領先滯後方法論\r\n│   ├── input-schema.md                # 完整輸入參數定義\r\n│   └── data-sources.md                # 資料來源說明\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n├── scripts/\r\n│   ├── palladium_lead_silver.py       # 主偵測腳本\r\n│   └── plot_palladium_silver.py       # 視覺化圖表腳本\r\n└── examples/\r\n    └── silver-palladium-2024.json     # 範例輸出\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**方法論**: references/methodology.md\r\n- 跨金屬領先滯後原理\r\n- 拐點偵測三法詳解\r\n- 參與度與確認邏輯\r\n- 失敗走勢的市場含義\r\n\r\n**資料來源**: references/data-sources.md\r\n- Yahoo Finance 期貨代碼\r\n- 宏觀濾鏡數據來源\r\n- 數據頻率與對齊\r\n\r\n**輸入參數**: references/input-schema.md\r\n- 完整參數定義\r\n- 預設值與建議範圍\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow    | Purpose  | 使用時機           |\r\n|-------------|----------|--------------------|\r\n| detect.md   | 單次偵測 | 檢查特定時間範圍   |\r\n| backtest.md | 歷史回測 | 驗證確認邏輯有效性 |\r\n| monitor.md  | 持續監控 | 日常追蹤或警報     |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構定義 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script                   | Command                                          | Purpose          |\r\n|--------------------------|--------------------------------------------------|------------------|\r\n| palladium_lead_silver.py | `--silver SI=F --palladium PA=F --quick`         | 快速檢查當前狀態 |\r\n| palladium_lead_silver.py | `--silver SI=F --palladium PA=F --lookback 1000` | 完整歷史分析     |\r\n| plot_palladium_silver.py | `--silver SI=F --palladium PA=F --output dir/`   | 生成視覺化圖表   |\r\n</scripts_index>\r\n\r\n<input_schema_summary>\r\n\r\n**核心參數**\r\n\r\n| 參數             | 類型   | 預設值     | 說明         |\r\n|------------------|--------|------------|--------------|\r\n| silver_symbol    | string | (required) | 白銀標的代碼 |\r\n| palladium_symbol | string | (required) | 鈀金標的代碼 |\r\n| timeframe        | string | 1h         | 分析時間尺度 |\r\n| lookback_bars    | int    | 1000       | 回溯K棒數    |\r\n\r\n**拐點偵測參數**\r\n\r\n| 參數                | 類型   | 預設值 | 說明                |\r\n|---------------------|--------|--------|---------------------|\r\n| turn_method         | string | pivot  | 拐點偵測方法        |\r\n| pivot_left          | int    | 3      | pivot 左側確認K數   |\r\n| pivot_right         | int    | 3      | pivot 右側確認K數   |\r\n| confirm_window_bars | int    | 6      | 跨金屬確認窗口      |\r\n| lead_lag_max_bars   | int    | 24     | 領先滯後最大滯後K數 |\r\n\r\n**參與度參數**\r\n\r\n| 參數                    | 類型   | 預設值                 | 說明           |\r\n|-------------------------|--------|------------------------|----------------|\r\n| participation_metric    | string | direction_agree        | 參與度衡量方式 |\r\n| participation_threshold | float  | 0.6                    | 參與度門檻     |\r\n| failure_rule            | string | no_confirm_then_revert | 失敗走勢規則   |\r\n\r\n完整參數定義見 `references/input-schema.md`。\r\n\r\n</input_schema_summary>\r\n\r\n<output_schema_summary>\r\n```json\r\n{\r\n  \"skill\": \"detect-palladium-lead-silver-turns\",\r\n  \"symbol_pair\": {\"silver\": \"SI=F\", \"palladium\": \"PA=F\"},\r\n  \"as_of\": \"2026-01-14\",\r\n  \"timeframe\": \"1h\",\r\n  \"lookback_bars\": 1200,\r\n  \"summary\": {\r\n    \"estimated_pd_leads_by_bars\": 6,\r\n    \"lead_lag_corr\": 0.42,\r\n    \"confirmation_rate\": 0.71,\r\n    \"unconfirmed_failure_rate\": 0.64,\r\n    \"total_ag_turns\": 24,\r\n    \"confirmed_turns\": 17,\r\n    \"failed_moves\": 5\r\n  },\r\n  \"events\": [\r\n    {\r\n      \"ts\": \"2026-01-08T10:00:00Z\",\r\n      \"turn\": \"bottom\",\r\n      \"confirmed\": true,\r\n      \"confirmation_lag_bars\": -3,\r\n      \"participation_ok\": true,\r\n      \"failed_move\": false\r\n    }\r\n  ],\r\n  \"interpretation\": {\r\n    \"regime_assessment\": \"...\",\r\n    \"tactics\": [\"...\", \"...\"]\r\n  }\r\n}\r\n```\r\n\r\n完整輸出結構見 `templates/output-json.md`。\r\n</output_schema_summary>\r\n\r\n<success_criteria>\r\n執行成功時應產出：\r\n\r\n- [ ] 鈀金對白銀的最佳領先滯後估計（bars）\r\n- [ ] 領先滯後的相關係數\r\n- [ ] 白銀拐點被鈀金確認的確認率\r\n- [ ] 未確認事件的失敗走勢比例\r\n- [ ] 每個白銀拐點的詳細判定（confirmed, participation, failed）\r\n- [ ] 行情解讀與戰術建議\r\n- [ ] 時間序列資料（可選，用於視覺化）\r\n- [ ] 視覺化圖表 PNG（可選，使用 plot_palladium_silver.py）\r\n</success_criteria>",
+    "path": "skills/detect-palladium-lead-silver-turns/SKILL.md",
+    "directoryStructure": "detect-palladium-lead-silver-turns/\n├── examples\n│   └── silver-palladium-2024.json\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   └── methods.md\n├── scripts\n│   ├── palladium_lead_silver.py\n│   └── plot_palladium_silver.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── backtest.md\n    ├── detect.md\n    └── monitor.md",
+    "lastUpdated": "2026-01-16",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "白銀最近的拐點有被鈀金確認嗎？幫我偵測並判斷是否為失敗走勢",
+        "expectedResult": "白銀（SI=F）與鈀金（PA=F）跨金屬拐點偵測結果（數據截至 2026-01-14）\n\n┌─────────────────────────────┬────────┬─────────────────────────────┐\n│            指標             │  數值  │            狀態             │\n├─────────────────────────────┼────────┼─────────────────────────────┤\n│ 鈀金領先白銀                │ 6 bars │ 鈀金平均領先 6 根 K 棒      │\n├─────────────────────────────┼────────┼─────────────────────────────┤\n│ 領先滯後相關係數            │ 0.42   │ 中等正相關                  │\n├─────────────────────────────┼────────┼─────────────────────────────┤\n│ 確認率                      │ 71%    │ 白銀拐點被鈀金確認的比例    │\n├─────────────────────────────┼────────┼─────────────────────────────┤\n│ 未確認失敗率                │ 64%    │ 未被確認的拐點失敗比例      │\n└─────────────────────────────┴────────┴─────────────────────────────┘\n\n最新事件（2026-01-15T14:00:00Z）\n\n- 類型：top（頂部拐點）\n- 鈀金確認：否\n- 參與度：不足\n- 判定：**失敗走勢（failed_move）**\n\n┌───────────────────────────────────────────────────────────────────┐\n│                        可操作的建議                              │\n├───────────────────────────────────────────────────────────────────┤\n│ 1. 當前白銀頂部未被鈀金確認，視為「流動性噪音」而非趨勢反轉    │\n│ 2. 避免基於此拐點進行方向性交易                                 │\n│ 3. 等待下一個被鈀金確認的拐點再決策                             │\n│ 4. 若已有部位，可暫時觀望而非立即調整                           │\n└───────────────────────────────────────────────────────────────────┘\n\n行情解讀\n\n鈀金在本回溯窗口內對白銀報酬的最佳領先滯後為 +6 bars（鈀金先動）。\n未被鈀金確認的白銀拐點事件，其後續回撤/回到區間的比例顯著較高。\n當前白銀頂部缺乏鈀金參與，歷史統計顯示此類情況失敗概率較高。\n"
+      },
+      {
+        "question": "幫我回測過去 1000 根 1 小時 K 線，分析鈀金領先白銀的有效性",
+        "expectedResult": "跨金屬確認歷史回測結果（SI=F vs PA=F，1h，1000 bars）\n\n📊 領先滯後分析\n\n- 最佳滯後：+6 bars（鈀金領先白銀 6 根 K 棒）\n- 相關係數：0.42（中等正相關）\n- 置信區間：[3, 9] bars（95% CI）\n\n📈 拐點確認統計\n\n┌─────────────────┬────────┬────────┬────────┐\n│     類型        │ 總數   │ 已確認 │ 確認率 │\n├─────────────────┼────────┼────────┼────────┤\n│ 底部拐點        │ 12     │ 9      │ 75%    │\n├─────────────────┼────────┼────────┼────────┤\n│ 頂部拐點        │ 12     │ 8      │ 67%    │\n├─────────────────┼────────┼────────┼────────┤\n│ 合計            │ 24     │ 17     │ 71%    │\n└─────────────────┴────────┴────────┴────────┘\n\n📉 失敗走勢分析\n\n未確認事件（7 個）的後續表現：\n- 失敗走勢（回撤過起點）：5 個（71%）\n- 延續走勢：2 個（29%）\n\n已確認事件（17 個）的後續表現：\n- 成功延續：14 個（82%）\n- 後續回撤：3 個（18%）\n\n✅ 結論\n\n1. 鈀金確認顯著提高白銀拐點的有效性\n2. 未確認事件的失敗率是已確認事件的 3.9 倍\n3. 建議將「鈀金確認」作為白銀交易的過濾條件\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 70,
+      "badge": "白銀",
+      "metrics": {
+        "architecture": 80,
+        "maintainability": 75,
+        "content": 80,
+        "community": 20,
+        "security": 95,
+        "compliance": 80
+      },
+      "details": "**架構（80/100）**\n- 清晰的跨金屬確認邏輯\n- 多種拐點偵測方法\n- 可配置的參與度判定\n\n**可維護性（75/100）**\n- 參數定義完整\n- 多資料來源支援\n- 工作流程分離\n\n**內容（80/100）**\n- 領先滯後分析原理\n- 失敗走勢判定規則\n- 實用的交易建議\n\n**社區（20/100）**\n- 新技能，尚無社區貢獻\n\n**安全（95/100）**\n- 僅讀取公開價格數據\n- 無需 API key\n\n**規範符合性（80/100）**\n- 遵循 Claude Code 規範\n- 完整的文件結構\n"
+    },
+    "bestPractices": [
+      {
+        "title": "使用足夠的回溯數據",
+        "description": "至少 500 根 K 棒才能產生統計有效的領先滯後估計"
+      },
+      {
+        "title": "確認窗口與時間尺度配合",
+        "description": "1h 圖建議 6-12 bars，4h 圖建議 3-6 bars"
+      },
+      {
+        "title": "多重確認優於單一確認",
+        "description": "同時檢查拐點確認和參與度，減少假陽性"
+      },
+      {
+        "title": "失敗走勢是警告而非訊號",
+        "description": "未確認拐點提示謹慎，但不代表反向交易"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "僅看領先滯後不看確認",
+        "description": "領先滯後是平均值，單次事件可能偏離",
+        "consequence": "錯誤預期鈀金動作後銀必然跟隨"
+      },
+      {
+        "title": "確認窗口設得太小",
+        "description": "窗口太小會錯過有效但稍晚的確認",
+        "consequence": "確認率偏低，判定過於嚴格"
+      },
+      {
+        "title": "忽略參與度判定",
+        "description": "僅有拐點確認但波動不匹配",
+        "consequence": "誤將弱相關當作強確認"
+      },
+      {
+        "title": "把未確認當作反向訊號",
+        "description": "未確認只是「不支持」，不是「反對」",
+        "consequence": "貿然反向交易造成虧損"
+      }
+    ],
+    "faq": [
+      {
+        "question": "為什麼選擇鈀金作為白銀的領先指標？",
+        "answer": "鈀金與白銀同屬貴金屬，但鈀金市場較小、流動性較低，\n對宏觀變化的反應更敏感。當工業需求或避險情緒變化時，\n鈀金往往先行反應，白銀隨後跟進。\n\n這種領先關係在短週期（小時/日線）上較為顯著，\n在更長週期上兩者可能受不同基本面驅動。\n"
+      },
+      {
+        "question": "確認窗口應該設多大？",
+        "answer": "確認窗口取決於分析的時間尺度：\n\n| 時間尺度 | 建議窗口 | 說明 |\n|----------|----------|------|\n| 1h       | 6-12 bars| 約半天到一天 |\n| 4h       | 3-6 bars | 約半天到一天 |\n| 1d       | 2-5 bars | 約一週 |\n\n窗口過小會錯過有效確認，過大會納入不相關事件。\n"
+      },
+      {
+        "question": "失敗走勢該如何應對？",
+        "answer": "當偵測到「失敗走勢」時：\n\n1. **不要立即反向交易**：失敗走勢只是「缺乏支持」，不是「明確反對」\n2. **縮小倉位或觀望**：降低風險暴露，等待更明確的訊號\n3. **設定更寬的停損**：預期波動可能較大\n4. **等待下一個確認事件**：有鈀金參與的拐點更可靠\n"
+      },
+      {
+        "question": "可以用其他金屬代替鈀金嗎？",
+        "answer": "理論上可以，但效果可能不同：\n\n- **鉑金（PL=F）**：與鈀金同為汽車催化劑金屬，可作為替代\n- **黃金（GC=F）**：流動性高，但可能是跟隨者而非領先者\n- **銅（HG=F）**：工業屬性強，與白銀工業需求相關\n\n建議先用此技能的方法論驗證其他金屬對的領先滯後關係。\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 參考來源\n\n- 推文/圖表：「鈀金是白銀短期領先指標」的觀察\n- 跨市場分析：貴金屬之間的相互領先關係\n\n## 數據來源\n\n**Yahoo Finance（免費，無需 API key）**\n- 白銀期貨：SI=F（COMEX Silver）\n- 鈀金期貨：PA=F（NYMEX Palladium）\n- 使用 yfinance 套件抓取\n\n**FRED（宏觀濾鏡，可選）**\n- DXY：美元指數\n- TIPS：實質利率代理\n- VIX：風險情緒\n\n## 適用場景\n\n- 白銀短期交易確認\n- 貴金屬板塊輪動判斷\n- 流動性噪音過濾\n- 跨金屬套利研究\n"
+    },
+    "methodology": "### 為什麼要 **跨金屬確認** ？\r\n\r\n白銀同時具有：\r\n- **貴金屬屬性**：受美元、實質利率、避險情緒影響\r\n- **工業金屬屬性**：受製造業循環、景氣預期、風險偏好影響\r\n\r\n鈀金相對更偏向：\r\n- **純工業／景氣敏感金屬**（需求集中、波動更高、對風險切換更敏感）\r\n- **市場結構更薄**（同樣的資金流動對價格衝擊更大），因此常呈現**反應更快**的特性\r\n\r\n因此在短週期（例如一小時到數日）中，鈀金常像是**工業／風險因子**的**高波動溫度計**：  \r\n當市場正在交易景氣預期、風險情緒或宏觀流動性拐點時，鈀金往往先動或更明顯地轉向，而白銀後續才跟上。\r\n\r\n### 解讀範例\r\n\r\n1. **先看鈀金（藍線）是否出現轉折訊號**\r\n   - 若鈀金先轉弱（形成局部高點、或動能斜率下滑），代表**工業／風險因子**在降溫\r\n2. **再看白銀（價格走勢）是否出現對應的結構**\r\n   - 若白銀隨後也出現較明確的高點（例如高點抬不上去、或跌破短期支撐），則判為**跨金屬確認成立**\r\n3. **若白銀單獨上衝但鈀金未跟進**\r\n   - 將其歸類為**缺乏參與度**的行情\r\n   - 預期更容易出現：回到區間、快速回撤、假突破\r\n\r\n### 這種結構為何有可能特別一致？\r\n\r\n因為短週期的資金往往在交易同一件事：  \r\n**工業景氣預期（採購經理人指數／庫存循環／風險偏好）＋宏觀流動性（美元／利率）**。  \r\n鈀金更像高波動的第一反應，白銀因為還混有**貴金屬層**而稍滯後，所以你會在近期更常看到**鈀先轉、銀後跟**的視覺一致性。\r\n\r\n### 什麼時候會失效？\r\n\r\n這套方法很強，但不是物理定律。兩種常見失效情境：\r\n\r\n1. **白銀被貴金屬層主導**\r\n   - 例如避險情緒、金銀比修正、實質利率急變  \r\n   - 白銀可能走自己的節奏，鈀金未必同步確認\r\n\r\n2. **鈀金被自身供需／事件主導**\r\n   - 汽車鏈、替代效應、供給擾動等  \r\n   - 鈀金可能獨走，反而不該拿來確認白銀走勢",
+    "downloadUrl": "downloads/detect-palladium-lead-silver-turns-0.1.0.zip"
+  },
+  {
+    "id": "us-cpi-pce-comparator",
+    "name": "us-cpi-pce-comparator",
+    "displayName": "美國 CPI/PCE 通膨比較",
+    "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
+    "emoji": "📊",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "CPI",
+      "PCE",
+      "通膨",
+      "Fed",
+      "權重差異",
+      "FRED",
+      "BLS",
+      "風險訊號",
+      "宏觀經濟"
+    ],
+    "category": "inflation-analytics",
+    "dataLevel": "free-nolimit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\r\n\r\n<principle name=\"weight_difference\">\r\n**CPI vs PCE 權重差異是核心**\r\n\r\n- **CPI（固定權重）**: BLS Relative Importance，每年或每兩年更新，反映「固定籃子」\r\n- **PCE（動態/鏈結權重）**: BEA 名目支出占比，每月隨實際消費行為調整\r\n\r\n關鍵洞見：當消費者把錢花在「價格較不波動」的品項時，若這些品項的通膨走高，PCE 會比 CPI 更敏感地反映這個上行壓力。\r\n</principle>\r\n\r\n<principle name=\"volatility_matters\">\r\n**低波動 + 高權重 = PCE 上行風險訊號**\r\n\r\n識別邏輯：\r\n1. 找出 PCE 權重較高的消費桶（consumer spending buckets）\r\n2. 在這些桶中，篩選價格波動度較低者\r\n3. 若這些桶的通膨近期轉正或加速，標記為 PCE upside risk\r\n</principle>\r\n\r\n<principle name=\"scope_difference\">\r\n**CPI 與 PCE 的範圍差異**\r\n\r\nPCE 涵蓋項目比 CPI 更廣：\r\n- 第三方支付的醫療費用（employer-paid healthcare）\r\n- 非營利機構對家庭的服務\r\n- 某些金融服務的隱含費用\r\n\r\n這些 scope 差異也會造成 CPI/PCE 分歧。詳見 `references/cpi-pce-methodology.md`。\r\n</principle>\r\n\r\n<principle name=\"data_access\">\r\n**資料取得方式**\r\n\r\n本 skill 使用**無需 API key** 的資料來源：\r\n- **FRED CSV**: `https://fred.stlouisfed.org/graph/fredgraph.csv?id={SERIES_ID}`\r\n- **BLS Public API**: `https://api.bls.gov/publicAPI/v2/timeseries/data/`\r\n\r\n腳本位於 `scripts/` 目錄，可直接執行。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n比較 CPI 與 PCE 通膨訊號的分歧，並識別「低波動、高 PCE 權重」的消費桶是否正在推升 Fed 關注的 PCE 通膨路徑。\r\n\r\n輸出三層訊號：\r\n1. **Headline level**: CPI vs PCE divergence（bps）\r\n2. **Attribution**: 哪些 buckets 在推升 PCE（weighted contribution）\r\n3. **Risk framing**: 觀察點與延續性風險評估\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：執行快速檢查**\r\n\r\n```bash\r\ncd skills/us-cpi-pce-comparator\r\npip install pandas numpy requests  # 首次使用\r\npython scripts/cpi_pce_analyzer.py --quick\r\n```\r\n\r\n輸出範例：\r\n```json\r\n{\r\n  \"headline\": {\"cpi_yoy\": 2.65, \"pce_yoy\": 2.79, \"gap_bps\": 14},\r\n  \"core\": {\"cpi_core_yoy\": 2.65, \"pce_core_yoy\": 2.83, \"gap_bps\": 18},\r\n  \"momentum\": {\"cpi_3m_saar\": 2.07, \"pce_3m_saar\": 2.82}\r\n}\r\n```\r\n\r\n**完整分析**：\r\n```bash\r\npython scripts/cpi_pce_analyzer.py --start 2020-01-01 --measure yoy\r\n```\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼分析？\r\n\r\n1. **快速檢查** - 查看最新的 CPI/PCE 分歧數據\r\n2. **完整分析** - 執行完整的三步驟分析工作流\r\n3. **方法論學習** - 了解 CPI/PCE 差異的深層原因\r\n\r\n**請選擇或直接提供分析參數。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                     | Action                                            |\r\n|------------------------------|---------------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"check\"  | 執行 `python scripts/cpi_pce_analyzer.py --quick` |\r\n| 2, \"完整\", \"full\", \"analyze\" | 閱讀 `workflows/analyze.md` 並執行                |\r\n| 3, \"學習\", \"方法論\", \"why\"   | 閱讀 `references/cpi-pce-methodology.md`          |\r\n| 提供參數 (如日期範圍)        | 閱讀 `workflows/analyze.md` 並使用參數執行        |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\nus-cpi-pce-comparator/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── workflows/\r\n│   ├── analyze.md                     # 完整分析工作流\r\n│   └── quick-check.md                 # 快速檢查工作流\r\n├── references/\r\n│   ├── data-sources.md                # FRED/BLS 系列代碼與資料來源\r\n│   ├── cpi-pce-methodology.md         # CPI/PCE 方法論深度解析\r\n│   └── implementation.md              # 計算公式與程式碼範例\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n└── scripts/\r\n    ├── fetch_fred_data.py             # FRED 資料抓取（無需 API key）\r\n    ├── fetch_bls_data.py              # BLS 資料抓取\r\n    └── cpi_pce_analyzer.py            # 主分析腳本\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**方法論**: references/cpi-pce-methodology.md\r\n- CPI vs PCE 的五大差異（權重、範圍、公式、住房、人口）\r\n- 分歧模式與交易含義\r\n- Fed 如何解讀兩指標\r\n\r\n**資料來源**: references/data-sources.md\r\n- FRED CSV endpoint（無需 API key）\r\n- FRED 系列代碼對照表\r\n- 桶位定義與近似計算\r\n\r\n**實作指南**: references/implementation.md\r\n- 通膨計算公式（YoY, MoM SAAR, QoQ SAAR）\r\n- 權重效應計算\r\n- 波動度分析\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow       | Purpose        | 使用時機           |\r\n|----------------|----------------|--------------------|\r\n| analyze.md     | 完整三步驟分析 | 需要深度分析時     |\r\n| quick-check.md | 快速檢查分歧   | 日常監控或快速回答 |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構定義 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script              | Command                      | Purpose           |\r\n|---------------------|------------------------------|-------------------|\r\n| cpi_pce_analyzer.py | `--quick`                    | 快速檢查最新分歧  |\r\n| cpi_pce_analyzer.py | `--start DATE --measure yoy` | 完整分析          |\r\n| fetch_fred_data.py  | `--series CPIAUCSL,PCEPI`    | 抓取 FRED 資料    |\r\n| fetch_bls_data.py   | `--full`                     | 抓取 BLS CPI 資料 |\r\n</scripts_index>\r\n\r\n<input_schema>\r\n\r\n<parameter name=\"start_date\" required=\"true\">\r\n**Type**: string (ISO YYYY-MM-DD)\r\n**Description**: 分析起始日\r\n</parameter>\r\n\r\n<parameter name=\"end_date\" required=\"false\" default=\"today\">\r\n**Type**: string (ISO YYYY-MM-DD)\r\n**Description**: 分析結束日\r\n</parameter>\r\n\r\n<parameter name=\"measure\" required=\"false\" default=\"yoy\">\r\n**Type**: string\r\n**Options**: `yoy` | `mom_saar` | `qoq_saar`\r\n</parameter>\r\n\r\n<parameter name=\"baseline\" required=\"false\">\r\n**Type**: string\r\n**Format**: `YYYY-MM-DD:YYYY-MM-DD`\r\n**Description**: 基準期範圍，用於計算偏離度\r\n</parameter>\r\n\r\n</input_schema>\r\n\r\n<output_schema>\r\n參見 `templates/output-json.md` 的完整結構定義。\r\n\r\n**摘要**：\r\n```json\r\n{\r\n  \"headline\": {\"cpi_yoy\": 2.65, \"pce_yoy\": 2.79, \"gap_bps\": 14},\r\n  \"low_vol_high_weight_buckets\": [{\"bucket\": \"...\", \"signal\": \"upside\"}],\r\n  \"attribution\": {\"top_contributors\": [...], \"weight_effect_bps\": 12},\r\n  \"interpretation\": [\"...\"],\r\n  \"caveats\": [\"...\"]\r\n}\r\n```\r\n</output_schema>\r\n\r\n<success_criteria>\r\n分析成功時應產出：\r\n\r\n- [ ] Headline level 的 CPI/PCE 分歧數值（bps）\r\n- [ ] 識別出低波動、高 PCE 權重的桶位\r\n- [ ] 各桶位的加權通膨貢獻（attribution）\r\n- [ ] 若有 baseline，產出「less baseline」偏離度\r\n- [ ] 可操作的解讀與風險提示\r\n- [ ] 明確標註資料限制與近似處理\r\n</success_criteria>",
+    "path": "skills/us-cpi-pce-comparator/SKILL.md",
+    "directoryStructure": "us-cpi-pce-comparator/\n├── manifest.json\n├── references\n│   ├── cpi-pce-methodology.md\n│   ├── data-sources.md\n│   └── implementation.md\n├── scripts\n│   ├── cpi_pce_analyzer.py\n│   ├── fetch_bls_data.py\n│   ├── fetch_fred_data.py\n│   └── __pycache__\n│       ├── fetch_bls_data.cpython-312.pyc\n│       └── fetch_fred_data.cpython-312.pyc\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    └── quick-check.md",
+    "lastUpdated": "2026-01-15",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "分析當前 CPI 與 PCE 的分歧情況",
+        "expectedResult": "此分析器會：\n1. 從 FRED 抓取最新 CPI 和 PCE 數據\n2. 計算 headline 層級的 YoY 分歧（bps）\n3. 識別低波動高權重桶位的風險訊號\n4. 輸出結構化 JSON 結果\n"
+      },
+      {
+        "question": "為什麼 PCE 比 CPI 更高？Fed 關注哪個指標？",
+        "expectedResult": "解釋 CPI/PCE 五大差異：\n- 權重方法（固定 vs 動態）\n- 涵蓋範圍（PCE 更廣）\n- 公式差異\n- 住房計算\n- 人口覆蓋\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 75,
+      "badge": "白銀",
+      "metrics": {
+        "architecture": 80,
+        "maintainability": 80,
+        "content": 85,
+        "community": 20,
+        "security": 95,
+        "compliance": 85
+      },
+      "details": "**架構（80/100）**\n- 清晰的三層訊號架構\n- 模組化腳本設計\n- 無需 API key 的數據獲取\n\n**可維護性（80/100）**\n- 工作流程分離清晰\n- 參數定義完整\n- 多數據源支援\n\n**內容（85/100）**\n- 完整的方法論文檔\n- CPI/PCE 差異深度解析\n- 實用的 CLI 工具\n\n**社區（20/100）**\n- 新技能，尚無社區貢獻\n\n**安全（95/100）**\n- 僅讀取公開經濟數據\n- 無需 API key\n\n**規範符合性（85/100）**\n- 遵循 Claude Code 規範\n- 完整的文件結構\n"
+    },
+    "bestPractices": [
+      {
+        "title": "關注 Core 而非 Headline",
+        "description": "Core CPI/PCE 排除食品與能源，更能反映趨勢性通膨"
+      },
+      {
+        "title": "使用 3M SAAR 觀察動量",
+        "description": "YoY 有滯後性，3 個月 SAAR 更能捕捉拐點"
+      },
+      {
+        "title": "理解權重效應",
+        "description": "PCE 動態權重會自動降低高通膨項目的權重（替代效應）"
+      },
+      {
+        "title": "結合兩個指標",
+        "description": "CPI 反映消費者體感，PCE 是 Fed 目標，兩者都重要"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "只看 Headline",
+        "description": "Headline 受能源價格波動影響大",
+        "consequence": "錯過核心通膨趨勢"
+      },
+      {
+        "title": "忽略權重差異",
+        "description": "CPI/PCE 在醫療、住房等項目權重差異顯著",
+        "consequence": "無法解釋分歧來源"
+      },
+      {
+        "title": "過度解讀單月數據",
+        "description": "月度數據波動大，容易被噪音誤導",
+        "consequence": "錯誤判斷通膨趨勢"
+      }
+    ],
+    "faq": [
+      {
+        "question": "Fed 主要看哪個通膨指標？",
+        "answer": "Fed 的 2% 目標是針對 **Core PCE YoY**。\n但 Fed 也關注 CPI，因為它是市場預期的錨定點。\n"
+      },
+      {
+        "question": "為什麼 PCE 通常比 CPI 低？",
+        "answer": "主要原因：\n1. PCE 動態權重會因替代效應自動降低高通膨項目權重\n2. PCE 包含第三方支付的醫療，這部分通膨通常較溫和\n3. PCE 住房權重較低（約 15% vs CPI 約 33%）\n"
+      },
+      {
+        "question": "如何判斷 PCE 是否在 re-accelerate？",
+        "answer": "觀察指標：\n1. 3M SAAR 是否高於 YoY\n2. 低波動高權重桶位是否出現加速\n3. Core Services ex-Housing 是否持續偏高\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 數據來源\n\n**FRED（免費，無需 API key）**\n- CPI: CPIAUCSL, CPILFESL\n- PCE: PCEPI, PCEPILFE\n- 使用 CSV endpoint 直接下載\n\n**BLS Public API**\n- 詳細 CPI 分項數據\n- 權重與相對重要性\n"
+    },
+    "downloadUrl": "downloads/us-cpi-pce-comparator-0.1.0.zip"
+  },
+  {
+    "id": "usd-reserve-loss-gold-revaluation",
+    "name": "usd-reserve-loss-gold-revaluation",
+    "displayName": "美元失去儲備地位下金價重估",
+    "description": "在「美元／某貨幣失去儲備地位、黃金成為唯一錨」的假設下，用央行貨幣負債 ÷ 黃金儲備，推演「資產負債表可承受的隱含金價」，並輸出各國/各貨幣的槓桿程度、缺口與排名",
+    "emoji": "🥇",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "黃金",
+      "央行",
+      "儲備貨幣",
+      "美元",
+      "M0",
+      "M2",
+      "資產負債表",
+      "壓力測試",
+      "外匯",
+      "去美元化"
+    ],
+    "category": "fx-factors",
+    "dataLevel": "free-limit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\r\n\r\n<principle name=\"gold_anchor_hypothesis\">\r\n**黃金錨定假說**\r\n\r\n本模型基於極端情境假設：若法定貨幣體系瓦解、黃金成為唯一錨定資產，則：\r\n- **隱含金價** = 貨幣負債 ÷ 黃金儲備\r\n- 這不是「預測」，而是「壓力測試」：資產負債表要撐得住需要多高的金價\r\n\r\n典型論述來源：VanEck「$39k gold」分析（M0 + FX turnover 加權）\r\n</principle>\r\n\r\n<principle name=\"two_aggregates\">\r\n**兩種貨幣口徑差異**\r\n\r\n| 口徑 | 定義 | 隱含金價 | 解讀 |\r\n|------|------|----------|------|\r\n| M0 (Monetary Base) | 央行直接負債（通貨 + 準備金） | ~$39k | 央行資產負債表壓力 |\r\n| M2 (Broad Money) | 含銀行體系信用擴張 | ~$184k | 全體信用體系壓力 |\r\n\r\n**關鍵洞察**：兩者差距反映「信用乘數」的槓桿效應。\r\n</principle>\r\n\r\n<principle name=\"weighting_logic\">\r\n**加權方法的直覺**\r\n\r\n| 方法 | 數據來源 | 直覺 |\r\n|------|----------|------|\r\n| fx_turnover | BIS 三年調查 | 外匯交易份額 ≈ 國際結算/儲備使用強度 |\r\n| reserve_share | IMF COFER | 官方外匯儲備幣別佔比 |\r\n| equal | - | 不考慮貨幣重要性差異 |\r\n| custom | 用戶自訂 | 可配合特定情境分析 |\r\n\r\n加權的直覺：份額越高的貨幣，在「重新錨定」時需吸收的負債壓力越大。\r\n</principle>\r\n\r\n<principle name=\"backing_ratio\">\r\n**黃金支撐率 (Backing Ratio)**\r\n\r\n```\r\nbacking_ratio = (gold_oz × gold_spot) / money_base\r\n```\r\n\r\n解讀：\r\n- backing_ratio ≈ 3% → 黃金僅支撐 3% 的貨幣負債（高槓桿）\r\n- backing_ratio ≈ 60% → 黃金接近完全支撐（低槓桿）\r\n\r\n貼文中「日本黃金只支撐約 3% 的 M0」即此概念。\r\n</principle>\r\n\r\n<principle name=\"data_access\">\r\n**資料取得方式**\r\n\r\n本 skill 使用**公開數據**：\r\n- **黃金儲備**：World Gold Council / IMF IFS（tonnes）\r\n- **貨幣量**：各國央行 / FRED / IMF IFS（M0/M2）\r\n- **FX Turnover**：BIS Triennial Survey（每三年更新）\r\n- **金價**：Yahoo Finance / FRED（XAU/USD）\r\n\r\n腳本位於 `scripts/` 目錄，可直接執行。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n實作「美元失去儲備地位下的黃金重估」壓力測試模型：\r\n\r\n1. **數據整合**：抓取各國 M0/M2、黃金儲備、匯率、FX turnover 權重\r\n2. **計算隱含金價**：未加權與加權版本\r\n3. **計算黃金支撐率**：衡量各國槓桿程度\r\n4. **計算缺口**：需要再買多少黃金才能達到目標支撐率\r\n5. **排名輸出**：誰最槓桿、誰最穩健\r\n\r\n輸出：隱含金價、支撐率排名、缺口分析、敘事洞察。\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：執行預設情境分析**\r\n\r\n```bash\r\ncd skills/usd-reserve-loss-gold-revaluation\r\npip install pandas numpy requests yfinance  # 首次使用\r\npython scripts/gold_revaluation.py --quick\r\n```\r\n\r\n輸出範例：\r\n```json\r\n{\r\n  \"headline\": {\r\n    \"implied_gold_price_m0_weighted\": 39210.0,\r\n    \"implied_gold_price_m2_weighted\": 184500.0,\r\n    \"interpretation\": \"壓力測試數字，非價格預測\"\r\n  },\r\n  \"ranking\": [\r\n    {\"entity\": \"JPY\", \"backing_ratio\": 0.03, \"lever_multiple\": 41.0},\r\n    {\"entity\": \"USD\", \"backing_ratio\": 0.08, \"lever_multiple\": 12.5},\r\n    {\"entity\": \"ZAR\", \"backing_ratio\": 0.60, \"lever_multiple\": 0.16}\r\n  ]\r\n}\r\n```\r\n\r\n**完整情境分析**：\r\n```bash\r\npython scripts/gold_revaluation.py \\\r\n  --date 2026-01-07 \\\r\n  --entities USD,CNY,JPY,EUR,GBP \\\r\n  --aggregate M0 \\\r\n  --weighting fx_turnover \\\r\n  --output result.json\r\n```\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼操作？\r\n\r\n1. **快速計算** - 使用預設參數計算主要貨幣的隱含金價\r\n2. **完整分析** - 自訂參數進行情境分析（可選擇口徑、權重、實體）\r\n3. **比較分析** - 同時比較 M0 vs M2、不同加權方法的差異\r\n4. **監控模式** - 追蹤黃金支撐率的變化趨勢\r\n5. **方法論學習** - 了解計算邏輯與數據來源\r\n6. **視覺化圖表** - 生成分析結果的視覺化圖表\r\n\r\n**請選擇或直接提供分析參數。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                        | Action                                        |\r\n|---------------------------------|-----------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"計算\"      | 執行 `python scripts/gold_revaluation.py --quick` |\r\n| 2, \"完整\", \"full\", \"分析\"       | 閱讀 `workflows/analyze.md` 並執行            |\r\n| 3, \"比較\", \"compare\", \"對比\"    | 閱讀 `workflows/compare.md` 並執行            |\r\n| 4, \"監控\", \"monitor\", \"追蹤\"    | 閱讀 `workflows/monitor.md` 並執行            |\r\n| 5, \"學習\", \"方法論\", \"why\"      | 閱讀 `references/methodology.md`              |\r\n| 6, \"圖表\", \"畫圖\", \"視覺化\"     | 執行 `python scripts/visualize_revaluation.py` |\r\n| 提供參數 (如實體清單)            | 閱讀 `workflows/analyze.md` 並使用參數執行    |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\nusd-reserve-loss-gold-revaluation/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── manifest.json                      # 技能元數據\r\n├── workflows/\r\n│   ├── analyze.md                     # 完整情境分析工作流\r\n│   ├── compare.md                     # M0/M2 比較分析工作流\r\n│   └── monitor.md                     # 持續監控工作流\r\n├── references/\r\n│   ├── data-sources.md                # 數據來源與獲取方式\r\n│   ├── methodology.md                 # 方法論與計算邏輯\r\n│   └── input-schema.md                # 完整輸入參數定義\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n└── scripts/\r\n    ├── gold_revaluation.py            # 主計算腳本\r\n    └── visualize_revaluation.py       # 視覺化腳本\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**方法論**: references/methodology.md\r\n- 黃金錨定假說解析\r\n- 隱含金價計算公式\r\n- 支撐率與槓桿解讀\r\n\r\n**資料來源**: references/data-sources.md\r\n- 黃金儲備數據來源\r\n- 貨幣量 M0/M2 數據來源\r\n- BIS FX Turnover 數據\r\n- 匯率與金價來源\r\n\r\n**輸入參數**: references/input-schema.md\r\n- 完整參數定義\r\n- 預設值與建議範圍\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow    | Purpose          | 使用時機                   |\r\n|-------------|------------------|---------------------------|\r\n| analyze.md  | 完整情境分析     | 需要自訂參數進行壓力測試   |\r\n| compare.md  | M0/M2 比較分析   | 比較不同口徑的隱含金價差異 |\r\n| monitor.md  | 持續監控         | 追蹤支撐率變化趨勢         |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構定義 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script                    | Command                         | Purpose                |\r\n|---------------------------|---------------------------------|------------------------|\r\n| gold_revaluation.py       | `--quick`                       | 快速計算主要貨幣       |\r\n| gold_revaluation.py       | `--entities USD,CNY --agg M0`   | 自訂實體與口徑         |\r\n| gold_revaluation.py       | `--compare-aggregates`          | M0 vs M2 比較          |\r\n| visualize_revaluation.py  | `--mode usd`                    | 美元單一視覺化圖表     |\r\n| visualize_revaluation.py  | `--mode multi`                  | 多貨幣比較視覺化圖表   |\r\n| visualize_revaluation.py  | `--mode all --output-dir DIR`   | 生成所有圖表至指定目錄 |\r\n</scripts_index>\r\n\r\n<input_schema_summary>\r\n\r\n**核心參數**\r\n\r\n| 參數               | 類型   | 預設值       | 說明                       |\r\n|--------------------|--------|--------------|---------------------------|\r\n| scenario_date      | string | today        | 情境估算基準日期           |\r\n| entities           | array  | 主要貨幣     | 分析對象（國家/貨幣代碼）  |\r\n| monetary_aggregate | string | M0           | 貨幣口徑（M0/M2/MB/M1/M3） |\r\n| weighting_method   | string | fx_turnover  | 加權方式                   |\r\n| fx_base            | string | USD          | 計價幣別基準               |\r\n\r\n**進階參數**\r\n\r\n| 參數             | 類型   | 預設值     | 說明                   |\r\n|------------------|--------|------------|------------------------|\r\n| liability_scope  | string | broad_money | 負債口徑               |\r\n| gold_reserve_unit| string | troy_oz    | 黃金單位（oz/tonnes）  |\r\n| gold_price_spot  | float  | auto       | 基準日金價（可自動抓取）|\r\n| fx_rates         | object | auto       | 匯率（可自動抓取）     |\r\n\r\n完整參數定義見 `references/input-schema.md`。\r\n\r\n</input_schema_summary>\r\n\r\n<output_schema_summary>\r\n```json\r\n{\r\n  \"skill\": \"usd-reserve-loss-gold-revaluation\",\r\n  \"scenario_date\": \"2026-01-07\",\r\n  \"assumptions\": {\r\n    \"monetary_aggregate\": \"M0\",\r\n    \"weighting_method\": \"fx_turnover\",\r\n    \"fx_base\": \"USD\",\r\n    \"gold_spot_usd_per_oz\": 2050.0\r\n  },\r\n  \"headline\": {\r\n    \"implied_gold_price_weighted_usd_per_oz\": 39210.0,\r\n    \"interpretation\": \"資產負債表壓力測算（非價格預測）\"\r\n  },\r\n  \"table\": [...],\r\n  \"insights\": [...]\r\n}\r\n```\r\n\r\n完整輸出結構見 `templates/output-json.md`。\r\n</output_schema_summary>\r\n\r\n<success_criteria>\r\n執行成功時應產出：\r\n\r\n- [ ] 隱含金價（未加權與加權版本）\r\n- [ ] 各實體的黃金支撐率（backing_ratio）\r\n- [ ] 槓桿倍數排名（lever_multiple_vs_spot）\r\n- [ ] 黃金缺口分析（additional_gold_oz_needed）\r\n- [ ] 敘事洞察（M0 vs M2 差異、槓桿解讀）\r\n- [ ] 結果輸出為指定格式（JSON 或 Markdown）\r\n- [ ] 視覺化圖表（可選，包含金價比較、支撐率、信用乘數等 6 個面板）\r\n</success_criteria>",
+    "path": "skills/usd-reserve-loss-gold-revaluation/SKILL.md",
+    "directoryStructure": "usd-reserve-loss-gold-revaluation/\n├── examples\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   └── methods.md\n├── scripts\n│   ├── gold_revaluation.py\n│   ├── visualize_revaluation.py\n│   └── __pycache__\n│       └── gold_revaluation.cpython-312.pyc\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    ├── compare.md\n    └── monitor.md",
+    "lastUpdated": "2026-01-19",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "如果美元失去儲備地位，黃金需要重估到多少美元才能支撐 M0？",
+        "imagePath": "images/gold-revaluation-usd-2026-01-19.png",
+        "expectedResult": "分析結果：美元失去儲備地位下的黃金重估需求                                                                                                                                           \n\n基於目前的數據（2026-01-19），我已完成對美元在「失去儲備地位、黃金成為唯一錨定資產」情境下的壓力測試分析。                                                                                                                                                                                                                                                                  \n\n核心發現（M0 口徑）                                                                                                                                                                    \n┌──────────────────┬────────────────────────────────────┐\n│       指標       │                數值                │\n├──────────────────┼────────────────────────────────────┤\n│ 當前金價         │ $4,595/oz                          │\n├──────────────────┼────────────────────────────────────┤\n│ 隱含金價（加權） │ $19,574/oz                         │\n├──────────────────┼────────────────────────────────────┤\n│ 需重估倍數       │ 4.26x                              │\n├──────────────────┼────────────────────────────────────┤\n│ 黃金支撐率       │ 20.72%                             │\n├──────────────────┼────────────────────────────────────┤\n│ 需額外黃金       │ 10 億盎司（約為目前儲備的 3.8 倍） │\n└──────────────────┴────────────────────────────────────┘\n\nM0 vs M2 對比：信用乘數效應\n┌──────────────────┬────────────┬──────────┬────────┐\n│       口徑       │  隱含金價  │ 重估倍數 │ 支撐率 │\n├──────────────────┼────────────┼──────────┼────────┤\n│ M0（央行負債）   │ $19,574/oz │ 4.26x    │ 20.7%  │\n├──────────────────┼────────────┼──────────┼────────┤\n│ M2（含信用擴張） │ $70,533/oz │ 15.35x   │ 5.8%   │\n├──────────────────┼────────────┼──────────┼────────┤\n│ 信用乘數         │ 3.6 倍     │ -        │ -      │\n└──────────────────┴────────────┴──────────┴────────┘\n\n關鍵洞察\n\n1. M0 結論：若美元失去儲備地位且黃金成為唯一錨定資產，黃金需要從目前的 $4,595/oz 重估至約 $19,574/oz（約 4.26 倍）才能完全支撐美國的 M0 貨幣基礎（$5.8 兆）。\n2. 支撐率偏低：目前美國黃金儲備（8,133.5 噸 / 2.61 億盎司）僅能支撐 20.7% 的 M0，顯示美元體系高度依賴信用擴張而非實物資產。\n3. M2 口徑更極端：若考慮整個貨幣體系（M2 = $20.9 兆），隱含金價將達到 $70,533/oz，重估倍數高達 15.35 倍，反映銀行體系的巨大槓桿效應。\n4. 與 VanEck 論點對比：VanEck 著名的「$39k gold」分析使用了多國加權的 M0 口徑。本次分析顯示，單就美元而言，壓力測試數字約為 $19.6k（使用 FX turnover 權重）。\n\n重要提醒\n\n這是壓力測試數字，非價格預測。此分析基於極端假設情境：\n- 法定貨幣體系完全瓦解\n- 黃金成為唯一貨幣錨定資產\n- 資產負債表必須完全平衡\n\n實際上，現代貨幣體系建立在信用基礎上，不太可能完全回歸金本位制。此分析的意義在於：\n1. 衡量各國貨幣體系的「黃金槓桿」程度\n2. 理解 M0 與 M2 的信用乘數效應\n3. 評估極端情境下的系統性風險\n\n---\n數據來源：                                                                                                                                                                           \n- 黃金儲備：World Gold Council 2024 Q3\n- 貨幣供給：2024 估計值\n- 當前金價：Yahoo Finance（自動抓取）\n- FX Turnover 權重：BIS 2022 調查\n"
+      },
+      {
+        "question": "比較 M0 與 M2 口徑下的隱含金價差異",
+        "expectedResult": "完成了 M0 與 M2 口徑的完整比較分析! 以下是關鍵發現:\n\n📊 M0 vs M2 隱含金價比較\nHeadline 結果\n┌───────────────┬──────────┬──────────────┐\n│     口徑      │ 隱含金價 │ 相對現價倍數 │\n├───────────────┼──────────┼──────────────┤\n│ M0 (央行負債) │ $11,008  │ 5.37x        │\n├───────────────┼──────────┼──────────────┤\n│ M2 (廣義貨幣) │ $38,011  │ 8.27x        │\n├───────────────┼──────────┼──────────────┤\n│ 信用乘數      │ 3.45x    │ -            │\n└───────────────┴──────────┴──────────────┘\n關鍵洞察\n\n1. 信用擴張效應: M2 相對 M0 高出 3.45倍,反映銀行體系的信用創造槓桿\n2. 各國差異極大:\n  - 中國 (CNY): 信用擴張高達 25.14x (極端高槓桿)\n  - 美元 (USD): 標準 3.60x\n  - 日本 (JPY): 僅 1.76x (低槓桿)\n3. 黃金支撐率:\n  - USD M0: 9.24% → M2: 5.75%\n  - CNY M0: 9.19% → M2: 0.82% (驚人落差)\n\n使用場景區分\n\nM0 口徑 ($11,008):\n- 評估央行資產負債表壓力\n- VanEck \"$39k gold\" 論點採用此口徑\n- 相對保守的估計\n\nM2 口徑 ($38,011):\n- 評估整體金融體系極端壓力\n- 反映銀行信用擴張崩潰情境\n- 極端壓力測試\n\n生成文件\n\n1. 詳細分析報告: gold-revaluation-m0-vs-m2-analysis.md\n"
+      },
+      {
+        "question": "全球央行資產負債表需要多高的金價才能平衡？",
+        "expectedResult": "分析結果：全球央行資產負債表的黃金重估壓力測試\n\n基於 11 個主要經濟體的央行數據（2026-01-19），我已完成全球央行資產負債表平衡分析。\n\n🌍 全球央行總體數據\n┌─────────────────────┬──────────────────────────────┐\n│         指標        │             數值             │\n├─────────────────────┼──────────────────────────────┤\n│ 分析經濟體          │ 11 個（G7 + BRICS + 其他）   │\n├─────────────────────┼──────────────────────────────┤\n│ 全球央行總 M0       │ $21.40 兆美元                │\n├─────────────────────┼──────────────────────────────┤\n│ 全球央行總黃金儲備  │ 869.3 百萬盎司（27,017 噸）  │\n├─────────────────────┼──────────────────────────────┤\n│ 當前金價            │ $4,595/oz                    │\n├─────────────────────┼──────────────────────────────┤\n│ 全球隱含金價        │ $24,621/oz                   │\n├─────────────────────┼──────────────────────────────┤\n│ 需重估倍數          │ 5.36x                        │\n├─────────────────────┼──────────────────────────────┤\n│ 全球平均支撐率      │ 18.7%                        │\n└─────────────────────┴──────────────────────────────┘\n\n📊 主要經濟體槓桿排名（Top 5 最高槓桿）\n┌──────┬────────────┬──────────┬──────────┬──────────────┐\n│ 排名 │    貨幣    │ M0 (兆$) │ 支撐率   │ 槓桿倍數     │\n├──────┼────────────┼──────────┼──────────┼──────────────┤\n│  1   │ JPY (日圓) │ $4.62    │  2.7%    │ 37.0x (最高) │\n├──────┼────────────┼──────────┼──────────┼──────────────┤\n│  2   │ GBP (英鎊) │ $1.10    │  4.2%    │ 24.1x        │\n├──────┼────────────┼──────────┼──────────┼──────────────┤\n│  3   │ AUD (澳元) │ $0.08    │ 15.1%    │  6.6x        │\n├──────┼────────────┼──────────┼──────────┼──────────────┤\n│  4   │ CHF (瑞郎) │ $0.84    │ 18.2%    │  5.5x        │\n├──────┼────────────┼──────────┼──────────┼──────────────┤\n│  5   │ CNY (人民幣)│ $1.62    │ 20.6%    │  4.9x        │\n└──────┴────────────┴──────────┴──────────┴──────────────┘\n\n📊 黃金儲備最充足國家（Top 3）\n┌──────┬──────────────┬──────────┬──────────┬──────────────┐\n│ 排名 │    貨幣      │ 黃金儲備 │ 支撐率   │ 槓桿倍數     │\n├──────┼──────────────┼──────────┼──────────┼──────────────┤\n│  1   │ KZT (哈薩克) │  289 噸  │ 611.0%   │ 0.16x (最低) │\n├──────┼──────────────┼──────────┼──────────┼──────────────┤\n│  2   │ ZAR (南非)   │  125 噸  │ 233.1%   │ 0.43x        │\n├──────┼──────────────┼──────────┼──────────┼──────────────┤\n│  3   │ RUB (俄羅斯) │ 2,336 噸 │ 184.6%   │ 0.54x        │\n└──────┴──────────────┴──────────┴──────────┴──────────────┘\n\n💡 關鍵洞察\n\n1. 全球總體結論：若全球主要央行需用黃金 100% 支撐其 M0 負債，金價需從當前 $4,595/oz 重估至 $24,621/oz（5.36 倍），才能實現資產負債表平衡。\n\n2. 日本極度脆弱：日圓的黃金支撐率僅 2.7%，是全球最高槓桿貨幣。在「黃金唯一錨」情境下，需要金價暴漲 37 倍或大規模增持黃金（需額外 9.79 億盎司，相當於目前儲備的 36 倍）。\n\n3. 歐美相對平衡：美元（20.7%）、歐元（23.8%）、人民幣（20.6%）的支撐率相近，都在 20% 左右，槓桿倍數約 4-5 倍，反映發達經濟體的相似貨幣結構。\n\n4. 新興市場分化：\n   - 資源型國家（俄羅斯、哈薩克、南非）黃金儲備充足，支撐率超過 100%\n   - 但這些國家的貨幣在國際體系中份額較小，不影響全球隱含金價\n\n5. 與 VanEck 論點對比：VanEck 的「$39k gold」分析可能使用了：\n   - 較低的基準金價（$2,000 vs 當前 $4,595）\n   - FX turnover 加權（而非等權重平均）\n   - 更窄的經濟體範圍（可能只包含 G7）\n   本次分析的 $24.6k 是基於當前較高金價和更廣泛經濟體的結果\n\n📈 全球 M0 分布（前 5 名）\n1. 歐元區：$6.70T（31.3%）\n2. 美國：$5.80T（27.1%）\n3. 日本：$4.62T（21.6%）\n4. 中國：$1.62T（7.6%）\n5. 英國：$1.10T（5.1%）\n\n🏆 全球黃金儲備分布（前 5 名）\n1. 歐元區：346.4M oz（39.9%）\n2. 美國：261.5M oz（30.1%）\n3. 俄羅斯：75.1M oz（8.6%）\n4. 中國：72.8M oz（8.4%）\n5. 瑞士：33.4M oz（3.8%）\n\n⚠️ 重要提醒\n\n這是全球央行體系的壓力測試，非價格預測。此分析基於極端假設：\n- 法定貨幣體系完全瓦解\n- 黃金成為全球唯一貨幣錨定資產\n- 所有央行資產負債表必須完全平衡\n\n實際應用價值：\n1. 衡量全球貨幣體系的整體「黃金槓桿」程度\n2. 識別最脆弱的貨幣體系（日圓、英鎊）\n3. 理解去美元化敘事的數學基礎\n4. 評估央行黃金購買行為的戰略意義\n\n---\n分析範圍：USD, EUR, CNY, JPY, GBP, CHF, CAD, AUD, RUB, INR, ZAR, KZT\n數據來源：World Gold Council (2024 Q3), 各國央行, FRED, Yahoo Finance\n計算方法：未加權平均（全球總 M0 ÷ 全球總黃金儲備）\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 70,
+      "badge": "白銀",
+      "metrics": {
+        "architecture": 75,
+        "maintainability": 75,
+        "content": 80,
+        "community": 20,
+        "security": 90,
+        "compliance": 80
+      },
+      "details": "**架構（75/100）**\n- 清晰的壓力測試框架\n- 支援多口徑、多權重比較\n- 可擴展的實體清單\n\n**可維護性（75/100）**\n- 參數定義完整\n- 數據來源明確\n- 替代方案記錄\n\n**內容（80/100）**\n- 完整的方法論文檔\n- VanEck 模型邏輯解析\n- 實用的情境分析工具\n\n**社區（20/100）**\n- 新技能，尚無社區貢獻\n\n**安全（90/100）**\n- 使用公開經濟數據\n- 部分數據需手動更新\n\n**規範符合性（80/100）**\n- 遵循 Claude Code 規範\n- 完整的文件結構\n"
+    },
+    "bestPractices": [
+      {
+        "title": "明確這是壓力測試，非預測",
+        "description": "隱含金價是「若...則...」的情境計算，不是預測未來金價"
+      },
+      {
+        "title": "區分 M0 與 M2 的使用場景",
+        "description": "M0 評估央行壓力，M2 評估全體系極端壓力"
+      },
+      {
+        "title": "理解加權方法的直覺",
+        "description": "FX turnover 反映國際使用強度，reserve share 反映官方持有偏好"
+      },
+      {
+        "title": "注意數據更新頻率",
+        "description": "BIS 三年調查每三年更新，黃金儲備約季度更新"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "誤將隱含金價當作預測",
+        "description": "這是極端情境壓力測試，不是合理的價格預測",
+        "consequence": "做出錯誤的投資決策"
+      },
+      {
+        "title": "忽略數據口徑差異",
+        "description": "各國 M0/M2 定義不完全一致",
+        "consequence": "跨國比較可能失真"
+      },
+      {
+        "title": "使用過時的權重數據",
+        "description": "BIS 數據每三年更新，可能不反映最新格局",
+        "consequence": "加權結果偏離實際"
+      }
+    ],
+    "faq": [
+      {
+        "question": "VanEck 的 \"$39k gold\" 是怎麼算出來的？",
+        "answer": "VanEck 使用 M0（貨幣基數）加上 BIS FX turnover 加權，\n計算「若黃金成為唯一錨，需要多高的金價才能支撐貨幣負債」。\n這是資產負債表壓力測試，不是價格預測。\n"
+      },
+      {
+        "question": "為什麼 M2 會算出 $184k 這麼極端的數字？",
+        "answer": "M2 包含銀行體系的信用擴張（存款等），\n比 M0（央行直接負債）大約 4-5 倍。\n用 M2 計算代表「整體金融體系完全由黃金支撐」的極端情境。\n"
+      },
+      {
+        "question": "黃金支撐率（backing ratio）如何解讀？",
+        "answer": "backing_ratio = (黃金盎司 × 金價) / 貨幣量\n\n- 3% = 黃金只支撐 3% 的貨幣負債（高槓桿，如日圓）\n- 60% = 黃金接近完全支撐（低槓桿，如某些新興市場）\n\n比率越低，在「黃金唯一錨」情境下需要金價重估的幅度越大。\n"
+      },
+      {
+        "question": "這個模型對投資有什麼用？",
+        "answer": "1. 理解去美元化敘事的數學基礎\n2. 比較不同國家的黃金槓桿程度\n3. 追蹤央行黃金儲備變化的含義\n4. 作為極端情境的 tail risk 參考\n\n但請記住：這是壓力測試框架，不是價格預測工具。\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 參考來源\n\n- VanEck Gold Report: https://www.vaneck.com/us/en/blogs/gold-investing/\n- World Gold Council: https://www.gold.org/goldhub/data/gold-reserves-by-country\n- BIS Triennial Survey: https://www.bis.org/statistics/rpfx22.htm\n\n## 數據來源\n\n**黃金儲備**\n- World Gold Council（各國央行黃金持有量）\n- IMF IFS（官方儲備資產中黃金欄位）\n\n**貨幣量**\n- FRED（美國 M0/M2）\n- 各國央行統計（其他國家）\n- IMF IFS（國際可比數據）\n\n**FX Turnover 權重**\n- BIS Triennial Survey（2022 年版）\n- 每三年更新，目前最新為 2022 年調查\n\n**金價**\n- FRED: GOLDAMGBD228NLBM\n- Yahoo Finance: GC=F, GLD\n"
+    },
+    "methodology": "\r\n這不是在「預測金價」，而是在做一個**資產負債表壓力測試（balance-sheet stress test）**：\r\n\r\n**假設**：若美元（或某貨幣）失去儲備地位，全球體系需要更「硬」的錨（anchor），而黃金成為主要或唯一錨。  \r\n\r\n**問題**：在這種極端情境下，金價需要被**重估到多少**，才能讓「貨幣負債」與「黃金儲備」之間的缺口被吸收？\r\n\r\n因此它本質上是一個「**錨定定價（anchor pricing）／儲備比率重估（reserve-ratio revaluation）**」的算術模型：  \r\n\r\n用央行（或貨幣體系）的**貨幣負債（money liabilities）**去對比可用的**黃金儲備（gold reserves）**。\r\n\r\n**這套方法是「用資產負債表視角，把儲備地位流失的系統性壓力映射成黃金的隱含重估價格」：**  \r\n\r\n它不回答短期走勢，但能提供一個極端情境下的「壓力上限」與「體系脆弱度地圖」。",
+    "downloadUrl": "downloads/usd-reserve-loss-gold-revaluation-0.1.0.zip"
+  },
+  {
     "id": "demographic-fiscal-trap-analyzer",
     "name": "demographic-fiscal-trap-analyzer",
     "displayName": "分析人口財政陷阱",
@@ -1110,26 +1232,21 @@
     ],
     "featured": false,
     "installCount": 0,
-    "content": "<essential_principles>\r\n\r\n<principle name=\"fiscal_trap_definition\">\r\n**財政陷阱定義**\r\n\r\n「人口-財政陷阱」(Demographic-Fiscal Trap) 是指：當高齡化撫養比持續攀升、政府債務/GDP 居高不下、官僚體系低效膨脹、且名義成長無法覆蓋利息支出時，政府傾向透過「金融抑制」(financial repression) 或「通膨稀釋」(inflation erosion) 來削減實質負債。\r\n\r\n此陷阱的核心特徵：\r\n1. **人口結構剛性**：老年撫養比上升是不可逆的長期趨勢\r\n2. **債務自我強化**：r > g 時債務比率自動膨脹\r\n3. **政治阻力**：削減福利支出的政治成本極高\r\n4. **貨幣出口**：當財政改革無路可走，貨幣稀釋成為「最小阻力路徑」\r\n</principle>\r\n\r\n<principle name=\"four_pillar_framework\">\r\n**四支柱分析架構**\r\n\r\n本技能採用四維度評分框架：\r\n\r\n| 支柱 | 權重(預設) | 核心指標 |\r\n|------|-----------|----------|\r\n| 老化壓力 (Aging Pressure) | 35% | 老年撫養比水準 + 10年斜率 |\r\n| 債務動態 (Debt Dynamics) | 35% | 債務/GDP + 5年斜率 + (r-g) |\r\n| 官僚膨脹 (Bloat Index) | 15% | 政府消費/GDP + 政府支出/GDP |\r\n| 成長拖累 (Growth Drag) | 15% | 名義GDP成長率（負向計分）|\r\n\r\n最終 `fiscal_trap_score` = Σ(權重 × z-score) 加權總和\r\n</principle>\r\n\r\n<principle name=\"inflation_incentive\">\r\n**通膨激勵指數**\r\n\r\n通膨激勵指數 (Inflation Incentive Score) 衡量政府選擇「通膨稀釋」路徑的動機強度：\r\n\r\n```\r\ninflation_incentive =\r\n    0.40 × zscore(debt_level)           # 高債務 → 強動機\r\n  + 0.20 × zscore(r - g)                # r > g → 難以自然去槓桿\r\n  + 0.20 × zscore(neg_real_rate_share)  # 負實質利率持續 → 已在執行\r\n  + 0.20 × zscore(bloat_index)          # 高官僚膨脹 → 難以削減支出\r\n```\r\n\r\n當此指數 > 1.5 時，表示該經濟體有強烈動機維持負實質利率環境。\r\n</principle>\r\n\r\n<principle name=\"data_hierarchy\">\r\n**資料來源層級**\r\n\r\n本技能採用公開可重現的資料源：\r\n\r\n| 資料類型 | 首選來源 | 次選來源 | API/下載方式 |\r\n|----------|----------|----------|--------------|\r\n| 撫養比 | World Bank WDI | UN WPP | API / CSV |\r\n| 政府債務 | IMF WEO | World Bank | API / CSV |\r\n| 政府支出 | IMF GFS | World Bank | API / CSV |\r\n| 健康支出 | WHO GHED | World Bank | API / CSV |\r\n| 名義GDP成長 | World Bank | IMF WEO | API |\r\n| CPI通膨 | World Bank | IMF | API |\r\n| 10年公債殖利率 | OECD / 各國央行 | Trading Economics | API / 爬蟲 |\r\n\r\n所有指標均可透過 `wbdata`、`imfpy` 或直接 API 取得。\r\n</principle>\r\n\r\n<principle name=\"zscore_normalization\">\r\n**Z-Score 標準化**\r\n\r\n為使跨國比較有意義，所有原始指標均轉換為 z-score：\r\n\r\n```python\r\nzscore(x) = (x - μ_cross_section) / σ_cross_section\r\n```\r\n\r\n其中 μ 和 σ 為同期跨國截面統計量。\r\n\r\n這使得：\r\n- z > 1.5 → 顯著高於平均（警戒）\r\n- z > 2.0 → 極端值（紅燈）\r\n- z < -1.0 → 顯著優於平均\r\n</principle>\r\n\r\n<principle name=\"quadrant_classification\">\r\n**象限分類系統**\r\n\r\n根據 Aging Pressure 和 Debt Dynamics 兩主軸，將經濟體分為四象限：\r\n\r\n| 象限 | 老化壓力 | 債務動態 | 典型國家 | 政策空間 |\r\n|------|----------|----------|----------|----------|\r\n| Q1: 雙高危機 | 高 (>1) | 高 (>1) | 日本、義大利、希臘 | 極窄 |\r\n| Q2: 老化主導 | 高 (>1) | 低 (<1) | 德國、南韓 | 中等（債務可用） |\r\n| Q3: 債務主導 | 低 (<1) | 高 (>1) | 美國、巴西 | 中等（人口紅利） |\r\n| Q4: 相對健康 | 低 (<1) | 低 (<1) | 印度、印尼 | 寬廣 |\r\n\r\nQ1 象限國家最可能進入「財政陷阱」並選擇通膨稀釋路徑。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n本技能的目標是：\r\n\r\n1. **量化財政脆弱度**：計算各國/地區的 `fiscal_trap_score` 與 `inflation_incentive_score`\r\n2. **識別結構風險**：透過四支柱分解，診斷哪個維度貢獻最大風險\r\n3. **象限定位**：將經濟體歸類至四象限，判斷其政策空間\r\n4. **趨勢預警**：利用撫養比預測至 2050 年，前瞻性評估陷阱演化\r\n5. **跨國比較**：支援多國並排比較，識別相對風險排序\r\n</objective>\r\n\r\n<quick_start>\r\n## 快速開始\r\n\r\n**單一國家分析**\r\n```\r\n請分析日本的人口-財政陷阱風險，使用 2010-2023 年資料，預測至 2050 年\r\n```\r\n\r\n**多國比較**\r\n```\r\n比較 G7 國家的財政陷阱分數，並按通膨激勵指數排序\r\n```\r\n\r\n**自訂權重**\r\n```\r\n分析台灣的財政陷阱，使用自訂權重：老化 40%、債務 40%、膨脹 10%、成長 10%\r\n```\r\n</quick_start>\r\n\r\n<parameters>\r\n## 參數說明\r\n\r\n| 參數 | 型別 | 必填 | 預設值 | 說明 |\r\n|------|------|------|--------|------|\r\n| entities | list[string] | 是 | - | 國家/地區代碼 (ISO3 或區域如 OECD, EU, WORLD) |\r\n| start_year | int | 是 | - | 歷史資料起始年 |\r\n| end_year | int | 是 | - | 歷史資料結束年（通常=最近一年） |\r\n| forecast_end_year | int | 否 | 2050 | 撫養比預測結束年 |\r\n| dependency_components | list[string] | 否 | [\"old_age\",\"youth\",\"total\"] | 撫養比分解項目 |\r\n| fiscal_modules | list[string] | 否 | [\"debt\",\"spending\",\"health\"] | 啟用的財政模組 |\r\n| bureaucracy_proxies | list[string] | 否 | [\"gov_wage_bill\",\"public_employment_share\",\"gov_consumption\"] | 官僚膨脹代理指標 |\r\n| inflation_channel | string | 否 | \"real_rates\" | 通膨路徑分析方式 |\r\n| weights | dict | 否 | {\"aging\":0.35,\"debt\":0.35,\"bloat\":0.15,\"growth_drag\":0.15} | 各支柱權重 |\r\n</parameters>\r\n\r\n<workflows_overview>\r\n## 可用工作流\r\n\r\n1. **full-analysis.md** - 完整分析：執行所有模組並產出綜合報告\r\n2. **debt-dynamics.md** - 債務動態專題：深入分析 r-g 缺口與債務軌跡\r\n3. **aging-projection.md** - 老化投影：撫養比預測與財政壓力前瞻\r\n4. **cross-country.md** - 跨國比較：多國並排評分與排名\r\n5. **inflation-path.md** - 通膨路徑：分析負實質利率持續性與貨幣稀釋動機\r\n</workflows_overview>\r\n\r\n<interpretation_guide>\r\n## 結果解讀指南\r\n\r\n### Fiscal Trap Score 解讀\r\n| 分數區間 | 風險等級 | 建議關注 |\r\n|----------|----------|----------|\r\n| < 0 | 低風險 | 財政健全，政策空間充裕 |\r\n| 0 - 1 | 中等風險 | 需監控特定支柱惡化 |\r\n| 1 - 2 | 高風險 | 結構性問題顯著，改革窗口收窄 |\r\n| > 2 | 極高風險 | 財政陷阱風險極高，通膨稀釋概率上升 |\r\n\r\n### Inflation Incentive Score 解讀\r\n| 分數區間 | 政策傾向 | 對資產配置意涵 |\r\n|----------|----------|----------------|\r\n| < 0.5 | 正統財政 | 名義債券相對安全 |\r\n| 0.5 - 1.5 | 溫和金融抑制 | 實質報酬承壓 |\r\n| > 1.5 | 強烈稀釋動機 | 應考慮通膨保值資產 |\r\n</interpretation_guide>",
+    "content": "<essential_principles>\r\n\r\n<principle name=\"fiscal_trap_definition\">\r\n**財政陷阱定義**\r\n\r\n「人口-財政陷阱」(Demographic-Fiscal Trap) 是指：當高齡化撫養比持續攀升、政府債務/GDP 居高不下、官僚體系低效膨脹、且名義成長無法覆蓋利息支出時，政府傾向透過「金融抑制」(financial repression) 或「通膨稀釋」(inflation erosion) 來削減實質負債。\r\n\r\n此陷阱的核心特徵：\r\n1. **人口結構剛性**：老年撫養比上升是不可逆的長期趨勢\r\n2. **債務自我強化**：r > g 時債務比率自動膨脹\r\n3. **政治阻力**：削減福利支出的政治成本極高\r\n4. **貨幣出口**：當財政改革無路可走，貨幣稀釋成為「最小阻力路徑」\r\n</principle>\r\n\r\n<principle name=\"four_pillar_framework\">\r\n**四支柱分析架構**\r\n\r\n本技能採用四維度評分框架：\r\n\r\n| 支柱                      | 權重(預設) | 核心指標                    |\r\n|---------------------------|------------|-----------------------------|\r\n| 老化壓力 (Aging Pressure) | 35%        | 老年撫養比水準 + 10年斜率   |\r\n| 債務動態 (Debt Dynamics)  | 35%        | 債務/GDP + 5年斜率 + (r-g)  |\r\n| 官僚膨脹 (Bloat Index)    | 15%        | 政府消費/GDP + 政府支出/GDP |\r\n| 成長拖累 (Growth Drag)    | 15%        | 名義GDP成長率（負向計分）   |\r\n\r\n最終 `fiscal_trap_score` = Σ(權重 × z-score) 加權總和\r\n</principle>\r\n\r\n<principle name=\"inflation_incentive\">\r\n**通膨激勵指數**\r\n\r\n通膨激勵指數 (Inflation Incentive Score) 衡量政府選擇「通膨稀釋」路徑的動機強度：\r\n\r\n```\r\ninflation_incentive =\r\n    0.40 × zscore(debt_level)           # 高債務 → 強動機\r\n  + 0.20 × zscore(r - g)                # r > g → 難以自然去槓桿\r\n  + 0.20 × zscore(neg_real_rate_share)  # 負實質利率持續 → 已在執行\r\n  + 0.20 × zscore(bloat_index)          # 高官僚膨脹 → 難以削減支出\r\n```\r\n\r\n當此指數 > 1.5 時，表示該經濟體有強烈動機維持負實質利率環境。\r\n</principle>\r\n\r\n<principle name=\"data_hierarchy\">\r\n**資料來源層級**\r\n\r\n本技能採用公開可重現的資料源：\r\n\r\n| 資料類型       | 首選來源        | 次選來源          | API/下載方式 |\r\n|----------------|-----------------|-------------------|--------------|\r\n| 撫養比         | World Bank WDI  | UN WPP            | API / CSV    |\r\n| 政府債務       | IMF WEO         | World Bank        | API / CSV    |\r\n| 政府支出       | IMF GFS         | World Bank        | API / CSV    |\r\n| 健康支出       | WHO GHED        | World Bank        | API / CSV    |\r\n| 名義GDP成長    | World Bank      | IMF WEO           | API          |\r\n| CPI通膨        | World Bank      | IMF               | API          |\r\n| 10年公債殖利率 | OECD / 各國央行 | Trading Economics | API / 爬蟲   |\r\n\r\n所有指標均可透過 `wbdata`、`imfpy` 或直接 API 取得。\r\n</principle>\r\n\r\n<principle name=\"zscore_normalization\">\r\n**Z-Score 標準化**\r\n\r\n為使跨國比較有意義，所有原始指標均轉換為 z-score：\r\n\r\n```python\r\nzscore(x) = (x - μ_cross_section) / σ_cross_section\r\n```\r\n\r\n其中 μ 和 σ 為同期跨國截面統計量。\r\n\r\n這使得：\r\n- z > 1.5 → 顯著高於平均（警戒）\r\n- z > 2.0 → 極端值（紅燈）\r\n- z < -1.0 → 顯著優於平均\r\n</principle>\r\n\r\n<principle name=\"quadrant_classification\">\r\n**象限分類系統**\r\n\r\n根據 Aging Pressure 和 Debt Dynamics 兩主軸，將經濟體分為四象限：\r\n\r\n| 象限         | 老化壓力 | 債務動態 | 典型國家           | 政策空間         |\r\n|--------------|----------|----------|--------------------|------------------|\r\n| Q1: 雙高危機 | 高 (>1)  | 高 (>1)  | 日本、義大利、希臘 | 極窄             |\r\n| Q2: 老化主導 | 高 (>1)  | 低 (<1)  | 德國、南韓         | 中等（債務可用） |\r\n| Q3: 債務主導 | 低 (<1)  | 高 (>1)  | 美國、巴西         | 中等（人口紅利） |\r\n| Q4: 相對健康 | 低 (<1)  | 低 (<1)  | 印度、印尼         | 寬廣             |\r\n\r\nQ1 象限國家最可能進入「財政陷阱」並選擇通膨稀釋路徑。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n本技能的目標是：\r\n\r\n1. **量化財政脆弱度**：計算各國/地區的 `fiscal_trap_score` 與 `inflation_incentive_score`\r\n2. **識別結構風險**：透過四支柱分解，診斷哪個維度貢獻最大風險\r\n3. **象限定位**：將經濟體歸類至四象限，判斷其政策空間\r\n4. **趨勢預警**：利用撫養比預測至 2050 年，前瞻性評估陷阱演化\r\n5. **跨國比較**：支援多國並排比較，識別相對風險排序\r\n</objective>\r\n\r\n<quick_start>\r\n## 快速開始\r\n\r\n**單一國家分析**\r\n```\r\n請分析日本的人口財政陷阱風險，使用 2010-2023 年資料，預測至 2050 年\r\n```\r\n\r\n**多國比較**\r\n```\r\n比較 G7 國家的財政陷阱分數，並按通膨激勵指數排序\r\n```\r\n\r\n**自訂權重**\r\n```\r\n分析台灣的財政陷阱，使用自訂權重：老化 40%、債務 40%、膨脹 10%、成長 10%\r\n```\r\n</quick_start>\r\n\r\n<parameters>\r\n## 參數說明\r\n\r\n| 參數                  | 型別         | 必填 | 預設值                                                        | 說明                                          |\r\n|-----------------------|--------------|------|---------------------------------------------------------------|-----------------------------------------------|\r\n| entities              | list[string] | 是   | -                                                             | 國家/地區代碼 (ISO3 或區域如 OECD, EU, WORLD) |\r\n| start_year            | int          | 是   | -                                                             | 歷史資料起始年                                |\r\n| end_year              | int          | 是   | -                                                             | 歷史資料結束年（通常=最近一年）               |\r\n| forecast_end_year     | int          | 否   | 2050                                                          | 撫養比預測結束年                              |\r\n| dependency_components | list[string] | 否   | [\"old_age\",\"youth\",\"total\"]                                   | 撫養比分解項目                                |\r\n| fiscal_modules        | list[string] | 否   | [\"debt\",\"spending\",\"health\"]                                  | 啟用的財政模組                                |\r\n| bureaucracy_proxies   | list[string] | 否   | [\"gov_wage_bill\",\"public_employment_share\",\"gov_consumption\"] | 官僚膨脹代理指標                              |\r\n| inflation_channel     | string       | 否   | \"real_rates\"                                                  | 通膨路徑分析方式                              |\r\n| weights               | dict         | 否   | {\"aging\":0.35,\"debt\":0.35,\"bloat\":0.15,\"growth_drag\":0.15}    | 各支柱權重                                    |\r\n</parameters>\r\n\r\n<workflows_overview>\r\n## 可用工作流\r\n\r\n1. **full-analysis.md** - 完整分析：執行所有模組並產出綜合報告\r\n2. **debt-dynamics.md** - 債務動態專題：深入分析 r-g 缺口與債務軌跡\r\n3. **aging-projection.md** - 老化投影：撫養比預測與財政壓力前瞻\r\n4. **cross-country.md** - 跨國比較：多國並排評分與排名\r\n5. **inflation-path.md** - 通膨路徑：分析負實質利率持續性與貨幣稀釋動機\r\n</workflows_overview>\r\n\r\n<interpretation_guide>\r\n## 結果解讀指南\r\n\r\n### Fiscal Trap Score 解讀\r\n| 分數區間 | 風險等級 | 建議關注                           |\r\n|----------|----------|------------------------------------|\r\n| < 0      | 低風險   | 財政健全，政策空間充裕             |\r\n| 0 - 1    | 中等風險 | 需監控特定支柱惡化                 |\r\n| 1 - 2    | 高風險   | 結構性問題顯著，改革窗口收窄       |\r\n| > 2      | 極高風險 | 財政陷阱風險極高，通膨稀釋概率上升 |\r\n\r\n### Inflation Incentive Score 解讀\r\n| 分數區間  | 政策傾向     | 對資產配置意涵     |\r\n|-----------|--------------|--------------------|\r\n| < 0.5     | 正統財政     | 名義債券相對安全   |\r\n| 0.5 - 1.5 | 溫和金融抑制 | 實質報酬承壓       |\r\n| > 1.5     | 強烈稀釋動機 | 應考慮通膨保值資產 |\r\n</interpretation_guide>\r\n\r\n<execution_examples>\r\n## 執行案例：日本人口-財政陷阱分析 (2010-2023)\r\n\r\n**分析指令**\r\n```\r\n請分析日本的人口財政陷阱風險，使用 2010-2023 年資料，預測至 2050 年\r\n```\r\n\r\n### 核心發現\r\n\r\n**綜合評分結果**\r\n- **Fiscal Trap Score**: 2.03 (CRITICAL > 2.0 閾值)\r\n- **Inflation Incentive Score**: 2.38 (極高 > 1.5 閾值)\r\n- **象限分類**: Q1 - 雙高危機 (HighAging & HighDebt)\r\n- **OECD排名**: #1 (風險最高國家)\r\n\r\n**四支柱詳細評分**\r\n\r\n| 支柱     | Z-Score | 權重 | 貢獻 | 全球排名 | 風險等級 |\r\n|----------|---------|------|------|----------|----------|\r\n| 老化壓力 | 2.40    | 35%  | 0.84 | #1       | ★★★★★    |\r\n| 債務動態 | 2.45    | 35%  | 0.86 | #1       | ★★★★★    |\r\n| 官僚膨脹 | 1.09    | 15%  | 0.16 | #15      | ★★☆☆☆    |\r\n| 成長拖累 | 1.10    | 15%  | 0.17 | #33      | ★★☆☆☆    |\r\n\r\n### 關鍵指標概覽 (2010→2023)\r\n\r\n```\r\n老年撫養比:      35.5% → 48.5%      (全球最高，加速中)\r\n政府債務/GDP:   215.8% → 262.5%     (全球最高，超可持續邊界)\r\n實質利率:        -2.5% (2023)        (金融抑制制度化)\r\n名義GDP成長:     1.5%平均           (全球最低)\r\n利息支出:        3.2% GDP (2023)    (2050年預測達8%+)\r\n```\r\n\r\n### 陷阱自我強化機制\r\n\r\n```\r\n老化 → 社保支出↑ → 赤字↑ → 債務↑ → 利息↑ → 赤字更↑\r\n              ↓(無法切斷)↓\r\n         整個迴圈傳統財政改革無法化解\r\n```\r\n\r\n### 未來場景預測\r\n\r\n| 場景     | 概率 | 特徵                          | 影響               |\r\n|----------|------|-------------------------------|--------------------|\r\n| 通膨加速 | 70%  | 名義GDP成長4-5%，央行允許通膨 | 日圓貶值15-25%     |\r\n| 利率衝擊 | 20%  | YCC崩潰，實質利率正常化       | 債務比率爆炸性增長 |\r\n| 改革突破 | 10%  | 社保根本性改革，移民開放      | 極低政治可能性     |\r\n\r\n### 資產配置建議 (日本投資者)\r\n\r\n**推薦**\r\n- 30% 美國股票 (美元走強+實質利率正值)\r\n- 20% 美國債券 (3-4% yield vs JGB -2.5%)\r\n- 15% 新興市場 (成長性，日圓對沖)\r\n- 10% 黃金 (通膨對沖)\r\n- 10% 日本不動產 (東京/一線，通膨受益)\r\n- 15% 現金/替代資產\r\n\r\n**應避免**\r\n- ✗ 純JGB持有 (年實質報酬 -2.5%)\r\n- ✗ 地方房地產 (人口衰退中)\r\n- ✗ 日圓堆積 (購買力侵蝕)\r\n\r\n### 生成成果物\r\n\r\n分析完成後自動生成以下文檔：\r\n\r\n1. **結構化JSON** - 完整數據與計算過程\r\n2. **技術報告** - 49KB 詳細分析文檔\r\n3. **執行摘要** - 5-10分鐘快速掌握\r\n4. **可視化圖表** (5張)\r\n   - 01_four_pillars_20260119.png - 四支柱評分分解\r\n   - 02_time_series_20260119.png - 2010-2023年時間序列\r\n   - 03_projections_20260119.png - 2024-2050年投影\r\n   - 04_asset_allocation_20260119.png - 資產配置建議\r\n   - 05_risk_scorecard_20260119.png - 風險評分卡\r\n\r\n### 監測指標 (投資決策參考)\r\n\r\n| 指標        | 當前值 | 警戒線     | 含義         |\r\n|-------------|--------|------------|--------------|\r\n| CPI通膨     | 3.3%   | >4%持續3年 | 通膨稀釋確認 |\r\n| 10y殖利率   | 0.8%   | >1.5%      | YCC漸進解除  |\r\n| JPY/USD     | 160    | >180       | 日圓貶值信號 |\r\n| BoJ債券持有 | 52%    | <45%       | 正常化信號   |\r\n\r\n</execution_examples>",
     "path": "skills/demographic-fiscal-trap-analyzer/SKILL.md",
-    "directoryStructure": "demographic-fiscal-trap-analyzer/\n├── examples\n│   ├── g7-comparison-2023.json\n│   └── japan-full-analysis.json\n├── manifest.json\n├── references\n│   ├── data-sources.md\n│   ├── indicator-codes.md\n│   ├── input-schema.md\n│   └── methodology.md\n├── scripts\n│   └── fiscal_trap_analyzer.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── aging-projection.md\n    ├── cross-country.md\n    ├── debt-dynamics.md\n    ├── full-analysis.md\n    └── inflation-path.md",
+    "directoryStructure": "demographic-fiscal-trap-analyzer/\n├── examples\n│   ├── g7-comparison-2023.json\n│   └── japan-full-analysis.json\n├── manifest.json\n├── references\n│   ├── data-sources.md\n│   ├── indicator-codes.md\n│   ├── input-schema.md\n│   └── methodology.md\n├── scripts\n│   ├── fiscal_trap_analyzer.py\n│   ├── README.md\n│   └── visualize_combined.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── aging-projection.md\n    ├── cross-country.md\n    ├── debt-dynamics.md\n    ├── full-analysis.md\n    └── inflation-path.md",
+    "lastUpdated": "2026-01-19",
     "rating": 3,
     "testQuestions": [
       {
-        "question": "請分析日本的人口-財政陷阱風險，使用 2010-2023 年資料",
-        "expectedResult": "日本應顯示：\n- 老年撫養比極高 (>0.45)\n- 債務/GDP > 200%\n- fiscal_trap_score > 2.0\n- 象限分類為 Q1 (雙高危機)\n- inflation_incentive_score > 1.5\n"
-      },
-      {
-        "question": "比較 G7 國家的財政陷阱分數，2015-2023",
-        "expectedResult": "應輸出 G7 國家排名：\n- 日本、義大利通常排名最高風險\n- 德國、加拿大相對較低\n- 每個國家有完整的四支柱分數\n"
+        "question": "請分析日本的人口財政陷阱風險，使用 2010-2023 年資料",
+        "imagePath": "images/Japan-demographic-fiscal-trap-combined-2026-01-19.png",
+        "expectedResult": "完成！我已為您進行了完整的日本人口財政陷阱分析。以下是核心發現：\n\n日本風險評估 - 臨界狀態\n┌───────────────────────────┬───────────────┬────────────────────┐\n│           指標            │     數值      │        評級        │\n├───────────────────────────┼───────────────┼────────────────────┤\n│ Fiscal Trap Score         │ 2.03          │ ★★★★★ 極高風險     │\n├───────────────────────────┼───────────────┼────────────────────┤\n│ Inflation Incentive Score │ 2.38          │ 強烈通膨稀釋動機   │\n├───────────────────────────┼───────────────┼────────────────────┤\n│ 象限分類                  │ Q1 (雙高危機) │ 日本、義大利、希臘 │\n├───────────────────────────┼───────────────┼────────────────────┤\n│ 全球排名                  │ #1            │ 風險最高           │\n└───────────────────────────┴───────────────┴────────────────────┘\n四支柱分解\n┌──────────┬─────────┬──────────┬────────────┐\n│   支柱   │ Z-Score │ 全球排名 │  風險評級  │\n├──────────┼─────────┼──────────┼────────────┤\n│ 老化壓力 │ 2.40    │ #1       │ ⭐⭐⭐⭐⭐ │\n├──────────┼─────────┼──────────┼────────────┤\n│ 債務動態 │ 2.45    │ #1       │ ⭐⭐⭐⭐⭐ │\n├──────────┼─────────┼──────────┼────────────┤\n│ 官僚膨脹 │ 1.09    │ #15      │ ⭐⭐       │\n├──────────┼─────────┼──────────┼────────────┤\n│ 成長拖累 │ 1.10    │ #33      │ ⭐⭐       │\n└──────────┴─────────┴──────────┴────────────┘\n關鍵數據（2010→2023）\n\n老年撫養比:      35.5% → 48.5% (全球最高，加速中)\n政府債務/GDP:    215.8% → 262.5% (全球最高，超可持續邊界)\n實質利率:        -2.5% (2023年，金融抑制常態化)\n名義GDP成長:     1.5%平均 (全球最低，人口衰退 -1.5%)\n利息支出:        3.2% GDP (預測2050年達8%+)\n\n陷阱自我強化機制\n\n老化 → 社保支出↑ → 赤字↑ → 債務↑ → 利息↑ → 赤字更↑\n    ↓(無法切斷)↓\n  整個迴圈傳統財政改革無法化解\n\n通膨稀釋路徑（70% 概率）\n\n- 2024-2030年：YCC漸進調整，名義成長微升至2-3%\n- 2030-2040年：通膨加速至3.5-4.5%，日圓貶值15-25%\n- 代價：進口成本上升、儲蓄購買力喪失\n\n資產配置建議（日本投資者）\n\n30% 美國股票    (美元走強+實質利率正值)\n20% 美國債券    (3-4% vs JGB -2.5%)\n15% 新興市場    (成長性，日圓對沖)\n10% 黃金        (通膨對沖)\n10% 日本不動產  (東京/一線，通膨受益)\n15% 現金/替代\n\n應避免：純JGB持有(年實質報酬-2.5%)、地方房產(人口衰退)、日圓堆積\n\n政策空間\n\n- 老年人(60+)已佔選民>50% → 政治上無法削支\n- 稅收已占GDP 35%+ → 難以增稅\n- 結論：傳統財政改革已無通道，通膨稀釋成必然選擇\n\n---\n已為您生成4份綜合文檔（共116KB），涵蓋完整技術報告、執行摘要、結構化JSON數據，包括2010-2023年歷史分析與2024-2050年前瞻預測。\n"
       },
       {
         "question": "分析台灣 2010-2023 的老化壓力與債務動態",
-        "expectedResult": "台灣應顯示：\n- 老化壓力中高（老年撫養比快速上升）\n- 債務動態相對溫和（債務/GDP < 50%）\n- 象限可能為 Q2 (老化主導)\n"
-      },
-      {
-        "question": "使用自訂權重分析德國：老化 50%、債務 30%、膨脹 10%、成長 10%",
-        "expectedResult": "應正確套用自訂權重，\n由於加重老化壓力，德國的 fiscal_trap_score 應上升\n"
+        "imagePath": "images/Taiwan-demographic-fiscal-trap-combined-2026-01-19.png",
+        "expectedResult": "✅ 台灣人口-財政陷阱分析完成！\n\n---\n核心結論\n\n財政陷阱評分: -0.02 (低風險 ✓)\n區域排名: 4/6 (東亞優等生)\n象限分類: Q4 相對健康\n通膨稀釋動機: -0.35 (低動機 ✓)\n\n一句話總結: 台灣財政狀況在東亞屬於優等生，但面臨快速老化的中長期挑戰，需在未來 15-20 年內完成退休金改革。\n\n---\n四支柱評分\n\n┌────────────────────────────────────────┐\n│  支柱          評分    排名    評估     │\n├────────────────────────────────────────┤\n│  老化壓力      0.73    3/6     ⚠️ 中高 │\n│  債務動態     -0.55    2/6     ✓ 優秀  │\n│  官僚膨脹     -0.20    3/6     ✓ 良好  │\n│  成長拖累     -0.36    2/6     ✓ 優秀  │\n└────────────────────────────────────────┘\n\n---\n區域比較\n\n財政陷阱評分排名 (低分 = 低風險):\n\n1. 日本      1.58  🔴 高風險\n2. 南韓      0.22\n3. 印尼      0.13\n4. 台灣     -0.02  ✓ 低風險 ← 您在這裡\n5. 泰國     -0.15\n6. 中國     -0.30  ✓ 最低風險\n\n---\n關鍵發現\n\n✓ 優勢\n\n- 債務水平低: 35-40% GDP vs 日本 262.5%\n- 外匯存底: $5,500億 (全球第五)\n- 科技領先: 台積電全球領導地位\n- 財政紀律: 公共債務法限制生效\n\n⚠️ 挑戰\n\n- 快速老化: 生育率 0.87 (全球最低)\n- 勞保缺口: 11兆台幣，2028-2032 破產風險\n- 移民保守: 人口補充不足\n- 地緣風險: 防衛支出壓力上升\n\n---\n生成文件\n\n📊 結構化數據\n\n- ✓ asia_demographic_fiscal_trap_2010-2023_structured.json (3.5 KB)\n- ✓ taiwan_demographic_fiscal_trap_2010-2023_structured.json (1.8 KB)\n\n📝 分析報告\n\n- ✓ taiwan_demographic_fiscal_trap_2010-2023_analysis.md (11 KB)\n  - 完整技術分析\n  - 四支柱詳解\n  - 區域比較\n  - 2050 年預測\n  - 政策建議\n\n📋 執行摘要\n\n- ✓ EXECUTIVE_SUMMARY_TW.md (4.8 KB)\n  - 5 分鐘快速閱讀\n  - 核心數字\n  - SWOT 分析\n  - 投資建議\n\n📈 可視化圖表\n\n- ✓ Taiwan_Demographic_Fiscal_Trap_Combined_ZH_20260119.png (839 KB)\n  - 20×14 英吋高清圖表\n  - 10 個關鍵視圖\n  - 中文標籤\n- ✓ Taiwan_Demographic_Fiscal_Trap_Combined_ZH_20260119.pdf (132 KB)\n  - PDF 列印版本\n\n📦 完整總結\n\n- ✓ TAIWAN_ANALYSIS_COMPLETION_20260119.md (9.8 KB)\n  - 完整總結文檔\n\n---\n投資建議 (台灣投資者)\n\n基於低風險評分和低通膨稀釋動機:\n\n推薦配置:\n├─ 台股          35-40%  (科技優勢)\n├─ 美股          20-25%  (全球分散)\n├─ 台債          15-20%  (低通膨環境)\n├─ 海外債券      10-15%\n├─ 不動產        5-10%   (通膨對沖)\n├─ 黃金/另類     5-10%   (地緣對沖)\n└─ 現金          5-10%\n\n應避免:\n❌ 過度集中台灣資產\n❌ 長天期零息債券\n❌ 高槓桿房地產\n\n---\n政策建議優先順序\n\n🔴 立即 (2024-2025)\n\n1. 退休金改革: 延長退休年齡至 67 歲\n2. 勞保基金: 注資或改革，避免破產\n\n⚠️ 3 年內 (2026-2027)\n\n3. 長照保險: 建立完善體系\n4. 財政緩衝: 維持債務 <40% GDP\n\n💡 5 年內 (2028-2030)\n\n5. 移民政策: 年淨流入 5-10 萬人\n6. 生育支持: 目標生育率 1.2\n\n---\n分析完成！ 所有文檔已保存至 output/ 目錄。\n"
       }
     ],
     "qualityScore": {
@@ -1320,128 +1437,6 @@
       "additionalInfo": "## 理論來源\n\n基於 Sergei Sukhov 的論文：\n\"Geometry of Advantage Decay: A Quantitative Model for Risk-Reward\nDegradation in High-Friction Trading Environments\"\n\n## 相關文獻\n\n- Kyle (1985): Continuous Auctions and Insider Trading\n- Glosten & Milgrom (1985): Bid-ask spread models\n- Easley & O'Hara (1987): Price, trade size, and information\n"
     },
     "downloadUrl": "downloads/cost-density-net-rr-calculator-0.1.0.zip"
-  },
-  {
-    "id": "detect-palladium-lead-silver-turns",
-    "name": "detect-palladium-lead-silver-turns",
-    "displayName": "辨識鈀金領先白銀轉折點",
-    "description": "以鈀金的先行轉向作為確認條件，檢驗白銀短期漲跌是否獲得工業景氣與風險情緒的同步支持，並標記缺乏鈀金參與度的失敗走勢。",
-    "emoji": "⤴️",
-    "version": "0.1.0",
-    "license": "MIT",
-    "author": "Ricky Wang",
-    "authorUrl": "https://github.com/fatfingererr/macro-skills",
-    "tags": [
-      "鈀金",
-      "白銀",
-      "貴金屬",
-      "拐點偵測",
-      "領先指標",
-      "跨金屬確認",
-      "失敗走勢",
-      "流動性噪音",
-      "技術分析"
-    ],
-    "category": "indicator-monitoring",
-    "dataLevel": "free-nolimit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": false,
-    "installCount": 0,
-    "content": "<essential_principles>\r\n\r\n<principle name=\"cross_metal_confirmation\">\r\n**跨金屬確認核心**\r\n\r\n「鈀金領先白銀」的假說需要可量化驗證：\r\n- 以 cross-correlation 估計最佳領先滯後（lead-lag）\r\n- 當銀出現拐點時，檢查鈀金是否在確認窗口內先行或同步出現同向拐點\r\n- 未被確認的拐點視為「失敗推動」的候選\r\n\r\n```\r\nLead-Lag = argmax(cross_correlation(pd_ret[t-k:t], ag_ret[t:t+k]))\r\nConfirmed = pd_turn exists within [ag_turn.ts - window, ag_turn.ts + window]\r\n```\r\n</principle>\r\n\r\n<principle name=\"turning_point_detection\">\r\n**拐點偵測三法**\r\n\r\n| 方法           | 原理                          | 適用場景       |\r\n|----------------|-------------------------------|----------------|\r\n| `pivot`        | 左右 N 根K棒內的局部極值      | 結構明確的趨勢 |\r\n| `peaks`        | scipy find_peaks + prominence | 自動化密度控制 |\r\n| `slope_change` | 趨勢斜率由正轉負或反之        | 平滑趨勢追蹤   |\r\n\r\n建議從 `pivot` 開始，左右各 3-5 根K棒，再依需求調整。\r\n</principle>\r\n\r\n<principle name=\"participation_judgment\">\r\n**參與度判定**\r\n\r\n鈀金是否「參與」銀的走勢，有多種衡量方式：\r\n\r\n| 指標               | 定義               | 門檻建議          |\r\n|--------------------|--------------------|-------------------|\r\n| `returns_corr`     | 報酬率滾動相關係數 | > 0.5             |\r\n| `direction_agree`  | 同向漲跌的比例     | > 60%             |\r\n| `vol_expansion`    | 兩者波動同步擴張   | σ_pd / σ_ag > 0.8 |\r\n| `breakout_confirm` | 銀突破時鈀金也突破 | 同向突破          |\r\n\r\n未達門檻時，銀的動作可能是「流動性噪音」而非趨勢確認。\r\n</principle>\r\n\r\n<principle name=\"failure_move_detection\">\r\n**失敗走勢判定**\r\n\r\n將「無鈀金參與的銀動作」落地為可回測的規則：\r\n\r\n| 規則                         | 定義                            | 後果               |\r\n|------------------------------|---------------------------------|--------------------|\r\n| `no_confirm_then_revert`     | 無確認 + 銀在 N 根K內回撤過起點 | 標記為 failed_move |\r\n| `no_confirm_then_break_fail` | 無確認 + 銀突破後回落跌破突破點 | 假突破             |\r\n\r\n歷史統計：未確認事件的失敗率 vs 已確認事件的成功率。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n偵測「鈀金領先、白銀跟隨」的跨金屬拐點：\r\n\r\n1. **數據取得**：白銀與鈀金的 OHLCV（yfinance: SI=F, PA=F）\r\n2. **拐點偵測**：識別兩者的局部高低點（pivot / peaks / slope_change）\r\n3. **領先滯後估計**：cross-correlation 找最佳 lag\r\n4. **跨金屬確認**：銀的拐點是否在窗口內被鈀金同向拐點確認\r\n5. **失敗走勢判定**：未確認的銀拐點是否符合失敗規則\r\n\r\n輸出：確認率、失敗率、每個事件的詳細判定、風控建議。\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：偵測白銀近期拐點是否被鈀金確認**\r\n\r\n```bash\r\ncd skills/detect-palladium-lead-silver-turns\r\npip install pandas numpy yfinance scipy statsmodels  # 首次使用\r\npython scripts/palladium_lead_silver.py --silver SI=F --palladium PA=F --quick\r\n```\r\n\r\n輸出範例：\r\n```json\r\n{\r\n  \"symbol_pair\": {\"silver\": \"SI=F\", \"palladium\": \"PA=F\"},\r\n  \"as_of\": \"2026-01-14\",\r\n  \"timeframe\": \"1h\",\r\n  \"estimated_pd_leads_by_bars\": 6,\r\n  \"lead_lag_corr\": 0.42,\r\n  \"confirmation_rate\": 0.71,\r\n  \"unconfirmed_failure_rate\": 0.64,\r\n  \"latest_event\": {\r\n    \"ts\": \"2026-01-15T14:00:00Z\",\r\n    \"turn\": \"top\",\r\n    \"confirmed\": false,\r\n    \"participation_ok\": false,\r\n    \"failed_move\": true\r\n  }\r\n}\r\n```\r\n\r\n**完整分析**：\r\n```bash\r\npython scripts/palladium_lead_silver.py --silver SI=F --palladium PA=F --timeframe 1h --lookback 1000 --output result.json\r\n```\r\n\r\n**生成視覺化圖表**：\r\n```bash\r\npip install matplotlib  # 首次使用\r\npython scripts/plot_palladium_silver.py --silver SI=F --palladium PA=F --output output/\r\n```\r\n\r\n圖表包含：\r\n- 銀/鈀價格疊加與拐點標記\r\n- 確認/未確認事件分布\r\n- 滾動相關係數時間序列\r\n- 失敗走勢統計\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼操作？\r\n\r\n1. **快速偵測** - 檢查最近白銀拐點是否被鈀金確認\r\n2. **歷史回測** - 回溯分析跨金屬確認的有效性\r\n3. **持續監控** - 設定警報當出現新拐點時通知\r\n4. **參數調校** - 找出最佳的確認窗口與參與度門檻\r\n5. **方法論學習** - 了解跨金屬領先滯後的理論基礎\r\n\r\n**請選擇或直接提供分析參數開始。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                           | Action                                                 |\r\n|------------------------------------|--------------------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"check\"        | 執行 `python scripts/palladium_lead_silver.py --quick` |\r\n| 2, \"回測\", \"backtest\", \"history\"   | 閱讀 `workflows/backtest.md` 並執行                    |\r\n| 3, \"監控\", \"monitor\", \"alert\"      | 閱讀 `workflows/monitor.md` 並執行                     |\r\n| 4, \"調校\", \"optimize\", \"tune\"      | 閱讀 `workflows/detect.md` 的參數調校部分              |\r\n| 5, \"學習\", \"方法論\", \"why\"         | 閱讀 `references/methodology.md`                       |\r\n| 提供參數（如 timeframe, lookback） | 閱讀 `workflows/detect.md` 並使用參數執行              |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\ndetect-palladium-lead-silver-turns/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── manifest.json                      # 技能元數據\r\n├── workflows/\r\n│   ├── detect.md                      # 單次偵測工作流\r\n│   ├── backtest.md                    # 歷史回測工作流\r\n│   └── monitor.md                     # 持續監控工作流\r\n├── references/\r\n│   ├── methodology.md                 # 跨金屬領先滯後方法論\r\n│   ├── input-schema.md                # 完整輸入參數定義\r\n│   └── data-sources.md                # 資料來源說明\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n├── scripts/\r\n│   ├── palladium_lead_silver.py       # 主偵測腳本\r\n│   └── plot_palladium_silver.py       # 視覺化圖表腳本\r\n└── examples/\r\n    └── silver-palladium-2024.json     # 範例輸出\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**方法論**: references/methodology.md\r\n- 跨金屬領先滯後原理\r\n- 拐點偵測三法詳解\r\n- 參與度與確認邏輯\r\n- 失敗走勢的市場含義\r\n\r\n**資料來源**: references/data-sources.md\r\n- Yahoo Finance 期貨代碼\r\n- 宏觀濾鏡數據來源\r\n- 數據頻率與對齊\r\n\r\n**輸入參數**: references/input-schema.md\r\n- 完整參數定義\r\n- 預設值與建議範圍\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow    | Purpose  | 使用時機           |\r\n|-------------|----------|--------------------|\r\n| detect.md   | 單次偵測 | 檢查特定時間範圍   |\r\n| backtest.md | 歷史回測 | 驗證確認邏輯有效性 |\r\n| monitor.md  | 持續監控 | 日常追蹤或警報     |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構定義 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script                   | Command                                          | Purpose          |\r\n|--------------------------|--------------------------------------------------|------------------|\r\n| palladium_lead_silver.py | `--silver SI=F --palladium PA=F --quick`         | 快速檢查當前狀態 |\r\n| palladium_lead_silver.py | `--silver SI=F --palladium PA=F --lookback 1000` | 完整歷史分析     |\r\n| plot_palladium_silver.py | `--silver SI=F --palladium PA=F --output dir/`   | 生成視覺化圖表   |\r\n</scripts_index>\r\n\r\n<input_schema_summary>\r\n\r\n**核心參數**\r\n\r\n| 參數             | 類型   | 預設值     | 說明         |\r\n|------------------|--------|------------|--------------|\r\n| silver_symbol    | string | (required) | 白銀標的代碼 |\r\n| palladium_symbol | string | (required) | 鈀金標的代碼 |\r\n| timeframe        | string | 1h         | 分析時間尺度 |\r\n| lookback_bars    | int    | 1000       | 回溯K棒數    |\r\n\r\n**拐點偵測參數**\r\n\r\n| 參數                | 類型   | 預設值 | 說明                |\r\n|---------------------|--------|--------|---------------------|\r\n| turn_method         | string | pivot  | 拐點偵測方法        |\r\n| pivot_left          | int    | 3      | pivot 左側確認K數   |\r\n| pivot_right         | int    | 3      | pivot 右側確認K數   |\r\n| confirm_window_bars | int    | 6      | 跨金屬確認窗口      |\r\n| lead_lag_max_bars   | int    | 24     | 領先滯後最大滯後K數 |\r\n\r\n**參與度參數**\r\n\r\n| 參數                    | 類型   | 預設值                 | 說明           |\r\n|-------------------------|--------|------------------------|----------------|\r\n| participation_metric    | string | direction_agree        | 參與度衡量方式 |\r\n| participation_threshold | float  | 0.6                    | 參與度門檻     |\r\n| failure_rule            | string | no_confirm_then_revert | 失敗走勢規則   |\r\n\r\n完整參數定義見 `references/input-schema.md`。\r\n\r\n</input_schema_summary>\r\n\r\n<output_schema_summary>\r\n```json\r\n{\r\n  \"skill\": \"detect-palladium-lead-silver-turns\",\r\n  \"symbol_pair\": {\"silver\": \"SI=F\", \"palladium\": \"PA=F\"},\r\n  \"as_of\": \"2026-01-14\",\r\n  \"timeframe\": \"1h\",\r\n  \"lookback_bars\": 1200,\r\n  \"summary\": {\r\n    \"estimated_pd_leads_by_bars\": 6,\r\n    \"lead_lag_corr\": 0.42,\r\n    \"confirmation_rate\": 0.71,\r\n    \"unconfirmed_failure_rate\": 0.64,\r\n    \"total_ag_turns\": 24,\r\n    \"confirmed_turns\": 17,\r\n    \"failed_moves\": 5\r\n  },\r\n  \"events\": [\r\n    {\r\n      \"ts\": \"2026-01-08T10:00:00Z\",\r\n      \"turn\": \"bottom\",\r\n      \"confirmed\": true,\r\n      \"confirmation_lag_bars\": -3,\r\n      \"participation_ok\": true,\r\n      \"failed_move\": false\r\n    }\r\n  ],\r\n  \"interpretation\": {\r\n    \"regime_assessment\": \"...\",\r\n    \"tactics\": [\"...\", \"...\"]\r\n  }\r\n}\r\n```\r\n\r\n完整輸出結構見 `templates/output-json.md`。\r\n</output_schema_summary>\r\n\r\n<success_criteria>\r\n執行成功時應產出：\r\n\r\n- [ ] 鈀金對白銀的最佳領先滯後估計（bars）\r\n- [ ] 領先滯後的相關係數\r\n- [ ] 白銀拐點被鈀金確認的確認率\r\n- [ ] 未確認事件的失敗走勢比例\r\n- [ ] 每個白銀拐點的詳細判定（confirmed, participation, failed）\r\n- [ ] 行情解讀與戰術建議\r\n- [ ] 時間序列資料（可選，用於視覺化）\r\n- [ ] 視覺化圖表 PNG（可選，使用 plot_palladium_silver.py）\r\n</success_criteria>",
-    "path": "skills/detect-palladium-lead-silver-turns/SKILL.md",
-    "directoryStructure": "detect-palladium-lead-silver-turns/\n├── examples\n│   └── silver-palladium-2024.json\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   └── methods.md\n├── scripts\n│   ├── palladium_lead_silver.py\n│   └── plot_palladium_silver.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── backtest.md\n    ├── detect.md\n    └── monitor.md",
-    "lastUpdated": "2026-01-16",
-    "rating": 3,
-    "testQuestions": [
-      {
-        "question": "白銀最近的拐點有被鈀金確認嗎？幫我偵測並判斷是否為失敗走勢",
-        "expectedResult": "白銀（SI=F）與鈀金（PA=F）跨金屬拐點偵測結果（數據截至 2026-01-14）\n\n┌─────────────────────────────┬────────┬─────────────────────────────┐\n│            指標             │  數值  │            狀態             │\n├─────────────────────────────┼────────┼─────────────────────────────┤\n│ 鈀金領先白銀                │ 6 bars │ 鈀金平均領先 6 根 K 棒      │\n├─────────────────────────────┼────────┼─────────────────────────────┤\n│ 領先滯後相關係數            │ 0.42   │ 中等正相關                  │\n├─────────────────────────────┼────────┼─────────────────────────────┤\n│ 確認率                      │ 71%    │ 白銀拐點被鈀金確認的比例    │\n├─────────────────────────────┼────────┼─────────────────────────────┤\n│ 未確認失敗率                │ 64%    │ 未被確認的拐點失敗比例      │\n└─────────────────────────────┴────────┴─────────────────────────────┘\n\n最新事件（2026-01-15T14:00:00Z）\n\n- 類型：top（頂部拐點）\n- 鈀金確認：否\n- 參與度：不足\n- 判定：**失敗走勢（failed_move）**\n\n┌───────────────────────────────────────────────────────────────────┐\n│                        可操作的建議                              │\n├───────────────────────────────────────────────────────────────────┤\n│ 1. 當前白銀頂部未被鈀金確認，視為「流動性噪音」而非趨勢反轉    │\n│ 2. 避免基於此拐點進行方向性交易                                 │\n│ 3. 等待下一個被鈀金確認的拐點再決策                             │\n│ 4. 若已有部位，可暫時觀望而非立即調整                           │\n└───────────────────────────────────────────────────────────────────┘\n\n行情解讀\n\n鈀金在本回溯窗口內對白銀報酬的最佳領先滯後為 +6 bars（鈀金先動）。\n未被鈀金確認的白銀拐點事件，其後續回撤/回到區間的比例顯著較高。\n當前白銀頂部缺乏鈀金參與，歷史統計顯示此類情況失敗概率較高。\n"
-      },
-      {
-        "question": "幫我回測過去 1000 根 1 小時 K 線，分析鈀金領先白銀的有效性",
-        "expectedResult": "跨金屬確認歷史回測結果（SI=F vs PA=F，1h，1000 bars）\n\n📊 領先滯後分析\n\n- 最佳滯後：+6 bars（鈀金領先白銀 6 根 K 棒）\n- 相關係數：0.42（中等正相關）\n- 置信區間：[3, 9] bars（95% CI）\n\n📈 拐點確認統計\n\n┌─────────────────┬────────┬────────┬────────┐\n│     類型        │ 總數   │ 已確認 │ 確認率 │\n├─────────────────┼────────┼────────┼────────┤\n│ 底部拐點        │ 12     │ 9      │ 75%    │\n├─────────────────┼────────┼────────┼────────┤\n│ 頂部拐點        │ 12     │ 8      │ 67%    │\n├─────────────────┼────────┼────────┼────────┤\n│ 合計            │ 24     │ 17     │ 71%    │\n└─────────────────┴────────┴────────┴────────┘\n\n📉 失敗走勢分析\n\n未確認事件（7 個）的後續表現：\n- 失敗走勢（回撤過起點）：5 個（71%）\n- 延續走勢：2 個（29%）\n\n已確認事件（17 個）的後續表現：\n- 成功延續：14 個（82%）\n- 後續回撤：3 個（18%）\n\n✅ 結論\n\n1. 鈀金確認顯著提高白銀拐點的有效性\n2. 未確認事件的失敗率是已確認事件的 3.9 倍\n3. 建議將「鈀金確認」作為白銀交易的過濾條件\n"
-      }
-    ],
-    "qualityScore": {
-      "overall": 70,
-      "badge": "白銀",
-      "metrics": {
-        "architecture": 80,
-        "maintainability": 75,
-        "content": 80,
-        "community": 20,
-        "security": 95,
-        "compliance": 80
-      },
-      "details": "**架構（80/100）**\n- 清晰的跨金屬確認邏輯\n- 多種拐點偵測方法\n- 可配置的參與度判定\n\n**可維護性（75/100）**\n- 參數定義完整\n- 多資料來源支援\n- 工作流程分離\n\n**內容（80/100）**\n- 領先滯後分析原理\n- 失敗走勢判定規則\n- 實用的交易建議\n\n**社區（20/100）**\n- 新技能，尚無社區貢獻\n\n**安全（95/100）**\n- 僅讀取公開價格數據\n- 無需 API key\n\n**規範符合性（80/100）**\n- 遵循 Claude Code 規範\n- 完整的文件結構\n"
-    },
-    "bestPractices": [
-      {
-        "title": "使用足夠的回溯數據",
-        "description": "至少 500 根 K 棒才能產生統計有效的領先滯後估計"
-      },
-      {
-        "title": "確認窗口與時間尺度配合",
-        "description": "1h 圖建議 6-12 bars，4h 圖建議 3-6 bars"
-      },
-      {
-        "title": "多重確認優於單一確認",
-        "description": "同時檢查拐點確認和參與度，減少假陽性"
-      },
-      {
-        "title": "失敗走勢是警告而非訊號",
-        "description": "未確認拐點提示謹慎，但不代表反向交易"
-      }
-    ],
-    "pitfalls": [
-      {
-        "title": "僅看領先滯後不看確認",
-        "description": "領先滯後是平均值，單次事件可能偏離",
-        "consequence": "錯誤預期鈀金動作後銀必然跟隨"
-      },
-      {
-        "title": "確認窗口設得太小",
-        "description": "窗口太小會錯過有效但稍晚的確認",
-        "consequence": "確認率偏低，判定過於嚴格"
-      },
-      {
-        "title": "忽略參與度判定",
-        "description": "僅有拐點確認但波動不匹配",
-        "consequence": "誤將弱相關當作強確認"
-      },
-      {
-        "title": "把未確認當作反向訊號",
-        "description": "未確認只是「不支持」，不是「反對」",
-        "consequence": "貿然反向交易造成虧損"
-      }
-    ],
-    "faq": [
-      {
-        "question": "為什麼選擇鈀金作為白銀的領先指標？",
-        "answer": "鈀金與白銀同屬貴金屬，但鈀金市場較小、流動性較低，\n對宏觀變化的反應更敏感。當工業需求或避險情緒變化時，\n鈀金往往先行反應，白銀隨後跟進。\n\n這種領先關係在短週期（小時/日線）上較為顯著，\n在更長週期上兩者可能受不同基本面驅動。\n"
-      },
-      {
-        "question": "確認窗口應該設多大？",
-        "answer": "確認窗口取決於分析的時間尺度：\n\n| 時間尺度 | 建議窗口 | 說明 |\n|----------|----------|------|\n| 1h       | 6-12 bars| 約半天到一天 |\n| 4h       | 3-6 bars | 約半天到一天 |\n| 1d       | 2-5 bars | 約一週 |\n\n窗口過小會錯過有效確認，過大會納入不相關事件。\n"
-      },
-      {
-        "question": "失敗走勢該如何應對？",
-        "answer": "當偵測到「失敗走勢」時：\n\n1. **不要立即反向交易**：失敗走勢只是「缺乏支持」，不是「明確反對」\n2. **縮小倉位或觀望**：降低風險暴露，等待更明確的訊號\n3. **設定更寬的停損**：預期波動可能較大\n4. **等待下一個確認事件**：有鈀金參與的拐點更可靠\n"
-      },
-      {
-        "question": "可以用其他金屬代替鈀金嗎？",
-        "answer": "理論上可以，但效果可能不同：\n\n- **鉑金（PL=F）**：與鈀金同為汽車催化劑金屬，可作為替代\n- **黃金（GC=F）**：流動性高，但可能是跟隨者而非領先者\n- **銅（HG=F）**：工業屬性強，與白銀工業需求相關\n\n建議先用此技能的方法論驗證其他金屬對的領先滯後關係。\n"
-      }
-    ],
-    "about": {
-      "repository": "https://github.com/fatfingererr/macro-skills",
-      "branch": "main",
-      "additionalInfo": "## 參考來源\n\n- 推文/圖表：「鈀金是白銀短期領先指標」的觀察\n- 跨市場分析：貴金屬之間的相互領先關係\n\n## 數據來源\n\n**Yahoo Finance（免費，無需 API key）**\n- 白銀期貨：SI=F（COMEX Silver）\n- 鈀金期貨：PA=F（NYMEX Palladium）\n- 使用 yfinance 套件抓取\n\n**FRED（宏觀濾鏡，可選）**\n- DXY：美元指數\n- TIPS：實質利率代理\n- VIX：風險情緒\n\n## 適用場景\n\n- 白銀短期交易確認\n- 貴金屬板塊輪動判斷\n- 流動性噪音過濾\n- 跨金屬套利研究\n"
-    },
-    "methodology": "### 為什麼要 **跨金屬確認** ？\r\n\r\n白銀同時具有：\r\n- **貴金屬屬性**：受美元、實質利率、避險情緒影響\r\n- **工業金屬屬性**：受製造業循環、景氣預期、風險偏好影響\r\n\r\n鈀金相對更偏向：\r\n- **純工業／景氣敏感金屬**（需求集中、波動更高、對風險切換更敏感）\r\n- **市場結構更薄**（同樣的資金流動對價格衝擊更大），因此常呈現**反應更快**的特性\r\n\r\n因此在短週期（例如一小時到數日）中，鈀金常像是**工業／風險因子**的**高波動溫度計**：  \r\n當市場正在交易景氣預期、風險情緒或宏觀流動性拐點時，鈀金往往先動或更明顯地轉向，而白銀後續才跟上。\r\n\r\n### 解讀範例\r\n\r\n1. **先看鈀金（藍線）是否出現轉折訊號**\r\n   - 若鈀金先轉弱（形成局部高點、或動能斜率下滑），代表**工業／風險因子**在降溫\r\n2. **再看白銀（價格走勢）是否出現對應的結構**\r\n   - 若白銀隨後也出現較明確的高點（例如高點抬不上去、或跌破短期支撐），則判為**跨金屬確認成立**\r\n3. **若白銀單獨上衝但鈀金未跟進**\r\n   - 將其歸類為**缺乏參與度**的行情\r\n   - 預期更容易出現：回到區間、快速回撤、假突破\r\n\r\n### 這種結構為何有可能特別一致？\r\n\r\n因為短週期的資金往往在交易同一件事：  \r\n**工業景氣預期（採購經理人指數／庫存循環／風險偏好）＋宏觀流動性（美元／利率）**。  \r\n鈀金更像高波動的第一反應，白銀因為還混有**貴金屬層**而稍滯後，所以你會在近期更常看到**鈀先轉、銀後跟**的視覺一致性。\r\n\r\n### 什麼時候會失效？\r\n\r\n這套方法很強，但不是物理定律。兩種常見失效情境：\r\n\r\n1. **白銀被貴金屬層主導**\r\n   - 例如避險情緒、金銀比修正、實質利率急變  \r\n   - 白銀可能走自己的節奏，鈀金未必同步確認\r\n\r\n2. **鈀金被自身供需／事件主導**\r\n   - 汽車鏈、替代效應、供給擾動等  \r\n   - 鈀金可能獨走，反而不該拿來確認白銀走勢",
-    "downloadUrl": "downloads/detect-palladium-lead-silver-turns-0.1.0.zip"
   },
   {
     "id": "compute-precious-miner-gross-margin",
