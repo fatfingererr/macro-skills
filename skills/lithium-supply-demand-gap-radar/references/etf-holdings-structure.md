@@ -8,14 +8,14 @@
 
 ### 基本資訊
 
-| 項目 | 說明 |
-|------|------|
-| 名稱 | Global X Lithium & Battery Tech ETF |
-| 代碼 | LIT |
-| 發行商 | Global X |
-| 成立日期 | 2010-07-22 |
-| 費用率 | 0.75% |
-| 追蹤指數 | Solactive Global Lithium Index |
+| 項目     | 說明                                |
+|----------|-------------------------------------|
+| 名稱     | Global X Lithium & Battery Tech ETF |
+| 代碼     | LIT                                 |
+| 發行商   | Global X                            |
+| 成立日期 | 2010-07-22                          |
+| 費用率   | 0.75%                               |
+| 追蹤指數 | Solactive Global Lithium Index      |
 
 ### 投資範圍
 
@@ -49,17 +49,17 @@ LIT 投資於鋰產業鏈的三個層級：
 
 ### 典型持股分類
 
-#### Upstream (上游礦商)
+#### Upstream (上游礦業)
 
-| 股票代碼 | 公司名稱 | 國家 | 主要業務 |
-|----------|----------|------|----------|
-| ALB | Albemarle Corp | US | 鋰化學品巨頭、礦業 |
-| SQM | Sociedad Quimica y Minera | Chile | 鹵水提鋰 |
-| PLS.AX | Pilbara Minerals | Australia | 硬岩鋰輝石 |
-| MIN.AX | Mineral Resources | Australia | 硬岩鋰輝石 |
-| IGO.AX | IGO Ltd | Australia | 鋰、鎳礦 |
-| LAC | Lithium Americas | US/Canada | 鋰開發項目 |
-| SGML | Sigma Lithium | Brazil | 鋰輝石開發 |
+| 股票代碼 | 公司名稱                  | 國家      | 主要業務           |
+|----------|---------------------------|-----------|--------------------|
+| ALB      | Albemarle Corp            | US        | 鋰化學品巨頭、礦業 |
+| SQM      | Sociedad Quimica y Minera | Chile     | 鹵水提鋰           |
+| PLS.AX   | Pilbara Minerals          | Australia | 硬岩鋰輝石         |
+| MIN.AX   | Mineral Resources         | Australia | 硬岩鋰輝石         |
+| IGO.AX   | IGO Ltd                   | Australia | 鋰、鎳礦           |
+| LAC      | Lithium Americas          | US/Canada | 鋰開發項目         |
+| SGML     | Sigma Lithium             | Brazil    | 鋰輝石開發         |
 
 **特徵**:
 - 營收直接與鋰價掛鉤
@@ -68,11 +68,11 @@ LIT 投資於鋰產業鏈的三個層級：
 
 #### Midstream (中游精煉)
 
-| 股票代碼 | 公司名稱 | 國家 | 主要業務 |
-|----------|----------|------|----------|
-| LTHM | Arcadium Lithium | US | 氫氧化鋰生產 |
-| GANF.PA | Ganfeng Lithium (ADR) | China | 鋰化學品 |
-| TIAN.SZ | Tianqi Lithium | China | 鋰化學品 |
+| 股票代碼 | 公司名稱              | 國家  | 主要業務     |
+|----------|-----------------------|-------|--------------|
+| LTHM     | Arcadium Lithium      | US    | 氫氧化鋰生產 |
+| GANF.PA  | Ganfeng Lithium (ADR) | China | 鋰化學品     |
+| TIAN.SZ  | Tianqi Lithium        | China | 鋰化學品     |
 
 **特徵**:
 - 受鋰價和加工費影響
@@ -81,14 +81,14 @@ LIT 投資於鋰產業鏈的三個層級：
 
 #### Downstream (下游電池/EV)
 
-| 股票代碼 | 公司名稱 | 國家 | 主要業務 |
-|----------|----------|------|----------|
-| TSLA | Tesla Inc | US | 電動車、儲能 |
-| CATL (300750.SZ) | CATL | China | 電池製造 |
-| 6752.T | Panasonic | Japan | 電池製造 |
-| 051910.KS | LG Energy Solution | Korea | 電池製造 |
-| 006400.KS | Samsung SDI | Korea | 電池製造 |
-| 1211.HK | BYD | China | 電動車、電池 |
+| 股票代碼         | 公司名稱           | 國家  | 主要業務     |
+|------------------|--------------------|-------|--------------|
+| TSLA             | Tesla Inc          | US    | 電動車、儲能 |
+| CATL (300750.SZ) | CATL               | China | 電池製造     |
+| 6752.T           | Panasonic          | Japan | 電池製造     |
+| 051910.KS        | LG Energy Solution | Korea | 電池製造     |
+| 006400.KS        | Samsung SDI        | Korea | 電池製造     |
+| 1211.HK          | BYD                | China | 電動車、電池 |
 
 **特徵**:
 - 鋰是成本項目之一，非全部
@@ -101,11 +101,11 @@ LIT 投資於鋰產業鏈的三個層級：
 
 ### 按產業鏈段
 
-| 產業鏈段 | 對鋰價 Beta 範圍 | 說明 |
-|----------|------------------|------|
-| Upstream | 1.5 - 2.5 | 營收直接受鋰價影響 |
-| Midstream | 0.8 - 1.2 | 受鋰價和加工費影響 |
-| Downstream | 0.3 - 0.8 | 鋰是成本之一 |
+| 產業鏈段   | 對鋰價 Beta 範圍 | 說明               |
+|------------|------------------|--------------------|
+| Upstream   | 1.5 - 2.5        | 營收直接受鋰價影響 |
+| Midstream  | 0.8 - 1.2        | 受鋰價和加工費影響 |
+| Downstream | 0.3 - 0.8        | 鋰是成本之一       |
 
 ### 個股 Beta 估計
 
@@ -162,14 +162,14 @@ def compute_weighted_etf_beta(holdings, stock_betas):
 
 假設 LIT 持股結構：
 
-| 股票 | 權重 | Beta | 貢獻 |
-|------|------|------|------|
-| ALB | 8% | 1.8 | 0.144 |
-| SQM | 6% | 1.9 | 0.114 |
-| TSLA | 10% | 0.5 | 0.050 |
-| CATL | 8% | 0.6 | 0.048 |
-| ... | ... | ... | ... |
-| **合計** | 100% | - | **~0.85** |
+| 股票     | 權重 | Beta | 貢獻      |
+|----------|------|------|-----------|
+| ALB      | 8%   | 1.8  | 0.144     |
+| SQM      | 6%   | 1.9  | 0.114     |
+| TSLA     | 10%  | 0.5  | 0.050     |
+| CATL     | 8%   | 0.6  | 0.048     |
+| ...      | ...  | ...  | ...       |
+| **合計** | 100% | -    | **~0.85** |
 
 ---
 
@@ -271,12 +271,12 @@ def analyze_transmission(beta_history, holdings_history, threshold=0.3, duration
 
 如果 LIT 傳導不佳，可考慮其他選項：
 
-| ETF | 代碼 | 特點 |
-|-----|------|------|
-| Global X Lithium | LITM | 更集中於純鋰業務 |
-| Amplify Lithium & Battery Tech | BATT | 更廣泛的電池供應鏈 |
-| First Trust NASDAQ Clean Edge Smart Grid | GRID | 電網/儲能相關 |
-| iShares Global Clean Energy | ICLN | 更廣泛的清潔能源 |
+| ETF                                      | 代碼 | 特點               |
+|------------------------------------------|------|--------------------|
+| Global X Lithium                         | LITM | 更集中於純鋰業務   |
+| Amplify Lithium & Battery Tech           | BATT | 更廣泛的電池供應鏈 |
+| First Trust NASDAQ Clean Edge Smart Grid | GRID | 電網/儲能相關      |
+| iShares Global Clean Energy              | ICLN | 更廣泛的清潔能源   |
 
 ### 直接暴露選項
 

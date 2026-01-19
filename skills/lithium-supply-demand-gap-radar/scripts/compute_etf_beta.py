@@ -181,7 +181,7 @@ def classify_transmission(
 
 # 產業鏈分類規則
 SEGMENT_MAPPING = {
-    # 上游 - 礦商
+    # 上游 - 礦業
     "ALB": "upstream",
     "SQM": "upstream",
     "LTHM": "upstream",
@@ -378,7 +378,7 @@ def compute_etf_exposure(
         # 生成持股信號
         if holdings_result.upstream_weight > 40:
             result["signals"].append(
-                f"上游礦商權重 ({holdings_result.upstream_weight:.1f}%) 較高，對鋰價敏感"
+                f"上游礦業權重 ({holdings_result.upstream_weight:.1f}%) 較高，對鋰價敏感"
             )
         if holdings_result.downstream_weight > 50:
             result["signals"].append(

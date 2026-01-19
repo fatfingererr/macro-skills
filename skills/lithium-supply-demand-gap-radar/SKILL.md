@@ -91,7 +91,7 @@ ETF 對鋰價的敏感度受持股結構影響：
 
 | 持股類型          | 對鋰價 Beta | 波動特性            |
 |-------------------|-------------|---------------------|
-| Upstream (礦商)   | 1.5 - 2.5   | 高槓桿、高波動      |
+| Upstream (礦業)   | 1.5 - 2.5   | 高槓桿、高波動      |
 | Midstream (精煉)  | 0.8 - 1.2   | 跟隨但有加工費緩衝  |
 | Downstream (電池) | 0.3 - 0.8   | 受競爭/技術路線影響 |
 
@@ -163,14 +163,14 @@ ETF_beta_li = Σ(weight_i * beta_i_to_lithium)
 </templates_index>
 
 <scripts_index>
-| Script                    | Purpose                    |
-|---------------------------|----------------------------|
-| lithium_pipeline.py       | 核心數據管線               |
-| ingest_sources.py         | 數據來源擷取               |
-| compute_balance.py        | 供需平衡計算               |
-| classify_regime.py        | 價格型態分類               |
-| compute_etf_beta.py       | ETF 傳導敏感度計算         |
-| visualize_analysis.py     | 分析結果綜合視覺化         |
+| Script                    | Purpose                  |
+|---------------------------|--------------------------|
+| lithium_pipeline.py       | 核心數據管線             |
+| ingest_sources.py         | 數據來源擷取             |
+| compute_balance.py        | 供需平衡計算             |
+| classify_regime.py        | 價格型態分類             |
+| compute_etf_beta.py       | ETF 傳導敏感度計算       |
+| visualize_analysis.py     | 分析結果綜合視覺化       |
 | inflection_point_chart.py | **拐點分析專用視覺化** ⭐ |
 </scripts_index>
 

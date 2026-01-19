@@ -221,7 +221,7 @@ def generate_etf_exposure_chart(
             "unknown": 4.0
         })
 
-        labels = ["上游 (礦商)", "中游 (精煉)", "下游 (電池)", "其他"]
+        labels = ["上游 (礦業)", "中游 (精煉)", "下游 (電池)", "其他"]
         sizes = [
             segment_weights.get("upstream", 0),
             segment_weights.get("midstream", 0),

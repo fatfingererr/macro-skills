@@ -71,7 +71,7 @@ def classify_holdings(holdings):
     """
 
     segment_mapping = {
-        # Upstream (礦商)
+        # Upstream (礦業)
         "ALB": "upstream",      # Albemarle
         "SQM": "upstream",      # SQM
         "PLS.AX": "upstream",   # Pilbara Minerals
@@ -237,7 +237,7 @@ def estimate_beta_by_segment(segment):
     """
 
     segment_betas = {
-        "upstream": 1.8,    # 礦商高 beta
+        "upstream": 1.8,    # 礦業高 beta
         "midstream": 1.0,   # 精煉中等
         "downstream": 0.5,  # 電池低 beta
         "unknown": 0.8
@@ -318,26 +318,26 @@ def format_exposure_report(holdings, segment_weights, beta_results, transmission
 ## 持股結構
 
 ### 前 10 大持股
-| 排名 | 股票 | 權重 | 產業鏈段 | 國家 |
-|------|------|------|----------|------|
-| 1 | [ticker] | [weight]% | [segment] | [country] |
-| ... | ... | ... | ... | ... |
+| 排名 | 股票     | 權重      | 產業鏈段  | 國家      |
+|------|----------|-----------|-----------|-----------|
+| 1    | [ticker] | [weight]% | [segment] | [country] |
+| ...  | ...      | ...       | ...       | ...       |
 
 ### 產業鏈段分布
-| 產業鏈段 | 權重 | 預期鋰價 Beta |
-|----------|------|---------------|
-| Upstream (礦商) | [weight]% | 1.5-2.5 |
-| Midstream (精煉) | [weight]% | 0.8-1.2 |
-| Downstream (電池) | [weight]% | 0.3-0.8 |
+| 產業鏈段          | 權重      | 預期鋰價 Beta |
+|-------------------|-----------|---------------|
+| Upstream (礦業)   | [weight]% | 1.5-2.5       |
+| Midstream (精煉)  | [weight]% | 0.8-1.2       |
+| Downstream (電池) | [weight]% | 0.3-0.8       |
 
 ---
 ## Beta 分析
 
 ### ETF 對因子敏感度
-| 因子 | 當前 Beta | 52週平均 | 趨勢 |
-|------|-----------|----------|------|
-| 鋰價因子 | [值] | [值] | [上升/下降] |
-| EV需求因子 | [值] | [值] | [上升/下降] |
+| 因子       | 當前 Beta | 52週平均 | 趨勢        |
+|------------|-----------|----------|-------------|
+| 鋰價因子   | [值]      | [值]     | [上升/下降] |
+| EV需求因子 | [值]      | [值]     | [上升/下降] |
 
 ### Beta 歷史趨勢
 [過去 52 週 beta 變化描述]
