@@ -125,6 +125,7 @@ python scripts/gold_revaluation.py \
 3. **比較分析** - 同時比較 M0 vs M2、不同加權方法的差異
 4. **監控模式** - 追蹤黃金支撐率的變化趨勢
 5. **方法論學習** - 了解計算邏輯與數據來源
+6. **視覺化圖表** - 生成分析結果的視覺化圖表
 
 **請選擇或直接提供分析參數。**
 </intake>
@@ -137,6 +138,7 @@ python scripts/gold_revaluation.py \
 | 3, "比較", "compare", "對比"    | 閱讀 `workflows/compare.md` 並執行            |
 | 4, "監控", "monitor", "追蹤"    | 閱讀 `workflows/monitor.md` 並執行            |
 | 5, "學習", "方法論", "why"      | 閱讀 `references/methodology.md`              |
+| 6, "圖表", "畫圖", "視覺化"     | 執行 `python scripts/visualize_revaluation.py` |
 | 提供參數 (如實體清單)            | 閱讀 `workflows/analyze.md` 並使用參數執行    |
 
 **路由後，閱讀對應文件並執行。**
@@ -160,7 +162,8 @@ usd-reserve-loss-gold-revaluation/
 │   ├── output-json.md                 # JSON 輸出模板
 │   └── output-markdown.md             # Markdown 報告模板
 └── scripts/
-    └── gold_revaluation.py            # 主計算腳本
+    ├── gold_revaluation.py            # 主計算腳本
+    └── visualize_revaluation.py       # 視覺化腳本
 ```
 </directory_structure>
 
@@ -199,11 +202,14 @@ usd-reserve-loss-gold-revaluation/
 </templates_index>
 
 <scripts_index>
-| Script              | Command                         | Purpose            |
-|---------------------|---------------------------------|--------------------|
-| gold_revaluation.py | `--quick`                       | 快速計算主要貨幣   |
-| gold_revaluation.py | `--entities USD,CNY --agg M0`   | 自訂實體與口徑     |
-| gold_revaluation.py | `--compare-aggregates`          | M0 vs M2 比較      |
+| Script                    | Command                         | Purpose                |
+|---------------------------|---------------------------------|------------------------|
+| gold_revaluation.py       | `--quick`                       | 快速計算主要貨幣       |
+| gold_revaluation.py       | `--entities USD,CNY --agg M0`   | 自訂實體與口徑         |
+| gold_revaluation.py       | `--compare-aggregates`          | M0 vs M2 比較          |
+| visualize_revaluation.py  | `--mode usd`                    | 美元單一視覺化圖表     |
+| visualize_revaluation.py  | `--mode multi`                  | 多貨幣比較視覺化圖表   |
+| visualize_revaluation.py  | `--mode all --output-dir DIR`   | 生成所有圖表至指定目錄 |
 </scripts_index>
 
 <input_schema_summary>
@@ -263,4 +269,5 @@ usd-reserve-loss-gold-revaluation/
 - [ ] 黃金缺口分析（additional_gold_oz_needed）
 - [ ] 敘事洞察（M0 vs M2 差異、槓桿解讀）
 - [ ] 結果輸出為指定格式（JSON 或 Markdown）
+- [ ] 視覺化圖表（可選，包含金價比較、支撐率、信用乘數等 6 個面板）
 </success_criteria>
