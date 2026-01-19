@@ -1,0 +1,162 @@
+{
+  "name": "usd-reserve-loss-gold-revaluation",
+  "version": "0.1.0",
+  "displayName": "美元失去儲備地位下金價重估",
+  "description": "在「美元／某貨幣失去儲備地位、黃金成為唯一錨」的假設下，用央行貨幣負債 ÷ 黃金儲備，推演「資產負債表可承受的隱含金價」，並輸出各國/各貨幣的槓桿程度、缺口與排名",
+  "author": "Ricky Wang",
+  "license": "MIT",
+  "category": "fx-factors",
+  "tags": [
+    "黃金",
+    "央行",
+    "儲備貨幣",
+    "美元",
+    "M0",
+    "M2",
+    "資產負債表",
+    "壓力測試",
+    "外匯",
+    "去美元化"
+  ],
+  "dataLevel": "free-limit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "requests>=2.28.0",
+      "yfinance>=0.2.0"
+    ],
+    "optional": [
+      "matplotlib>=3.5.0",
+      "pydantic>=2.0.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/gold_revaluation.py"
+  },
+  "workflows": [
+    {
+      "id": "analyze",
+      "name": "完整情境分析",
+      "description": "自訂參數進行黃金重估壓力測試",
+      "file": "workflows/analyze.md"
+    },
+    {
+      "id": "compare",
+      "name": "M0/M2 比較分析",
+      "description": "比較不同貨幣口徑的隱含金價差異",
+      "file": "workflows/compare.md"
+    },
+    {
+      "id": "monitor",
+      "name": "監控模式",
+      "description": "追蹤黃金支撐率的變化趨勢",
+      "file": "workflows/monitor.md"
+    }
+  ],
+  "references": [
+    "references/data-sources.md",
+    "references/methodology.md",
+    "references/input-schema.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md"
+  ],
+  "examples": [],
+  "dataSources": [
+    {
+      "name": "World Gold Council",
+      "type": "primary",
+      "url": "https://www.gold.org",
+      "api": "Public reports (gold reserves by country)",
+      "data": "Central bank gold holdings (tonnes)"
+    },
+    {
+      "name": "IMF IFS",
+      "type": "primary",
+      "url": "https://data.imf.org",
+      "api": "IFS API or bulk downloads",
+      "data": "M0, M2, official reserve assets"
+    },
+    {
+      "name": "FRED",
+      "type": "primary",
+      "url": "https://fred.stlouisfed.org",
+      "api": "CSV endpoint (no API key required)",
+      "series": {
+        "money_supply": [
+          "M1SL",
+          "M2SL",
+          "BOGMBASE"
+        ],
+        "gold_price": [
+          "GOLDAMGBD228NLBM"
+        ]
+      }
+    },
+    {
+      "name": "BIS",
+      "type": "primary",
+      "url": "https://www.bis.org",
+      "api": "Triennial Survey data",
+      "data": "FX turnover by currency"
+    },
+    {
+      "name": "Yahoo Finance",
+      "type": "secondary",
+      "url": "https://finance.yahoo.com",
+      "api": "yfinance package",
+      "tickers": [
+        "GC=F",
+        "GLD"
+      ]
+    }
+  ],
+  "modelConfig": {
+    "defaultParams": {
+      "monetary_aggregate": "M0",
+      "weighting_method": "fx_turnover",
+      "liability_scope": "broad_money",
+      "fx_base": "USD",
+      "gold_reserve_unit": "troy_oz"
+    },
+    "defaultEntities": [
+      "USD",
+      "EUR",
+      "CNY",
+      "JPY",
+      "GBP",
+      "CHF",
+      "AUD",
+      "CAD"
+    ],
+    "fxTurnoverWeights2022": {
+      "USD": 0.8825,
+      "EUR": 0.3092,
+      "JPY": 0.1692,
+      "GBP": 0.1288,
+      "CNY": 0.0704,
+      "AUD": 0.0631,
+      "CAD": 0.0620,
+      "CHF": 0.0503,
+      "others": 0.1645
+    },
+    "reserveShareWeights2023": {
+      "USD": 0.5889,
+      "EUR": 0.1998,
+      "JPY": 0.0545,
+      "GBP": 0.0487,
+      "CNY": 0.0262,
+      "CAD": 0.0253,
+      "AUD": 0.0202,
+      "CHF": 0.0020,
+      "others": 0.0344
+    },
+    "conversionFactors": {
+      "tonnes_to_troy_oz": 32150.7466
+    }
+  }
+}

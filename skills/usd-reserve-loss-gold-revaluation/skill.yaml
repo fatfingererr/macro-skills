@@ -1,0 +1,185 @@
+displayName: 美元失去儲備地位下金價重估
+emoji: "\U0001F947"
+authorUrl: https://github.com/fatfingererr/macro-skills
+
+tools:
+  - claude-code
+
+featured: false
+installCount: 0
+
+testQuestions:
+  - question: '如果美元失去儲備地位，黃金需要重估到多少美元才能支撐 M0？'
+    expectedResult: |
+      黃金重估壓力測試結果（基於 M0 + FX Turnover 加權）
+
+      ┌─────────────────────────────────────────────────────────────┐
+      │                    Headline 隱含金價                        │
+      ├─────────────────────────────────────────────────────────────┤
+      │ 加權隱含金價（M0）: $39,210 / oz                            │
+      │ 當前金價: $2,050 / oz                                       │
+      │ 倍數: 19.1x                                                 │
+      │                                                             │
+      │ 解讀: 這是壓力測試數字，非價格預測。代表若黃金成為唯一錨，  │
+      │ 且需吸收 FX turnover 加權的貨幣負債，金價需重估至此水平。   │
+      └─────────────────────────────────────────────────────────────┘
+
+      各貨幣黃金支撐率排名（從高槓桿到低槓桿）
+
+      ┌──────────┬──────────────┬──────────────┬──────────────────┐
+      │ 貨幣     │ 黃金支撐率   │ 槓桿倍數     │ 解讀             │
+      ├──────────┼──────────────┼──────────────┼──────────────────┤
+      │ JPY      │ 3%           │ 41.0x        │ 極度槓桿         │
+      │ GBP      │ 5%           │ 20.0x        │ 高度槓桿         │
+      │ USD      │ 8%           │ 12.5x        │ 高度槓桿         │
+      │ EUR      │ 15%          │ 6.7x         │ 中度槓桿         │
+      │ CNY      │ 4%           │ 25.0x        │ 高度槓桿         │
+      │ CHF      │ 35%          │ 2.9x         │ 低度槓桿         │
+      │ ZAR      │ 60%          │ 0.16x        │ 接近完全支撐     │
+      └──────────┴──────────────┴──────────────┴──────────────────┘
+
+  - question: '比較 M0 與 M2 口徑下的隱含金價差異'
+    expectedResult: |
+      M0 vs M2 隱含金價比較
+
+      ┌─────────────────────────────────────────────────────────────┐
+      │                    口徑比較分析                             │
+      ├───────────────────┬───────────────────┬─────────────────────┤
+      │       口徑        │    隱含金價       │      vs 當前金價    │
+      ├───────────────────┼───────────────────┼─────────────────────┤
+      │ M0 (Monetary Base)│ $39,210 / oz      │ 19.1x               │
+      │ M2 (Broad Money)  │ $184,500 / oz     │ 90.0x               │
+      └───────────────────┴───────────────────┴─────────────────────┘
+
+      關鍵洞察
+
+      1. M0 vs M2 差異反映「信用乘數」
+         - M0 = 央行直接負債（通貨 + 準備金）
+         - M2 = M0 + 銀行體系信用擴張（存款等）
+         - 差距約 4.7 倍，代表信用槓桿程度
+
+      2. 使用時機
+         - M0：評估央行資產負債表壓力
+         - M2：評估整體金融體系壓力（極端情境）
+
+      3. VanEck 的 "$39k gold" 論點使用 M0 口徑
+         - 這是相對「保守」的估計
+         - M2 口徑會得出更極端的數字
+
+qualityScore:
+  overall: 70
+  badge: 白銀
+  metrics:
+    architecture: 75
+    maintainability: 75
+    content: 80
+    community: 20
+    security: 90
+    compliance: 80
+  details: |
+    **架構（75/100）**
+    - 清晰的壓力測試框架
+    - 支援多口徑、多權重比較
+    - 可擴展的實體清單
+
+    **可維護性（75/100）**
+    - 參數定義完整
+    - 數據來源明確
+    - 替代方案記錄
+
+    **內容（80/100）**
+    - 完整的方法論文檔
+    - VanEck 模型邏輯解析
+    - 實用的情境分析工具
+
+    **社區（20/100）**
+    - 新技能，尚無社區貢獻
+
+    **安全（90/100）**
+    - 使用公開經濟數據
+    - 部分數據需手動更新
+
+    **規範符合性（80/100）**
+    - 遵循 Claude Code 規範
+    - 完整的文件結構
+
+bestPractices:
+  - title: 明確這是壓力測試，非預測
+    description: 隱含金價是「若...則...」的情境計算，不是預測未來金價
+  - title: 區分 M0 與 M2 的使用場景
+    description: M0 評估央行壓力，M2 評估全體系極端壓力
+  - title: 理解加權方法的直覺
+    description: FX turnover 反映國際使用強度，reserve share 反映官方持有偏好
+  - title: 注意數據更新頻率
+    description: BIS 三年調查每三年更新，黃金儲備約季度更新
+
+pitfalls:
+  - title: 誤將隱含金價當作預測
+    description: 這是極端情境壓力測試，不是合理的價格預測
+    consequence: 做出錯誤的投資決策
+  - title: 忽略數據口徑差異
+    description: 各國 M0/M2 定義不完全一致
+    consequence: 跨國比較可能失真
+  - title: 使用過時的權重數據
+    description: BIS 數據每三年更新，可能不反映最新格局
+    consequence: 加權結果偏離實際
+
+faq:
+  - question: VanEck 的 "$39k gold" 是怎麼算出來的？
+    answer: |
+      VanEck 使用 M0（貨幣基數）加上 BIS FX turnover 加權，
+      計算「若黃金成為唯一錨，需要多高的金價才能支撐貨幣負債」。
+      這是資產負債表壓力測試，不是價格預測。
+
+  - question: 為什麼 M2 會算出 $184k 這麼極端的數字？
+    answer: |
+      M2 包含銀行體系的信用擴張（存款等），
+      比 M0（央行直接負債）大約 4-5 倍。
+      用 M2 計算代表「整體金融體系完全由黃金支撐」的極端情境。
+
+  - question: 黃金支撐率（backing ratio）如何解讀？
+    answer: |
+      backing_ratio = (黃金盎司 × 金價) / 貨幣量
+
+      - 3% = 黃金只支撐 3% 的貨幣負債（高槓桿，如日圓）
+      - 60% = 黃金接近完全支撐（低槓桿，如某些新興市場）
+
+      比率越低，在「黃金唯一錨」情境下需要金價重估的幅度越大。
+
+  - question: 這個模型對投資有什麼用？
+    answer: |
+      1. 理解去美元化敘事的數學基礎
+      2. 比較不同國家的黃金槓桿程度
+      3. 追蹤央行黃金儲備變化的含義
+      4. 作為極端情境的 tail risk 參考
+
+      但請記住：這是壓力測試框架，不是價格預測工具。
+
+about:
+  repository: https://github.com/fatfingererr/macro-skills
+  branch: main
+  additionalInfo: |
+    ## 參考來源
+
+    - VanEck Gold Report: https://www.vaneck.com/us/en/blogs/gold-investing/
+    - World Gold Council: https://www.gold.org/goldhub/data/gold-reserves-by-country
+    - BIS Triennial Survey: https://www.bis.org/statistics/rpfx22.htm
+
+    ## 數據來源
+
+    **黃金儲備**
+    - World Gold Council（各國央行黃金持有量）
+    - IMF IFS（官方儲備資產中黃金欄位）
+
+    **貨幣量**
+    - FRED（美國 M0/M2）
+    - 各國央行統計（其他國家）
+    - IMF IFS（國際可比數據）
+
+    **FX Turnover 權重**
+    - BIS Triennial Survey（2022 年版）
+    - 每三年更新，目前最新為 2022 年調查
+
+    **金價**
+    - FRED: GOLDAMGBD228NLBM
+    - Yahoo Finance: GC=F, GLD
