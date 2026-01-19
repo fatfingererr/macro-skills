@@ -1,0 +1,133 @@
+# 前端展示專用（元資料從 manifest.json 讀取）
+displayName: 計算貴金屬礦業毛利率
+emoji: "⛏️"
+authorUrl: https://github.com/fatfingererr/macro-skills
+
+tools:
+  - claude-code
+
+featured: false
+installCount: 0
+
+testQuestions:
+  - question: '計算目前黃金礦業的毛利率代理值，並判斷是否處於歷史極端區間'
+    expectedResult: |
+      輸出主要黃金礦業（NEM、GOLD、AEM 等）的：
+      - 當前毛利率代理值（如 50%）
+      - 歷史分位數（如 78 百分位）
+      - 區間標記（high_margin）
+      - 驅動拆解（價格 vs 成本）
+  - question: '比較白銀礦業 CDE、HL、AG 的 AISC 成本結構'
+    expectedResult: |
+      輸出各礦業的：
+      - 最新季度 AISC（USD/oz）
+      - 對應的毛利率代理值
+      - 產量加權後的籃子毛利率
+  - question: '當毛利率處於歷史 90 百分位以上時，礦業股的前瞻報酬如何？'
+    expectedResult: |
+      輸出事件研究結果：
+      - 極端高毛利後 3/6/12 個月的平均報酬
+      - 風險提示（資本開支週期、均值回歸）
+
+qualityScore:
+  overall: 65
+  badge: 白銀
+  metrics:
+    architecture: 75
+    maintainability: 70
+    content: 80
+    community: 20
+    security: 85
+    compliance: 80
+  details: |
+    **架構（75/100）**
+    - 清晰的路由器模式
+    - 分層的 workflows/references
+    - 可擴展的腳本設計
+
+    **可維護性（70/100）**
+    - 成本數據需手動更新或爬蟲維護
+    - 依賴公司財報披露頻率
+
+    **內容（80/100）**
+    - 完整的方法論說明
+    - 清晰的輸入/輸出定義
+    - 含後續研究建議
+
+    **社群（20/100）**
+    - 新建技能，尚無社群反饋
+
+    **安全（85/100）**
+    - 使用公開數據
+    - 爬蟲遵循防偵測最佳實踐
+
+    **合規（80/100）**
+    - 數據來源透明
+    - 明確標註「代理值」非會計毛利率
+
+bestPractices:
+  - title: 優先使用 AISC 口徑
+    description: World Gold Council 標準化定義，跨公司可比性最佳
+  - title: 使用產量加權聚合
+    description: 更準確反映產業整體毛利結構，避免小型礦業扭曲
+  - title: 季度頻率為佳
+    description: 成本數據多為季度披露，避免過度內插造成虛假精度
+  - title: 關注驅動拆解
+    description: 區分「金屬價格漲」vs「成本下降」的毛利改善來源
+
+pitfalls:
+  - title: 混淆代理值與會計毛利率
+    description: 本模型使用 (price - AISC) / price 近似，非 GAAP 毛利率
+    consequence: 與公司財報數字不一致，造成誤解
+  - title: 忽略副產品收入
+    description: 白銀礦常有黃金/基本金屬副產品，AISC 已扣除但需理解
+    consequence: 對「純銀」成本的誤判
+  - title: 成本數據滯後
+    description: 季報披露約滯後 1-2 個月，需與即時金價配對時小心
+    consequence: 短期毛利率失真
+  - title: 極端毛利≠股價必漲
+    description: 高毛利常引發增產/併購/成本通膨，導致均值回歸
+    consequence: 做為順勢訊號時需配合其他因子
+
+faq:
+  - question: AISC 和 Cash Cost 的差別是什麼？
+    answer: |
+      - **Cash Cost (C1)**：僅含現場採掘、加工、行政，反映現金流壓力
+      - **AISC**：含 C1 + 維持資本開支 + 勘探 + 一般行政，反映持續經營成本
+      - **All-In Cost**：含 AISC + 成長資本開支，反映完整經濟成本
+
+      建議優先用 AISC，因其由 WGC 標準化定義，跨公司可比。
+
+  - question: 如何取得礦業的 AISC 數據？
+    answer: |
+      1. **投資人簡報**：多數礦業在季報簡報中會有 AISC 摘要表
+      2. **新聞稿**：季報發布的新聞稿通常含 AISC 數字
+      3. **10-Q / 10-K MD&A**：美股可從 SEC EDGAR 取得
+      4. **第三方彙整**：Mining.com、Kitco 等偶有彙整報導
+
+      本 skill 的 `workflows/data-research.md` 有詳細爬蟲指引。
+
+  - question: 毛利率處於極端高檔代表什麼？
+    answer: |
+      **極端高毛利（如 > 90 百分位）** 意味著：
+      - 短期：礦業現金流極佳，股價可能已反映
+      - 中期：資本開支週期可能啟動（擴產、併購）
+      - 長期：成本通膨壓力（工資、柴油、試劑）可能回升
+
+      建議搭配 GDX/GDXJ/SIL 相對強弱、資本開支數據做交叉驗證。
+
+about:
+  repository: https://github.com/fatfingererr/macro-skills
+  branch: main
+  additionalInfo: |
+    ## 使用場景
+
+    1. **驗證貼文說法**：當看到「目前金銀礦業毛利率很高」的說法時，可用本 skill 驗證
+    2. **事件研究**：毛利率極端時，前瞻報酬如何？
+    3. **選股因子**：將毛利率作為礦業股相對強弱的因子
+    4. **資本週期研究**：高毛利 → 資本開支 → 成本回升的循環判斷
+
+    ## 預設礦業籃子
+
+    **黃金**：NEM (Newmont), GOLD (Barrick), AEM (Agnico Eagle), FNV (Franco-Nevada), WPM (Wheaton)
+    **白銀**：CDE (Coeur), HL (Hecla), AG (First Majestic), PAAS (Pan American), MAG (MAG Silver)
