@@ -1,0 +1,140 @@
+{
+  "name": "demographic-fiscal-trap-analyzer",
+  "version": "0.1.0",
+  "displayName": "分析人口財政陷阱",
+  "description": "分析人口老化、債務動態、官僚膨脹與通膨稀釋交互作用下的「財政陷阱」風險，量化各國/地區的財政脆弱度並識別潛在的貨幣稀釋路徑",
+  "author": "macro-skills",
+  "license": "MIT",
+  "category": "policy-modeling",
+  "tags": [
+    "人口",
+    "人口結構",
+    "財政政策",
+    "債務動能",
+    "通貨膨脹",
+    "人口老化",
+    "撫養比",
+    "金融抑制"
+  ],
+  "dataLevel": "free-nolimit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "wbdata>=0.3.0",
+      "requests>=2.28.0",
+      "scipy>=1.9.0",
+      "matplotlib>=3.6.0"
+    ],
+    "optional": [
+      "imfpy>=0.1.0",
+      "world_bank_data>=0.1.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/fiscal_trap_analyzer.py"
+  },
+  "workflows": [
+    {
+      "id": "full-analysis",
+      "name": "完整分析",
+      "file": "workflows/full-analysis.md",
+      "description": "執行所有模組並產出綜合報告"
+    },
+    {
+      "id": "debt-dynamics",
+      "name": "債務動態分析",
+      "file": "workflows/debt-dynamics.md",
+      "description": "深入分析 r-g 缺口與債務軌跡"
+    },
+    {
+      "id": "aging-projection",
+      "name": "老化投影",
+      "file": "workflows/aging-projection.md",
+      "description": "撫養比預測與財政壓力前瞻"
+    },
+    {
+      "id": "cross-country",
+      "name": "跨國比較",
+      "file": "workflows/cross-country.md",
+      "description": "多國並排評分與排名"
+    },
+    {
+      "id": "inflation-path",
+      "name": "通膨路徑分析",
+      "file": "workflows/inflation-path.md",
+      "description": "分析負實質利率持續性與貨幣稀釋動機"
+    }
+  ],
+  "references": [
+    "references/methodology.md",
+    "references/data-sources.md",
+    "references/input-schema.md",
+    "references/indicator-codes.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md"
+  ],
+  "examples": [
+    "examples/g7-comparison-2023.json",
+    "examples/japan-full-analysis.json"
+  ],
+  "dataSources": [
+    {
+      "name": "World Bank WDI",
+      "type": "api",
+      "url": "https://api.worldbank.org/v2/",
+      "indicators": [
+        "SP.POP.DPND.OL",
+        "SP.POP.DPND.YG",
+        "SP.POP.DPND",
+        "GC.DOD.TOTL.GD.ZS",
+        "NE.CON.GOVT.ZS",
+        "NY.GDP.MKTP.KD.ZG"
+      ],
+      "accessLevel": "free"
+    },
+    {
+      "name": "IMF World Economic Outlook",
+      "type": "csv/api",
+      "url": "https://www.imf.org/en/Publications/WEO",
+      "indicators": [
+        "GGXWDG_NGDP",
+        "NGDP_RPCH",
+        "PCPIPCH"
+      ],
+      "accessLevel": "free"
+    },
+    {
+      "name": "WHO Global Health Expenditure Database",
+      "type": "csv",
+      "url": "https://apps.who.int/nha/database",
+      "indicators": [
+        "CHE_GDP"
+      ],
+      "accessLevel": "free"
+    },
+    {
+      "name": "UN World Population Prospects",
+      "type": "csv",
+      "url": "https://population.un.org/wpp/",
+      "indicators": [
+        "dependency_ratio_projections"
+      ],
+      "accessLevel": "free"
+    },
+    {
+      "name": "OECD Statistics",
+      "type": "api",
+      "url": "https://stats.oecd.org/",
+      "indicators": [
+        "IRLT",
+        "GOV_DEBT"
+      ],
+      "accessLevel": "free"
+    }
+  ]
+}

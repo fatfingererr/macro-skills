@@ -1,0 +1,285 @@
+{
+  "metadata": {
+    "skill": "demographic-fiscal-trap-analyzer",
+    "version": "0.1.0",
+    "generated_at": "2024-01-15T10:30:00Z",
+    "workflow": "cross-country"
+  },
+  "parameters": {
+    "entities": ["G7"],
+    "start_year": 2015,
+    "end_year": 2023,
+    "weights": {
+      "aging": 0.35,
+      "debt": 0.35,
+      "bloat": 0.15,
+      "growth_drag": 0.15
+    }
+  },
+  "results": {
+    "comparison_group": "G7",
+    "entities_analyzed": ["USA", "JPN", "DEU", "GBR", "FRA", "ITA", "CAN"],
+    "ranking": [
+      {
+        "rank": 1,
+        "entity": "JPN",
+        "entity_name": "Japan",
+        "fiscal_trap_score": 2.35,
+        "inflation_incentive_score": 1.95,
+        "quadrant": "Q1",
+        "risk_level": "CRITICAL"
+      },
+      {
+        "rank": 2,
+        "entity": "ITA",
+        "entity_name": "Italy",
+        "fiscal_trap_score": 1.82,
+        "inflation_incentive_score": 1.45,
+        "quadrant": "Q1",
+        "risk_level": "HIGH"
+      },
+      {
+        "rank": 3,
+        "entity": "FRA",
+        "entity_name": "France",
+        "fiscal_trap_score": 1.15,
+        "inflation_incentive_score": 0.95,
+        "quadrant": "Q2",
+        "risk_level": "ELEVATED"
+      },
+      {
+        "rank": 4,
+        "entity": "GBR",
+        "entity_name": "United Kingdom",
+        "fiscal_trap_score": 0.85,
+        "inflation_incentive_score": 0.72,
+        "quadrant": "Q3",
+        "risk_level": "MODERATE"
+      },
+      {
+        "rank": 5,
+        "entity": "USA",
+        "entity_name": "United States",
+        "fiscal_trap_score": 0.72,
+        "inflation_incentive_score": 0.88,
+        "quadrant": "Q3",
+        "risk_level": "MODERATE"
+      },
+      {
+        "rank": 6,
+        "entity": "DEU",
+        "entity_name": "Germany",
+        "fiscal_trap_score": 0.45,
+        "inflation_incentive_score": 0.35,
+        "quadrant": "Q2",
+        "risk_level": "LOW"
+      },
+      {
+        "rank": 7,
+        "entity": "CAN",
+        "entity_name": "Canada",
+        "fiscal_trap_score": 0.12,
+        "inflation_incentive_score": 0.25,
+        "quadrant": "Q4",
+        "risk_level": "LOW"
+      }
+    ],
+    "risk_groups": {
+      "critical": ["JPN"],
+      "high": ["ITA"],
+      "elevated": ["FRA"],
+      "moderate": ["GBR", "USA"],
+      "low": ["DEU", "CAN"]
+    },
+    "quadrant_distribution": {
+      "Q1_HighAging_HighDebt": ["JPN", "ITA"],
+      "Q2_HighAging_LowDebt": ["DEU", "FRA"],
+      "Q3_LowAging_HighDebt": ["USA", "GBR"],
+      "Q4_LowAging_LowDebt": ["CAN"]
+    },
+    "pillar_comparison": {
+      "aging_pressure": {
+        "JPN": 2.80,
+        "ITA": 1.95,
+        "DEU": 1.45,
+        "FRA": 1.20,
+        "GBR": 0.65,
+        "USA": 0.45,
+        "CAN": 0.30
+      },
+      "debt_dynamics": {
+        "JPN": 2.50,
+        "ITA": 1.75,
+        "USA": 1.15,
+        "GBR": 1.05,
+        "FRA": 0.95,
+        "CAN": 0.25,
+        "DEU": 0.15
+      },
+      "bloat_index": {
+        "FRA": 1.35,
+        "ITA": 1.10,
+        "JPN": 0.85,
+        "DEU": 0.75,
+        "GBR": 0.55,
+        "USA": 0.40,
+        "CAN": 0.30
+      },
+      "growth_drag": {
+        "ITA": 1.55,
+        "JPN": 1.20,
+        "DEU": 0.85,
+        "FRA": 0.65,
+        "GBR": 0.50,
+        "USA": -0.25,
+        "CAN": -0.45
+      }
+    },
+    "detailed_scores": {
+      "JPN": {
+        "fiscal_trap_score": 2.35,
+        "inflation_incentive_score": 1.95,
+        "aging_pressure": 2.80,
+        "debt_dynamics": 2.50,
+        "bloat_index": 0.85,
+        "growth_drag": 1.20
+      },
+      "ITA": {
+        "fiscal_trap_score": 1.82,
+        "inflation_incentive_score": 1.45,
+        "aging_pressure": 1.95,
+        "debt_dynamics": 1.75,
+        "bloat_index": 1.10,
+        "growth_drag": 1.55
+      },
+      "FRA": {
+        "fiscal_trap_score": 1.15,
+        "inflation_incentive_score": 0.95,
+        "aging_pressure": 1.20,
+        "debt_dynamics": 0.95,
+        "bloat_index": 1.35,
+        "growth_drag": 0.65
+      },
+      "GBR": {
+        "fiscal_trap_score": 0.85,
+        "inflation_incentive_score": 0.72,
+        "aging_pressure": 0.65,
+        "debt_dynamics": 1.05,
+        "bloat_index": 0.55,
+        "growth_drag": 0.50
+      },
+      "USA": {
+        "fiscal_trap_score": 0.72,
+        "inflation_incentive_score": 0.88,
+        "aging_pressure": 0.45,
+        "debt_dynamics": 1.15,
+        "bloat_index": 0.40,
+        "growth_drag": -0.25
+      },
+      "DEU": {
+        "fiscal_trap_score": 0.45,
+        "inflation_incentive_score": 0.35,
+        "aging_pressure": 1.45,
+        "debt_dynamics": 0.15,
+        "bloat_index": 0.75,
+        "growth_drag": 0.85
+      },
+      "CAN": {
+        "fiscal_trap_score": 0.12,
+        "inflation_incentive_score": 0.25,
+        "aging_pressure": 0.30,
+        "debt_dynamics": 0.25,
+        "bloat_index": 0.30,
+        "growth_drag": -0.45
+      }
+    },
+    "key_metrics_comparison": {
+      "old_age_dependency_2023": {
+        "JPN": 48.5,
+        "ITA": 37.5,
+        "DEU": 34.0,
+        "FRA": 32.5,
+        "GBR": 28.5,
+        "USA": 26.0,
+        "CAN": 25.5
+      },
+      "debt_to_gdp_2023": {
+        "JPN": 262.5,
+        "ITA": 140.5,
+        "USA": 122.0,
+        "GBR": 100.5,
+        "FRA": 110.5,
+        "CAN": 68.0,
+        "DEU": 65.5
+      },
+      "r_minus_g_2023": {
+        "JPN": -1.3,
+        "DEU": -0.5,
+        "CAN": -1.5,
+        "FRA": 0.2,
+        "GBR": 0.8,
+        "USA": 1.2,
+        "ITA": 1.5
+      }
+    },
+    "cross_section_stats": {
+      "fiscal_trap_score": {
+        "mean": 1.07,
+        "std": 0.78,
+        "min": 0.12,
+        "max": 2.35,
+        "median": 0.85
+      },
+      "inflation_incentive_score": {
+        "mean": 0.94,
+        "std": 0.58,
+        "min": 0.25,
+        "max": 1.95,
+        "median": 0.88
+      }
+    },
+    "interpretation": {
+      "summary": "G7國家中，日本與義大利位於最高風險區（Q1象限），兩國均面臨高老化與高債務的雙重壓力。加拿大是唯一位於Q4健康象限的國家，政策空間最為寬廣。",
+      "key_findings": [
+        "日本與義大利需關注財政陷阱風險與通膨稀釋動機",
+        "德國雖老化嚴重但財政紀律良好，債務水準為G7最低",
+        "美國與英國債務較高但人口結構相對年輕，調整時間窗口較長",
+        "法國官僚膨脹指標為G7最高，支出剛性強",
+        "加拿大在四支柱均表現良好，為G7中最健康的經濟體"
+      ],
+      "notable_patterns": [
+        {
+          "pattern": "老化-債務雙高",
+          "entities": ["JPN", "ITA"],
+          "implication": "財政改革空間極窄，通膨稀釋成為主要出口"
+        },
+        {
+          "pattern": "老化高但債務可控",
+          "entities": ["DEU"],
+          "implication": "財政紀律提供緩衝，但需關注老化加速"
+        },
+        {
+          "pattern": "債務高但人口年輕",
+          "entities": ["USA", "GBR"],
+          "implication": "有較長的調整時間窗口，但需避免惡化"
+        }
+      ],
+      "policy_recommendations": {
+        "JPN_ITA": "結構性改革優先，但政治阻力大；預期金融抑制持續",
+        "DEU": "可適度擴大財政空間以因應老化，但需維持紀律",
+        "USA_GBR": "需及早控制債務軌跡，避免滑向Q1象限",
+        "CAN": "維持當前健康狀態，可作為其他國家參考"
+      }
+    }
+  },
+  "data_notes": {
+    "sources": {
+      "dependency_ratio": "World Bank WDI (SP.POP.DPND.OL)",
+      "debt_to_gdp": "IMF WEO (GGXWDG_NGDP)",
+      "gov_consumption": "World Bank WDI (NE.CON.GOVT.ZS)",
+      "gdp_growth": "World Bank WDI (NY.GDP.MKTP.KD.ZG)"
+    },
+    "missing_data": [],
+    "reference_group": "OECD (38 countries) for z-score calculation"
+  }
+}

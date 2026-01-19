@@ -1,0 +1,109 @@
+displayName: 分析人口財政陷阱
+emoji: "🏛️"
+authorUrl: https://github.com/macro-skills
+tools:
+  - claude-code
+featured: false
+installCount: 0
+
+testQuestions:
+  - question: "請分析日本的人口-財政陷阱風險，使用 2010-2023 年資料"
+    expectedResult: |
+      日本應顯示：
+      - 老年撫養比極高 (>0.45)
+      - 債務/GDP > 200%
+      - fiscal_trap_score > 2.0
+      - 象限分類為 Q1 (雙高危機)
+      - inflation_incentive_score > 1.5
+
+  - question: "比較 G7 國家的財政陷阱分數，2015-2023"
+    expectedResult: |
+      應輸出 G7 國家排名：
+      - 日本、義大利通常排名最高風險
+      - 德國、加拿大相對較低
+      - 每個國家有完整的四支柱分數
+
+  - question: "分析台灣 2010-2023 的老化壓力與債務動態"
+    expectedResult: |
+      台灣應顯示：
+      - 老化壓力中高（老年撫養比快速上升）
+      - 債務動態相對溫和（債務/GDP < 50%）
+      - 象限可能為 Q2 (老化主導)
+
+  - question: "使用自訂權重分析德國：老化 50%、債務 30%、膨脹 10%、成長 10%"
+    expectedResult: |
+      應正確套用自訂權重，
+      由於加重老化壓力，德國的 fiscal_trap_score 應上升
+
+qualityScore:
+  overall: 72
+  badge: Silver
+  metrics:
+    architecture: 80
+    maintainability: 75
+    content: 85
+    community: 15
+    security: 90
+    compliance: 85
+
+bestPractices:
+  - title: 使用公開資料源
+    description: 本技能僅使用 World Bank、IMF、WHO 等公開免費資料，確保可重現性
+
+  - title: Z-Score 標準化
+    description: 所有原始指標轉換為跨國截面 z-score，使不同量級的指標可加總比較
+
+  - title: 權重可調整
+    description: 四支柱權重可依使用者需求調整，支援不同分析視角
+
+  - title: 分層資料回退
+    description: 若首選資料源缺失，自動回退至次選來源（如 World Bank → IMF）
+
+pitfalls:
+  - title: 資料延遲
+    description: 公開資料通常延遲 1-2 年，最新資料可能缺失
+    consequence: 分析結果可能未反映最新情況
+
+  - title: 跨國比較限制
+    description: 不同國家的會計準則和定義可能有差異
+    consequence: 某些指標的跨國比較需謹慎解讀
+
+  - title: 殖利率資料可用性
+    description: 部分新興市場缺乏長期公債殖利率資料
+    consequence: r-g 計算可能需使用政策利率替代
+
+  - title: 預測不確定性
+    description: 撫養比預測至 2050 年存在高度不確定性
+    consequence: 長期預測應視為情境分析而非精確預測
+
+faq:
+  - question: 為什麼使用 z-score 而非原始值？
+    answer: |
+      z-score 將不同量級的指標（如撫養比 0.3 vs 債務比 200%）標準化為可比較的單位。
+      z > 1.5 表示該指標顯著高於跨國平均，z > 2.0 表示極端值。
+
+  - question: 如何解讀「通膨激勵指數」？
+    answer: |
+      該指數衡量政府選擇「通膨稀釋」路徑的動機強度。當債務高、r > g、且已有負實質利率歷史時，
+      政府有強烈動機維持金融抑制政策，對債券投資者的實質報酬構成壓力。
+
+  - question: 四象限分類如何決定？
+    answer: |
+      以 Aging Pressure 和 Debt Dynamics 兩個 z-score 為軸，z > 1 為「高」，z < 1 為「低」。
+      Q1 (高老化+高債務) 風險最高，Q4 (低老化+低債務) 政策空間最大。
+
+  - question: 哪些國家最可能陷入財政陷阱？
+    answer: |
+      典型高風險國家包括：日本（超高債務+超高老化）、義大利（高債務+高老化+低成長）、
+      希臘（債務遺留問題）、部分南歐國家。
+
+  - question: 這個技能可以用於投資決策嗎？
+    answer: |
+      本技能提供結構性分析框架，可作為宏觀配置的輔助參考。高通膨激勵指數的國家
+      可能不利於持有名義債券，但有利於實質資產（如通膨連結債、商品、不動產）。
+
+about:
+  repository: https://github.com/macro-skills/demographic-fiscal-trap-analyzer
+  branch: main
+  lastUpdated: "2025-01-19"
+  maintainer: macro-skills-team
