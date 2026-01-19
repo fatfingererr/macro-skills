@@ -357,6 +357,129 @@
     "downloadUrl": "downloads/detect-atr-squeeze-regime-0.1.0.zip"
   },
   {
+    "id": "usd-reserve-loss-gold-revaluation",
+    "name": "usd-reserve-loss-gold-revaluation",
+    "displayName": "美元失去儲備地位下金價重估",
+    "description": "在「美元／某貨幣失去儲備地位、黃金成為唯一錨」的假設下，用央行貨幣負債 ÷ 黃金儲備，推演「資產負債表可承受的隱含金價」，並輸出各國/各貨幣的槓桿程度、缺口與排名",
+    "emoji": "🥇",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "黃金",
+      "央行",
+      "儲備貨幣",
+      "美元",
+      "M0",
+      "M2",
+      "資產負債表",
+      "壓力測試",
+      "外匯",
+      "去美元化"
+    ],
+    "category": "fx-factors",
+    "dataLevel": "free-limit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\r\n\r\n<principle name=\"gold_anchor_hypothesis\">\r\n**黃金錨定假說**\r\n\r\n本模型基於極端情境假設：若法定貨幣體系瓦解、黃金成為唯一錨定資產，則：\r\n- **隱含金價** = 貨幣負債 ÷ 黃金儲備\r\n- 這不是「預測」，而是「壓力測試」：資產負債表要撐得住需要多高的金價\r\n\r\n典型論述來源：VanEck「$39k gold」分析（M0 + FX turnover 加權）\r\n</principle>\r\n\r\n<principle name=\"two_aggregates\">\r\n**兩種貨幣口徑差異**\r\n\r\n| 口徑 | 定義 | 隱含金價 | 解讀 |\r\n|------|------|----------|------|\r\n| M0 (Monetary Base) | 央行直接負債（通貨 + 準備金） | ~$39k | 央行資產負債表壓力 |\r\n| M2 (Broad Money) | 含銀行體系信用擴張 | ~$184k | 全體信用體系壓力 |\r\n\r\n**關鍵洞察**：兩者差距反映「信用乘數」的槓桿效應。\r\n</principle>\r\n\r\n<principle name=\"weighting_logic\">\r\n**加權方法的直覺**\r\n\r\n| 方法 | 數據來源 | 直覺 |\r\n|------|----------|------|\r\n| fx_turnover | BIS 三年調查 | 外匯交易份額 ≈ 國際結算/儲備使用強度 |\r\n| reserve_share | IMF COFER | 官方外匯儲備幣別佔比 |\r\n| equal | - | 不考慮貨幣重要性差異 |\r\n| custom | 用戶自訂 | 可配合特定情境分析 |\r\n\r\n加權的直覺：份額越高的貨幣，在「重新錨定」時需吸收的負債壓力越大。\r\n</principle>\r\n\r\n<principle name=\"backing_ratio\">\r\n**黃金支撐率 (Backing Ratio)**\r\n\r\n```\r\nbacking_ratio = (gold_oz × gold_spot) / money_base\r\n```\r\n\r\n解讀：\r\n- backing_ratio ≈ 3% → 黃金僅支撐 3% 的貨幣負債（高槓桿）\r\n- backing_ratio ≈ 60% → 黃金接近完全支撐（低槓桿）\r\n\r\n貼文中「日本黃金只支撐約 3% 的 M0」即此概念。\r\n</principle>\r\n\r\n<principle name=\"data_access\">\r\n**資料取得方式**\r\n\r\n本 skill 使用**公開數據**：\r\n- **黃金儲備**：World Gold Council / IMF IFS（tonnes）\r\n- **貨幣量**：各國央行 / FRED / IMF IFS（M0/M2）\r\n- **FX Turnover**：BIS Triennial Survey（每三年更新）\r\n- **金價**：Yahoo Finance / FRED（XAU/USD）\r\n\r\n腳本位於 `scripts/` 目錄，可直接執行。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n實作「美元失去儲備地位下的黃金重估」壓力測試模型：\r\n\r\n1. **數據整合**：抓取各國 M0/M2、黃金儲備、匯率、FX turnover 權重\r\n2. **計算隱含金價**：未加權與加權版本\r\n3. **計算黃金支撐率**：衡量各國槓桿程度\r\n4. **計算缺口**：需要再買多少黃金才能達到目標支撐率\r\n5. **排名輸出**：誰最槓桿、誰最穩健\r\n\r\n輸出：隱含金價、支撐率排名、缺口分析、敘事洞察。\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：執行預設情境分析**\r\n\r\n```bash\r\ncd skills/usd-reserve-loss-gold-revaluation\r\npip install pandas numpy requests yfinance  # 首次使用\r\npython scripts/gold_revaluation.py --quick\r\n```\r\n\r\n輸出範例：\r\n```json\r\n{\r\n  \"headline\": {\r\n    \"implied_gold_price_m0_weighted\": 39210.0,\r\n    \"implied_gold_price_m2_weighted\": 184500.0,\r\n    \"interpretation\": \"壓力測試數字，非價格預測\"\r\n  },\r\n  \"ranking\": [\r\n    {\"entity\": \"JPY\", \"backing_ratio\": 0.03, \"lever_multiple\": 41.0},\r\n    {\"entity\": \"USD\", \"backing_ratio\": 0.08, \"lever_multiple\": 12.5},\r\n    {\"entity\": \"ZAR\", \"backing_ratio\": 0.60, \"lever_multiple\": 0.16}\r\n  ]\r\n}\r\n```\r\n\r\n**完整情境分析**：\r\n```bash\r\npython scripts/gold_revaluation.py \\\r\n  --date 2026-01-07 \\\r\n  --entities USD,CNY,JPY,EUR,GBP \\\r\n  --aggregate M0 \\\r\n  --weighting fx_turnover \\\r\n  --output result.json\r\n```\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼操作？\r\n\r\n1. **快速計算** - 使用預設參數計算主要貨幣的隱含金價\r\n2. **完整分析** - 自訂參數進行情境分析（可選擇口徑、權重、實體）\r\n3. **比較分析** - 同時比較 M0 vs M2、不同加權方法的差異\r\n4. **監控模式** - 追蹤黃金支撐率的變化趨勢\r\n5. **方法論學習** - 了解計算邏輯與數據來源\r\n6. **視覺化圖表** - 生成分析結果的視覺化圖表\r\n\r\n**請選擇或直接提供分析參數。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                        | Action                                        |\r\n|---------------------------------|-----------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"計算\"      | 執行 `python scripts/gold_revaluation.py --quick` |\r\n| 2, \"完整\", \"full\", \"分析\"       | 閱讀 `workflows/analyze.md` 並執行            |\r\n| 3, \"比較\", \"compare\", \"對比\"    | 閱讀 `workflows/compare.md` 並執行            |\r\n| 4, \"監控\", \"monitor\", \"追蹤\"    | 閱讀 `workflows/monitor.md` 並執行            |\r\n| 5, \"學習\", \"方法論\", \"why\"      | 閱讀 `references/methodology.md`              |\r\n| 6, \"圖表\", \"畫圖\", \"視覺化\"     | 執行 `python scripts/visualize_revaluation.py` |\r\n| 提供參數 (如實體清單)            | 閱讀 `workflows/analyze.md` 並使用參數執行    |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\nusd-reserve-loss-gold-revaluation/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── manifest.json                      # 技能元數據\r\n├── workflows/\r\n│   ├── analyze.md                     # 完整情境分析工作流\r\n│   ├── compare.md                     # M0/M2 比較分析工作流\r\n│   └── monitor.md                     # 持續監控工作流\r\n├── references/\r\n│   ├── data-sources.md                # 數據來源與獲取方式\r\n│   ├── methodology.md                 # 方法論與計算邏輯\r\n│   └── input-schema.md                # 完整輸入參數定義\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n└── scripts/\r\n    ├── gold_revaluation.py            # 主計算腳本\r\n    └── visualize_revaluation.py       # 視覺化腳本\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**方法論**: references/methodology.md\r\n- 黃金錨定假說解析\r\n- 隱含金價計算公式\r\n- 支撐率與槓桿解讀\r\n\r\n**資料來源**: references/data-sources.md\r\n- 黃金儲備數據來源\r\n- 貨幣量 M0/M2 數據來源\r\n- BIS FX Turnover 數據\r\n- 匯率與金價來源\r\n\r\n**輸入參數**: references/input-schema.md\r\n- 完整參數定義\r\n- 預設值與建議範圍\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow    | Purpose          | 使用時機                   |\r\n|-------------|------------------|---------------------------|\r\n| analyze.md  | 完整情境分析     | 需要自訂參數進行壓力測試   |\r\n| compare.md  | M0/M2 比較分析   | 比較不同口徑的隱含金價差異 |\r\n| monitor.md  | 持續監控         | 追蹤支撐率變化趨勢         |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構定義 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script                    | Command                         | Purpose                |\r\n|---------------------------|---------------------------------|------------------------|\r\n| gold_revaluation.py       | `--quick`                       | 快速計算主要貨幣       |\r\n| gold_revaluation.py       | `--entities USD,CNY --agg M0`   | 自訂實體與口徑         |\r\n| gold_revaluation.py       | `--compare-aggregates`          | M0 vs M2 比較          |\r\n| visualize_revaluation.py  | `--mode usd`                    | 美元單一視覺化圖表     |\r\n| visualize_revaluation.py  | `--mode multi`                  | 多貨幣比較視覺化圖表   |\r\n| visualize_revaluation.py  | `--mode all --output-dir DIR`   | 生成所有圖表至指定目錄 |\r\n</scripts_index>\r\n\r\n<input_schema_summary>\r\n\r\n**核心參數**\r\n\r\n| 參數               | 類型   | 預設值       | 說明                       |\r\n|--------------------|--------|--------------|---------------------------|\r\n| scenario_date      | string | today        | 情境估算基準日期           |\r\n| entities           | array  | 主要貨幣     | 分析對象（國家/貨幣代碼）  |\r\n| monetary_aggregate | string | M0           | 貨幣口徑（M0/M2/MB/M1/M3） |\r\n| weighting_method   | string | fx_turnover  | 加權方式                   |\r\n| fx_base            | string | USD          | 計價幣別基準               |\r\n\r\n**進階參數**\r\n\r\n| 參數             | 類型   | 預設值     | 說明                   |\r\n|------------------|--------|------------|------------------------|\r\n| liability_scope  | string | broad_money | 負債口徑               |\r\n| gold_reserve_unit| string | troy_oz    | 黃金單位（oz/tonnes）  |\r\n| gold_price_spot  | float  | auto       | 基準日金價（可自動抓取）|\r\n| fx_rates         | object | auto       | 匯率（可自動抓取）     |\r\n\r\n完整參數定義見 `references/input-schema.md`。\r\n\r\n</input_schema_summary>\r\n\r\n<output_schema_summary>\r\n```json\r\n{\r\n  \"skill\": \"usd-reserve-loss-gold-revaluation\",\r\n  \"scenario_date\": \"2026-01-07\",\r\n  \"assumptions\": {\r\n    \"monetary_aggregate\": \"M0\",\r\n    \"weighting_method\": \"fx_turnover\",\r\n    \"fx_base\": \"USD\",\r\n    \"gold_spot_usd_per_oz\": 2050.0\r\n  },\r\n  \"headline\": {\r\n    \"implied_gold_price_weighted_usd_per_oz\": 39210.0,\r\n    \"interpretation\": \"資產負債表壓力測算（非價格預測）\"\r\n  },\r\n  \"table\": [...],\r\n  \"insights\": [...]\r\n}\r\n```\r\n\r\n完整輸出結構見 `templates/output-json.md`。\r\n</output_schema_summary>\r\n\r\n<success_criteria>\r\n執行成功時應產出：\r\n\r\n- [ ] 隱含金價（未加權與加權版本）\r\n- [ ] 各實體的黃金支撐率（backing_ratio）\r\n- [ ] 槓桿倍數排名（lever_multiple_vs_spot）\r\n- [ ] 黃金缺口分析（additional_gold_oz_needed）\r\n- [ ] 敘事洞察（M0 vs M2 差異、槓桿解讀）\r\n- [ ] 結果輸出為指定格式（JSON 或 Markdown）\r\n- [ ] 視覺化圖表（可選，包含金價比較、支撐率、信用乘數等 6 個面板）\r\n</success_criteria>",
+    "path": "skills/usd-reserve-loss-gold-revaluation/SKILL.md",
+    "directoryStructure": "usd-reserve-loss-gold-revaluation/\n├── examples\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   └── methods.md\n├── scripts\n│   ├── gold_revaluation.py\n│   ├── visualize_revaluation.py\n│   └── __pycache__\n│       └── gold_revaluation.cpython-312.pyc\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    ├── compare.md\n    └── monitor.md",
+    "lastUpdated": "2026-01-19",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "如果美元失去儲備地位，黃金需要重估到多少美元才能支撐 M0？",
+        "imagePath": "images/gold-revaluation-usd-2026-01-19.png",
+        "expectedResult": "分析結果：美元失去儲備地位下的黃金重估需求                                                                                                                                           \n\n基於目前的數據（2026-01-19），我已完成對美元在「失去儲備地位、黃金成為唯一錨定資產」情境下的壓力測試分析。                                                                                                                                                                                                                                                                  \n\n核心發現（M0 口徑）                                                                                                                                                                    \n┌──────────────────┬────────────────────────────────────┐\n│       指標       │                數值                │\n├──────────────────┼────────────────────────────────────┤\n│ 當前金價         │ $4,595/oz                          │\n├──────────────────┼────────────────────────────────────┤\n│ 隱含金價（加權） │ $19,574/oz                         │\n├──────────────────┼────────────────────────────────────┤\n│ 需重估倍數       │ 4.26x                              │\n├──────────────────┼────────────────────────────────────┤\n│ 黃金支撐率       │ 20.72%                             │\n├──────────────────┼────────────────────────────────────┤\n│ 需額外黃金       │ 10 億盎司（約為目前儲備的 3.8 倍） │\n└──────────────────┴────────────────────────────────────┘\n\nM0 vs M2 對比：信用乘數效應\n┌──────────────────┬────────────┬──────────┬────────┐\n│       口徑       │  隱含金價  │ 重估倍數 │ 支撐率 │\n├──────────────────┼────────────┼──────────┼────────┤\n│ M0（央行負債）   │ $19,574/oz │ 4.26x    │ 20.7%  │\n├──────────────────┼────────────┼──────────┼────────┤\n│ M2（含信用擴張） │ $70,533/oz │ 15.35x   │ 5.8%   │\n├──────────────────┼────────────┼──────────┼────────┤\n│ 信用乘數         │ 3.6 倍     │ -        │ -      │\n└──────────────────┴────────────┴──────────┴────────┘\n\n關鍵洞察\n\n1. M0 結論：若美元失去儲備地位且黃金成為唯一錨定資產，黃金需要從目前的 $4,595/oz 重估至約 $19,574/oz（約 4.26 倍）才能完全支撐美國的 M0 貨幣基礎（$5.8 兆）。\n2. 支撐率偏低：目前美國黃金儲備（8,133.5 噸 / 2.61 億盎司）僅能支撐 20.7% 的 M0，顯示美元體系高度依賴信用擴張而非實物資產。\n3. M2 口徑更極端：若考慮整個貨幣體系（M2 = $20.9 兆），隱含金價將達到 $70,533/oz，重估倍數高達 15.35 倍，反映銀行體系的巨大槓桿效應。\n4. 與 VanEck 論點對比：VanEck 著名的「$39k gold」分析使用了多國加權的 M0 口徑。本次分析顯示，單就美元而言，壓力測試數字約為 $19.6k（使用 FX turnover 權重）。\n\n重要提醒\n\n這是壓力測試數字，非價格預測。此分析基於極端假設情境：\n- 法定貨幣體系完全瓦解\n- 黃金成為唯一貨幣錨定資產\n- 資產負債表必須完全平衡\n\n實際上，現代貨幣體系建立在信用基礎上，不太可能完全回歸金本位制。此分析的意義在於：\n1. 衡量各國貨幣體系的「黃金槓桿」程度\n2. 理解 M0 與 M2 的信用乘數效應\n3. 評估極端情境下的系統性風險\n\n---\n數據來源：                                                                                                                                                                           \n- 黃金儲備：World Gold Council 2024 Q3\n- 貨幣供給：2024 估計值\n- 當前金價：Yahoo Finance（自動抓取）\n- FX Turnover 權重：BIS 2022 調查\n"
+      },
+      {
+        "question": "比較 M0 與 M2 口徑下的隱含金價差異",
+        "expectedResult": "完成了 M0 與 M2 口徑的完整比較分析! 以下是關鍵發現:\n\n📊 M0 vs M2 隱含金價比較\nHeadline 結果\n┌───────────────┬──────────┬──────────────┐\n│     口徑      │ 隱含金價 │ 相對現價倍數 │\n├───────────────┼──────────┼──────────────┤\n│ M0 (央行負債) │ $11,008  │ 5.37x        │\n├───────────────┼──────────┼──────────────┤\n│ M2 (廣義貨幣) │ $38,011  │ 8.27x        │\n├───────────────┼──────────┼──────────────┤\n│ 信用乘數      │ 3.45x    │ -            │\n└───────────────┴──────────┴──────────────┘\n關鍵洞察\n\n1. 信用擴張效應: M2 相對 M0 高出 3.45倍,反映銀行體系的信用創造槓桿\n2. 各國差異極大:\n  - 中國 (CNY): 信用擴張高達 25.14x (極端高槓桿)\n  - 美元 (USD): 標準 3.60x\n  - 日本 (JPY): 僅 1.76x (低槓桿)\n3. 黃金支撐率:\n  - USD M0: 9.24% → M2: 5.75%\n  - CNY M0: 9.19% → M2: 0.82% (驚人落差)\n\n使用場景區分\n\nM0 口徑 ($11,008):\n- 評估央行資產負債表壓力\n- VanEck \"$39k gold\" 論點採用此口徑\n- 相對保守的估計\n\nM2 口徑 ($38,011):\n- 評估整體金融體系極端壓力\n- 反映銀行信用擴張崩潰情境\n- 極端壓力測試\n\n生成文件\n\n1. 詳細分析報告: gold-revaluation-m0-vs-m2-analysis.md\n"
+      },
+      {
+        "question": "全球央行資產負債表需要多高的金價才能平衡？",
+        "expectedResult": "分析結果：全球央行資產負債表的黃金重估壓力測試\n\n基於 11 個主要經濟體的央行數據（2026-01-19），我已完成全球央行資產負債表平衡分析。\n\n🌍 全球央行總體數據\n┌─────────────────────┬──────────────────────────────┐\n│         指標        │             數值             │\n├─────────────────────┼──────────────────────────────┤\n│ 分析經濟體          │ 11 個（G7 + BRICS + 其他）   │\n├─────────────────────┼──────────────────────────────┤\n│ 全球央行總 M0       │ $21.40 兆美元                │\n├─────────────────────┼──────────────────────────────┤\n│ 全球央行總黃金儲備  │ 869.3 百萬盎司（27,017 噸）  │\n├─────────────────────┼──────────────────────────────┤\n│ 當前金價            │ $4,595/oz                    │\n├─────────────────────┼──────────────────────────────┤\n│ 全球隱含金價        │ $24,621/oz                   │\n├─────────────────────┼──────────────────────────────┤\n│ 需重估倍數          │ 5.36x                        │\n├─────────────────────┼──────────────────────────────┤\n│ 全球平均支撐率      │ 18.7%                        │\n└─────────────────────┴──────────────────────────────┘\n\n📊 主要經濟體槓桿排名（Top 5 最高槓桿）\n┌──────┬────────────┬──────────┬──────────┬──────────────┐\n│ 排名 │    貨幣    │ M0 (兆$) │ 支撐率   │ 槓桿倍數     │\n├──────┼────────────┼──────────┼──────────┼──────────────┤\n│  1   │ JPY (日圓) │ $4.62    │  2.7%    │ 37.0x (最高) │\n├──────┼────────────┼──────────┼──────────┼──────────────┤\n│  2   │ GBP (英鎊) │ $1.10    │  4.2%    │ 24.1x        │\n├──────┼────────────┼──────────┼──────────┼──────────────┤\n│  3   │ AUD (澳元) │ $0.08    │ 15.1%    │  6.6x        │\n├──────┼────────────┼──────────┼──────────┼──────────────┤\n│  4   │ CHF (瑞郎) │ $0.84    │ 18.2%    │  5.5x        │\n├──────┼────────────┼──────────┼──────────┼──────────────┤\n│  5   │ CNY (人民幣)│ $1.62    │ 20.6%    │  4.9x        │\n└──────┴────────────┴──────────┴──────────┴──────────────┘\n\n📊 黃金儲備最充足國家（Top 3）\n┌──────┬──────────────┬──────────┬──────────┬──────────────┐\n│ 排名 │    貨幣      │ 黃金儲備 │ 支撐率   │ 槓桿倍數     │\n├──────┼──────────────┼──────────┼──────────┼──────────────┤\n│  1   │ KZT (哈薩克) │  289 噸  │ 611.0%   │ 0.16x (最低) │\n├──────┼──────────────┼──────────┼──────────┼──────────────┤\n│  2   │ ZAR (南非)   │  125 噸  │ 233.1%   │ 0.43x        │\n├──────┼──────────────┼──────────┼──────────┼──────────────┤\n│  3   │ RUB (俄羅斯) │ 2,336 噸 │ 184.6%   │ 0.54x        │\n└──────┴──────────────┴──────────┴──────────┴──────────────┘\n\n💡 關鍵洞察\n\n1. 全球總體結論：若全球主要央行需用黃金 100% 支撐其 M0 負債，金價需從當前 $4,595/oz 重估至 $24,621/oz（5.36 倍），才能實現資產負債表平衡。\n\n2. 日本極度脆弱：日圓的黃金支撐率僅 2.7%，是全球最高槓桿貨幣。在「黃金唯一錨」情境下，需要金價暴漲 37 倍或大規模增持黃金（需額外 9.79 億盎司，相當於目前儲備的 36 倍）。\n\n3. 歐美相對平衡：美元（20.7%）、歐元（23.8%）、人民幣（20.6%）的支撐率相近，都在 20% 左右，槓桿倍數約 4-5 倍，反映發達經濟體的相似貨幣結構。\n\n4. 新興市場分化：\n   - 資源型國家（俄羅斯、哈薩克、南非）黃金儲備充足，支撐率超過 100%\n   - 但這些國家的貨幣在國際體系中份額較小，不影響全球隱含金價\n\n5. 與 VanEck 論點對比：VanEck 的「$39k gold」分析可能使用了：\n   - 較低的基準金價（$2,000 vs 當前 $4,595）\n   - FX turnover 加權（而非等權重平均）\n   - 更窄的經濟體範圍（可能只包含 G7）\n   本次分析的 $24.6k 是基於當前較高金價和更廣泛經濟體的結果\n\n📈 全球 M0 分布（前 5 名）\n1. 歐元區：$6.70T（31.3%）\n2. 美國：$5.80T（27.1%）\n3. 日本：$4.62T（21.6%）\n4. 中國：$1.62T（7.6%）\n5. 英國：$1.10T（5.1%）\n\n🏆 全球黃金儲備分布（前 5 名）\n1. 歐元區：346.4M oz（39.9%）\n2. 美國：261.5M oz（30.1%）\n3. 俄羅斯：75.1M oz（8.6%）\n4. 中國：72.8M oz（8.4%）\n5. 瑞士：33.4M oz（3.8%）\n\n⚠️ 重要提醒\n\n這是全球央行體系的壓力測試，非價格預測。此分析基於極端假設：\n- 法定貨幣體系完全瓦解\n- 黃金成為全球唯一貨幣錨定資產\n- 所有央行資產負債表必須完全平衡\n\n實際應用價值：\n1. 衡量全球貨幣體系的整體「黃金槓桿」程度\n2. 識別最脆弱的貨幣體系（日圓、英鎊）\n3. 理解去美元化敘事的數學基礎\n4. 評估央行黃金購買行為的戰略意義\n\n---\n分析範圍：USD, EUR, CNY, JPY, GBP, CHF, CAD, AUD, RUB, INR, ZAR, KZT\n數據來源：World Gold Council (2024 Q3), 各國央行, FRED, Yahoo Finance\n計算方法：未加權平均（全球總 M0 ÷ 全球總黃金儲備）\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 70,
+      "badge": "白銀",
+      "metrics": {
+        "architecture": 75,
+        "maintainability": 75,
+        "content": 80,
+        "community": 20,
+        "security": 90,
+        "compliance": 80
+      },
+      "details": "**架構（75/100）**\n- 清晰的壓力測試框架\n- 支援多口徑、多權重比較\n- 可擴展的實體清單\n\n**可維護性（75/100）**\n- 參數定義完整\n- 數據來源明確\n- 替代方案記錄\n\n**內容（80/100）**\n- 完整的方法論文檔\n- VanEck 模型邏輯解析\n- 實用的情境分析工具\n\n**社區（20/100）**\n- 新技能，尚無社區貢獻\n\n**安全（90/100）**\n- 使用公開經濟數據\n- 部分數據需手動更新\n\n**規範符合性（80/100）**\n- 遵循 Claude Code 規範\n- 完整的文件結構\n"
+    },
+    "bestPractices": [
+      {
+        "title": "明確這是壓力測試，非預測",
+        "description": "隱含金價是「若...則...」的情境計算，不是預測未來金價"
+      },
+      {
+        "title": "區分 M0 與 M2 的使用場景",
+        "description": "M0 評估央行壓力，M2 評估全體系極端壓力"
+      },
+      {
+        "title": "理解加權方法的直覺",
+        "description": "FX turnover 反映國際使用強度，reserve share 反映官方持有偏好"
+      },
+      {
+        "title": "注意數據更新頻率",
+        "description": "BIS 三年調查每三年更新，黃金儲備約季度更新"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "誤將隱含金價當作預測",
+        "description": "這是極端情境壓力測試，不是合理的價格預測",
+        "consequence": "做出錯誤的投資決策"
+      },
+      {
+        "title": "忽略數據口徑差異",
+        "description": "各國 M0/M2 定義不完全一致",
+        "consequence": "跨國比較可能失真"
+      },
+      {
+        "title": "使用過時的權重數據",
+        "description": "BIS 數據每三年更新，可能不反映最新格局",
+        "consequence": "加權結果偏離實際"
+      }
+    ],
+    "faq": [
+      {
+        "question": "VanEck 的 \"$39k gold\" 是怎麼算出來的？",
+        "answer": "VanEck 使用 M0（貨幣基數）加上 BIS FX turnover 加權，\n計算「若黃金成為唯一錨，需要多高的金價才能支撐貨幣負債」。\n這是資產負債表壓力測試，不是價格預測。\n"
+      },
+      {
+        "question": "為什麼 M2 會算出 $184k 這麼極端的數字？",
+        "answer": "M2 包含銀行體系的信用擴張（存款等），\n比 M0（央行直接負債）大約 4-5 倍。\n用 M2 計算代表「整體金融體系完全由黃金支撐」的極端情境。\n"
+      },
+      {
+        "question": "黃金支撐率（backing ratio）如何解讀？",
+        "answer": "backing_ratio = (黃金盎司 × 金價) / 貨幣量\n\n- 3% = 黃金只支撐 3% 的貨幣負債（高槓桿，如日圓）\n- 60% = 黃金接近完全支撐（低槓桿，如某些新興市場）\n\n比率越低，在「黃金唯一錨」情境下需要金價重估的幅度越大。\n"
+      },
+      {
+        "question": "這個模型對投資有什麼用？",
+        "answer": "1. 理解去美元化敘事的數學基礎\n2. 比較不同國家的黃金槓桿程度\n3. 追蹤央行黃金儲備變化的含義\n4. 作為極端情境的 tail risk 參考\n\n但請記住：這是壓力測試框架，不是價格預測工具。\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 參考來源\n\n- VanEck Gold Report: https://www.vaneck.com/us/en/blogs/gold-investing/\n- World Gold Council: https://www.gold.org/goldhub/data/gold-reserves-by-country\n- BIS Triennial Survey: https://www.bis.org/statistics/rpfx22.htm\n\n## 數據來源\n\n**黃金儲備**\n- World Gold Council（各國央行黃金持有量）\n- IMF IFS（官方儲備資產中黃金欄位）\n\n**貨幣量**\n- FRED（美國 M0/M2）\n- 各國央行統計（其他國家）\n- IMF IFS（國際可比數據）\n\n**FX Turnover 權重**\n- BIS Triennial Survey（2022 年版）\n- 每三年更新，目前最新為 2022 年調查\n\n**金價**\n- FRED: GOLDAMGBD228NLBM\n- Yahoo Finance: GC=F, GLD\n"
+    },
+    "methodology": "\r\n這不是在「預測金價」，而是在做一個**資產負債表壓力測試（balance-sheet stress test）**：\r\n\r\n**假設**：若美元（或某貨幣）失去儲備地位，全球體系需要更「硬」的錨（anchor），而黃金成為主要或唯一錨。  \r\n\r\n**問題**：在這種極端情境下，金價需要被**重估到多少**，才能讓「貨幣負債」與「黃金儲備」之間的缺口被吸收？\r\n\r\n因此它本質上是一個「**錨定定價（anchor pricing）／儲備比率重估（reserve-ratio revaluation）**」的算術模型：  \r\n\r\n用央行（或貨幣體系）的**貨幣負債（money liabilities）**去對比可用的**黃金儲備（gold reserves）**。\r\n\r\n**這套方法是「用資產負債表視角，把儲備地位流失的系統性壓力映射成黃金的隱含重估價格」：**  \r\n\r\n它不回答短期走勢，但能提供一個極端情境下的「壓力上限」與「體系脆弱度地圖」。",
+    "downloadUrl": "downloads/usd-reserve-loss-gold-revaluation-0.1.0.zip"
+  },
+  {
     "id": "wasde-ingestor",
     "name": "wasde-ingestor",
     "displayName": "下載與解析 WASDE 每月報告",
@@ -465,125 +588,6 @@
       "additionalInfo": "## 數據來源\n\n所有數據來自 USDA 官方 WASDE 報告：\n- 官網：https://www.usda.gov/oce/commodity/wasde\n- 歷史檔案：https://esmis.nal.usda.gov/\n- 數據類型：公開、免費、無限制使用\n\n## 編製單位\n\nWASDE 由 World Agricultural Outlook Board (WAOB) 編製，\n整合以下機構資料：\n- Agricultural Marketing Service (AMS)\n- Economic Research Service (ERS)\n- Farm Service Agency (FSA)\n- Foreign Agricultural Service (FAS)\n- National Agricultural Statistics Service (NASS)\n"
     },
     "downloadUrl": "downloads/wasde-ingestor-0.2.0.zip"
-  },
-  {
-    "id": "usd-reserve-loss-gold-revaluation",
-    "name": "usd-reserve-loss-gold-revaluation",
-    "displayName": "美元失去儲備地位下金價重估",
-    "description": "在「美元／某貨幣失去儲備地位、黃金成為唯一錨」的假設下，用央行貨幣負債 ÷ 黃金儲備，推演「資產負債表可承受的隱含金價」，並輸出各國/各貨幣的槓桿程度、缺口與排名",
-    "emoji": "🥇",
-    "version": "0.1.0",
-    "license": "MIT",
-    "author": "Ricky Wang",
-    "authorUrl": "https://github.com/fatfingererr/macro-skills",
-    "tags": [
-      "黃金",
-      "央行",
-      "儲備貨幣",
-      "美元",
-      "M0",
-      "M2",
-      "資產負債表",
-      "壓力測試",
-      "外匯",
-      "去美元化"
-    ],
-    "category": "fx-factors",
-    "dataLevel": "free-limit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": false,
-    "installCount": 0,
-    "content": "<essential_principles>\r\n\r\n<principle name=\"gold_anchor_hypothesis\">\r\n**黃金錨定假說**\r\n\r\n本模型基於極端情境假設：若法定貨幣體系瓦解、黃金成為唯一錨定資產，則：\r\n- **隱含金價** = 貨幣負債 ÷ 黃金儲備\r\n- 這不是「預測」，而是「壓力測試」：資產負債表要撐得住需要多高的金價\r\n\r\n典型論述來源：VanEck「$39k gold」分析（M0 + FX turnover 加權）\r\n</principle>\r\n\r\n<principle name=\"two_aggregates\">\r\n**兩種貨幣口徑差異**\r\n\r\n| 口徑 | 定義 | 隱含金價 | 解讀 |\r\n|------|------|----------|------|\r\n| M0 (Monetary Base) | 央行直接負債（通貨 + 準備金） | ~$39k | 央行資產負債表壓力 |\r\n| M2 (Broad Money) | 含銀行體系信用擴張 | ~$184k | 全體信用體系壓力 |\r\n\r\n**關鍵洞察**：兩者差距反映「信用乘數」的槓桿效應。\r\n</principle>\r\n\r\n<principle name=\"weighting_logic\">\r\n**加權方法的直覺**\r\n\r\n| 方法 | 數據來源 | 直覺 |\r\n|------|----------|------|\r\n| fx_turnover | BIS 三年調查 | 外匯交易份額 ≈ 國際結算/儲備使用強度 |\r\n| reserve_share | IMF COFER | 官方外匯儲備幣別佔比 |\r\n| equal | - | 不考慮貨幣重要性差異 |\r\n| custom | 用戶自訂 | 可配合特定情境分析 |\r\n\r\n加權的直覺：份額越高的貨幣，在「重新錨定」時需吸收的負債壓力越大。\r\n</principle>\r\n\r\n<principle name=\"backing_ratio\">\r\n**黃金支撐率 (Backing Ratio)**\r\n\r\n```\r\nbacking_ratio = (gold_oz × gold_spot) / money_base\r\n```\r\n\r\n解讀：\r\n- backing_ratio ≈ 3% → 黃金僅支撐 3% 的貨幣負債（高槓桿）\r\n- backing_ratio ≈ 60% → 黃金接近完全支撐（低槓桿）\r\n\r\n貼文中「日本黃金只支撐約 3% 的 M0」即此概念。\r\n</principle>\r\n\r\n<principle name=\"data_access\">\r\n**資料取得方式**\r\n\r\n本 skill 使用**公開數據**：\r\n- **黃金儲備**：World Gold Council / IMF IFS（tonnes）\r\n- **貨幣量**：各國央行 / FRED / IMF IFS（M0/M2）\r\n- **FX Turnover**：BIS Triennial Survey（每三年更新）\r\n- **金價**：Yahoo Finance / FRED（XAU/USD）\r\n\r\n腳本位於 `scripts/` 目錄，可直接執行。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n實作「美元失去儲備地位下的黃金重估」壓力測試模型：\r\n\r\n1. **數據整合**：抓取各國 M0/M2、黃金儲備、匯率、FX turnover 權重\r\n2. **計算隱含金價**：未加權與加權版本\r\n3. **計算黃金支撐率**：衡量各國槓桿程度\r\n4. **計算缺口**：需要再買多少黃金才能達到目標支撐率\r\n5. **排名輸出**：誰最槓桿、誰最穩健\r\n\r\n輸出：隱含金價、支撐率排名、缺口分析、敘事洞察。\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：執行預設情境分析**\r\n\r\n```bash\r\ncd skills/usd-reserve-loss-gold-revaluation\r\npip install pandas numpy requests yfinance  # 首次使用\r\npython scripts/gold_revaluation.py --quick\r\n```\r\n\r\n輸出範例：\r\n```json\r\n{\r\n  \"headline\": {\r\n    \"implied_gold_price_m0_weighted\": 39210.0,\r\n    \"implied_gold_price_m2_weighted\": 184500.0,\r\n    \"interpretation\": \"壓力測試數字，非價格預測\"\r\n  },\r\n  \"ranking\": [\r\n    {\"entity\": \"JPY\", \"backing_ratio\": 0.03, \"lever_multiple\": 41.0},\r\n    {\"entity\": \"USD\", \"backing_ratio\": 0.08, \"lever_multiple\": 12.5},\r\n    {\"entity\": \"ZAR\", \"backing_ratio\": 0.60, \"lever_multiple\": 0.16}\r\n  ]\r\n}\r\n```\r\n\r\n**完整情境分析**：\r\n```bash\r\npython scripts/gold_revaluation.py \\\r\n  --date 2026-01-07 \\\r\n  --entities USD,CNY,JPY,EUR,GBP \\\r\n  --aggregate M0 \\\r\n  --weighting fx_turnover \\\r\n  --output result.json\r\n```\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼操作？\r\n\r\n1. **快速計算** - 使用預設參數計算主要貨幣的隱含金價\r\n2. **完整分析** - 自訂參數進行情境分析（可選擇口徑、權重、實體）\r\n3. **比較分析** - 同時比較 M0 vs M2、不同加權方法的差異\r\n4. **監控模式** - 追蹤黃金支撐率的變化趨勢\r\n5. **方法論學習** - 了解計算邏輯與數據來源\r\n6. **視覺化圖表** - 生成分析結果的視覺化圖表\r\n\r\n**請選擇或直接提供分析參數。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                        | Action                                        |\r\n|---------------------------------|-----------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"計算\"      | 執行 `python scripts/gold_revaluation.py --quick` |\r\n| 2, \"完整\", \"full\", \"分析\"       | 閱讀 `workflows/analyze.md` 並執行            |\r\n| 3, \"比較\", \"compare\", \"對比\"    | 閱讀 `workflows/compare.md` 並執行            |\r\n| 4, \"監控\", \"monitor\", \"追蹤\"    | 閱讀 `workflows/monitor.md` 並執行            |\r\n| 5, \"學習\", \"方法論\", \"why\"      | 閱讀 `references/methodology.md`              |\r\n| 6, \"圖表\", \"畫圖\", \"視覺化\"     | 執行 `python scripts/visualize_revaluation.py` |\r\n| 提供參數 (如實體清單)            | 閱讀 `workflows/analyze.md` 並使用參數執行    |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\nusd-reserve-loss-gold-revaluation/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── manifest.json                      # 技能元數據\r\n├── workflows/\r\n│   ├── analyze.md                     # 完整情境分析工作流\r\n│   ├── compare.md                     # M0/M2 比較分析工作流\r\n│   └── monitor.md                     # 持續監控工作流\r\n├── references/\r\n│   ├── data-sources.md                # 數據來源與獲取方式\r\n│   ├── methodology.md                 # 方法論與計算邏輯\r\n│   └── input-schema.md                # 完整輸入參數定義\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n└── scripts/\r\n    ├── gold_revaluation.py            # 主計算腳本\r\n    └── visualize_revaluation.py       # 視覺化腳本\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**方法論**: references/methodology.md\r\n- 黃金錨定假說解析\r\n- 隱含金價計算公式\r\n- 支撐率與槓桿解讀\r\n\r\n**資料來源**: references/data-sources.md\r\n- 黃金儲備數據來源\r\n- 貨幣量 M0/M2 數據來源\r\n- BIS FX Turnover 數據\r\n- 匯率與金價來源\r\n\r\n**輸入參數**: references/input-schema.md\r\n- 完整參數定義\r\n- 預設值與建議範圍\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow    | Purpose          | 使用時機                   |\r\n|-------------|------------------|---------------------------|\r\n| analyze.md  | 完整情境分析     | 需要自訂參數進行壓力測試   |\r\n| compare.md  | M0/M2 比較分析   | 比較不同口徑的隱含金價差異 |\r\n| monitor.md  | 持續監控         | 追蹤支撐率變化趨勢         |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構定義 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script                    | Command                         | Purpose                |\r\n|---------------------------|---------------------------------|------------------------|\r\n| gold_revaluation.py       | `--quick`                       | 快速計算主要貨幣       |\r\n| gold_revaluation.py       | `--entities USD,CNY --agg M0`   | 自訂實體與口徑         |\r\n| gold_revaluation.py       | `--compare-aggregates`          | M0 vs M2 比較          |\r\n| visualize_revaluation.py  | `--mode usd`                    | 美元單一視覺化圖表     |\r\n| visualize_revaluation.py  | `--mode multi`                  | 多貨幣比較視覺化圖表   |\r\n| visualize_revaluation.py  | `--mode all --output-dir DIR`   | 生成所有圖表至指定目錄 |\r\n</scripts_index>\r\n\r\n<input_schema_summary>\r\n\r\n**核心參數**\r\n\r\n| 參數               | 類型   | 預設值       | 說明                       |\r\n|--------------------|--------|--------------|---------------------------|\r\n| scenario_date      | string | today        | 情境估算基準日期           |\r\n| entities           | array  | 主要貨幣     | 分析對象（國家/貨幣代碼）  |\r\n| monetary_aggregate | string | M0           | 貨幣口徑（M0/M2/MB/M1/M3） |\r\n| weighting_method   | string | fx_turnover  | 加權方式                   |\r\n| fx_base            | string | USD          | 計價幣別基準               |\r\n\r\n**進階參數**\r\n\r\n| 參數             | 類型   | 預設值     | 說明                   |\r\n|------------------|--------|------------|------------------------|\r\n| liability_scope  | string | broad_money | 負債口徑               |\r\n| gold_reserve_unit| string | troy_oz    | 黃金單位（oz/tonnes）  |\r\n| gold_price_spot  | float  | auto       | 基準日金價（可自動抓取）|\r\n| fx_rates         | object | auto       | 匯率（可自動抓取）     |\r\n\r\n完整參數定義見 `references/input-schema.md`。\r\n\r\n</input_schema_summary>\r\n\r\n<output_schema_summary>\r\n```json\r\n{\r\n  \"skill\": \"usd-reserve-loss-gold-revaluation\",\r\n  \"scenario_date\": \"2026-01-07\",\r\n  \"assumptions\": {\r\n    \"monetary_aggregate\": \"M0\",\r\n    \"weighting_method\": \"fx_turnover\",\r\n    \"fx_base\": \"USD\",\r\n    \"gold_spot_usd_per_oz\": 2050.0\r\n  },\r\n  \"headline\": {\r\n    \"implied_gold_price_weighted_usd_per_oz\": 39210.0,\r\n    \"interpretation\": \"資產負債表壓力測算（非價格預測）\"\r\n  },\r\n  \"table\": [...],\r\n  \"insights\": [...]\r\n}\r\n```\r\n\r\n完整輸出結構見 `templates/output-json.md`。\r\n</output_schema_summary>\r\n\r\n<success_criteria>\r\n執行成功時應產出：\r\n\r\n- [ ] 隱含金價（未加權與加權版本）\r\n- [ ] 各實體的黃金支撐率（backing_ratio）\r\n- [ ] 槓桿倍數排名（lever_multiple_vs_spot）\r\n- [ ] 黃金缺口分析（additional_gold_oz_needed）\r\n- [ ] 敘事洞察（M0 vs M2 差異、槓桿解讀）\r\n- [ ] 結果輸出為指定格式（JSON 或 Markdown）\r\n- [ ] 視覺化圖表（可選，包含金價比較、支撐率、信用乘數等 6 個面板）\r\n</success_criteria>",
-    "path": "skills/usd-reserve-loss-gold-revaluation/SKILL.md",
-    "directoryStructure": "usd-reserve-loss-gold-revaluation/\n├── examples\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   └── methods.md\n├── scripts\n│   ├── gold_revaluation.py\n│   ├── visualize_revaluation.py\n│   └── __pycache__\n│       └── gold_revaluation.cpython-312.pyc\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    ├── compare.md\n    └── monitor.md",
-    "lastUpdated": "2026-01-19",
-    "rating": 3,
-    "testQuestions": [
-      {
-        "question": "如果美元失去儲備地位，黃金需要重估到多少美元才能支撐 M0？",
-        "imagePath": "images/gold-revaluation-usd-2026-01-19.png",
-        "expectedResult": "分析結果：美元失去儲備地位下的黃金重估需求                                                                                                                                           \n\n基於目前的數據（2026-01-19），我已完成對美元在「失去儲備地位、黃金成為唯一錨定資產」情境下的壓力測試分析。                                                                                                                                                                                                                                                                  \n\n核心發現（M0 口徑）                                                                                                                                                                    \n┌──────────────────┬────────────────────────────────────┐\n│       指標       │                數值                │\n├──────────────────┼────────────────────────────────────┤\n│ 當前金價         │ $4,595/oz                          │\n├──────────────────┼────────────────────────────────────┤\n│ 隱含金價（加權） │ $19,574/oz                         │\n├──────────────────┼────────────────────────────────────┤\n│ 需重估倍數       │ 4.26x                              │\n├──────────────────┼────────────────────────────────────┤\n│ 黃金支撐率       │ 20.72%                             │\n├──────────────────┼────────────────────────────────────┤\n│ 需額外黃金       │ 10 億盎司（約為目前儲備的 3.8 倍） │\n└──────────────────┴────────────────────────────────────┘\n\nM0 vs M2 對比：信用乘數效應\n┌──────────────────┬────────────┬──────────┬────────┐\n│       口徑       │  隱含金價  │ 重估倍數 │ 支撐率 │\n├──────────────────┼────────────┼──────────┼────────┤\n│ M0（央行負債）   │ $19,574/oz │ 4.26x    │ 20.7%  │\n├──────────────────┼────────────┼──────────┼────────┤\n│ M2（含信用擴張） │ $70,533/oz │ 15.35x   │ 5.8%   │\n├──────────────────┼────────────┼──────────┼────────┤\n│ 信用乘數         │ 3.6 倍     │ -        │ -      │\n└──────────────────┴────────────┴──────────┴────────┘\n\n關鍵洞察\n\n1. M0 結論：若美元失去儲備地位且黃金成為唯一錨定資產，黃金需要從目前的 $4,595/oz 重估至約 $19,574/oz（約 4.26 倍）才能完全支撐美國的 M0 貨幣基礎（$5.8 兆）。\n2. 支撐率偏低：目前美國黃金儲備（8,133.5 噸 / 2.61 億盎司）僅能支撐 20.7% 的 M0，顯示美元體系高度依賴信用擴張而非實物資產。\n3. M2 口徑更極端：若考慮整個貨幣體系（M2 = $20.9 兆），隱含金價將達到 $70,533/oz，重估倍數高達 15.35 倍，反映銀行體系的巨大槓桿效應。\n4. 與 VanEck 論點對比：VanEck 著名的「$39k gold」分析使用了多國加權的 M0 口徑。本次分析顯示，單就美元而言，壓力測試數字約為 $19.6k（使用 FX turnover 權重）。\n\n重要提醒\n\n這是壓力測試數字，非價格預測。此分析基於極端假設情境：\n- 法定貨幣體系完全瓦解\n- 黃金成為唯一貨幣錨定資產\n- 資產負債表必須完全平衡\n\n實際上，現代貨幣體系建立在信用基礎上，不太可能完全回歸金本位制。此分析的意義在於：\n1. 衡量各國貨幣體系的「黃金槓桿」程度\n2. 理解 M0 與 M2 的信用乘數效應\n3. 評估極端情境下的系統性風險\n\n---\n數據來源：                                                                                                                                                                           \n- 黃金儲備：World Gold Council 2024 Q3\n- 貨幣供給：2024 估計值\n- 當前金價：Yahoo Finance（自動抓取）\n- FX Turnover 權重：BIS 2022 調查\n"
-      },
-      {
-        "question": "比較 M0 與 M2 口徑下的隱含金價差異",
-        "expectedResult": "完成了 M0 與 M2 口徑的完整比較分析! 以下是關鍵發現:      \n\n📊 M0 vs M2 隱含金價比較                                                                                                                                                                \nHeadline 結果                                                                                                                                                                        \n┌───────────────┬──────────┬──────────────┐\n│     口徑      │ 隱含金價 │ 相對現價倍數 │\n├───────────────┼──────────┼──────────────┤\n│ M0 (央行負債) │ $11,008  │ 5.37x        │\n├───────────────┼──────────┼──────────────┤\n│ M2 (廣義貨幣) │ $38,011  │ 8.27x        │\n├───────────────┼──────────┼──────────────┤\n│ 信用乘數      │ 3.45x    │ -            │\n└───────────────┴──────────┴──────────────┘\n關鍵洞察\n\n1. 信用擴張效應: M2 相對 M0 高出 3.45倍,反映銀行體系的信用創造槓桿\n2. 各國差異極大:\n  - 中國 (CNY): 信用擴張高達 25.14x (極端高槓桿)\n  - 美元 (USD): 標準 3.60x\n  - 日本 (JPY): 僅 1.76x (低槓桿)\n3. 黃金支撐率:\n  - USD M0: 9.24% → M2: 5.75%\n  - CNY M0: 9.19% → M2: 0.82% (驚人落差)\n\n使用場景區分\n\nM0 口徑 ($11,008):\n- 評估央行資產負債表壓力\n- VanEck \"$39k gold\" 論點採用此口徑\n- 相對保守的估計\n\nM2 口徑 ($38,011):\n- 評估整體金融體系極端壓力\n- 反映銀行信用擴張崩潰情境\n- 極端壓力測試\n\n生成文件\n\n1. 詳細分析報告: gold-revaluation-m0-vs-m2-analysis.md\n"
-      }
-    ],
-    "qualityScore": {
-      "overall": 70,
-      "badge": "白銀",
-      "metrics": {
-        "architecture": 75,
-        "maintainability": 75,
-        "content": 80,
-        "community": 20,
-        "security": 90,
-        "compliance": 80
-      },
-      "details": "**架構（75/100）**\n- 清晰的壓力測試框架\n- 支援多口徑、多權重比較\n- 可擴展的實體清單\n\n**可維護性（75/100）**\n- 參數定義完整\n- 數據來源明確\n- 替代方案記錄\n\n**內容（80/100）**\n- 完整的方法論文檔\n- VanEck 模型邏輯解析\n- 實用的情境分析工具\n\n**社區（20/100）**\n- 新技能，尚無社區貢獻\n\n**安全（90/100）**\n- 使用公開經濟數據\n- 部分數據需手動更新\n\n**規範符合性（80/100）**\n- 遵循 Claude Code 規範\n- 完整的文件結構\n"
-    },
-    "bestPractices": [
-      {
-        "title": "明確這是壓力測試，非預測",
-        "description": "隱含金價是「若...則...」的情境計算，不是預測未來金價"
-      },
-      {
-        "title": "區分 M0 與 M2 的使用場景",
-        "description": "M0 評估央行壓力，M2 評估全體系極端壓力"
-      },
-      {
-        "title": "理解加權方法的直覺",
-        "description": "FX turnover 反映國際使用強度，reserve share 反映官方持有偏好"
-      },
-      {
-        "title": "注意數據更新頻率",
-        "description": "BIS 三年調查每三年更新，黃金儲備約季度更新"
-      }
-    ],
-    "pitfalls": [
-      {
-        "title": "誤將隱含金價當作預測",
-        "description": "這是極端情境壓力測試，不是合理的價格預測",
-        "consequence": "做出錯誤的投資決策"
-      },
-      {
-        "title": "忽略數據口徑差異",
-        "description": "各國 M0/M2 定義不完全一致",
-        "consequence": "跨國比較可能失真"
-      },
-      {
-        "title": "使用過時的權重數據",
-        "description": "BIS 數據每三年更新，可能不反映最新格局",
-        "consequence": "加權結果偏離實際"
-      }
-    ],
-    "faq": [
-      {
-        "question": "VanEck 的 \"$39k gold\" 是怎麼算出來的？",
-        "answer": "VanEck 使用 M0（貨幣基數）加上 BIS FX turnover 加權，\n計算「若黃金成為唯一錨，需要多高的金價才能支撐貨幣負債」。\n這是資產負債表壓力測試，不是價格預測。\n"
-      },
-      {
-        "question": "為什麼 M2 會算出 $184k 這麼極端的數字？",
-        "answer": "M2 包含銀行體系的信用擴張（存款等），\n比 M0（央行直接負債）大約 4-5 倍。\n用 M2 計算代表「整體金融體系完全由黃金支撐」的極端情境。\n"
-      },
-      {
-        "question": "黃金支撐率（backing ratio）如何解讀？",
-        "answer": "backing_ratio = (黃金盎司 × 金價) / 貨幣量\n\n- 3% = 黃金只支撐 3% 的貨幣負債（高槓桿，如日圓）\n- 60% = 黃金接近完全支撐（低槓桿，如某些新興市場）\n\n比率越低，在「黃金唯一錨」情境下需要金價重估的幅度越大。\n"
-      },
-      {
-        "question": "這個模型對投資有什麼用？",
-        "answer": "1. 理解去美元化敘事的數學基礎\n2. 比較不同國家的黃金槓桿程度\n3. 追蹤央行黃金儲備變化的含義\n4. 作為極端情境的 tail risk 參考\n\n但請記住：這是壓力測試框架，不是價格預測工具。\n"
-      }
-    ],
-    "about": {
-      "repository": "https://github.com/fatfingererr/macro-skills",
-      "branch": "main",
-      "additionalInfo": "## 參考來源\n\n- VanEck Gold Report: https://www.vaneck.com/us/en/blogs/gold-investing/\n- World Gold Council: https://www.gold.org/goldhub/data/gold-reserves-by-country\n- BIS Triennial Survey: https://www.bis.org/statistics/rpfx22.htm\n\n## 數據來源\n\n**黃金儲備**\n- World Gold Council（各國央行黃金持有量）\n- IMF IFS（官方儲備資產中黃金欄位）\n\n**貨幣量**\n- FRED（美國 M0/M2）\n- 各國央行統計（其他國家）\n- IMF IFS（國際可比數據）\n\n**FX Turnover 權重**\n- BIS Triennial Survey（2022 年版）\n- 每三年更新，目前最新為 2022 年調查\n\n**金價**\n- FRED: GOLDAMGBD228NLBM\n- Yahoo Finance: GC=F, GLD\n"
-    },
-    "methodology": "\r\n這不是在「預測金價」，而是在做一個**資產負債表壓力測試（balance-sheet stress test）**：\r\n\r\n**假設**：若美元（或某貨幣）失去儲備地位，全球體系需要更「硬」的錨（anchor），而黃金成為主要或唯一錨。  \r\n\r\n**問題**：在這種極端情境下，金價需要被**重估到多少**，才能讓「貨幣負債」與「黃金儲備」之間的缺口被吸收？\r\n\r\n因此它本質上是一個「**錨定定價（anchor pricing）／儲備比率重估（reserve-ratio revaluation）**」的算術模型：  \r\n\r\n用央行（或貨幣體系）的**貨幣負債（money liabilities）**去對比可用的**黃金儲備（gold reserves）**。\r\n\r\n**這套方法是「用資產負債表視角，把儲備地位流失的系統性壓力映射成黃金的隱含重估價格」：**  \r\n\r\n它不回答短期走勢，但能提供一個極端情境下的「壓力上限」與「體系脆弱度地圖」。",
-    "downloadUrl": "downloads/usd-reserve-loss-gold-revaluation-0.1.0.zip"
   },
   {
     "id": "nickel-concentration-risk-analyzer",
@@ -700,6 +704,136 @@
     "downloadUrl": "downloads/nickel-concentration-risk-analyzer-0.1.1.zip"
   },
   {
+    "id": "lithium-supply-demand-gap-radar",
+    "name": "lithium-supply-demand-gap-radar",
+    "displayName": "鋰產業鏈供需雷達",
+    "description": "將鋰產業鏈（礦端 → 精煉化學品 → 電池與終端需求），整合為一套可運算的替代指標；再把這些指標映射到鋰主題 ETF（如 LIT）的成分暴露與長期價格走勢，形成可供決策的依據。 ",
+    "emoji": "🔋",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "鋰",
+      "供需分析",
+      "ETF",
+      "LIT",
+      "原物料",
+      "電池",
+      "電動車",
+      "EV",
+      "價格週期",
+      "USGS",
+      "IEA"
+    ],
+    "category": "commodity-sd",
+    "dataLevel": "free-nolimit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\r\n**鋰產業鏈供需雷達 核心原則**\r\n\r\n<principle name=\"supply_chain_layers\">\r\n**供應鏈分層（Supply Chain Layers）**\r\n\r\n鋰產業鏈必須分層分析，不可混為一談：\r\n\r\n```\r\nMining → Processing → Battery\r\n(礦端)   (化學品)    (終端需求)\r\n```\r\n\r\n| 層級                 | 代表數據                 | 典型延遲  |\r\n|----------------------|--------------------------|-----------|\r\n| Upstream (礦端)      | 鋰礦產量、出口量         | 年度/季度 |\r\n| Midstream (化學品)   | 碳酸鋰/氫氧化鋰價格      | 週度/日度 |\r\n| Downstream (電池/EV) | EV 銷量、電池裝機量(GWh) | 月度      |\r\n\r\n**強制規則**：\r\n- 供給分析需指定層級（礦端 vs 精煉端）\r\n- 需求 proxy 需明確轉換假設（kWh → kg Li）\r\n- 價格分析需區分碳酸鋰 vs 氫氧化鋰\r\n</principle>\r\n\r\n<principle name=\"data_level_fallback\">\r\n**數據等級與備援策略（Data Level Fallback）**\r\n\r\n根據 `data_level` 參數自動選擇數據源：\r\n\r\n| data_level     | 價格數據             | 供需數據           | 可靠度 |\r\n|----------------|----------------------|--------------------|--------|\r\n| `free_nolimit` | CME 期貨/Proxy 指數  | USGS/IEA/澳洲政府  | 中     |\r\n| `free_limit`   | SMM/Fastmarkets 頁面 | + 公司財報         | 中高   |\r\n| `paid_low`     | SMM 完整序列         | + Benchmark 基本   | 高     |\r\n| `paid_high`    | Fastmarkets API      | + S&P/BNEF/WoodMac | 最高   |\r\n\r\n**強制規則**：\r\n- 價格數據不足時，使用 CME 合約或相關股籃子作為 proxy\r\n- 需在輸出中標註實際使用的數據等級\r\n</principle>\r\n\r\n<principle name=\"li_content_conversion\">\r\n**鋰含量轉換（Li Content Conversion）**\r\n\r\n電池需求到鋰需求的轉換必須明確假設：\r\n\r\n| 假設場景 | kg Li / kWh | 備註                |\r\n|----------|-------------|---------------------|\r\n| 保守估計 | 0.12        | 含 LFP 佔比上升假設 |\r\n| 中性估計 | 0.15        | 混合 NMC/LFP        |\r\n| 積極估計 | 0.18        | 高鎳 NMC 主導       |\r\n\r\n```python\r\nli_demand_kt = battery_gwh * kg_per_kwh * 1000  # 單位: kt LCE\r\n```\r\n\r\n**強制規則**：\r\n- 需求估計必須輸出三個情境（保守/中性/積極）\r\n- 輸出需包含 `kg_per_kwh_assumption` 欄位\r\n</principle>\r\n\r\n<principle name=\"regime_classification\">\r\n**價格型態分類（Price Regime Classification）**\r\n\r\n鋰價週期分為四個階段：\r\n\r\n| Regime      | 特徵                         | 交易含義           |\r\n|-------------|------------------------------|--------------------|\r\n| `downtrend` | 12-26 週動能 < 0, 斜率 < 0   | 空頭主導，避免做多 |\r\n| `bottoming` | 動能收斂，波動下降，均值回歸 | 觀望，等待確認     |\r\n| `uptrend`   | 動能 > 0, 斜率 > 0           | 做多視窗開啟       |\r\n| `overheat`  | 動能極端正值，波動放大       | 獲利了結風險       |\r\n\r\n**指標組合**：\r\n- 12 週 / 26 週動能（ROC）\r\n- 趨勢斜率（線性回歸）\r\n- 波動率（ATR / 標準差）\r\n- 均值回歸強度（距 MA 偏離度）\r\n</principle>\r\n\r\n<principle name=\"etf_transmission\">\r\n**ETF 傳導敏感度（ETF Transmission）**\r\n\r\nETF 對鋰價的敏感度受持股結構影響：\r\n\r\n| 持股類型          | 對鋰價 Beta | 波動特性            |\r\n|-------------------|-------------|---------------------|\r\n| Upstream (礦業)   | 1.5 - 2.5   | 高槓桿、高波動      |\r\n| Midstream (精煉)  | 0.8 - 1.2   | 跟隨但有加工費緩衝  |\r\n| Downstream (電池) | 0.3 - 0.8   | 受競爭/技術路線影響 |\r\n\r\n**計算公式**：\r\n```python\r\nETF_beta_li = Σ(weight_i * beta_i_to_lithium)\r\n```\r\n\r\n**強制規則**：\r\n- 需計算 rolling beta（建議 52 週滾動）\r\n- 傳導斷裂判斷：beta < 0.3 且持續 > 8 週\r\n</principle>\r\n</essential_principles>\r\n\r\n<intake>\r\n**您想要執行什麼操作？**\r\n\r\n1. **Full Analysis** - 完整供需×價格×傳導整合分析（生成完整報告）\r\n2. **Balance Nowcast** - 僅計算供需平衡即時估計（缺口擴大/縮小）\r\n3. **Price Regime** - 僅分析價格型態與週期位置\r\n4. **ETF Exposure** - 僅分析 ETF 持股結構與鋰價敏感度\r\n5. **Ingest Data** - 從各數據源擷取並標準化數據\r\n\r\n**等待回應後再繼續。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                                          | Workflow                     | Description                |\r\n|---------------------------------------------------|------------------------------|----------------------------|\r\n| 1, \"full\", \"analyze\", \"完整\", \"報告\", \"LIT\"       | workflows/full-analysis.md   | 完整供需×價格×傳導整合分析 |\r\n| 2, \"balance\", \"nowcast\", \"供需\", \"缺口\", \"gap\"    | workflows/balance-nowcast.md | 供需平衡即時估計           |\r\n| 3, \"price\", \"regime\", \"價格\", \"週期\", \"型態\"      | workflows/price-regime.md    | 價格型態與週期分析         |\r\n| 4, \"etf\", \"exposure\", \"holding\", \"傳導\", \"敏感度\" | workflows/etf-exposure.md    | ETF 暴露與傳導分析         |\r\n| 5, \"ingest\", \"data\", \"fetch\", \"抓取\", \"擷取\"      | workflows/ingest.md          | 數據擷取與標準化           |\r\n\r\n**讀取工作流程後，請完全遵循其步驟。**\r\n</routing>\r\n\r\n<reference_index>\r\n**參考文件** (`references/`)\r\n\r\n| 文件                      | 內容                               |\r\n|---------------------------|------------------------------------|\r\n| data-sources.md           | 所有數據來源詳細說明與 URL         |\r\n| unit-conversion.md        | 單位轉換規則（LCE/Li/GWh）         |\r\n| price-methodology.md      | 價格數據方法學（Fastmarkets/SMM）  |\r\n| etf-holdings-structure.md | LIT 持股結構與產業鏈分段           |\r\n| supply-chain-mapping.md   | 鋰供應鏈完整映射（礦→化學品→電池） |\r\n| failure-modes.md          | 失敗模式與緩解策略                 |\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow           | Purpose                    |\r\n|--------------------|----------------------------|\r\n| full-analysis.md   | 完整供需×價格×傳導整合分析 |\r\n| balance-nowcast.md | 供需平衡即時估計           |\r\n| price-regime.md    | 價格型態與週期分析         |\r\n| etf-exposure.md    | ETF 持股暴露與傳導分析     |\r\n| ingest.md          | 數據擷取與標準化           |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構模板 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n| config.yaml        | 分析參數配置模板  |\r\n| data-schema.yaml   | 數據 Schema 定義  |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script                    | Purpose                  |\r\n|---------------------------|--------------------------|\r\n| lithium_pipeline.py       | 核心數據管線             |\r\n| ingest_sources.py         | 數據來源擷取             |\r\n| compute_balance.py        | 供需平衡計算             |\r\n| classify_regime.py        | 價格型態分類             |\r\n| compute_etf_beta.py       | ETF 傳導敏感度計算       |\r\n| visualize_analysis.py     | 分析結果綜合視覺化       |\r\n| inflection_point_chart.py | **拐點分析專用視覺化** ⭐ |\r\n</scripts_index>\r\n\r\n<quick_start>\r\n**CLI 快速開始：**\r\n\r\n```bash\r\n# 完整分析 LIT ETF（預設 10 年回看、週度頻率）\r\npython scripts/lithium_pipeline.py analyze --ticker=LIT --lookback=10 --freq=weekly\r\n\r\n# 僅計算供需平衡 Nowcast\r\npython scripts/lithium_pipeline.py balance --asof=2026-01-16\r\n\r\n# 分析價格型態（碳酸鋰 + 氫氧化鋰）\r\npython scripts/lithium_pipeline.py regime --chem=both\r\n\r\n# 計算 ETF 對鋰價的傳導敏感度\r\npython scripts/lithium_pipeline.py etf-beta --ticker=LIT --window=52\r\n\r\n# ✨ 生成視覺化圖表（完整儀表板）\r\npython scripts/visualize_analysis.py\r\n# 輸出：output/lithium_analysis_YYYY-MM-DD.png\r\n```\r\n\r\n**視覺化輸出**：\r\n- 📊 6合1 專業儀表板（18\" × 12\"，300 DPI）\r\n- 📁 自動保存至 `output/` 目錄\r\n- 📅 檔名包含當天日期\r\n- 🎨 完整中文支持\r\n\r\n**Library 快速開始：**\r\n\r\n```python\r\nfrom lithium_pipeline import LithiumSupplyDemandRadar\r\n\r\nradar = LithiumSupplyDemandRadar(\r\n    etf_ticker=\"LIT\",\r\n    lookback_years=10,\r\n    price_freq=\"weekly\",\r\n    chem_focus=\"both\",\r\n    data_level=\"free_nolimit\"\r\n)\r\n\r\n# 完整分析\r\nresult = radar.full_analysis()\r\nprint(f\"Balance Index: {result['balance_index']:.2f}\")\r\nprint(f\"Price Regime: {result['price_regime']}\")\r\nprint(f\"ETF Beta to Li: {result['etf_beta_li']:.2f}\")\r\nprint(f\"Thesis: {result['thesis']}\")\r\n```\r\n</quick_start>\r\n\r\n<success_criteria>\r\nSkill 成功執行時：\r\n- [ ] 正確識別數據等級並使用對應來源\r\n- [ ] 供需平衡指數計算正確（含三情境）\r\n- [ ] 價格型態分類明確（downtrend/bottoming/uptrend/overheat）\r\n- [ ] ETF 傳導敏感度計算正確（rolling beta）\r\n- [ ] 輸出包含完整的失效條件（invalidation）\r\n- [ ] 數據來源可追溯（source_id, data_level）\r\n- [ ] 單位轉換假設明確標註\r\n- [ ] **視覺化圖表已生成且符合規格**（300 DPI, PNG, 檔名含日期）\r\n- [ ] **報告與圖表在 output/ 目錄下一起輸出**\r\n</success_criteria>\r\n\r\n<input_schema>\r\n**輸入參數定義**\r\n\r\n```yaml\r\n# 必要參數\r\netf_ticker: string      # 目標 ETF（預設 LIT）\r\nlookback_years: int     # 回看年限（建議 10-15）\r\nprice_freq: string      # weekly | daily（建議 weekly）\r\n\r\n# 範圍參數\r\nregion_focus:           # 供應/需求重點區（選填）\r\n  - China\r\n  - Australia\r\n  - Chile\r\n  - Argentina\r\n  - US\r\n  - EU\r\n\r\nchem_focus: string      # carbonate | hydroxide | both（預設 both）\r\n\r\n# 數據等級\r\ndata_level: string      # free_nolimit | free_limit | paid_low | paid_high\r\n\r\n# 數據源開關\r\nsources:\r\n  usgs: boolean\r\n  iea_ev_outlook: boolean\r\n  australia_req: boolean\r\n  abs_exports: boolean\r\n  fastmarkets: boolean\r\n  smm: boolean\r\n  etf_holdings: boolean\r\n\r\n# 輸出格式\r\noutput_format: string   # markdown | json（預設 markdown）\r\n```\r\n</input_schema>\r\n\r\n<data_pipeline_architecture>\r\n**數據流水線架構**\r\n\r\n```\r\n[Data Sources]\r\n     |\r\n     v\r\n+--------------------+\r\n|   ingest_sources   |  --> USGS, IEA, Australia REQ/ABS\r\n+--------------------+      Fastmarkets/SMM (方法學/價格)\r\n     |                      Global X LIT factsheet\r\n     v\r\n+--------------------+\r\n|   normalize        |  --> 統一 schema + 單位標註\r\n+--------------------+\r\n     |\r\n     +-------------------+-------------------+\r\n     |                   |                   |\r\n     v                   v                   v\r\n+-----------+    +-----------+    +-----------+\r\n| supply_   |    | price_    |    | etf_      |\r\n| demand    |    | series    |    | holdings  |\r\n+-----------+    +-----------+    +-----------+\r\n     |                   |                   |\r\n     v                   v                   v\r\n+-----------+    +-----------+    +-----------+\r\n| balance_  |    | classify_ |    | compute_  |\r\n| nowcast   |    | regime    |    | etf_beta  |\r\n+-----------+    +-----------+    +-----------+\r\n     |                   |                   |\r\n     +-------------------+-------------------+\r\n                         |\r\n                         v\r\n              +--------------------+\r\n              |   generate_insight |  --> Thesis + Targets + Invalidation\r\n              +--------------------+\r\n                         |\r\n                         v\r\n              +--------------------+\r\n              |   format_output    |  --> JSON + Markdown\r\n              +--------------------+\r\n```\r\n\r\n**標準化欄位 Schema：**\r\n\r\n| 欄位        | 類型   | 說明                         |\r\n|-------------|--------|------------------------------|\r\n| date        | date   | 數據日期                     |\r\n| metric_type | string | supply/demand/price/etf      |\r\n| metric_name | string | 具體指標名稱                 |\r\n| value       | float  | 數值                         |\r\n| unit        | string | kt_LCE/USD_per_kg/GWh/pct    |\r\n| region      | string | 國家/區域                    |\r\n| source_id   | string | USGS/IEA/SMM/Fastmarkets/etc |\r\n| data_level  | string | 數據等級                     |\r\n| confidence  | float  | 來源品質評分 (0-1)           |\r\n</data_pipeline_architecture>",
+    "path": "skills/lithium-supply-demand-gap-radar/SKILL.md",
+    "directoryStructure": "lithium-supply-demand-gap-radar/\n├── examples\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── data-sources.md\n│   ├── etf-holdings-structure.md\n│   ├── failure-modes.md\n│   ├── price-methodology.md\n│   ├── supply-chain-mapping.md\n│   └── unit-conversion.md\n├── scripts\n│   ├── classify_regime.py\n│   ├── compute_balance.py\n│   ├── compute_etf_beta.py\n│   ├── inflection_point_chart.py\n│   ├── ingest_sources.py\n│   ├── lithium_pipeline.py\n│   ├── visualize_analysis.py\n│   └── __pycache__\n│       └── visualize_analysis.cpython-312.pyc\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── config.yaml\n│   ├── data-schema.yaml\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── balance-nowcast.md\n    ├── etf-exposure.md\n    ├── full-analysis.md\n    ├── ingest.md\n    └── price-regime.md",
+    "lastUpdated": "2026-01-16",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "幫我做一份鋰主題 ETF 的整合評估",
+        "imagePath": "images/lithium-analysis-2026-01-16.png",
+        "expectedResult": "我已經完成了鋰主題 ETF（LIT）的完整整合評估報告。報告已保存至：\nLIT_ETF_整合評估_2026-01-16.md\n\n核心結論摘要\n\n📈 Bullish（看多）— 置信度 75%\n\n關鍵發現：\n\n1. 價格動能強勁\n  - LIT ETF：$70.62（過去一年 +74.32%）\n  - 碳酸鋰：$21,650/噸（兩年高點，較2025低點翻倍）\n2. 供需平衡收窄\n  - 2025盈餘：141,000噸 LCE\n  - 2026預計：109,000噸 LCE（收窄23%）\n  - 積極情境下可能轉為小幅赤字\n3. 供給約束顯現\n  - 澳洲2024減產4%\n  - 中國江西27個礦權被取消\n  - 寧德時代建小沃礦（6%全球供給）仍關閉\n4. 需求爆發\n  - EV占鋰需求近90%（vs 2020年64%）\n  - 儲能（ESS）成長最快（+40-50% YoY），2026年占31%\n  - 中國VAT退稅取消引發搶單潮\n5. 傳導機制健康\n  - ETF對鋰價 Beta：0.9（強傳導）\n  - 上游持股占35%（Rio Tinto 20.84%、Albemarle 7.05%、SQM 4.01%等）\n\n投資路徑\n\n當前 $70.62\n  ↓\n目標 1: $78-82（中軌，Q2-Q3）\n目標 2: $90-95（前高，Q3-Q4）\n上軌: $110-120（樂觀情境）\n\n關鍵支撐: $48（止損位）\n\n主要風險\n\n1. 🔴 中國產能擴張超預期（2026年可能超越澳洲）\n2. 🟡 全球經濟衰退壓制EV需求\n3. 🟡 技術替代（鈉離子電池、固態電池）\n4. 🟠 地緣政治（美中、南美）\n\n近期催化劑\n\n- 2026年4月：中國VAT退稅降至6%（搶單高峰）\n- 2026年4月：IEA Global EV Outlook 2026發布\n- 2026年Q2：供需數據驗證期\n\n報告包含完整的數據來源追溯、失效條件、催化劑地圖和風險評估，可作為投資決策參考。\n\n📊 生成了視覺化圖表\n\n- 檔案位置：output/lithium_analysis_2026-01-16.png\n- 檔案大小：554 KB（高解析度 300 DPI）\n- 內容：6合1專業儀表板，包含：\n  - 投資論述摘要（Bullish, 75%置信度）\n  - 供需平衡演變圖\n  - 三情境平衡指數\n  - 碳酸鋰價格走勢與制度分類\n  - ETF傳導敏感度（Beta分析）\n  - 目標路徑圖      \n"
+      },
+      {
+        "question": "計算當前鋰的市場供需，並判斷缺口方向與拐點",
+        "imagePath": "images/lithium-inflection-analysis-2026-01-16.png",
+        "expectedResult": "🎯 鋰供需缺口方向與拐點判斷\n\n📍 當前缺口方向\n\n供給 > 需求 → 供給過剩（缺口為負）\nBalance Index = -1.53 標準差\n\n缺口狀態：\n- 方向: ⬇️ 供給過剩（負缺口）\n- 程度: -1.53σ（顯著過剩，超過1.5倍標準差）\n- 趨勢: 📉 Narrowing（縮小中，但仍為負）\n\n📊 缺口演變路徑（2020-2026）\n\n2020: 供需平衡 → 微過剩\n2021-2022: 缺口擴大（需求激增）→ 供不應求\n2023: 拐點出現 → 供給開始追上\n2024: 過剩形成 → 缺口轉負\n2025-2026: 過剩持續 → 但縮小中\n\n🔄 拐點判斷\n\n歷史拐點（已發生）\n\n- 2023年中: 從「供給短缺」→「供給過剩」的拐點\n  - 原因：澳洲硬岩產能大量釋放、中國精煉產能擴張\n  - 價格反應：碳酸鋰從 $70k/t 高峰跌至 $10k-15k/t\n\n未來拐點預測（待驗證）\n\n拐點時機估計：2026 Q3-Q4 至 2027 Q1\n\n觸發條件（需滿足至少2項）：\n\n1. 需求側加速 ✅ 機率：高（60%）\n  - IEA EV Outlook 2026 上調預測\n  - 儲能市場（ESS）裝機量超預期\n  - 北美/歐洲 EV 銷量反彈\n2. 供給側收縮 ⚠️ 機率：中（40%）\n  - 澳洲礦業減產（低價導致虧損）\n  - 智利政策限制產出\n  - 邊際成本生產商退出\n3. 庫存去化完成 ⚠️ 機率：中（45%）\n  - 中國碳酸鋰社會庫存降至歷史低位\n  - 產業鏈庫存週轉加速\n\n📈 三情境預測\n┌──────┬───────────────────┬────────────────────────┬──────┐\n│ 情境 │     拐點時間      │ Balance Index 轉正時間 │ 機率 │\n├──────┼───────────────────┼────────────────────────┼──────┤\n│ 樂觀 │ 2026 Q3           │ 2026 Q4                │ 25%  │\n├──────┼───────────────────┼────────────────────────┼──────┤\n│ 中性 │ 2026 Q4 - 2027 Q1 │ 2027 Q2                │ 50%  │\n├──────┼───────────────────┼────────────────────────┼──────┤\n│ 悲觀 │ 2027 Q2+          │ 2027 Q4+               │ 25%  │\n└──────┴───────────────────┴────────────────────────┴──────┘\n🚦 拐點確認指標（實時監控）\n\n需要同時觀察以下指標：\n\n1. Balance Index 回升\n\n- ✅ 目標：從 -1.53 回升至 -0.5 以上\n- 📊 當前：-1.53（仍顯著過剩）\n- ⏰ 監控頻率：月度\n\n2. 價格底部確認\n\n- ✅ 目標：碳酸鋰價格站穩 $15k/t 以上且 12週/26週動能皆轉正\n- 📊 當前：Uptrend（動能正向，但 Balance Index 矛盾）\n- ⏰ 監控頻率：週度\n\n3. 庫存數據\n\n- ✅ 目標：中國碳酸鋰庫存周轉天數 < 30 天\n- 📊 當前：無最新數據（需補充）\n- ⏰ 監控頻率：月度\n\n4. 產能利用率\n\n- ✅ 目標：全球鋰礦產能利用率 < 75%（供給收縮開始）\n- 📊 當前：估計 >85%（仍在擴張）\n- ⏰ 監控頻率：季度\n\n⚡ 即刻行動清單\n\n若要捕捉拐點，需要：\n\n1. 追蹤催化劑時間表\n  - 2026-04：IEA EV Outlook 發布\n  - 2026-Q1：澳洲 REQ 季報\n  - 2026-Q2：智利鋰政策明確化\n  - 每月：中國 SMM 庫存數據\n2. 設定警報條件\n  - Balance Index 回升至 -1.0 以上\n  - 碳酸鋰價格突破 $18k/t\n  - LIT ETF 突破 $56.20（前高阻力）\n  - 澳洲主要礦業宣布減產\n3. 風險管理\n  - 在 $38.50 設定止損（LIT ETF）\n  - Balance Index 若惡化至 -2.0，立即退出\n  - 價格型態轉為 Downtrend，停損離場\n\n---\n📌 結論\n\n缺口方向：當前為供給過剩（Balance Index = -1.53）\n\n拐點判斷：\n- ❌ 未發生（Balance Index 仍顯著為負）\n- ⏳ 預期時間：2026 Q3-Q4 至 2027 Q1\n- 🎯 關鍵確認：Balance Index 回升至 -0.5 以上 + 價格站穩 $15k/t + 庫存去化 + 產能利用率下降\n\n當前建議：謹慎觀望，等待多重確認訊號出現後再行動。基本面與技術面的背離需要密切監控。\n"
+      },
+      {
+        "question": "分析鋰價目前處於什麼週期階段",
+        "expectedResult": "🔄 鋰價週期階段分析\n\n分析日期: 2026-01-16\n數據來源: CME 鋰期貨 proxy + 歷史供需數據\n\n---\n📊 當前週期位置\n\n完整週期循環：\nDOWNTREND → BOTTOMING → [UPTREND] → OVERHEAT\n                            ↑\n                        當前位置\n\n判定: 🟢 UPTREND（上行趨勢期） - 早期階段\n\n---\n📈 價格技術指標\n\n碳酸鋰 (99.5% Battery Grade)\n┌────────────────┬─────────┬───────────────┬───────────────┐\n│      指標      │ 當前值  │     判讀      │     信號      │\n├────────────────┼─────────┼───────────────┼───────────────┤\n│ 12週動能 (ROC) │ +6.1%   │ 短期動能轉正  │ 🟢 做多訊號   │\n├────────────────┼─────────┼───────────────┼───────────────┤\n│ 26週動能 (ROC) │ +3.06%  │ 中期動能轉正  │ 🟢 趨勢確認   │\n├────────────────┼─────────┼───────────────┼───────────────┤\n│ 趨勢斜率       │ +0.0016 │ 穩定上升      │ 🟢 持續性佳   │\n├────────────────┼─────────┼───────────────┼───────────────┤\n│ 波動率 (ATR%)  │ 2.23%   │ 低波動        │ 🟡 盤整後突破 │\n├────────────────┼─────────┼───────────────┼───────────────┤\n│ 均值偏離度     │ +20.61% │ 高於200週均線 │ 🟢 強勢格局   │\n└────────────────┴─────────┴───────────────┴───────────────┘\n氫氧化鋰 (56.5% LiOH·H₂O)\n\n型態判定: 🟢 UPTREND（與碳酸鋰同步）\n\n價差狀態:\n- 當前價差：1,559 USD/t\n- 歷史分位：95%（異常寬）\n- 趨勢：Widening（持續擴大）\n- 同步狀態：Synchronized\n\n---\n🎯 週期階段特徵對照\n\n✅ 符合 UPTREND 的特徵\n\n1. 動能轉正 ✅\n  - 12週 ROC: +6.1% > 0\n  - 26週 ROC: +3.06% > 0\n  - 連續多週保持正值\n2. 趨勢斜率向上 ✅\n  - 線性回歸斜率: +0.0016\n  - 價格高點逐步抬升\n3. 均線支撐 ✅\n  - 價格高於 200 週均線 20.61%\n  - 中短期均線呈多頭排列\n4. 波動率特徵 ⚠️\n  - 當前波動率 2.23%（較低）\n  - 注意: 典型 Uptrend 波動率應逐步擴大\n  - 當前處於\"盤整後突破\"階段\n\n⚠️ 需要觀察的風險訊號\n\n1. 供需基本面矛盾 🔴\n  - Balance Index: -1.53（供給過剩）\n  - 價格上行但基本面不支持\n  - 風險: 可能是投機推動，非基本面驅動\n2. 波動率偏低 🟡\n  - 2.23% 屬於低波動\n  - 可能即將突破（放量上攻或下跌）\n3. 價差異常 🟡\n  - 氫氧化鋰 vs 碳酸鋰價差處於 95% 分位\n  - 可能反映供需結構失衡\n\n---\n📍 週期階段定位圖\n\n價格演變路徑：\n                                    當前\n                                    ↓\n$70k ★ 2022Q3 高峰 (OVERHEAT)\n      |\n$50k  |\n      |\n$30k  |         2023Q2 拐點\n      |           ↓\n$20k  |    ╱──────────╲\n      | ╱                ╲\n$15k  |                   ╲___     2024Q4 底部 → 2026Q1 反彈\n      |                       ╲___╱          (BOTTOMING → UPTREND)\n$10k  ★ 2024Q4 底部 (BOTTOMING)\n      |\n      └────────────────────────────────────────────▶\n      2022    2023    2024    2025    2026    時間\n\n關鍵位置:\n- 🔻 歷史底部：$10,500/t（2024Q4）\n- 🔵 當前價格：$11,500/t（2026Q1）\n- 🎯 短期目標：$15,000/t（關鍵阻力）\n- 🎯 中期目標：$18,000/t（2026Q4 預期拐點）\n\n---\n🔮 週期展望\n\n情境 1：持續 Uptrend（機率 60%）\n\n條件:\n- 供需 Balance Index 回升至 -1.0 以上\n- 價格突破 $15k/t 阻力\n- 波動率擴大至 4-5%\n\n目標:\n- 2026Q2：$15-18k/t\n- 2026Q4：$18-22k/t（拐點確認）\n\nLIT ETF 對應:\n- 當前：$70.62\n- 目標1：$80-95\n- 目標2：$110-120\n\n情境 2：假突破後回落（機率 25%）\n\n條件:\n- Balance Index 惡化至 -2.0 以下\n- 價格無法突破 $15k/t\n- 供給繼續大幅擴張\n\n目標:\n- 回測 $10k/t 支撐\n- LIT ETF 跌破 $48\n\n情境 3：震盪盤整（機率 15%）\n\n條件:\n- Balance Index 維持 -1.5 左右\n- 價格在 $11-15k/t 區間震盪\n- 等待基本面明朗\n\n目標:\n- 橫盤整理 3-6 個月\n- LIT ETF 在 $65-75 震盪\n\n---\n💡 交易含義\n\n當前建議：謹慎做多 🟢⚠️\n\n做多依據:\n1. ✅ 技術面明確 Uptrend\n2. ✅ 12週/26週動能皆轉正\n3. ✅ 價格高於長期均線\n\n風險提示:\n1. ⚠️ 基本面 Balance Index 仍為負\n2. ⚠️ 波動率偏低，可能即將變盤\n3. ⚠️ 價差異常寬，結構性問題\n\n操作策略\n\n保守策略（等待確認）:\n等待條件：\n1. Balance Index 回升至 -1.0 以上\n2. 價格站穩 $15k/t\n3. 波動率擴大至 4% 以上\n\n進場點：$15.5k/t 突破確認\n止損：$13k/t\n目標：$18-20k/t\n\n積極策略（提前布局）:\n當前就可小倉位試探：\n進場：$11-12k/t\n加碼：突破 $15k/t\n止損：$10k/t（跌破歷史低點）\n目標：$18-22k/t\n倉位：20-30%（不宜滿倉）\n\n防守策略（等待回調）:\n等待回調至：\n- $10.5k/t 附近（歷史底部）\n- Balance Index 回升確認\n\n優勢：安全邊際高\n劣勢：可能錯過一段漲幅\n\n---\n📅 關鍵監控時點\n\n2026年1-3月（當前階段）\n\n- 觀察: Balance Index 是否開始回升\n- 事件: 澳洲 REQ Q1 報告（3月）\n- 操作: 小倉位試探，止損 $10k\n\n2026年4-6月（確認期）\n\n- 觀察: IEA EV Outlook 2026（4月發布）\n- 事件: 中國 VAT 退稅調整（4月）\n- 操作: 若需求上調，加大倉位至 30%\n\n2026年7-9月（加速期）\n\n- 觀察: 價格是否突破 $15-18k/t\n- 事件: 供給側減產訊號\n- 操作: 突破確認後可加至 50%\n\n2026年10-12月（拐點驗證）\n\n- 觀察: Balance Index 是否轉正\n- 事件: 供需缺口重現\n- 操作: 拐點確認後可滿倉\n\n---\n🚨 失效條件\n\nUptrend 失效訊號（立即退出）:\n\n1. 價格跌破 $10k/t\n  - 跌破歷史低點\n  - 表示新低形成\n2. 12週動能轉負持續 4 週\n  - 短期動能反轉\n  - Uptrend 結束\n3. Balance Index 惡化至 -2.0 以下\n  - 供給過剩惡化\n  - 基本面壓力加大\n4. 波動率突然放大至 8% 以上\n  - 恐慌性拋售\n  - 可能進入 Downtrend\n\n---\n📊 結論\n\n週期階段: 🟢 UPTREND（早期階段）\n\n置信度: 75%（技術面強勁，但基本面存疑）\n\n操作建議:\n- 💡 謹慎做多，小倉位試探\n- 🎯 等待 $15k/t 突破確認後加碼\n- 🚨 嚴守 $10k/t 止損\n- 📅 密切監控 2026Q2-Q4 關鍵催化劑\n\n風險提示:\n當前技術面與基本面背離，需要密切監控供需 Balance Index 變化。若基本面持續惡化，Uptrend 可能是假突破。\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 65,
+      "badge": "白銀",
+      "metrics": {
+        "architecture": 80,
+        "maintainability": 70,
+        "content": 80,
+        "community": 20,
+        "security": 80,
+        "compliance": 70
+      },
+      "details": "**架構（80/100）**\n- Router pattern 正確分離職責\n- 三層中介數據設計完善\n\n**可維護性（70/100）**\n- 多數據源需長期維護\n- 價格數據 fallback 邏輯需定期驗證\n\n**內容（80/100）**\n- 完整的供需分析框架\n- 清晰的價格型態定義\n\n**社群（20/100）**\n- 新建技能，尚無社群回饋\n\n**安全（80/100）**\n- 無敏感資料處理\n- 外部 URL 需適當處理\n\n**合規（70/100）**\n- 付費數據源授權需注意\n- 價格數據抓取需遵守 ToS\n"
+    },
+    "bestPractices": [
+      {
+        "title": "數據等級先決",
+        "description": "分析前確認 data_level 參數，決定使用哪些數據源和 fallback 策略"
+      },
+      {
+        "title": "三層中介架構",
+        "description": "Balance Nowcast + Price Regime + ETF Transmission 三層分開計算，最後整合判斷"
+      },
+      {
+        "title": "失效條件明確",
+        "description": "每個分析報告必須包含明確的失效條件（invalidation），支持決策追蹤"
+      },
+      {
+        "title": "單位轉換透明",
+        "description": "電池需求到鋰需求的轉換必須明確假設（kg/kWh），並輸出三情境"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "忽略數據延遲",
+        "description": "不同數據源更新頻率不同（年度/季度/週度）",
+        "consequence": "可能導致供需判斷滯後或混淆"
+      },
+      {
+        "title": "價格數據不可得",
+        "description": "免費等級無法取得完整價格序列",
+        "consequence": "需使用 CME 期貨或股價 proxy，精度下降"
+      },
+      {
+        "title": "ETF 持股變動",
+        "description": "ETF 持股會定期調整",
+        "consequence": "傳導敏感度計算可能失準"
+      },
+      {
+        "title": "單位混淆",
+        "description": "LCE（碳酸鋰當量）與純鋰金屬混用",
+        "consequence": "數量級差異約 5.3 倍"
+      }
+    ],
+    "faq": [
+      {
+        "question": "為什麼要區分碳酸鋰和氫氧化鋰？",
+        "answer": "兩者用途不同：\n- 碳酸鋰：主要用於 LFP 電池\n- 氫氧化鋰：主要用於高鎳 NMC/NCA 電池\n價格可能出現分化，需分開追蹤\n"
+      },
+      {
+        "question": "如何判斷價格型態是否已轉多？",
+        "answer": "關鍵確認訊號：\n1. 12週動能轉正（ROC > 0）\n2. 波動率開始擴大\n3. 價格突破近期高點\n4. Balance Index 同步上行\n"
+      },
+      {
+        "question": "為什麼 ETF 對鋰價的敏感度會變化？",
+        "answer": "影響因素：\n1. 持股結構調整（上游 vs 下游比例）\n2. 個股特殊事件（併購、產能變動）\n3. 競爭格局變化（電池技術路線）\n4. 市場情緒與資金流向\n"
+      },
+      {
+        "question": "免費數據等級夠用嗎？",
+        "answer": "`free_nolimit` 可以完成基本分析：\n- USGS 提供年度供需基準\n- IEA 提供電池需求趨勢\n- 澳洲政府提供季度出口\n- CME 期貨提供價格 proxy\n\n但若需要更即時/更細緻的分析，建議升級到 `paid_low` 或以上\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 設計背景\n\n此技能源於「LIT 值不值得做多？」這個實際投資問題。\n市場上有大量關於鋰的敘事（供應過剩、結構成長），\n但很少有人把這些敘事轉化為可量化、可追蹤的框架。\n\n## 核心洞察\n\n1. **三層中介架構**: 供需平衡、價格型態、ETF傳導三者需同步判斷\n2. **數據等級決定精度**: 免費數據可用，但付費數據提供更即時的訊號\n3. **失效條件是關鍵**: 任何多空判斷都必須有明確的失效條件\n4. **傳導可能斷裂**: ETF 對鋰價的敏感度會隨市場結構變化\n"
+    },
+    "methodology": "這個技能原理分成四層，每一層都對應可取得的資料與可運算的指標：\r\n\r\n### 1. 供給需求：建立 **缺口指標** \r\n**原理**：鋰的價格中期走勢，往往由 **供需邊際變化** 主導。即使無法拿到完整、精準的全市場平衡表，也能用公開資料做出穩定的替代指標。\r\n\r\n- **供給替代指標（供給端）**：國別產量、出口、產能展望（例如：美國地質調查機構的年度基準資料 + 澳洲季度展望／出口資料）\r\n- **需求替代指標（需求端）**：電動車銷量／電池裝機（例如：國際能源總署的電動車展望報告中，電池需求的趨勢）\r\n\r\n把兩者標準化後做差，得到 **缺口指標** ：\r\n- **缺口指標 ≈ 標準化(需求替代指標 − 供給替代指標)**  \r\n  - 缺口指標上行：缺口擴大（市場更偏向供應偏緊）\r\n  - 缺口指標下行：寬鬆／過剩（市場更偏向供應偏鬆）\r\n\r\n> 重點：你不需要精準算到 **缺口幾萬噸** ，而是要能抓到 **缺口方向** 與 **拐點** 。\r\n\r\n### 2. 價格型態：確認市場是否開始為缺口定價\r\n**原理**：供需指標只是 **基本面** ，市場不一定立刻反應；因此要加一層 **價格型態** 判斷：鋰價是否已從下跌／築底，轉為上行趨勢。\r\n\r\n常用的型態分類：下行, 築底, 上行, 過熱，常用指標（以週線為主，更貼近產業節奏）：\r\n- 動能（例如 12–26 週）\r\n- 趨勢斜率（滾動斜率）\r\n- 波動型態（波動擴張）\r\n\r\n> 若 **缺口指標上行** 但鋰價仍處於下行型態，代表市場尚未認同，或仍在消化庫存與供給重啟的預期。\r\n\r\n### 3. 傳導速度：鋰價是否真的影響到股票與主題基金？\r\n**原理**：即使鋰價上漲，也可能因為公司成本、合約定價、庫存週期、或下游競爭而造成 **股價不跟** 。  \r\n所以必須檢驗 **鋰 → 公司 → 主題基金** 這條傳導鏈是否有效。\r\n\r\n做法：\r\n- 將主題基金的成分股分段：**上游（礦）／中游（精煉化學）／下游（電池材料與製造）**\r\n- 計算：\r\n  - **主題基金對鋰價因子的敏感度（滾動敏感度）**\r\n  - **各分段的主導貢獻（是誰在帶動主題基金上漲）**\r\n\r\n> 傳導有效的典型特徵：鋰價的型態轉為偏多後，主題基金對鋰價因子的敏感度回升，且上游／中游權重股開始領漲。\r\n\r\n### 4. 趨勢判斷：把結論落到 **交易／配置路徑** \r\n**原理**：你最後要回答的是 **能不能做多**  **何時可能走到哪**  **什麼情況算失效** 。  \r\n因此要把基本面與傳導結論，落到主題基金的長週期結構（例如：週線通道、前高、支撐區）。\r\n\r\n常見輸出：\r\n- **目標路徑**：中軌 → 前高 → 上軌（以區間而非精準點位）\r\n- **失效條件**：跌破關鍵週線支撐、或傳導敏感度轉弱、或缺口指標反轉\r\n\r\n## 這個技能為什麼實用\r\n- **把敘事變成可驗證條件**：不是聽到 **即將出現缺口** 就追，而是看缺口指標與價格型態是否真的轉向\r\n- **把主題投資拆成可追蹤的儀表板**：每週／每月更新一次，就能維持一致邏輯\r\n- **能清楚定義失效**：多頭觀點不是信仰，而是有明確的破局條件",
+    "downloadUrl": "downloads/lithium-supply-demand-gap-radar-0.1.0.zip"
+  },
+  {
     "id": "us-cpi-pce-comparator",
     "name": "us-cpi-pce-comparator",
     "displayName": "美國 CPI/PCE 通膨比較",
@@ -810,136 +944,6 @@
       "additionalInfo": "## 數據來源\n\n**FRED（免費，無需 API key）**\n- CPI: CPIAUCSL, CPILFESL\n- PCE: PCEPI, PCEPILFE\n- 使用 CSV endpoint 直接下載\n\n**BLS Public API**\n- 詳細 CPI 分項數據\n- 權重與相對重要性\n"
     },
     "downloadUrl": "downloads/us-cpi-pce-comparator-0.1.0.zip"
-  },
-  {
-    "id": "lithium-supply-demand-gap-radar",
-    "name": "lithium-supply-demand-gap-radar",
-    "displayName": "鋰產業鏈供需雷達",
-    "description": "將鋰產業鏈（礦端 → 精煉化學品 → 電池與終端需求），整合為一套可運算的替代指標；再把這些指標映射到鋰主題 ETF（如 LIT）的成分暴露與長期價格走勢，形成可供決策的依據。 ",
-    "emoji": "🔋",
-    "version": "0.1.0",
-    "license": "MIT",
-    "author": "Ricky Wang",
-    "authorUrl": "https://github.com/fatfingererr/macro-skills",
-    "tags": [
-      "鋰",
-      "供需分析",
-      "ETF",
-      "LIT",
-      "原物料",
-      "電池",
-      "電動車",
-      "EV",
-      "價格週期",
-      "USGS",
-      "IEA"
-    ],
-    "category": "commodity-sd",
-    "dataLevel": "free-nolimit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": false,
-    "installCount": 0,
-    "content": "<essential_principles>\r\n**鋰產業鏈供需雷達 核心原則**\r\n\r\n<principle name=\"supply_chain_layers\">\r\n**供應鏈分層（Supply Chain Layers）**\r\n\r\n鋰產業鏈必須分層分析，不可混為一談：\r\n\r\n```\r\nMining → Processing → Battery\r\n(礦端)   (化學品)    (終端需求)\r\n```\r\n\r\n| 層級                 | 代表數據                 | 典型延遲  |\r\n|----------------------|--------------------------|-----------|\r\n| Upstream (礦端)      | 鋰礦產量、出口量         | 年度/季度 |\r\n| Midstream (化學品)   | 碳酸鋰/氫氧化鋰價格      | 週度/日度 |\r\n| Downstream (電池/EV) | EV 銷量、電池裝機量(GWh) | 月度      |\r\n\r\n**強制規則**：\r\n- 供給分析需指定層級（礦端 vs 精煉端）\r\n- 需求 proxy 需明確轉換假設（kWh → kg Li）\r\n- 價格分析需區分碳酸鋰 vs 氫氧化鋰\r\n</principle>\r\n\r\n<principle name=\"data_level_fallback\">\r\n**數據等級與備援策略（Data Level Fallback）**\r\n\r\n根據 `data_level` 參數自動選擇數據源：\r\n\r\n| data_level     | 價格數據             | 供需數據           | 可靠度 |\r\n|----------------|----------------------|--------------------|--------|\r\n| `free_nolimit` | CME 期貨/Proxy 指數  | USGS/IEA/澳洲政府  | 中     |\r\n| `free_limit`   | SMM/Fastmarkets 頁面 | + 公司財報         | 中高   |\r\n| `paid_low`     | SMM 完整序列         | + Benchmark 基本   | 高     |\r\n| `paid_high`    | Fastmarkets API      | + S&P/BNEF/WoodMac | 最高   |\r\n\r\n**強制規則**：\r\n- 價格數據不足時，使用 CME 合約或相關股籃子作為 proxy\r\n- 需在輸出中標註實際使用的數據等級\r\n</principle>\r\n\r\n<principle name=\"li_content_conversion\">\r\n**鋰含量轉換（Li Content Conversion）**\r\n\r\n電池需求到鋰需求的轉換必須明確假設：\r\n\r\n| 假設場景 | kg Li / kWh | 備註                |\r\n|----------|-------------|---------------------|\r\n| 保守估計 | 0.12        | 含 LFP 佔比上升假設 |\r\n| 中性估計 | 0.15        | 混合 NMC/LFP        |\r\n| 積極估計 | 0.18        | 高鎳 NMC 主導       |\r\n\r\n```python\r\nli_demand_kt = battery_gwh * kg_per_kwh * 1000  # 單位: kt LCE\r\n```\r\n\r\n**強制規則**：\r\n- 需求估計必須輸出三個情境（保守/中性/積極）\r\n- 輸出需包含 `kg_per_kwh_assumption` 欄位\r\n</principle>\r\n\r\n<principle name=\"regime_classification\">\r\n**價格型態分類（Price Regime Classification）**\r\n\r\n鋰價週期分為四個階段：\r\n\r\n| Regime      | 特徵                         | 交易含義           |\r\n|-------------|------------------------------|--------------------|\r\n| `downtrend` | 12-26 週動能 < 0, 斜率 < 0   | 空頭主導，避免做多 |\r\n| `bottoming` | 動能收斂，波動下降，均值回歸 | 觀望，等待確認     |\r\n| `uptrend`   | 動能 > 0, 斜率 > 0           | 做多視窗開啟       |\r\n| `overheat`  | 動能極端正值，波動放大       | 獲利了結風險       |\r\n\r\n**指標組合**：\r\n- 12 週 / 26 週動能（ROC）\r\n- 趨勢斜率（線性回歸）\r\n- 波動率（ATR / 標準差）\r\n- 均值回歸強度（距 MA 偏離度）\r\n</principle>\r\n\r\n<principle name=\"etf_transmission\">\r\n**ETF 傳導敏感度（ETF Transmission）**\r\n\r\nETF 對鋰價的敏感度受持股結構影響：\r\n\r\n| 持股類型          | 對鋰價 Beta | 波動特性            |\r\n|-------------------|-------------|---------------------|\r\n| Upstream (礦商)   | 1.5 - 2.5   | 高槓桿、高波動      |\r\n| Midstream (精煉)  | 0.8 - 1.2   | 跟隨但有加工費緩衝  |\r\n| Downstream (電池) | 0.3 - 0.8   | 受競爭/技術路線影響 |\r\n\r\n**計算公式**：\r\n```python\r\nETF_beta_li = Σ(weight_i * beta_i_to_lithium)\r\n```\r\n\r\n**強制規則**：\r\n- 需計算 rolling beta（建議 52 週滾動）\r\n- 傳導斷裂判斷：beta < 0.3 且持續 > 8 週\r\n</principle>\r\n</essential_principles>\r\n\r\n<intake>\r\n**您想要執行什麼操作？**\r\n\r\n1. **Full Analysis** - 完整供需×價格×傳導整合分析（生成完整報告）\r\n2. **Balance Nowcast** - 僅計算供需平衡即時估計（缺口擴大/縮小）\r\n3. **Price Regime** - 僅分析價格型態與週期位置\r\n4. **ETF Exposure** - 僅分析 ETF 持股結構與鋰價敏感度\r\n5. **Ingest Data** - 從各數據源擷取並標準化數據\r\n\r\n**等待回應後再繼續。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                                          | Workflow                     | Description                |\r\n|---------------------------------------------------|------------------------------|----------------------------|\r\n| 1, \"full\", \"analyze\", \"完整\", \"報告\", \"LIT\"       | workflows/full-analysis.md   | 完整供需×價格×傳導整合分析 |\r\n| 2, \"balance\", \"nowcast\", \"供需\", \"缺口\", \"gap\"    | workflows/balance-nowcast.md | 供需平衡即時估計           |\r\n| 3, \"price\", \"regime\", \"價格\", \"週期\", \"型態\"      | workflows/price-regime.md    | 價格型態與週期分析         |\r\n| 4, \"etf\", \"exposure\", \"holding\", \"傳導\", \"敏感度\" | workflows/etf-exposure.md    | ETF 暴露與傳導分析         |\r\n| 5, \"ingest\", \"data\", \"fetch\", \"抓取\", \"擷取\"      | workflows/ingest.md          | 數據擷取與標準化           |\r\n\r\n**讀取工作流程後，請完全遵循其步驟。**\r\n</routing>\r\n\r\n<reference_index>\r\n**參考文件** (`references/`)\r\n\r\n| 文件                      | 內容                               |\r\n|---------------------------|------------------------------------|\r\n| data-sources.md           | 所有數據來源詳細說明與 URL         |\r\n| unit-conversion.md        | 單位轉換規則（LCE/Li/GWh）         |\r\n| price-methodology.md      | 價格數據方法學（Fastmarkets/SMM）  |\r\n| etf-holdings-structure.md | LIT 持股結構與產業鏈分段           |\r\n| supply-chain-mapping.md   | 鋰供應鏈完整映射（礦→化學品→電池） |\r\n| failure-modes.md          | 失敗模式與緩解策略                 |\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow           | Purpose                    |\r\n|--------------------|----------------------------|\r\n| full-analysis.md   | 完整供需×價格×傳導整合分析 |\r\n| balance-nowcast.md | 供需平衡即時估計           |\r\n| price-regime.md    | 價格型態與週期分析         |\r\n| etf-exposure.md    | ETF 持股暴露與傳導分析     |\r\n| ingest.md          | 數據擷取與標準化           |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構模板 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n| config.yaml        | 分析參數配置模板  |\r\n| data-schema.yaml   | 數據 Schema 定義  |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script                    | Purpose                    |\r\n|---------------------------|----------------------------|\r\n| lithium_pipeline.py       | 核心數據管線               |\r\n| ingest_sources.py         | 數據來源擷取               |\r\n| compute_balance.py        | 供需平衡計算               |\r\n| classify_regime.py        | 價格型態分類               |\r\n| compute_etf_beta.py       | ETF 傳導敏感度計算         |\r\n| visualize_analysis.py     | 分析結果綜合視覺化         |\r\n| inflection_point_chart.py | **拐點分析專用視覺化** ⭐ |\r\n</scripts_index>\r\n\r\n<quick_start>\r\n**CLI 快速開始：**\r\n\r\n```bash\r\n# 完整分析 LIT ETF（預設 10 年回看、週度頻率）\r\npython scripts/lithium_pipeline.py analyze --ticker=LIT --lookback=10 --freq=weekly\r\n\r\n# 僅計算供需平衡 Nowcast\r\npython scripts/lithium_pipeline.py balance --asof=2026-01-16\r\n\r\n# 分析價格型態（碳酸鋰 + 氫氧化鋰）\r\npython scripts/lithium_pipeline.py regime --chem=both\r\n\r\n# 計算 ETF 對鋰價的傳導敏感度\r\npython scripts/lithium_pipeline.py etf-beta --ticker=LIT --window=52\r\n\r\n# ✨ 生成視覺化圖表（完整儀表板）\r\npython scripts/visualize_analysis.py\r\n# 輸出：output/lithium_analysis_YYYY-MM-DD.png\r\n```\r\n\r\n**視覺化輸出**：\r\n- 📊 6合1 專業儀表板（18\" × 12\"，300 DPI）\r\n- 📁 自動保存至 `output/` 目錄\r\n- 📅 檔名包含當天日期\r\n- 🎨 完整中文支持\r\n\r\n**Library 快速開始：**\r\n\r\n```python\r\nfrom lithium_pipeline import LithiumSupplyDemandRadar\r\n\r\nradar = LithiumSupplyDemandRadar(\r\n    etf_ticker=\"LIT\",\r\n    lookback_years=10,\r\n    price_freq=\"weekly\",\r\n    chem_focus=\"both\",\r\n    data_level=\"free_nolimit\"\r\n)\r\n\r\n# 完整分析\r\nresult = radar.full_analysis()\r\nprint(f\"Balance Index: {result['balance_index']:.2f}\")\r\nprint(f\"Price Regime: {result['price_regime']}\")\r\nprint(f\"ETF Beta to Li: {result['etf_beta_li']:.2f}\")\r\nprint(f\"Thesis: {result['thesis']}\")\r\n```\r\n</quick_start>\r\n\r\n<success_criteria>\r\nSkill 成功執行時：\r\n- [ ] 正確識別數據等級並使用對應來源\r\n- [ ] 供需平衡指數計算正確（含三情境）\r\n- [ ] 價格型態分類明確（downtrend/bottoming/uptrend/overheat）\r\n- [ ] ETF 傳導敏感度計算正確（rolling beta）\r\n- [ ] 輸出包含完整的失效條件（invalidation）\r\n- [ ] 數據來源可追溯（source_id, data_level）\r\n- [ ] 單位轉換假設明確標註\r\n- [ ] **視覺化圖表已生成且符合規格**（300 DPI, PNG, 檔名含日期）\r\n- [ ] **報告與圖表在 output/ 目錄下一起輸出**\r\n</success_criteria>\r\n\r\n<input_schema>\r\n**輸入參數定義**\r\n\r\n```yaml\r\n# 必要參數\r\netf_ticker: string      # 目標 ETF（預設 LIT）\r\nlookback_years: int     # 回看年限（建議 10-15）\r\nprice_freq: string      # weekly | daily（建議 weekly）\r\n\r\n# 範圍參數\r\nregion_focus:           # 供應/需求重點區（選填）\r\n  - China\r\n  - Australia\r\n  - Chile\r\n  - Argentina\r\n  - US\r\n  - EU\r\n\r\nchem_focus: string      # carbonate | hydroxide | both（預設 both）\r\n\r\n# 數據等級\r\ndata_level: string      # free_nolimit | free_limit | paid_low | paid_high\r\n\r\n# 數據源開關\r\nsources:\r\n  usgs: boolean\r\n  iea_ev_outlook: boolean\r\n  australia_req: boolean\r\n  abs_exports: boolean\r\n  fastmarkets: boolean\r\n  smm: boolean\r\n  etf_holdings: boolean\r\n\r\n# 輸出格式\r\noutput_format: string   # markdown | json（預設 markdown）\r\n```\r\n</input_schema>\r\n\r\n<data_pipeline_architecture>\r\n**數據流水線架構**\r\n\r\n```\r\n[Data Sources]\r\n     |\r\n     v\r\n+--------------------+\r\n|   ingest_sources   |  --> USGS, IEA, Australia REQ/ABS\r\n+--------------------+      Fastmarkets/SMM (方法學/價格)\r\n     |                      Global X LIT factsheet\r\n     v\r\n+--------------------+\r\n|   normalize        |  --> 統一 schema + 單位標註\r\n+--------------------+\r\n     |\r\n     +-------------------+-------------------+\r\n     |                   |                   |\r\n     v                   v                   v\r\n+-----------+    +-----------+    +-----------+\r\n| supply_   |    | price_    |    | etf_      |\r\n| demand    |    | series    |    | holdings  |\r\n+-----------+    +-----------+    +-----------+\r\n     |                   |                   |\r\n     v                   v                   v\r\n+-----------+    +-----------+    +-----------+\r\n| balance_  |    | classify_ |    | compute_  |\r\n| nowcast   |    | regime    |    | etf_beta  |\r\n+-----------+    +-----------+    +-----------+\r\n     |                   |                   |\r\n     +-------------------+-------------------+\r\n                         |\r\n                         v\r\n              +--------------------+\r\n              |   generate_insight |  --> Thesis + Targets + Invalidation\r\n              +--------------------+\r\n                         |\r\n                         v\r\n              +--------------------+\r\n              |   format_output    |  --> JSON + Markdown\r\n              +--------------------+\r\n```\r\n\r\n**標準化欄位 Schema：**\r\n\r\n| 欄位        | 類型   | 說明                         |\r\n|-------------|--------|------------------------------|\r\n| date        | date   | 數據日期                     |\r\n| metric_type | string | supply/demand/price/etf      |\r\n| metric_name | string | 具體指標名稱                 |\r\n| value       | float  | 數值                         |\r\n| unit        | string | kt_LCE/USD_per_kg/GWh/pct    |\r\n| region      | string | 國家/區域                    |\r\n| source_id   | string | USGS/IEA/SMM/Fastmarkets/etc |\r\n| data_level  | string | 數據等級                     |\r\n| confidence  | float  | 來源品質評分 (0-1)           |\r\n</data_pipeline_architecture>",
-    "path": "skills/lithium-supply-demand-gap-radar/SKILL.md",
-    "directoryStructure": "lithium-supply-demand-gap-radar/\n├── examples\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── data-sources.md\n│   ├── etf-holdings-structure.md\n│   ├── failure-modes.md\n│   ├── price-methodology.md\n│   ├── supply-chain-mapping.md\n│   └── unit-conversion.md\n├── scripts\n│   ├── classify_regime.py\n│   ├── compute_balance.py\n│   ├── compute_etf_beta.py\n│   ├── inflection_point_chart.py\n│   ├── ingest_sources.py\n│   ├── lithium_pipeline.py\n│   ├── visualize_analysis.py\n│   └── __pycache__\n│       └── visualize_analysis.cpython-312.pyc\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── config.yaml\n│   ├── data-schema.yaml\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── balance-nowcast.md\n    ├── etf-exposure.md\n    ├── full-analysis.md\n    ├── ingest.md\n    └── price-regime.md",
-    "lastUpdated": "2026-01-16",
-    "rating": 3,
-    "testQuestions": [
-      {
-        "question": "幫我做一份鋰主題 ETF 的整合評估",
-        "imagePath": "images/lithium-analysis-2026-01-16.png",
-        "expectedResult": "我已經完成了鋰主題 ETF（LIT）的完整整合評估報告。報告已保存至：\nLIT_ETF_整合評估_2026-01-16.md\n\n核心結論摘要\n\n📈 Bullish（看多）— 置信度 75%\n\n關鍵發現：\n\n1. 價格動能強勁\n  - LIT ETF：$70.62（過去一年 +74.32%）\n  - 碳酸鋰：$21,650/噸（兩年高點，較2025低點翻倍）\n2. 供需平衡收窄\n  - 2025盈餘：141,000噸 LCE\n  - 2026預計：109,000噸 LCE（收窄23%）\n  - 積極情境下可能轉為小幅赤字\n3. 供給約束顯現\n  - 澳洲2024減產4%\n  - 中國江西27個礦權被取消\n  - 寧德時代建小沃礦（6%全球供給）仍關閉\n4. 需求爆發\n  - EV占鋰需求近90%（vs 2020年64%）\n  - 儲能（ESS）成長最快（+40-50% YoY），2026年占31%\n  - 中國VAT退稅取消引發搶單潮\n5. 傳導機制健康\n  - ETF對鋰價 Beta：0.9（強傳導）\n  - 上游持股占35%（Rio Tinto 20.84%、Albemarle 7.05%、SQM 4.01%等）\n\n投資路徑\n\n當前 $70.62\n  ↓\n目標 1: $78-82（中軌，Q2-Q3）\n目標 2: $90-95（前高，Q3-Q4）\n上軌: $110-120（樂觀情境）\n\n關鍵支撐: $48（止損位）\n\n主要風險\n\n1. 🔴 中國產能擴張超預期（2026年可能超越澳洲）\n2. 🟡 全球經濟衰退壓制EV需求\n3. 🟡 技術替代（鈉離子電池、固態電池）\n4. 🟠 地緣政治（美中、南美）\n\n近期催化劑\n\n- 2026年4月：中國VAT退稅降至6%（搶單高峰）\n- 2026年4月：IEA Global EV Outlook 2026發布\n- 2026年Q2：供需數據驗證期\n\n報告包含完整的數據來源追溯、失效條件、催化劑地圖和風險評估，可作為投資決策參考。\n\n📊 生成了視覺化圖表\n\n- 檔案位置：output/lithium_analysis_2026-01-16.png\n- 檔案大小：554 KB（高解析度 300 DPI）\n- 內容：6合1專業儀表板，包含：\n  - 投資論述摘要（Bullish, 75%置信度）\n  - 供需平衡演變圖\n  - 三情境平衡指數\n  - 碳酸鋰價格走勢與制度分類\n  - ETF傳導敏感度（Beta分析）\n  - 目標路徑圖      \n"
-      },
-      {
-        "question": "計算當前鋰的市場供需，並判斷缺口方向與拐點",
-        "imagePath": "images/lithium-inflection-analysis-2026-01-16.png",
-        "expectedResult": "🎯 鋰供需缺口方向與拐點判斷\n\n📍 當前缺口方向\n\n供給 > 需求 → 供給過剩（缺口為負）\nBalance Index = -1.53 標準差\n\n缺口狀態：\n- 方向: ⬇️ 供給過剩（負缺口）\n- 程度: -1.53σ（顯著過剩，超過1.5倍標準差）\n- 趨勢: 📉 Narrowing（縮小中，但仍為負）\n\n📊 缺口演變路徑（2020-2026）\n\n2020: 供需平衡 → 微過剩\n2021-2022: 缺口擴大（需求激增）→ 供不應求\n2023: 拐點出現 → 供給開始追上\n2024: 過剩形成 → 缺口轉負\n2025-2026: 過剩持續 → 但縮小中\n\n🔄 拐點判斷\n\n歷史拐點（已發生）\n\n- 2023年中: 從「供給短缺」→「供給過剩」的拐點\n  - 原因：澳洲硬岩產能大量釋放、中國精煉產能擴張\n  - 價格反應：碳酸鋰從 $70k/t 高峰跌至 $10k-15k/t\n\n未來拐點預測（待驗證）\n\n拐點時機估計：2026 Q3-Q4 至 2027 Q1\n\n觸發條件（需滿足至少2項）：\n\n1. 需求側加速 ✅ 機率：高（60%）\n  - IEA EV Outlook 2026 上調預測\n  - 儲能市場（ESS）裝機量超預期\n  - 北美/歐洲 EV 銷量反彈\n2. 供給側收縮 ⚠️ 機率：中（40%）\n  - 澳洲礦商減產（低價導致虧損）\n  - 智利政策限制產出\n  - 邊際成本生產商退出\n3. 庫存去化完成 ⚠️ 機率：中（45%）\n  - 中國碳酸鋰社會庫存降至歷史低位\n  - 產業鏈庫存週轉加速\n\n📈 三情境預測\n┌──────┬───────────────────┬────────────────────────┬──────┐\n│ 情境 │     拐點時間      │ Balance Index 轉正時間 │ 機率 │\n├──────┼───────────────────┼────────────────────────┼──────┤\n│ 樂觀 │ 2026 Q3           │ 2026 Q4                │ 25%  │\n├──────┼───────────────────┼────────────────────────┼──────┤\n│ 中性 │ 2026 Q4 - 2027 Q1 │ 2027 Q2                │ 50%  │\n├──────┼───────────────────┼────────────────────────┼──────┤\n│ 悲觀 │ 2027 Q2+          │ 2027 Q4+               │ 25%  │\n└──────┴───────────────────┴────────────────────────┴──────┘\n🚦 拐點確認指標（實時監控）\n\n需要同時觀察以下指標：\n\n1. Balance Index 回升\n\n- ✅ 目標：從 -1.53 回升至 -0.5 以上\n- 📊 當前：-1.53（仍顯著過剩）\n- ⏰ 監控頻率：月度\n\n2. 價格底部確認\n\n- ✅ 目標：碳酸鋰價格站穩 $15k/t 以上且 12週/26週動能皆轉正\n- 📊 當前：Uptrend（動能正向，但 Balance Index 矛盾）\n- ⏰ 監控頻率：週度\n\n3. 庫存數據\n\n- ✅ 目標：中國碳酸鋰庫存周轉天數 < 30 天\n- 📊 當前：無最新數據（需補充）\n- ⏰ 監控頻率：月度\n\n4. 產能利用率\n\n- ✅ 目標：全球鋰礦產能利用率 < 75%（供給收縮開始）\n- 📊 當前：估計 >85%（仍在擴張）\n- ⏰ 監控頻率：季度\n\n⚡ 即刻行動清單\n\n若要捕捉拐點，需要：\n\n1. 追蹤催化劑時間表\n  - 2026-04：IEA EV Outlook 發布\n  - 2026-Q1：澳洲 REQ 季報\n  - 2026-Q2：智利鋰政策明確化\n  - 每月：中國 SMM 庫存數據\n2. 設定警報條件\n  - Balance Index 回升至 -1.0 以上\n  - 碳酸鋰價格突破 $18k/t\n  - LIT ETF 突破 $56.20（前高阻力）\n  - 澳洲主要礦商宣布減產\n3. 風險管理\n  - 在 $38.50 設定止損（LIT ETF）\n  - Balance Index 若惡化至 -2.0，立即退出\n  - 價格型態轉為 Downtrend，停損離場\n\n---\n📌 結論\n\n缺口方向：當前為供給過剩（Balance Index = -1.53）\n\n拐點判斷：\n- ❌ 未發生（Balance Index 仍顯著為負）\n- ⏳ 預期時間：2026 Q3-Q4 至 2027 Q1\n- 🎯 關鍵確認：Balance Index 回升至 -0.5 以上 + 價格站穩 $15k/t + 庫存去化 + 產能利用率下降\n\n當前建議：謹慎觀望，等待多重確認訊號出現後再行動。基本面與技術面的背離需要密切監控。\n"
-      },
-      {
-        "question": "分析鋰價目前處於什麼週期階段",
-        "expectedResult": "🔄 鋰價週期階段分析\n\n分析日期: 2026-01-16\n數據來源: CME 鋰期貨 proxy + 歷史供需數據\n\n---\n📊 當前週期位置\n\n完整週期循環：\nDOWNTREND → BOTTOMING → [UPTREND] → OVERHEAT\n                            ↑\n                        當前位置\n\n判定: 🟢 UPTREND（上行趨勢期） - 早期階段\n\n---\n📈 價格技術指標\n\n碳酸鋰 (99.5% Battery Grade)\n┌────────────────┬─────────┬───────────────┬───────────────┐\n│      指標      │ 當前值  │     判讀      │     信號      │\n├────────────────┼─────────┼───────────────┼───────────────┤\n│ 12週動能 (ROC) │ +6.1%   │ 短期動能轉正  │ 🟢 做多訊號   │\n├────────────────┼─────────┼───────────────┼───────────────┤\n│ 26週動能 (ROC) │ +3.06%  │ 中期動能轉正  │ 🟢 趨勢確認   │\n├────────────────┼─────────┼───────────────┼───────────────┤\n│ 趨勢斜率       │ +0.0016 │ 穩定上升      │ 🟢 持續性佳   │\n├────────────────┼─────────┼───────────────┼───────────────┤\n│ 波動率 (ATR%)  │ 2.23%   │ 低波動        │ 🟡 盤整後突破 │\n├────────────────┼─────────┼───────────────┼───────────────┤\n│ 均值偏離度     │ +20.61% │ 高於200週均線 │ 🟢 強勢格局   │\n└────────────────┴─────────┴───────────────┴───────────────┘\n氫氧化鋰 (56.5% LiOH·H₂O)\n\n型態判定: 🟢 UPTREND（與碳酸鋰同步）\n\n價差狀態:\n- 當前價差：1,559 USD/t\n- 歷史分位：95%（異常寬）\n- 趨勢：Widening（持續擴大）\n- 同步狀態：Synchronized\n\n---\n🎯 週期階段特徵對照\n\n✅ 符合 UPTREND 的特徵\n\n1. 動能轉正 ✅\n  - 12週 ROC: +6.1% > 0\n  - 26週 ROC: +3.06% > 0\n  - 連續多週保持正值\n2. 趨勢斜率向上 ✅\n  - 線性回歸斜率: +0.0016\n  - 價格高點逐步抬升\n3. 均線支撐 ✅\n  - 價格高於 200 週均線 20.61%\n  - 中短期均線呈多頭排列\n4. 波動率特徵 ⚠️\n  - 當前波動率 2.23%（較低）\n  - 注意: 典型 Uptrend 波動率應逐步擴大\n  - 當前處於\"盤整後突破\"階段\n\n⚠️ 需要觀察的風險訊號\n\n1. 供需基本面矛盾 🔴\n  - Balance Index: -1.53（供給過剩）\n  - 價格上行但基本面不支持\n  - 風險: 可能是投機推動，非基本面驅動\n2. 波動率偏低 🟡\n  - 2.23% 屬於低波動\n  - 可能即將突破（放量上攻或下跌）\n3. 價差異常 🟡\n  - 氫氧化鋰 vs 碳酸鋰價差處於 95% 分位\n  - 可能反映供需結構失衡\n\n---\n📍 週期階段定位圖\n\n價格演變路徑：\n                                    當前\n                                    ↓\n$70k ★ 2022Q3 高峰 (OVERHEAT)\n      |\n$50k  |\n      |\n$30k  |         2023Q2 拐點\n      |           ↓\n$20k  |    ╱──────────╲\n      | ╱                ╲\n$15k  |                   ╲___     2024Q4 底部 → 2026Q1 反彈\n      |                       ╲___╱          (BOTTOMING → UPTREND)\n$10k  ★ 2024Q4 底部 (BOTTOMING)\n      |\n      └────────────────────────────────────────────▶\n      2022    2023    2024    2025    2026    時間\n\n關鍵位置:\n- 🔻 歷史底部：$10,500/t（2024Q4）\n- 🔵 當前價格：$11,500/t（2026Q1）\n- 🎯 短期目標：$15,000/t（關鍵阻力）\n- 🎯 中期目標：$18,000/t（2026Q4 預期拐點）\n\n---\n🔮 週期展望\n\n情境 1：持續 Uptrend（機率 60%）\n\n條件:\n- 供需 Balance Index 回升至 -1.0 以上\n- 價格突破 $15k/t 阻力\n- 波動率擴大至 4-5%\n\n目標:\n- 2026Q2：$15-18k/t\n- 2026Q4：$18-22k/t（拐點確認）\n\nLIT ETF 對應:\n- 當前：$70.62\n- 目標1：$80-95\n- 目標2：$110-120\n\n情境 2：假突破後回落（機率 25%）\n\n條件:\n- Balance Index 惡化至 -2.0 以下\n- 價格無法突破 $15k/t\n- 供給繼續大幅擴張\n\n目標:\n- 回測 $10k/t 支撐\n- LIT ETF 跌破 $48\n\n情境 3：震盪盤整（機率 15%）\n\n條件:\n- Balance Index 維持 -1.5 左右\n- 價格在 $11-15k/t 區間震盪\n- 等待基本面明朗\n\n目標:\n- 橫盤整理 3-6 個月\n- LIT ETF 在 $65-75 震盪\n\n---\n💡 交易含義\n\n當前建議：謹慎做多 🟢⚠️\n\n做多依據:\n1. ✅ 技術面明確 Uptrend\n2. ✅ 12週/26週動能皆轉正\n3. ✅ 價格高於長期均線\n\n風險提示:\n1. ⚠️ 基本面 Balance Index 仍為負\n2. ⚠️ 波動率偏低，可能即將變盤\n3. ⚠️ 價差異常寬，結構性問題\n\n操作策略\n\n保守策略（等待確認）:\n等待條件：\n1. Balance Index 回升至 -1.0 以上\n2. 價格站穩 $15k/t\n3. 波動率擴大至 4% 以上\n\n進場點：$15.5k/t 突破確認\n止損：$13k/t\n目標：$18-20k/t\n\n積極策略（提前布局）:\n當前就可小倉位試探：\n進場：$11-12k/t\n加碼：突破 $15k/t\n止損：$10k/t（跌破歷史低點）\n目標：$18-22k/t\n倉位：20-30%（不宜滿倉）\n\n防守策略（等待回調）:\n等待回調至：\n- $10.5k/t 附近（歷史底部）\n- Balance Index 回升確認\n\n優勢：安全邊際高\n劣勢：可能錯過一段漲幅\n\n---\n📅 關鍵監控時點\n\n2026年1-3月（當前階段）\n\n- 觀察: Balance Index 是否開始回升\n- 事件: 澳洲 REQ Q1 報告（3月）\n- 操作: 小倉位試探，止損 $10k\n\n2026年4-6月（確認期）\n\n- 觀察: IEA EV Outlook 2026（4月發布）\n- 事件: 中國 VAT 退稅調整（4月）\n- 操作: 若需求上調，加大倉位至 30%\n\n2026年7-9月（加速期）\n\n- 觀察: 價格是否突破 $15-18k/t\n- 事件: 供給側減產訊號\n- 操作: 突破確認後可加至 50%\n\n2026年10-12月（拐點驗證）\n\n- 觀察: Balance Index 是否轉正\n- 事件: 供需缺口重現\n- 操作: 拐點確認後可滿倉\n\n---\n🚨 失效條件\n\nUptrend 失效訊號（立即退出）:\n\n1. 價格跌破 $10k/t\n  - 跌破歷史低點\n  - 表示新低形成\n2. 12週動能轉負持續 4 週\n  - 短期動能反轉\n  - Uptrend 結束\n3. Balance Index 惡化至 -2.0 以下\n  - 供給過剩惡化\n  - 基本面壓力加大\n4. 波動率突然放大至 8% 以上\n  - 恐慌性拋售\n  - 可能進入 Downtrend\n\n---\n📊 結論\n\n週期階段: 🟢 UPTREND（早期階段）\n\n置信度: 75%（技術面強勁，但基本面存疑）\n\n操作建議:\n- 💡 謹慎做多，小倉位試探\n- 🎯 等待 $15k/t 突破確認後加碼\n- 🚨 嚴守 $10k/t 止損\n- 📅 密切監控 2026Q2-Q4 關鍵催化劑\n\n風險提示:\n當前技術面與基本面背離，需要密切監控供需 Balance Index 變化。若基本面持續惡化，Uptrend 可能是假突破。\n"
-      }
-    ],
-    "qualityScore": {
-      "overall": 65,
-      "badge": "白銀",
-      "metrics": {
-        "architecture": 80,
-        "maintainability": 70,
-        "content": 80,
-        "community": 20,
-        "security": 80,
-        "compliance": 70
-      },
-      "details": "**架構（80/100）**\n- Router pattern 正確分離職責\n- 三層中介數據設計完善\n\n**可維護性（70/100）**\n- 多數據源需長期維護\n- 價格數據 fallback 邏輯需定期驗證\n\n**內容（80/100）**\n- 完整的供需分析框架\n- 清晰的價格型態定義\n\n**社群（20/100）**\n- 新建技能，尚無社群回饋\n\n**安全（80/100）**\n- 無敏感資料處理\n- 外部 URL 需適當處理\n\n**合規（70/100）**\n- 付費數據源授權需注意\n- 價格數據抓取需遵守 ToS\n"
-    },
-    "bestPractices": [
-      {
-        "title": "數據等級先決",
-        "description": "分析前確認 data_level 參數，決定使用哪些數據源和 fallback 策略"
-      },
-      {
-        "title": "三層中介架構",
-        "description": "Balance Nowcast + Price Regime + ETF Transmission 三層分開計算，最後整合判斷"
-      },
-      {
-        "title": "失效條件明確",
-        "description": "每個分析報告必須包含明確的失效條件（invalidation），支持決策追蹤"
-      },
-      {
-        "title": "單位轉換透明",
-        "description": "電池需求到鋰需求的轉換必須明確假設（kg/kWh），並輸出三情境"
-      }
-    ],
-    "pitfalls": [
-      {
-        "title": "忽略數據延遲",
-        "description": "不同數據源更新頻率不同（年度/季度/週度）",
-        "consequence": "可能導致供需判斷滯後或混淆"
-      },
-      {
-        "title": "價格數據不可得",
-        "description": "免費等級無法取得完整價格序列",
-        "consequence": "需使用 CME 期貨或股價 proxy，精度下降"
-      },
-      {
-        "title": "ETF 持股變動",
-        "description": "ETF 持股會定期調整",
-        "consequence": "傳導敏感度計算可能失準"
-      },
-      {
-        "title": "單位混淆",
-        "description": "LCE（碳酸鋰當量）與純鋰金屬混用",
-        "consequence": "數量級差異約 5.3 倍"
-      }
-    ],
-    "faq": [
-      {
-        "question": "為什麼要區分碳酸鋰和氫氧化鋰？",
-        "answer": "兩者用途不同：\n- 碳酸鋰：主要用於 LFP 電池\n- 氫氧化鋰：主要用於高鎳 NMC/NCA 電池\n價格可能出現分化，需分開追蹤\n"
-      },
-      {
-        "question": "如何判斷價格型態是否已轉多？",
-        "answer": "關鍵確認訊號：\n1. 12週動能轉正（ROC > 0）\n2. 波動率開始擴大\n3. 價格突破近期高點\n4. Balance Index 同步上行\n"
-      },
-      {
-        "question": "為什麼 ETF 對鋰價的敏感度會變化？",
-        "answer": "影響因素：\n1. 持股結構調整（上游 vs 下游比例）\n2. 個股特殊事件（併購、產能變動）\n3. 競爭格局變化（電池技術路線）\n4. 市場情緒與資金流向\n"
-      },
-      {
-        "question": "免費數據等級夠用嗎？",
-        "answer": "`free_nolimit` 可以完成基本分析：\n- USGS 提供年度供需基準\n- IEA 提供電池需求趨勢\n- 澳洲政府提供季度出口\n- CME 期貨提供價格 proxy\n\n但若需要更即時/更細緻的分析，建議升級到 `paid_low` 或以上\n"
-      }
-    ],
-    "about": {
-      "repository": "https://github.com/fatfingererr/macro-skills",
-      "branch": "main",
-      "additionalInfo": "## 設計背景\n\n此技能源於「LIT 值不值得做多？」這個實際投資問題。\n市場上有大量關於鋰的敘事（供應過剩、結構成長），\n但很少有人把這些敘事轉化為可量化、可追蹤的框架。\n\n## 核心洞察\n\n1. **三層中介架構**: 供需平衡、價格型態、ETF傳導三者需同步判斷\n2. **數據等級決定精度**: 免費數據可用，但付費數據提供更即時的訊號\n3. **失效條件是關鍵**: 任何多空判斷都必須有明確的失效條件\n4. **傳導可能斷裂**: ETF 對鋰價的敏感度會隨市場結構變化\n"
-    },
-    "methodology": "這個技能原理分成四層，每一層都對應可取得的資料與可運算的指標：\r\n\r\n### 1. 供給需求：建立 **缺口指標** \r\n**原理**：鋰的價格中期走勢，往往由 **供需邊際變化** 主導。即使無法拿到完整、精準的全市場平衡表，也能用公開資料做出穩定的替代指標。\r\n\r\n- **供給替代指標（供給端）**：國別產量、出口、產能展望（例如：美國地質調查機構的年度基準資料 + 澳洲季度展望／出口資料）\r\n- **需求替代指標（需求端）**：電動車銷量／電池裝機（例如：國際能源總署的電動車展望報告中，電池需求的趨勢）\r\n\r\n把兩者標準化後做差，得到 **缺口指標** ：\r\n- **缺口指標 ≈ 標準化(需求替代指標 − 供給替代指標)**  \r\n  - 缺口指標上行：缺口擴大（市場更偏向供應偏緊）\r\n  - 缺口指標下行：寬鬆／過剩（市場更偏向供應偏鬆）\r\n\r\n> 重點：你不需要精準算到 **缺口幾萬噸** ，而是要能抓到 **缺口方向** 與 **拐點** 。\r\n\r\n### 2. 價格型態：確認市場是否開始為缺口定價\r\n**原理**：供需指標只是 **基本面** ，市場不一定立刻反應；因此要加一層 **價格型態** 判斷：鋰價是否已從下跌／築底，轉為上行趨勢。\r\n\r\n常用的型態分類：下行, 築底, 上行, 過熱，常用指標（以週線為主，更貼近產業節奏）：\r\n- 動能（例如 12–26 週）\r\n- 趨勢斜率（滾動斜率）\r\n- 波動型態（波動擴張）\r\n\r\n> 若 **缺口指標上行** 但鋰價仍處於下行型態，代表市場尚未認同，或仍在消化庫存與供給重啟的預期。\r\n\r\n### 3. 傳導速度：鋰價是否真的影響到股票與主題基金？\r\n**原理**：即使鋰價上漲，也可能因為公司成本、合約定價、庫存週期、或下游競爭而造成 **股價不跟** 。  \r\n所以必須檢驗 **鋰 → 公司 → 主題基金** 這條傳導鏈是否有效。\r\n\r\n做法：\r\n- 將主題基金的成分股分段：**上游（礦）／中游（精煉化學）／下游（電池材料與製造）**\r\n- 計算：\r\n  - **主題基金對鋰價因子的敏感度（滾動敏感度）**\r\n  - **各分段的主導貢獻（是誰在帶動主題基金上漲）**\r\n\r\n> 傳導有效的典型特徵：鋰價的型態轉為偏多後，主題基金對鋰價因子的敏感度回升，且上游／中游權重股開始領漲。\r\n\r\n### 4. 趨勢判斷：把結論落到 **交易／配置路徑** \r\n**原理**：你最後要回答的是 **能不能做多**  **何時可能走到哪**  **什麼情況算失效** 。  \r\n因此要把基本面與傳導結論，落到主題基金的長週期結構（例如：週線通道、前高、支撐區）。\r\n\r\n常見輸出：\r\n- **目標路徑**：中軌 → 前高 → 上軌（以區間而非精準點位）\r\n- **失效條件**：跌破關鍵週線支撐、或傳導敏感度轉弱、或缺口指標反轉\r\n\r\n## 這個技能為什麼實用\r\n- **把敘事變成可驗證條件**：不是聽到 **即將出現缺口** 就追，而是看缺口指標與價格型態是否真的轉向\r\n- **把主題投資拆成可追蹤的儀表板**：每週／每月更新一次，就能維持一致邏輯\r\n- **能清楚定義失效**：多頭觀點不是信仰，而是有明確的破局條件",
-    "downloadUrl": "downloads/lithium-supply-demand-gap-radar-0.1.0.zip"
   },
   {
     "id": "google-trends-ath-detector",
@@ -1306,5 +1310,126 @@
       "additionalInfo": "## 理論來源\n\n基於 Sergei Sukhov 的論文：\n\"Geometry of Advantage Decay: A Quantitative Model for Risk-Reward\nDegradation in High-Friction Trading Environments\"\n\n## 相關文獻\n\n- Kyle (1985): Continuous Auctions and Insider Trading\n- Glosten & Milgrom (1985): Bid-ask spread models\n- Easley & O'Hara (1987): Price, trade size, and information\n"
     },
     "downloadUrl": "downloads/cost-density-net-rr-calculator-0.1.0.zip"
+  },
+  {
+    "id": "compute-precious-miner-gross-margin",
+    "name": "compute-precious-miner-gross-margin",
+    "displayName": "計算貴金屬礦業毛利率",
+    "description": "以公開金屬價格 + 礦業成本指標（AISC/All-in cost/現金成本）計算「黃金/白銀礦業毛利率代理值」，並判斷當前是否處於歷史高/低檔區間。",
+    "emoji": "⛏️",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "貴金屬",
+      "黃金",
+      "白銀",
+      "礦業",
+      "AISC",
+      "毛利率",
+      "成本分析",
+      "GDX",
+      "SIL"
+    ],
+    "category": "commodity-sd",
+    "dataLevel": "free-limit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\n\n<principle name=\"margin_proxy_definition\">\n**毛利率代理值定義**\n\n礦業毛利率代理（Margin Proxy）使用簡化公式：\n\n```\ngross_margin_proxy = (metal_price - unit_cost) / metal_price\n```\n\n其中：\n- **metal_price**：金屬現貨價或期貨近月價\n- **unit_cost**：AISC (All-In Sustaining Cost)、現金成本(C1)或全成本\n\n此指標**不等同會計報表的毛利率**，但能快速捕捉價格-成本關係的邊際變化。\n</principle>\n\n<principle name=\"cost_metric_hierarchy\">\n**成本指標口徑層次**\n\n| 口徑              | 包含項目                        | 適用場景             |\n|-------------------|---------------------------------|----------------------|\n| Cash Cost (C1)    | 現場採掘 + 加工 + 場內行政      | 現金流壓力測試       |\n| AISC              | C1 + 維持資本開支 + 勘探 + 行政 | 行業標準（WGC 定義） |\n| All-In Cost (AIC) | AISC + 成長資本開支             | 完整經濟成本         |\n\n建議優先使用 **AISC**，因其可比性最佳且資料可得性高。\n</principle>\n\n<principle name=\"aggregation_logic\">\n**籃子聚合邏輯**\n\n| 方法                | 公式                             | 直覺                       |\n|---------------------|----------------------------------|----------------------------|\n| equal_weight        | Σ margin_i / N                   | 簡單平均，每家公司等權     |\n| production_weighted | Σ (margin_i × prod_i) / Σ prod_i | 產量加權，反映「產業毛利」 |\n| marketcap_weighted  | Σ (margin_i × mcap_i) / Σ mcap_i | 市值加權，反映「股權曝險」 |\n\n建議使用 **production_weighted** 以更準確反映產業整體毛利結構。\n</principle>\n\n<principle name=\"data_frequency_alignment\">\n**數據頻率對齊**\n\n- **金屬價格**：日頻或月均價\n- **礦業成本**：季度（多數公司僅在季報揭露 AISC）\n- **對齊方式**：\n  - 將成本 forward-fill 至季度內各期\n  - 或使用同季均價（更乾淨）\n\n本 Skill 建議使用 **季度頻率** 作為基準，避免過度平滑。\n</principle>\n\n<principle name=\"data_sources\">\n**資料取得方式**\n\n本 skill 使用**公開數據**：\n- **金價**：LBMA Gold Price / COMEX 近月期貨\n- **銀價**：LBMA Silver Price / COMEX 近月期貨\n- **AISC**：公司 IR 投資人簡報 / 季報 MD&A / 新聞稿\n- **產量**：同上，單位 oz / GEO / AgEq oz\n\n腳本位於 `scripts/` 目錄，可直接執行。\n</principle>\n\n</essential_principles>\n\n<objective>\n實作「貴金屬礦業毛利率代理值」計算模型：\n\n1. **數據整合**：抓取金屬價格序列與礦業成本/產量數據\n2. **計算毛利率代理**：單一公司層級 + 籃子聚合\n3. **歷史分位數**：判斷當前水位在歷史區間的位置\n4. **驅動拆解**：區分價格驅動 vs 成本驅動\n5. **訊號生成**：極端高/低檔區間標記\n\n輸出：毛利率時序、歷史分位、驅動拆解、交易/研究連結。\n</objective>\n\n<quick_start>\n\n**最快的方式：執行預設情境分析**\n\n```bash\ncd skills/compute-precious-miner-gross-margin\npip install pandas numpy requests yfinance beautifulsoup4 lxml  # 首次使用\npython scripts/margin_calculator.py --quick --metal gold\n```\n\n輸出範例：\n```json\n{\n  \"skill\": \"compute_precious_miner_margin_proxy\",\n  \"metal\": \"gold\",\n  \"frequency\": \"quarterly\",\n  \"cost_metric\": \"AISC\",\n  \"basket\": {\n    \"miners\": [\"NEM\", \"GOLD\", \"AEM\"],\n    \"aggregation\": \"production_weighted\"\n  },\n  \"latest\": {\n    \"date\": \"2025-Q4\",\n    \"metal_price_usd_oz\": 2650.0,\n    \"unit_cost_proxy_usd_oz\": 1320.0,\n    \"gross_margin_proxy\": 0.502,\n    \"history_percentile\": 0.78,\n    \"regime_label\": \"high_margin\"\n  }\n}\n```\n\n**完整情境分析**：\n```bash\npython scripts/margin_calculator.py \\\n  --metal silver \\\n  --miners CDE,HL,AG \\\n  --start-date 2015-01-01 \\\n  --frequency quarterly \\\n  --cost-metric AISC \\\n  --aggregation production_weighted \\\n  --output result.json\n```\n\n</quick_start>\n\n<intake>\n需要進行什麼操作？\n\n1. **快速計算** - 使用預設參數計算主要礦業籃子的毛利率代理\n2. **完整分析** - 自訂參數進行情境分析（可選擇金屬、礦業、成本口徑）\n3. **數據研究** - 了解如何獲取 AISC / 成本數據（爬蟲設計）\n4. **訊號生成** - 將毛利率轉為交易/研究訊號\n5. **方法論學習** - 了解計算邏輯與數據來源\n\n**請選擇或直接提供分析參數。**\n</intake>\n\n<routing>\n| Response                    | Action                                             |\n|-----------------------------|----------------------------------------------------|\n| 1, \"快速\", \"quick\", \"計算\"  | 執行 `python scripts/margin_calculator.py --quick` |\n| 2, \"完整\", \"full\", \"分析\"   | 閱讀 `workflows/analyze.md` 並執行                 |\n| 3, \"數據\", \"data\", \"爬蟲\"   | 閱讀 `workflows/data-research.md`                  |\n| 4, \"訊號\", \"signal\", \"交易\" | 閱讀 `workflows/signal-generation.md` 並執行       |\n| 5, \"學習\", \"方法論\", \"why\"  | 閱讀 `references/methodology.md`                   |\n| 提供參數 (如礦業清單)       | 閱讀 `workflows/analyze.md` 並使用參數執行         |\n\n**路由後，閱讀對應文件並執行。**\n</routing>\n\n<directory_structure>\n```\ncompute-precious-miner-gross-margin/\n├── SKILL.md                           # 本文件（路由器）\n├── skill.yaml                         # 前端展示元數據\n├── manifest.json                      # 技能元數據\n├── workflows/\n│   ├── analyze.md                     # 完整情境分析工作流\n│   ├── data-research.md               # 數據源研究與爬蟲設計\n│   └── signal-generation.md           # 訊號生成工作流\n├── references/\n│   ├── data-sources.md                # 數據來源與獲取方式\n│   ├── methodology.md                 # 方法論與計算邏輯\n│   └── input-schema.md                # 完整輸入參數定義\n├── templates/\n│   ├── output-json.md                 # JSON 輸出模板\n│   └── output-markdown.md             # Markdown 報告模板\n├── scripts/\n│   └── margin_calculator.py           # 主計算腳本\n└── examples/\n    └── sample-output.json             # 範例輸出\n```\n</directory_structure>\n\n<reference_index>\n\n**方法論**: references/methodology.md\n- 毛利率代理值定義\n- 成本口徑層次解析\n- 聚合方法與直覺\n- 歷史分位數計算\n\n**資料來源**: references/data-sources.md\n- 金銀價格數據來源\n- AISC / 現金成本數據來源\n- 產量數據來源\n- 爬蟲設計指引\n\n**輸入參數**: references/input-schema.md\n- 完整參數定義\n- 預設值與建議範圍\n- 預設礦業籃子\n\n</reference_index>\n\n<workflows_index>\n| Workflow             | Purpose      | 使用時機                  |\n|----------------------|--------------|---------------------------|\n| analyze.md           | 完整情境分析 | 需要自訂參數計算毛利率    |\n| data-research.md     | 數據源研究   | 了解如何獲取成本數據      |\n| signal-generation.md | 訊號生成     | 將毛利率轉為交易/研究訊號 |\n</workflows_index>\n\n<templates_index>\n| Template           | Purpose           |\n|--------------------|-------------------|\n| output-json.md     | JSON 輸出結構定義 |\n| output-markdown.md | Markdown 報告模板 |\n</templates_index>\n\n<scripts_index>\n| Script               | Command                      | Purpose          |\n|----------------------|------------------------------|------------------|\n| margin_calculator.py | `--quick --metal gold`       | 快速計算黃金礦業 |\n| margin_calculator.py | `--quick --metal silver`     | 快速計算白銀礦業 |\n| margin_calculator.py | `--miners NEM,GOLD --freq Q` | 自訂礦業與頻率   |\n| margin_calculator.py | `--decompose`                | 驅動拆解分析     |\n</scripts_index>\n\n<input_schema_summary>\n\n**核心參數**\n\n| 參數        | 類型   | 預設值              | 說明                                   |\n|-------------|--------|---------------------|----------------------------------------|\n| metal       | string | gold                | 目標金屬（gold/silver）                |\n| miners      | array  | 預設籃子            | 礦業代號清單                           |\n| start_date  | string | 10 年前             | 計算起始日（YYYY-MM-DD）               |\n| end_date    | string | today               | 計算結束日                             |\n| frequency   | string | quarterly           | 頻率（daily/weekly/monthly/quarterly） |\n| cost_metric | string | AISC                | 成本口徑                               |\n| aggregation | string | production_weighted | 聚合方式                               |\n\n**進階參數**\n\n| 參數                 | 類型   | 預設值         | 說明           |\n|----------------------|--------|----------------|----------------|\n| price_series         | string | spot           | 價格口徑       |\n| fx_mode              | string | none           | 匯率處理       |\n| outlier_rule         | string | winsorize_1_99 | 離群處理       |\n| history_window_years | int    | 20             | 歷史分位數視窗 |\n\n完整參數定義見 `references/input-schema.md`。\n\n</input_schema_summary>\n\n<output_schema_summary>\n```json\n{\n  \"skill\": \"compute_precious_miner_margin_proxy\",\n  \"metal\": \"silver\",\n  \"frequency\": \"quarterly\",\n  \"cost_metric\": \"AISC\",\n  \"basket\": {\n    \"miners\": [\"CDE\", \"HL\", \"AG\"],\n    \"aggregation\": \"production_weighted\"\n  },\n  \"latest\": {\n    \"date\": \"2025-Q4\",\n    \"metal_price_usd_oz\": 31.50,\n    \"unit_cost_proxy_usd_oz\": 6.30,\n    \"gross_margin_proxy\": 0.80,\n    \"history_percentile\": 0.94,\n    \"regime_label\": \"extreme_high_margin\"\n  },\n  \"decomposition\": {\n    \"last_3m_price_change_pct\": 0.12,\n    \"last_3m_cost_change_pct\": -0.03,\n    \"driver\": \"mostly_price_up\"\n  },\n  \"notes\": [\n    \"gross_margin_proxy 使用 (price - AISC)/price 作為近似；不等同會計報表的毛利率口徑。\",\n    \"若成本為季度資料，已以季度內 forward-fill/同季均價對齊。\"\n  ],\n  \"recommended_next_checks\": [\n    \"用同一套 margin proxy 對照 SIL/SILJ 或個股的 3/6/12 個月前瞻報酬（事件研究）\",\n    \"檢查是否出現資本開支/併購升溫、或成本再通膨（柴油/工資/試劑）導致毛利回落\"\n  ]\n}\n```\n\n完整輸出結構見 `templates/output-json.md`。\n</output_schema_summary>\n\n<success_criteria>\n執行成功時應產出：\n\n- [ ] 毛利率代理值時序數據\n- [ ] 各礦業的單位成本與毛利率\n- [ ] 籃子聚合毛利率\n- [ ] 歷史分位數與區間標記（extreme_high/high/neutral/low/extreme_low）\n- [ ] 驅動拆解（價格驅動 vs 成本驅動）\n- [ ] 結果輸出為指定格式（JSON 或 Markdown）\n- [ ] 後續研究建議\n</success_criteria>",
+    "path": "skills/compute-precious-miner-gross-margin/SKILL.md",
+    "directoryStructure": "compute-precious-miner-gross-margin/\n├── examples\n│   └── sample-output.json\n├── manifest.json\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   └── methodology.md\n├── scripts\n│   └── margin_calculator.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    ├── data-research.md\n    └── signal-generation.md",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "計算目前黃金礦業的毛利率代理值，並判斷是否處於歷史極端區間",
+        "expectedResult": "輸出主要黃金礦業（NEM、GOLD、AEM 等）的：\n- 當前毛利率代理值（如 50%）\n- 歷史分位數（如 78 百分位）\n- 區間標記（high_margin）\n- 驅動拆解（價格 vs 成本）\n"
+      },
+      {
+        "question": "比較白銀礦業 CDE、HL、AG 的 AISC 成本結構",
+        "expectedResult": "輸出各礦業的：\n- 最新季度 AISC（USD/oz）\n- 對應的毛利率代理值\n- 產量加權後的籃子毛利率\n"
+      },
+      {
+        "question": "當毛利率處於歷史 90 百分位以上時，礦業股的前瞻報酬如何？",
+        "expectedResult": "輸出事件研究結果：\n- 極端高毛利後 3/6/12 個月的平均報酬\n- 風險提示（資本開支週期、均值回歸）\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 65,
+      "badge": "白銀",
+      "metrics": {
+        "architecture": 75,
+        "maintainability": 70,
+        "content": 80,
+        "community": 20,
+        "security": 85,
+        "compliance": 80
+      },
+      "details": "**架構（75/100）**\n- 清晰的路由器模式\n- 分層的 workflows/references\n- 可擴展的腳本設計\n\n**可維護性（70/100）**\n- 成本數據需手動更新或爬蟲維護\n- 依賴公司財報披露頻率\n\n**內容（80/100）**\n- 完整的方法論說明\n- 清晰的輸入/輸出定義\n- 含後續研究建議\n\n**社群（20/100）**\n- 新建技能，尚無社群反饋\n\n**安全（85/100）**\n- 使用公開數據\n- 爬蟲遵循防偵測最佳實踐\n\n**合規（80/100）**\n- 數據來源透明\n- 明確標註「代理值」非會計毛利率\n"
+    },
+    "bestPractices": [
+      {
+        "title": "優先使用 AISC 口徑",
+        "description": "World Gold Council 標準化定義，跨公司可比性最佳"
+      },
+      {
+        "title": "使用產量加權聚合",
+        "description": "更準確反映產業整體毛利結構，避免小型礦業扭曲"
+      },
+      {
+        "title": "季度頻率為佳",
+        "description": "成本數據多為季度披露，避免過度內插造成虛假精度"
+      },
+      {
+        "title": "關注驅動拆解",
+        "description": "區分「金屬價格漲」vs「成本下降」的毛利改善來源"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "混淆代理值與會計毛利率",
+        "description": "本模型使用 (price - AISC) / price 近似，非 GAAP 毛利率",
+        "consequence": "與公司財報數字不一致，造成誤解"
+      },
+      {
+        "title": "忽略副產品收入",
+        "description": "白銀礦常有黃金/基本金屬副產品，AISC 已扣除但需理解",
+        "consequence": "對「純銀」成本的誤判"
+      },
+      {
+        "title": "成本數據滯後",
+        "description": "季報披露約滯後 1-2 個月，需與即時金價配對時小心",
+        "consequence": "短期毛利率失真"
+      },
+      {
+        "title": "極端毛利≠股價必漲",
+        "description": "高毛利常引發增產/併購/成本通膨，導致均值回歸",
+        "consequence": "做為順勢訊號時需配合其他因子"
+      }
+    ],
+    "faq": [
+      {
+        "question": "AISC 和 Cash Cost 的差別是什麼？",
+        "answer": "- **Cash Cost (C1)**：僅含現場採掘、加工、行政，反映現金流壓力\n- **AISC**：含 C1 + 維持資本開支 + 勘探 + 一般行政，反映持續經營成本\n- **All-In Cost**：含 AISC + 成長資本開支，反映完整經濟成本\n\n建議優先用 AISC，因其由 WGC 標準化定義，跨公司可比。\n"
+      },
+      {
+        "question": "如何取得礦業的 AISC 數據？",
+        "answer": "1. **投資人簡報**：多數礦業在季報簡報中會有 AISC 摘要表\n2. **新聞稿**：季報發布的新聞稿通常含 AISC 數字\n3. **10-Q / 10-K MD&A**：美股可從 SEC EDGAR 取得\n4. **第三方彙整**：Mining.com、Kitco 等偶有彙整報導\n\n本 skill 的 `workflows/data-research.md` 有詳細爬蟲指引。\n"
+      },
+      {
+        "question": "毛利率處於極端高檔代表什麼？",
+        "answer": "**極端高毛利（如 > 90 百分位）** 意味著：\n- 短期：礦業現金流極佳，股價可能已反映\n- 中期：資本開支週期可能啟動（擴產、併購）\n- 長期：成本通膨壓力（工資、柴油、試劑）可能回升\n\n建議搭配 GDX/GDXJ/SIL 相對強弱、資本開支數據做交叉驗證。\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 使用場景\n\n1. **驗證貼文說法**：當看到「目前金銀礦業毛利率很高」的說法時，可用本 skill 驗證\n2. **事件研究**：毛利率極端時，前瞻報酬如何？\n3. **選股因子**：將毛利率作為礦業股相對強弱的因子\n4. **資本週期研究**：高毛利 → 資本開支 → 成本回升的循環判斷\n\n## 預設礦業籃子\n\n**黃金**：NEM (Newmont), GOLD (Barrick), AEM (Agnico Eagle), FNV (Franco-Nevada), WPM (Wheaton)\n**白銀**：CDE (Coeur), HL (Hecla), AG (First Majestic), PAAS (Pan American), MAG (MAG Silver)\n"
+    },
+    "methodology": "# 方法論：貴金屬礦業毛利率代理值\n\n## 核心概念\n\n### 毛利率代理值 (Gross Margin Proxy)\n\n本 skill 使用的「毛利率代理值」是一個簡化公式，用於快速估算礦業的邊際盈利能力：\n\n```\ngross_margin_proxy = (metal_price - unit_cost) / metal_price\n```\n\n**重要說明**：\n- 此指標**不等同會計報表的毛利率 (GAAP Gross Margin)**\n- 會計毛利率需考慮副產品收入、非現金項目、會計準則差異\n- 本代理值的優點是**可快速計算、跨公司可比、便於時序分析**\n\n### 與會計毛利率的差異\n\n| 項目       | Margin Proxy           | GAAP Gross Margin          |\n|------------|------------------------|----------------------------|\n| 計算方式   | (Price - AISC) / Price | (Revenue - COGS) / Revenue |\n| 副產品處理 | AISC 已扣除副產品收入  | 需單獨調整                 |\n| 非現金項目 | 不含                   | 含折舊/攤銷                |\n| 可比性     | 高（標準化公式）       | 低（會計政策差異）         |\n| 即時性     | 可用即時金價估算       | 需等財報披露               |\n\n---\n\n## 成本指標口徑\n\n### Cost Metric 層次\n\n```\n┌─────────────────────────────────────────────────────────┐\n│                    All-In Cost (AIC)                    │\n│  ┌───────────────────────────────────────────────────┐  │\n│  │               AISC (All-In Sustaining Cost)       │  │\n│  │  ┌─────────────────────────────────────────────┐  │  │\n│  │  │              Cash Cost (C1)                 │  │  │\n│  │  │  - 採掘成本                                 │  │  │\n│  │  │  - 加工成本                                 │  │  │\n│  │  │  - 場內一般行政                             │  │  │\n│  │  └─────────────────────────────────────────────┘  │  │\n│  │  + 維持資本開支 (Sustaining CapEx)               │  │\n│  │  + 勘探費用                                       │  │\n│  │  + 一般行政費用                                   │  │\n│  └───────────────────────────────────────────────────┘  │\n│  + 成長資本開支 (Growth CapEx)                          │\n│  + 併購相關費用                                          │\n└─────────────────────────────────────────────────────────┘\n```\n\n### 各口徑比較\n\n| 口徑           | 定義            | 典型值 (Gold)   | 適用場景                 |\n|----------------|-----------------|-----------------|--------------------------|\n| Cash Cost (C1) | 直接現場成本    | $800-1,200/oz   | 現金流壓力測試           |\n| AISC           | C1 + 維持開支   | $1,100-1,500/oz | **行業標準**（WGC 定義） |\n| All-In Cost    | AISC + 成長開支 | $1,300-1,800/oz | 完整經濟成本             |\n\n**建議**：優先使用 **AISC**，因其：\n- 由 World Gold Council 標準化定義（2013 年起）\n- 跨公司可比性最佳\n- 多數公司在季報中揭露\n\n---\n\n## 聚合方法\n\n### 籃子聚合邏輯\n\n當分析多家礦業時，需將個別毛利率聚合為「籃子毛利率」：\n\n**1. Equal Weight（等權重）**\n```python\nbasket_margin = Σ margin_i / N\n```\n- 每家公司貢獻相同\n- 適用於：關注「典型礦業」表現\n\n**2. Production Weighted（產量加權）**\n```python\nbasket_margin = Σ (margin_i × prod_i) / Σ prod_i\n```\n- 大型生產商貢獻較大\n- 適用於：反映「產業整體毛利」\n- **建議使用此方法**\n\n**3. Market Cap Weighted（市值加權）**\n```python\nbasket_margin = Σ (margin_i × mcap_i) / Σ mcap_i\n```\n- 與 GDX/GDXJ 等 ETF 曝險結構接近\n- 適用於：分析「股權曝險」毛利\n\n---\n\n## 歷史分位數計算\n\n### 方法\n\n使用滾動視窗計算當前毛利率在歷史分布中的位置：\n\n```python\ndef percentile_rank(series, window_years=20):\n    window = window_years * 4  # 季度\n    ranks = series.rolling(window, min_periods=4).apply(\n        lambda x: (x.iloc[-1] > x[:-1]).mean()\n    )\n    return ranks\n```\n\n### 區間標記\n\n| 分位數 | 標記                | 解讀                         |\n|--------|---------------------|------------------------------|\n| ≥ 90%  | extreme_high_margin | 毛利極端高，均值回歸風險     |\n| 70-90% | high_margin         | 毛利較高，礦業盈利良好       |\n| 30-70% | neutral             | 毛利中等                     |\n| 10-30% | low_margin          | 毛利較低，部分礦業壓力       |\n| < 10%  | extreme_low_margin  | 毛利極端低，可能觸及成本支撐 |\n\n### 視窗選擇考量\n\n| 視窗  | 覆蓋週期  | 優點   | 缺點             |\n|-------|-----------|--------|------------------|\n| 10 年 | ~2 個週期 | 較敏感 | 樣本較少         |\n| 15 年 | ~3 個週期 | 平衡   | -                |\n| 20 年 | ~4 個週期 | 穩健   | 可能錯過結構變化 |\n\n**建議**：使用 **15-20 年**，覆蓋 2-4 個完整商品週期。\n\n---\n\n## 驅動拆解\n\n### 毛利變化分解\n\n毛利率變化可歸因於價格或成本：\n\n```\nΔmargin ≈ f(Δprice, Δcost)\n```\n\n展開（一階近似）：\n```\nΔmargin ≈ (1/P) × ΔP - (1/P) × ΔC + O(...)\n         = (ΔP - ΔC) / P\n```\n\n### 驅動判斷規則\n\n```python\nif abs(price_change) > abs(cost_change) * 2:\n    driver = \"PRICE_DRIVEN\"\nelif abs(cost_change) > abs(price_change) * 2:\n    driver = \"COST_DRIVEN\"\nelse:\n    driver = \"MIXED\"\n```\n\n### 驅動類型與含義\n\n| 驅動類型       | 毛利變化 | 解讀                                  |\n|----------------|----------|---------------------------------------|\n| PRICE_RALLY    | ↑        | 金價上漲帶動，可持續性取決於金價      |\n| COST_DECLINE   | ↑        | 成本下降帶動，可能是暫時（油價/匯率） |\n| COST_INFLATION | ↓        | 成本通膨壓力，需關注趨勢              |\n| PRICE_DROP     | ↓        | 金價下跌帶動，需關注支撐位            |\n| MIXED          | -        | 價格與成本同向或幅度相近              |\n\n---\n\n## 數據對齊\n\n### 頻率處理\n\n金屬價格為日頻，成本數據為季頻，需要對齊：\n\n**方法 1：Forward Fill（建議）**\n```python\ncost_quarterly.reindex(daily_index, method=\"ffill\")\n```\n- 季度成本值延續到下一季報發布\n- 優點：簡單、避免前視偏誤\n\n**方法 2：同季均價**\n```python\nprice_quarterly = price_daily.resample('Q').mean()\n```\n- 將價格也降到季頻\n- 優點：數據乾淨、避免假精度\n\n**建議**：使用**季度頻率**作為基準，以 Method 2 對齊。\n\n### 缺值處理\n\n| 情況               | 處理方式                        |\n|--------------------|---------------------------------|\n| 某季成本缺失       | 前一季 forward-fill，或該季降權 |\n| 連續多季缺失       | 從籃子中剔除該公司              |\n| 成本異常（如重組） | Winsorize 或標記排除            |\n\n---\n\n## 離群處理\n\n### Winsorize 方法\n\n將極端值縮至指定分位數：\n\n```python\ndef winsorize(series, lower=0.01, upper=0.99):\n    low = series.quantile(lower)\n    high = series.quantile(upper)\n    return series.clip(low, high)\n```\n\n### 適用場景\n\n- **一次性減記**：成本異常飆高\n- **資產出售**：成本異常降低\n- **會計變更**：口徑不連續\n\n**建議**：使用 **winsorize_1_99**（1-99 分位數），保留 98% 數據。\n\n---\n\n## 模型限制\n\n1. **非會計毛利率**：不可直接與財報比較\n2. **成本滯後**：季報發布滯後 1-2 個月\n3. **口徑差異**：不同公司的 AISC 定義可能略有差異\n4. **副產品複雜**：白銀礦常有黃金/銅副產品，AISC 處理方式各異\n5. **串流公司除外**：FNV、WPM 等串流公司的成本結構不同，不適用本模型\n\n---\n\n## 參考文獻\n\n- World Gold Council (2013). \"Guidance Note on Non-GAAP Metrics – All-In Sustaining Costs and All-In Costs\"\n- VanEck (2024). \"The Case for Gold Mining Stocks\"\n- Kitco News. \"AISC Tracking Reports\"\n",
+    "downloadUrl": "downloads/compute-precious-miner-gross-margin-0.1.0.zip"
   }
 ]
