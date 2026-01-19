@@ -64,6 +64,17 @@
       ]
     },
     {
+      "name": "wasde-ingestor",
+      "description": "抓取並解析 USDA（美國農業部）每月發布的 WASDE（世界農產品供需估計）報告，擷取所有主要商品（穀物、油籽、棉花、畜產品、糖）的供需平衡表。產出經標準化、具版本控管的資料集，作為即時預測的基準錨點。",
+      "version": "0.2.0",
+      "author": {
+        "name": "macro-skills"
+      },
+      "source": "./skills/wasde-ingestor",
+      "category": "nowcasting",
+      "tags": []
+    },
+    {
       "name": "usd-reserve-loss-gold-revaluation",
       "description": "在「美元／某貨幣失去儲備地位、黃金成為唯一錨」的假設下，用央行貨幣負債 ÷ 黃金儲備，推演「資產負債表可承受的隱含金價」，並輸出各國/各貨幣的槓桿程度、缺口與排名",
       "version": "0.1.0",
@@ -79,6 +90,24 @@
         "美元",
         "M0",
         "M2"
+      ]
+    },
+    {
+      "name": "nickel-concentration-risk-analyzer",
+      "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
+      "version": "0.1.1",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/nickel-concentration-risk-analyzer",
+      "category": "event-scenario",
+      "tags": [
+        "鎳",
+        "供給集中度",
+        "原物料",
+        "採礦",
+        "地緣政治",
+        "情境分析"
       ]
     },
     {
@@ -98,17 +127,6 @@
         "權重差異",
         "FRED"
       ]
-    },
-    {
-      "name": "wasde-ingestor",
-      "description": "抓取並解析 USDA（美國農業部）每月發布的 WASDE（世界農產品供需估計）報告，擷取所有主要商品（穀物、油籽、棉花、畜產品、糖）的供需平衡表。產出經標準化、具版本控管的資料集，作為即時預測的基準錨點。",
-      "version": "0.2.0",
-      "author": {
-        "name": "macro-skills"
-      },
-      "source": "./skills/wasde-ingestor",
-      "category": "nowcasting",
-      "tags": []
     },
     {
       "name": "lithium-supply-demand-gap-radar",
@@ -144,24 +162,6 @@
         "情緒指標",
         "異常偵測",
         "搜尋趨勢"
-      ]
-    },
-    {
-      "name": "nickel-concentration-risk-analyzer",
-      "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
-      "version": "0.1.1",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/nickel-concentration-risk-analyzer",
-      "category": "event-scenario",
-      "tags": [
-        "鎳",
-        "供給集中度",
-        "原物料",
-        "採礦",
-        "地緣政治",
-        "情境分析"
       ]
     },
     {
