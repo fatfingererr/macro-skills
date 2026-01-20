@@ -1,10 +1,15 @@
 {
   "name": "list-china-today-macro-news",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "displayName": "列出今日中國宏觀新聞消息",
   "description": "彙整今日中國宏觀經濟新聞消息，從華爾街日報、36氪等來源抓取並篩選宏觀相關新聞，輸出雜誌風格的新聞摘要。適用於交易/研究開盤前快速掌握中國宏觀動態。",
   "author": "Ricky Wang",
   "license": "MIT",
+  "basedOn": {
+    "name": "news-aggregator-skill",
+    "path": "../../../vendor/news-aggregator-skill",
+    "description": "Core fetching patterns, report formatting, and smart time filtering adapted from news-aggregator-skill"
+  },
   "category": "nowcasting",
   "tags": [
     "中國",

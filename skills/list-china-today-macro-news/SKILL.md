@@ -1,9 +1,12 @@
 ---
 name: list-china-today-macro-news
 description: 彙整今日中國宏觀經濟新聞消息，從華爾街日報、36氪等來源抓取並篩選宏觀相關新聞，輸出雜誌風格的新聞摘要。適用於交易/研究開盤前快速掌握中國宏觀動態。
+based_on: news-aggregator-skill
 ---
 
-# 列出列出今日中國宏觀新聞消息消息
+# 今日中國宏觀新聞 Skill
+
+> 🔗 Based on [news-aggregator-skill](../../../vendor/news-aggregator-skill) | 專注於中國宏觀經濟新聞的垂直擴展
 
 從多個中文財經新聞源抓取並篩選中國宏觀經濟相關新聞，提供 AI 深度解讀。
 
@@ -14,28 +17,36 @@ description: 彙整今日中國宏觀經濟新聞消息，從華爾街日報、3
 **Usage:**
 
 ```bash
-# 基本用法：抓取華爾街日報的中國宏觀新聞
+### 基本用法：抓取華爾街日報的中國宏觀新聞
 python scripts/fetch_china_macro_news.py --source wallstreetcn --limit 15
 
-# 多源掃描：華爾街日報 + 36氪
+### 多源掃描：華爾街日報 + 36氪
 python scripts/fetch_china_macro_news.py --source wallstreetcn,36kr --limit 10
 
-# 指定關鍵字篩選
-python scripts/fetch_china_macro_news.py --source wallstreetcn --limit 20 --keyword "央行,利率,GDP,PMI"
-
-# 深度抓取（下載文章內容）
+### 深度抓取（下載文章內容）
 python scripts/fetch_china_macro_news.py --source wallstreetcn --limit 10 --deep
+```
+
+### 智慧關鍵字擴展 (Smart Keyword Expansion)
+**CRITICAL**: 當用戶給出簡單關鍵字時，自動擴展覆蓋相關領域：
+*   用戶: "利率" -> Agent 使用: `--keyword "利率,LPR,MLF,降息,加息,PBOC,央行"`
+*   用戶: "通膨" -> Agent 使用: `--keyword "通膨,CPI,PPI,物價,通縮"`
+*   用戶: "貿易" -> Agent 使用: `--keyword "貿易,進出口,順差,關稅,海關"`
+
+```bash
+# Example: User asked for "央行新聞" (Note the expanded keywords)
+python scripts/fetch_china_macro_news.py --source wallstreetcn --limit 20 --keyword "央行,PBOC,利率,LPR,MLF,降息,降準" --deep
 ```
 
 **Arguments:**
 
-- `--source`: 數據源，可選 `wallstreetcn`, `36kr`, `all`（預設 wallstreetcn）
-- `--limit`: 每個來源的最大條目數（預設 15）
-- `--keyword`: 逗號分隔的關鍵字篩選（預設使用宏觀相關關鍵字）
-- `--deep`: 啟用深度抓取，下載並提取文章正文內容
+- `--source`: One of `wallstreetcn`, `36kr`, `all` (default: wallstreetcn).
+- `--limit`: Max items per source (default 15).
+- `--keyword`: Comma-separated filters (default: 宏觀相關關鍵字).
+- `--deep`: **[NEW]** Enable deep fetching. Downloads and extracts the main text content of the articles.
 
 **Output:**
-JSON 陣列。若使用 `--deep`，每個項目會包含 `content` 欄位。
+JSON array. If `--deep` is used, items will contain a `content` field associated with the article text.
 
 ## 預設宏觀關鍵字
 
@@ -52,53 +63,43 @@ GDP,PMI,CPI,PPI,通膨,通縮,
 債券,國債,信貸,社融,M2
 ```
 
-## 智慧關鍵字擴展
+## Interactive Menu
 
-**重要**：當用戶給出簡單關鍵字時，自動擴展覆蓋相關領域：
+When the user says **"今日中國宏觀新聞"** (or similar "menu/help" triggers):
+1.  **READ** the content of `templates.md` in the skill directory.
+2.  **DISPLAY** the list of available commands to the user exactly as they appear in the file.
+3.  **GUIDE** the user to select a number or copy the command to execute.
 
-- 用戶: "利率" → Agent 使用: `--keyword "利率,LPR,MLF,降息,加息,PBOC,央行"`
-- 用戶: "通膨" → Agent 使用: `--keyword "通膨,CPI,PPI,物價,通縮"`
-- 用戶: "貿易" → Agent 使用: `--keyword "貿易,進出口,順差,關稅,海關"`
+## Smart Time Filtering & Reporting (CRITICAL)
 
-## 互動式選單
+If the user requests a specific time window (e.g., "過去 X 小時") and the results are sparse (< 5 items):
+1.  **Prioritize User Window**: First, list all items that strictly fall within the user's requested time (Time < X).
+2.  **Smart Fill**: If the list is short, you MUST include high-value/high-heat items from a wider range (e.g. past 24h) to ensure the report provides at least 5 meaningful insights.
+3.  **Annotation**: Clearly mark these older items (e.g., "⚠️ 18h 前", "🔥 24h 熱點") so the user knows they are supplementary.
+4.  **High Value**: Always prioritize "重大政策", "央行動態", or "關鍵數據" items even if they slightly exceed the time window.
 
-當用戶說 **"列出列出今日中國宏觀新聞消息"** 或類似觸發詞時：
+## Response Guidelines (CRITICAL)
 
-1. 執行預設掃描：華爾街日報 + 宏觀關鍵字
-2. 篩選過去 24 小時內的新聞
-3. 輸出雜誌風格的摘要報告
+**Format & Style:**
+- **Language**: 繁體中文 (zh-TW).
+- **Style**: Magazine/Newsletter style (e.g., "財訊" or "華爾街日報" vibe). Professional, concise, yet engaging.
+- **Structure**:
+    - **🔥 頭條焦點**: Top 3-5 most critical macro stories.
+    - **💰 央行與貨幣政策**: 利率、流動性相關.
+    - **📊 經濟數據**: GDP、PMI、CPI 等數據解讀.
+    - **💱 匯率與市場**: 人民幣、債券、股市相關.
+- **Item Format**:
+    - **Title**: **MUST be a Markdown Link** to the original URL.
+        - ✅ Correct: `### 1. [央行宣布降準 0.5 個百分點](https://...)`
+        - ❌ Incorrect: `### 1. 央行宣布降準 0.5 個百分點`
+    - **Metadata Line**: Must include Source, **Time/Date**, and Heat/Score.
+    - **1-Liner Summary**: A punchy, "so what?" summary.
+    - **Deep Interpretation (Bulleted)**: 2-3 bullet points explaining *why* this matters, technical details, or context. (Required for "Deep Scan").
 
-## 時間篩選與報告規則
-
-如果用戶要求特定時間窗口（如「過去 X 小時」）且結果稀少（< 5 條）：
-
-1. **優先用戶窗口**：先列出嚴格符合時間範圍的新聞
-2. **智能補充**：若數量不足，從更寬範圍（如過去 24h）補充高價值新聞
-3. **標註**：清楚標記較舊的新聞（如「⚠️ 18h 前」）
-4. **高價值優先**：始終優先選擇重大政策、央行動態、關鍵數據等高影響力新聞
-
-## 回應指南
-
-**格式與風格：**
-- **語言**：繁體中文（zh-TW）
-- **風格**：財經雜誌/晨報風格（如《財訊》或《華爾街日報》風格），專業、簡潔、有洞察
-- **結構**：
-  - **頭條焦點**：3-5 條最重要的宏觀新聞
-  - **央行與貨幣政策**：利率、流動性相關
-  - **經濟數據**：GDP、PMI、CPI 等數據解讀
-  - **市場動態**：人民幣、債券、股市相關
-
-**單條新聞格式：**
-- **標題**：**必須是 Markdown 連結**指向原文 URL
-  - ✅ 正確: `### 1. [央行宣布降準 0.5 個百分點](https://...)`
-  - ❌ 錯誤: `### 1. 央行宣布降準 0.5 個百分點`
-- **Metadata 行**：必須包含來源、**時間/日期**、熱度/分數
-- **一句話摘要**：精煉的「so what?」摘要
-- **深度解讀（Bullet）**：2-3 個要點說明*為何重要*、技術細節或背景脈絡
-
-**輸出存檔：**
-- 將完整報告儲存到 `reports/` 目錄，檔名帶時間戳（如 `reports/china_macro_YYYYMMDD_HHMM.md`）
-- 在對話中呈現完整報告內容
+**Output Artifact:**
+- Always save the full report to `reports/` directory with a timestamped filename (e.g., `reports/china_macro_YYYYMMDD_HHMM.md`).
+- Present the full report content to the user in the chat.
+- **CRITICAL**: Report footer MUST include attribution line.
 
 ## 數據源說明
 
@@ -110,7 +111,7 @@ GDP,PMI,CPI,PPI,通膨,通縮,
 ## 範例輸出
 
 ```markdown
-# 列出今日中國宏觀新聞消息摘要（2026-01-20）
+# 今日中國宏觀新聞摘要（2026-01-20）
 
 > 掃描時間：11:30 | 來源：華爾街日報、36氪 | 共 12 條相關新聞
 
@@ -146,4 +147,15 @@ GDP,PMI,CPI,PPI,通膨,通縮,
 ---
 
 *報告由 list-china-today-macro-news skill 自動生成*
+*🔗 Powered by [news-aggregator-skill](https://github.com/anthropics/news-aggregator-skill)*
 ```
+
+## Attribution
+
+This skill is built upon and extends the architecture of **news-aggregator-skill**.
+- Core fetching patterns derived from `news-aggregator-skill/scripts/fetch_news.py`
+- Report formatting follows the news-aggregator-skill Response Guidelines
+- Smart Time Filtering logic adapted from news-aggregator-skill
+
+---
+*🔗 Based on [news-aggregator-skill](../../../vendor/news-aggregator-skill) by Anthropic*
