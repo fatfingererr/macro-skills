@@ -1,7 +1,7 @@
 {
   "name": "monitor-etf-holdings-drawdown-risk",
   "version": "0.1.0",
-  "displayName": "監控 ETF 持倉下滑風險",
+  "displayName": "監控實物 ETF 持倉下滑風險",
   "description": "偵測「商品價格上漲、但對應實物 ETF/信託持倉卻下滑」的背離現象，並用多指標交叉驗證，評估是否存在實物供給緊張/交割壓力風險",
   "author": "Ricky Wang",
   "license": "MIT",
