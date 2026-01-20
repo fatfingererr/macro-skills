@@ -8,6 +8,7 @@ Usage:
     python japan_debt_analyzer.py --quick           # 快速檢查
     python japan_debt_analyzer.py --full            # 完整分析
     python japan_debt_analyzer.py --stress 200      # 壓測 +200bp
+    python japan_debt_analyzer.py --quick --refresh # 強制刷新數據
 """
 
 import argparse
@@ -20,12 +21,19 @@ from typing import Dict, List, Optional, Any
 import numpy as np
 import pandas as pd
 
-# 嘗試導入可選依賴
+# 嘗試導入數據管理器
 try:
-    import requests
-    HAS_REQUESTS = True
+    from data_manager import JapanDebtDataManager
+    HAS_DATA_MANAGER = True
 except ImportError:
-    HAS_REQUESTS = False
+    try:
+        # 嘗試相對導入
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent))
+        from data_manager import JapanDebtDataManager
+        HAS_DATA_MANAGER = True
+    except ImportError:
+        HAS_DATA_MANAGER = False
 
 
 # ============================================================================
@@ -76,7 +84,7 @@ DEFAULT_SCENARIOS = [
     },
 ]
 
-# 示範用靜態數據（實際使用時應從 API 抓取）
+# Fallback 靜態數據（當所有數據源都失敗時使用）
 SAMPLE_DATA = {
     "jgb_10y": {
         "latest": 1.23,
@@ -296,10 +304,40 @@ def analyze_spillover_channel(us_assets: Dict) -> Dict:
 # 主分析函數
 # ============================================================================
 
-def run_quick_check(data: Optional[Dict] = None) -> Dict:
-    """快速檢查：返回當前狀態摘要"""
+def run_quick_check(
+    data: Optional[Dict] = None,
+    force_refresh: bool = False,
+    cache_dir: Optional[str] = None,
+) -> Dict:
+    """
+    快速檢查：返回當前狀態摘要
+
+    Args:
+        data: 預先獲取的數據（如果為 None，會自動抓取）
+        force_refresh: 強制刷新數據
+        cache_dir: 緩存目錄
+    """
+    data_sources = {}
+    fetch_errors = []
+
     if data is None:
-        data = SAMPLE_DATA
+        # 使用數據管理器獲取實時數據
+        if HAS_DATA_MANAGER:
+            try:
+                manager = JapanDebtDataManager(cache_dir=cache_dir)
+                data = manager.get_all_data(
+                    force_refresh=force_refresh,
+                    include_tic=False,  # 快速檢查不需要 TIC 數據
+                )
+                data_sources = data.get("data_sources", {})
+                fetch_errors = data.get("fetch_errors") or []
+            except Exception as e:
+                fetch_errors.append(f"數據管理器錯誤: {e}")
+                data = SAMPLE_DATA
+                data_sources = {"all": "fallback"}
+        else:
+            data = SAMPLE_DATA
+            data_sources = {"all": "fallback (no data_manager)"}
 
     fiscal = data["fiscal"]
     ratio = calculate_interest_tax_ratio(
@@ -313,7 +351,7 @@ def run_quick_check(data: Optional[Dict] = None) -> Dict:
         tenor="10Y",
     )
 
-    return {
+    result = {
         "mode": "quick_check",
         "as_of": datetime.now().strftime("%Y-%m-%d"),
         "yield_stats": {
@@ -330,17 +368,54 @@ def run_quick_check(data: Optional[Dict] = None) -> Dict:
             f"利息支出佔稅收 {ratio:.1%}，"
             f"處於{get_risk_band_emoji(band)} {band.upper()} 區"
         ),
+        "data_sources": data_sources,
     }
+
+    if fetch_errors:
+        result["fetch_errors"] = fetch_errors
+
+    return result
 
 
 def run_full_analysis(
     data: Optional[Dict] = None,
     scenarios: Optional[List[Dict]] = None,
     include_spillover: bool = True,
+    force_refresh: bool = False,
+    cache_dir: Optional[str] = None,
 ) -> Dict:
-    """完整分析：現況 + 壓測 + 外溢"""
+    """
+    完整分析：現況 + 壓測 + 外溢
+
+    Args:
+        data: 預先獲取的數據（如果為 None，會自動抓取）
+        scenarios: 壓力測試情境
+        include_spillover: 是否包含外溢通道分析
+        force_refresh: 強制刷新數據
+        cache_dir: 緩存目錄
+    """
+    data_sources = {}
+    fetch_errors = []
+
     if data is None:
-        data = SAMPLE_DATA
+        # 使用數據管理器獲取實時數據
+        if HAS_DATA_MANAGER:
+            try:
+                manager = JapanDebtDataManager(cache_dir=cache_dir)
+                data = manager.get_all_data(
+                    force_refresh=force_refresh,
+                    include_tic=include_spillover,
+                )
+                data_sources = data.get("data_sources", {})
+                fetch_errors = data.get("fetch_errors") or []
+            except Exception as e:
+                fetch_errors.append(f"數據管理器錯誤: {e}")
+                data = SAMPLE_DATA
+                data_sources = {"all": "fallback"}
+        else:
+            data = SAMPLE_DATA
+            data_sources = {"all": "fallback (no data_manager)"}
+
     if scenarios is None:
         scenarios = DEFAULT_SCENARIOS
 
@@ -385,7 +460,11 @@ def run_full_analysis(
         },
         "stress_tests": stress_results,
         "headline_takeaways": _generate_takeaways(ratio, band, yield_stats, stress_results),
+        "data_sources": data_sources,
     }
+
+    if fetch_errors:
+        result["fetch_errors"] = fetch_errors
 
     # 外溢通道（可選）
     if include_spillover and "us_assets" in data:
@@ -534,6 +613,14 @@ def main():
         "--no-spillover", action="store_true",
         help="不包含外溢通道分析"
     )
+    parser.add_argument(
+        "--refresh", action="store_true",
+        help="強制刷新數據（忽略緩存）"
+    )
+    parser.add_argument(
+        "--cache-dir", type=str, metavar="DIR",
+        help="指定緩存目錄"
+    )
 
     args = parser.parse_args()
 
@@ -543,7 +630,10 @@ def main():
 
     # 執行分析
     if args.quick:
-        result = run_quick_check()
+        result = run_quick_check(
+            force_refresh=args.refresh,
+            cache_dir=args.cache_dir,
+        )
     elif args.stress:
         # 單一壓測情境
         scenarios = [{
@@ -556,10 +646,14 @@ def main():
         result = run_full_analysis(
             scenarios=scenarios,
             include_spillover=not args.no_spillover,
+            force_refresh=args.refresh,
+            cache_dir=args.cache_dir,
         )
     else:  # args.full
         result = run_full_analysis(
             include_spillover=not args.no_spillover,
+            force_refresh=args.refresh,
+            cache_dir=args.cache_dir,
         )
 
     # 輸出
