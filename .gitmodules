@@ -1,3 +1,6 @@
 [submodule ".claude"]
 	path = .claude
 	url = https://github.com/fatfingererr/.claude.git
+[submodule "vendor/news-aggregator-skill"]
+	path = vendor/news-aggregator-skill
+	url = https://github.com/cclank/news-aggregator-skill
