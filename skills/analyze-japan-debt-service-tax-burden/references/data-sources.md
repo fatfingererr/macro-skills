@@ -68,6 +68,42 @@ url = "https://ticdata.treasury.gov/resource-center/data-chart-center/tic/Docume
 - **資料**: 對外資產負債表
 - **用途**: 估算對美資產總規模
 
+### 4. GDP 數據（用於計算 debt_to_gdp 和 debt_in_us_terms）
+
+#### 美國 GDP (FRED)
+- **系列**: `GDP`（季度名目 GDP）
+- **端點**: `https://fred.stlouisfed.org/graph/fredgraph.csv?id=GDP`
+- **單位**: 十億美元
+- **更新頻率**: 季度
+- **用途**: 計算「debt_in_us_terms」（若美國有相同債務/GDP比例）
+
+```python
+# 抓取美國 GDP（由 data_manager.py 自動執行）
+import pandas as pd
+url = "https://fred.stlouisfed.org/graph/fredgraph.csv?id=GDP"
+df = pd.read_csv(url, parse_dates=["DATE"])
+us_gdp_usd = df["GDP"].iloc[-1] * 1e9  # 十億美元 → 美元
+```
+
+#### 日本 GDP (FRED)
+- **系列**: `JPNNGDP`（日本名目 GDP，美元計）
+- **端點**: `https://fred.stlouisfed.org/graph/fredgraph.csv?id=JPNNGDP`
+- **單位**: 十億美元
+- **更新頻率**: 年度
+- **用途**: 驗證配置中的 `japan_gdp_jpy` 合理性
+
+```python
+# 抓取日本 GDP（由 data_manager.py 自動執行）
+url = "https://fred.stlouisfed.org/graph/fredgraph.csv?id=JPNNGDP"
+df = pd.read_csv(url, parse_dates=["DATE"])
+japan_gdp_usd = df["JPNNGDP"].iloc[-1] * 1e9
+```
+
+#### 日本 GDP（日圓計，配置維護）
+- **來源**: `config/fiscal_data.json` 中的 `japan_gdp_jpy`
+- **用途**: 計算 `debt_to_gdp = debt_stock_jpy / japan_gdp_jpy`
+- **注意**: 此值需手動維護，與財政數據同步更新
+
 ## 資料口徑說明
 
 ### 稅收口徑
@@ -102,3 +138,47 @@ url = "https://ticdata.treasury.gov/resource-center/data-chart-center/tic/Docume
 2. **會計年度差異**：日本財政年度為 4 月～3 月
 3. **口徑混用風險**：不同來源可能使用不同定義
 4. **預算 vs 決算**：預算數與實際執行數可能有差異
+
+## 緩存策略
+
+本 Skill 使用多層數據抓取與緩存機制：
+
+### 數據源優先級
+
+| 數據類型 | 優先級 1 | 優先級 2 | Fallback |
+|----------|----------|----------|----------|
+| JGB 殖利率 | FRED CSV | yfinance | 本地緩存/靜態 |
+| 財政數據 | config/fiscal_data.json | - | 硬編碼 fallback |
+| GDP 數據 | FRED CSV | - | 硬編碼 fallback |
+| TIC 持有 | TIC mfh.txt | - | 本地緩存/靜態 |
+
+### 緩存過期時間
+
+| 數據類型 | 緩存位置 | 過期時間 |
+|----------|----------|----------|
+| JGB 殖利率 | `data/cache/jgb_*.json` | 24 小時 |
+| GDP 數據 | `data/cache/gdp_data.json` | 7 天 |
+| TIC 持有 | `data/cache/tic_*.json` | 7 天 |
+| 財政數據 | `config/fiscal_data.json` | 手動更新 |
+
+### 驗證規則
+
+數據抓取後會進行範圍驗證：
+
+| 數據 | 最小值 | 最大值 |
+|------|--------|--------|
+| JGB 10Y | -0.5% | 5.0% |
+| 稅收 | 50 兆 | 100 兆 |
+| 利息支出 | 5 兆 | 35 兆 |
+| 債務存量 | 800 兆 | 1500 兆 |
+| US GDP | $20T | $40T |
+| Japan GDP | $3T | $8T |
+| UST 持有 | $500B | $2000B |
+
+### 強制刷新
+
+使用 `--refresh` 參數可忽略緩存強制抓取最新數據：
+
+```bash
+python scripts/japan_debt_analyzer.py --quick --refresh
+```

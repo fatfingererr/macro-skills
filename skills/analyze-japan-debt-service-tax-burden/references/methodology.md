@@ -10,6 +10,74 @@ interest_tax_ratio = interest_payments / tax_revenue
 - 0.333 = 利息吃掉 1/3 稅收
 - 0.50 = 利息吃掉 1/2 稅收
 
+### 1.1 國債費/稅收比（Debt Service Ratio）
+
+**定義**：
+```
+debt_service_tax_ratio = debt_service / tax_revenue
+```
+
+其中 `debt_service` = 利息支出 + 本金償還（國債費總額）
+
+**重要**：媒體敘事「利息吃掉 1/3 稅收」通常**誤用此口徑**，將國債費（含本金）誤稱為「interest payments alone」。
+
+**FY2025 對照**：
+| 口徑 | 分子 | 分母 | 比例 |
+|------|------|------|------|
+| 純利息/稅收 | 10.5 兆 | 70 兆 | **15.0%** |
+| 國債費/稅收 | 28.2 兆 | 70 兆 | **40.3%** |
+
+### 1.2 隱含平均利率（Implied Average Rate）
+
+**定義**：
+```
+implied_avg_rate = interest_payments / debt_stock
+```
+
+**用途**：衡量存量債務的平均融資成本，對比當前市場利率可評估再融資壓力。
+
+**FY2025 計算**：
+```
+implied_avg_rate = 10.5 兆 / 1,324 兆 = 0.79% ≈ 0.8%
+```
+
+**解讀**：
+- 隱含利率 **0.8%** vs 當前 10Y 殖利率 **2.0%+**
+- 差距說明大量存量債務在低利率時期（YCC/零利率）發行
+- 隨著再融資，利息負擔將逐年攀升
+
+### 1.3 「in US terms」換算邏輯
+
+**背景**：媒體常將日本債務以「美國等效規模」表達以增強震撼效果。
+
+**換算公式**（動態計算）：
+```
+debt_to_gdp = japan_debt_stock / japan_gdp
+debt_in_us_terms = us_gdp × debt_to_gdp
+```
+
+**數據來源**：
+- `us_gdp`：從 FRED 系列 `GDP` 實時抓取
+- `japan_gdp`：從 FRED 系列 `JPNNGDP` 實時抓取，或使用配置中的 `japan_gdp_jpy`
+- `japan_debt_stock`：從 `fiscal_data.json` 配置讀取
+
+**計算範例**（數值會隨實時數據變動）：
+```python
+# 假設抓取到的數據
+us_gdp = $30.6T（FRED 最新）
+japan_gdp_jpy = ¥530 兆（配置）
+japan_debt_stock = ¥1,324 兆（配置）
+
+# 計算
+debt_to_gdp = 1324 / 530 = 2.50 (250%)
+debt_in_us_terms = $30.6T × 2.50 = $76.5T
+```
+
+**解讀**：
+- 這是「若美國有相同債務/GDP比例，債務規模會是多少」
+- 媒體稱「$70T」即來自此換算邏輯（口語化）
+- 用於跨國比較時統一規模感知
+
 ### 2. 風險分級
 
 | 區間      | 分級      | 含義                |

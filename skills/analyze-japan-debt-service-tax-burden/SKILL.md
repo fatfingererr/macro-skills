@@ -15,6 +15,43 @@ description: 以日本公債殖利率變化為觸發，量化「政府利息支�
 `interest_tax_ratio = interest_payments / tax_revenue`
 
 這是影片敘事「利息吃掉 1/3 稅收」的可核驗版本。不同口徑（國稅 vs 一般會計稅收 vs 總收入）會產生不同數值，必須明示口徑選擇。
+
+**口徑對照（FY2025）**：
+| 口徑 | 計算 | 比例 |
+|------|------|------|
+| 純利息/稅收 | 10.5兆/70兆 | **15.0%** |
+| 國債費/稅收 | 28.2兆/70兆 | **40.3%** |
+
+**注意**：媒體敘事「利息吃掉 1/3」通常誤用國債費（含本金）口徑。
+</principle>
+
+<principle name="implied_avg_rate">
+**隱含平均利率**
+
+`implied_avg_rate = interest_payments / debt_stock`
+
+衡量存量債務的平均融資成本。對比當前市場利率可評估再融資壓力。
+
+**FY2025**：10.5兆 / 1,324兆 = **0.79%** vs 當前 10Y 殖利率 **2.0%+**
+→ 差距反映大量存量債務在低利率時期發行，未來再融資將推高利息負擔。
+</principle>
+
+<principle name="debt_in_us_terms">
+**「in US terms」換算邏輯**
+
+媒體常用「美國等效規模」表達日本債務以增強震撼效果。
+
+**公式**（動態計算）：
+```
+debt_to_gdp = japan_debt_stock / japan_gdp
+debt_in_us_terms = us_gdp × debt_to_gdp
+```
+
+**數據來源**：GDP 從 FRED 實時抓取，非硬編碼。
+
+**範例**：$30.6T × 250% = **$76.5T** ≈ $70T（媒體口語化）
+
+**用途**：解釋影片/新聞中「$70T」數字的來源，用於跨國比較時統一規模感知。
 </principle>
 
 <principle name="yield_sensitivity">
@@ -73,14 +110,21 @@ python scripts/japan_debt_analyzer.py --quick
 ```json
 {
   "yield_stats": {"tenor": "10Y", "latest": 1.23, "percentile": 0.97},
-  "fiscal": {"interest_tax_ratio": 0.333, "risk_band": "yellow"},
-  "headline": "利息支出佔稅收 33.3%，處於黃燈區"
+  "fiscal": {"interest_tax_ratio": 0.15, "risk_band": "green"},
+  "headline": "利息支出佔稅收 15.0%，處於🟢 GREEN 區",
+  "data_sources": {"jgb_10y": "FRED/IRLTLT01JPM156N", "fiscal": "config/FY2025"}
 }
 ```
 
-**完整分析**：
+**完整分析（含實時數據刷新）**：
 ```bash
-python scripts/japan_debt_analyzer.py --full --scenarios default
+python scripts/japan_debt_analyzer.py --full --refresh
+```
+
+**單獨測試數據抓取**：
+```bash
+python scripts/fetch_jgb_yields.py --tenor 10Y
+python scripts/fetch_tic_holdings.py
 ```
 
 </quick_start>
@@ -217,13 +261,15 @@ python scripts/japan_debt_analyzer.py --full --scenarios default
 </templates_index>
 
 <scripts_index>
-| Script                 | Command    | Purpose            |
-|------------------------|------------|--------------------|
-| japan_debt_analyzer.py | `--quick`  | 快速檢查           |
-| japan_debt_analyzer.py | `--full`   | 完整分析           |
-| japan_debt_analyzer.py | `--stress` | 壓力測試           |
-| fetch_jgb_yields.py    |            | 抓取 JGB 殖利率    |
-| fetch_mof_fiscal.py    |            | 抓取財務省財政數據 |
+| Script                 | Command                      | Purpose                |
+|------------------------|------------------------------|------------------------|
+| japan_debt_analyzer.py | `--quick`                    | 快速檢查               |
+| japan_debt_analyzer.py | `--full`                     | 完整分析               |
+| japan_debt_analyzer.py | `--stress BP`                | 壓力測試               |
+| japan_debt_analyzer.py | `--refresh`                  | 強制刷新數據           |
+| fetch_jgb_yields.py    | `--tenor 10Y`                | 抓取 JGB 殖利率 (FRED) |
+| fetch_tic_holdings.py  | `--refresh`                  | 抓取 TIC 美債持有數據  |
+| data_manager.py        | `--fetch-all`                | 協調所有數據源抓取     |
 </scripts_index>
 
 <success_criteria>
@@ -254,10 +300,15 @@ analyze-japan-debt-service-tax-burden/
 ├── templates/
 │   ├── output-json.md                 # JSON 輸出模板
 │   └── output-markdown.md             # Markdown 報告模板
+├── config/
+│   └── fiscal_data.json               # 財政數據配置（手動維護）
 ├── scripts/
 │   ├── japan_debt_analyzer.py         # 主分析腳本
-│   ├── fetch_jgb_yields.py            # JGB 殖利率抓取
-│   └── fetch_mof_fiscal.py            # 財務省數據抓取
+│   ├── fetch_jgb_yields.py            # JGB 殖利率抓取 (FRED)
+│   ├── fetch_tic_holdings.py          # TIC 美債持有抓取
+│   └── data_manager.py                # 數據協調與緩存管理
+├── data/
+│   └── cache/                         # 自動緩存目錄（gitignore）
 └── examples/
     └── sample-output.json             # 範例輸出
 ```
