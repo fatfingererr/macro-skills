@@ -62,7 +62,7 @@ export default function SkillDetailPage() {
         <ol className="flex items-center space-x-2 text-sm">
           <li>
             <Link to="/skills" className="text-gray-500 hover:text-gray-700">
-              Skills
+              技能
             </Link>
           </li>
           <li className="text-gray-400">/</li>
