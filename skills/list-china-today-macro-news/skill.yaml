@@ -1,0 +1,85 @@
+# 前端展示專用（元資料從 manifest.json 讀取）
+displayName: 列出今日中國宏觀新聞消息
+emoji: "📰"
+authorUrl: https://github.com/fatfingererr/macro-skills
+
+tools:
+  - claude-code
+
+featured: false
+installCount: 0
+
+testQuestions:
+  - question: '今天中國有哪些宏觀新聞？'
+    expectedResult: |
+      從華爾街日報抓取今日中國宏觀相關新聞，輸出：
+      - 頭條焦點（3-5 條最重要新聞）
+      - 央行與貨幣政策相關
+      - 經濟數據解讀
+      - 雜誌風格排版，含來源連結
+
+  - question: '掃描一下華爾街日報，看看央行和利率相關新聞'
+    expectedResult: |
+      使用 --keyword "央行,利率,LPR,MLF,降息,降準" 篩選
+      輸出相關新聞列表，含 AI 深度解讀
+
+  - question: '幫我深度掃描今天的中國 PMI 和 GDP 相關消息'
+    expectedResult: |
+      使用 --keyword "PMI,GDP,經濟" --deep 抓取
+      提供文章正文內容的深度分析
+
+bestPractices:
+  - title: 使用預設宏觀關鍵字
+    description: 不指定 keyword 時，腳本會自動使用涵蓋央行、利率、GDP、PMI 等完整宏觀關鍵字
+  - title: 深度抓取用於重要新聞
+    description: 使用 --deep 可下載文章正文，適合對重要政策或數據做深度解讀
+  - title: 多源交叉驗證
+    description: 使用 --source all 可同時掃描華爾街日報和 36氪，獲得更全面的視角
+
+pitfalls:
+  - title: 關鍵字過於寬泛
+    description: 如果只用「經濟」可能匹配太多無關新聞
+    consequence: 報告雜訊過多，需要手動篩選
+  - title: API 限流
+    description: 頻繁請求可能觸發來源網站的限流
+    consequence: 建議每次掃描間隔 5 分鐘以上
+
+faq:
+  - question: 支援哪些新聞來源？
+    answer: |
+      目前支援：
+      - 華爾街日報（wallstreetcn）- 主要來源，宏觀/市場新聞即時性強
+      - 36氪（36kr）- 輔助來源，涵蓋經濟政策快訊
+
+  - question: 如何只看央行相關新聞？
+    answer: |
+      使用關鍵字篩選：
+      ```bash
+      python scripts/fetch_china_macro_news.py --keyword "央行,PBOC,利率,LPR,MLF,降息,降準"
+      ```
+
+  - question: 深度抓取會下載什麼內容？
+    answer: |
+      使用 --deep 後，腳本會：
+      1. 訪問每篇文章的原始 URL
+      2. 提取正文文字內容（最多 3000 字元）
+      3. 返回的 JSON 會包含 content 欄位
+
+about:
+  repository: https://github.com/fatfingererr/macro-skills
+  branch: main
+  additionalInfo: |
+    ## 使用場景
+
+    1. **開盤前晨會**：快速掃描列出今日中國宏觀新聞消息動態
+    2. **政策追蹤**：監控央行、利率、貨幣政策相關消息
+    3. **數據解讀**：獲取 PMI、CPI、GDP 等數據發布的市場解讀
+    4. **研究報告**：彙整宏觀新聞素材，生成研究摘要
+
+    ## 與 vendor/news-aggregator-skill 的關係
+
+    本 Skill 專注於中國宏觀經濟領域，基於 news-aggregator-skill 的
+    多源聚合 + 關鍵字篩選 + AI 解讀模式，但：
+    - 預設關鍵字針對宏觀經濟（央行、利率、GDP、PMI...）
+    - 主要來源為中文財經媒體（華爾街日報、36氪）
+    - 輸出風格為財經雜誌/晨報風格
