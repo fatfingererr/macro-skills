@@ -102,7 +102,7 @@ additional_interest ≈ debt_stock × pass_through × delta_yield
 
 ```bash
 cd skills/analyze-japan-debt-service-tax-burden
-pip install pandas numpy requests  # 首次使用
+pip install pandas numpy requests matplotlib  # 首次使用
 python scripts/japan_debt_analyzer.py --quick
 ```
 
@@ -121,6 +121,39 @@ python scripts/japan_debt_analyzer.py --quick
 python scripts/japan_debt_analyzer.py --full --refresh
 ```
 
+**生成視覺化 Dashboard**：
+```bash
+python scripts/generate_charts.py --full --output-dir ../../output
+```
+
+輸出：`output/japan_debt_dashboard_YYYYMMDD.png`
+
+Dashboard 包含：
+- Interest/Tax Ratio 風險儀表盤
+- 殖利率分位數指標
+- 財政數據摘要
+- 壓力測試情境比較圖
+
+**生成債務螺旋模擬圖表**：
+```bash
+# 完整多情境螺旋模擬
+python scripts/generate_spiral_chart.py --all --output-dir ../../output
+
+# 單一壓力情境（如 +200bp）
+python scripts/generate_spiral_chart.py --stress 200 --output-dir ../../output
+
+# 自定義模擬年數
+python scripts/generate_spiral_chart.py --years 15 --output-dir ../../output
+```
+
+輸出：`output/japan_debt_spiral_YYYY-MM-DD.png`
+
+螺旋模擬包含：
+- 多情境 Interest/Tax Ratio 10年演變曲線
+- 風險區間背景（綠/黃/橙/紅）
+- 利息支出分解堆疊圖
+- 各情境最終風險評估
+
 **單獨測試數據抓取**：
 ```bash
 python scripts/fetch_jgb_yields.py --tenor 10Y
@@ -135,19 +168,23 @@ python scripts/fetch_tic_holdings.py
 1. **快速檢查** - 查看最新的利息/稅收比與殖利率狀態
 2. **完整分析** - 執行完整的財政壓力測試與風險評估
 3. **情境壓測** - 自定義利率衝擊情境進行壓力測試
-4. **方法論學習** - 了解指標計算與風險分級邏輯
+4. **生成圖表** - 生成視覺化 Dashboard（PNG 圖檔）
+5. **債務螺旋模擬** - 模擬多年累積效應，生成螺旋演變圖表
+6. **方法論學習** - 了解指標計算與風險分級邏輯
 
 **請選擇或直接提供分析參數。**
 </intake>
 
 <routing>
-| Response                        | Workflow                   | Description      |
-|---------------------------------|----------------------------|------------------|
-| 1, "快速", "quick", "check"     | workflows/quick-check.md   | 快速狀態檢查     |
-| 2, "完整", "full", "analyze"    | workflows/full-analysis.md | 完整分析工作流   |
-| 3, "壓測", "stress", "scenario" | workflows/stress-test.md   | 情境壓力測試     |
-| 4, "學習", "方法論", "why"      | references/methodology.md  | 方法論說明       |
-| 提供參數 (如殖利率衝擊)         | workflows/stress-test.md   | 使用參數執行壓測 |
+| Response                        | Workflow                     | Description      |
+|---------------------------------|------------------------------|------------------|
+| 1, "快速", "quick", "check"     | workflows/quick-check.md     | 快速狀態檢查     |
+| 2, "完整", "full", "analyze"    | workflows/full-analysis.md   | 完整分析工作流   |
+| 3, "壓測", "stress", "scenario" | workflows/stress-test.md     | 情境壓力測試     |
+| 4, "圖表", "chart", "dashboard" | workflows/generate-chart.md  | 生成視覺化圖表   |
+| 5, "螺旋", "spiral", "多年"     | workflows/spiral-simulate.md | 債務螺旋模擬     |
+| 6, "學習", "方法論", "why"      | references/methodology.md    | 方法論說明       |
+| 提供參數 (如殖利率衝擊)         | workflows/stress-test.md     | 使用參數執行壓測 |
 
 **路由後，閱讀對應工作流程並完全遵循其步驟。**
 </routing>
@@ -246,11 +283,13 @@ python scripts/fetch_tic_holdings.py
 </reference_index>
 
 <workflows_index>
-| Workflow         | Purpose                      |
-|------------------|------------------------------|
-| quick-check.md   | 快速狀態檢查（1分鐘內完成）  |
-| full-analysis.md | 完整分析工作流（含所有步驟） |
-| stress-test.md   | 自定義情境壓力測試           |
+| Workflow            | Purpose                      |
+|---------------------|------------------------------|
+| quick-check.md      | 快速狀態檢查（1分鐘內完成）  |
+| full-analysis.md    | 完整分析工作流（含所有步驟） |
+| stress-test.md      | 自定義情境壓力測試           |
+| generate-chart.md   | 生成視覺化 Dashboard         |
+| spiral-simulate.md  | 債務螺旋多年模擬             |
 </workflows_index>
 
 <templates_index>
@@ -261,15 +300,21 @@ python scripts/fetch_tic_holdings.py
 </templates_index>
 
 <scripts_index>
-| Script                 | Command                      | Purpose                |
-|------------------------|------------------------------|------------------------|
-| japan_debt_analyzer.py | `--quick`                    | 快速檢查               |
-| japan_debt_analyzer.py | `--full`                     | 完整分析               |
-| japan_debt_analyzer.py | `--stress BP`                | 壓力測試               |
-| japan_debt_analyzer.py | `--refresh`                  | 強制刷新數據           |
-| fetch_jgb_yields.py    | `--tenor 10Y`                | 抓取 JGB 殖利率 (FRED) |
-| fetch_tic_holdings.py  | `--refresh`                  | 抓取 TIC 美債持有數據  |
-| data_manager.py        | `--fetch-all`                | 協調所有數據源抓取     |
+| Script                   | Command                      | Purpose                    |
+|--------------------------|------------------------------|----------------------------|
+| japan_debt_analyzer.py   | `--quick`                    | 快速檢查                   |
+| japan_debt_analyzer.py   | `--full`                     | 完整分析                   |
+| japan_debt_analyzer.py   | `--stress BP`                | 壓力測試                   |
+| japan_debt_analyzer.py   | `--refresh`                  | 強制刷新數據               |
+| generate_charts.py       | `--full --output-dir DIR`    | 生成視覺化 Dashboard       |
+| generate_charts.py       | `--quick`                    | 快速模式圖表               |
+| generate_charts.py       | `--data-file FILE`           | 從 JSON 載入數據           |
+| generate_spiral_chart.py | `--all --output-dir DIR`     | 完整債務螺旋模擬 Dashboard |
+| generate_spiral_chart.py | `--stress BP`                | 單一壓力情境螺旋圖         |
+| generate_spiral_chart.py | `--years N`                  | 自定義模擬年數（預設 10）  |
+| fetch_jgb_yields.py      | `--tenor 10Y`                | 抓取 JGB 殖利率 (FRED)     |
+| fetch_tic_holdings.py    | `--refresh`                  | 抓取 TIC 美債持有數據      |
+| data_manager.py          | `--fetch-all`                | 協調所有數據源抓取         |
 </scripts_index>
 
 <success_criteria>
@@ -292,7 +337,9 @@ analyze-japan-debt-service-tax-burden/
 ├── workflows/
 │   ├── quick-check.md                 # 快速檢查工作流
 │   ├── full-analysis.md               # 完整分析工作流
-│   └── stress-test.md                 # 壓力測試工作流
+│   ├── stress-test.md                 # 壓力測試工作流
+│   ├── generate-chart.md              # 圖表生成工作流
+│   └── spiral-simulate.md             # 債務螺旋模擬工作流
 ├── references/
 │   ├── data-sources.md                # 資料來源說明
 │   ├── methodology.md                 # 方法論與公式
@@ -304,6 +351,8 @@ analyze-japan-debt-service-tax-burden/
 │   └── fiscal_data.json               # 財政數據配置（手動維護）
 ├── scripts/
 │   ├── japan_debt_analyzer.py         # 主分析腳本
+│   ├── generate_charts.py             # 視覺化圖表生成
+│   ├── generate_spiral_chart.py       # 債務螺旋模擬圖表
 │   ├── fetch_jgb_yields.py            # JGB 殖利率抓取 (FRED)
 │   ├── fetch_tic_holdings.py          # TIC 美債持有抓取
 │   └── data_manager.py                # 數據協調與緩存管理
