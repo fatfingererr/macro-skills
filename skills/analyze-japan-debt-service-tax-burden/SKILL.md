@@ -1,0 +1,264 @@
+---
+name: analyze-japan-debt-service-tax-burden
+description: 以日本公債殖利率變化為觸發，量化「政府利息支出 / 稅收」負擔（含情境壓力測試），並判斷是否進入債務利息螺旋風險區。
+---
+
+# 分析日本債務利息負擔 Skill
+
+以公開數據量化日本「利息吃掉稅收」的敘事，提供可驗證的現況核對、敏感度分析與風險分級。
+
+<essential_principles>
+
+<principle name="interest_tax_ratio">
+**核心指標：利息/稅收比**
+
+`interest_tax_ratio = interest_payments / tax_revenue`
+
+這是影片敘事「利息吃掉 1/3 稅收」的可核驗版本。不同口徑（國稅 vs 一般會計稅收 vs 總收入）會產生不同數值，必須明示口徑選擇。
+</principle>
+
+<principle name="yield_sensitivity">
+**殖利率敏感度映射**
+
+把殖利率變動映射到利息支出增加：
+```
+additional_interest ≈ debt_stock × pass_through × delta_yield
+```
+
+其中 `pass_through` 是年度再定價/再融資比例（約 15%），`delta_yield` 以小數表示（200bp = 0.02）。
+</principle>
+
+<principle name="risk_bands">
+**風險分級（Traffic Light）**
+
+| 區間  | interest_tax_ratio | 含義                |
+|-------|--------------------|---------------------|
+| 🟢 綠 | < 0.25             | 財政彈性充足        |
+| 🟡 黃 | 0.25–0.40          | 財政彈性開始下降    |
+| 🟠 橘 | 0.40–0.55          | 政策空間明顯受限    |
+| 🔴 紅 | > 0.55             | 接近「2/3」敘事區域 |
+</principle>
+
+<principle name="data_transparency">
+**口徑透明原則**
+
+所有輸出必須標示：
+- 稅收口徑（national_tax / general_account_tax / total_revenue）
+- 利息口徑（interest_only / debt_service）
+- 資料年度與滯後（lag）
+- 再定價假設（pass_through）
+</principle>
+
+</essential_principles>
+
+<objective>
+量化日本「利息吃掉稅收」敘事，並提供：
+1. **現況核對**：當前 interest/tax ratio 與殖利率分位數
+2. **壓力測試**：不同利率衝擊情境下的未來負擔
+3. **風險分級**：可決策的 Traffic Light 評估
+4. **外溢通道**（選用）：日本對美資產規模與潛在影響
+</objective>
+
+<quick_start>
+
+**最快的方式：執行快速檢查**
+
+```bash
+cd skills/analyze-japan-debt-service-tax-burden
+pip install pandas numpy requests  # 首次使用
+python scripts/japan_debt_analyzer.py --quick
+```
+
+輸出範例：
+```json
+{
+  "yield_stats": {"tenor": "10Y", "latest": 1.23, "percentile": 0.97},
+  "fiscal": {"interest_tax_ratio": 0.333, "risk_band": "yellow"},
+  "headline": "利息支出佔稅收 33.3%，處於黃燈區"
+}
+```
+
+**完整分析**：
+```bash
+python scripts/japan_debt_analyzer.py --full --scenarios default
+```
+
+</quick_start>
+
+<intake>
+您想要執行什麼操作？
+
+1. **快速檢查** - 查看最新的利息/稅收比與殖利率狀態
+2. **完整分析** - 執行完整的財政壓力測試與風險評估
+3. **情境壓測** - 自定義利率衝擊情境進行壓力測試
+4. **方法論學習** - 了解指標計算與風險分級邏輯
+
+**請選擇或直接提供分析參數。**
+</intake>
+
+<routing>
+| Response                        | Workflow                   | Description      |
+|---------------------------------|----------------------------|------------------|
+| 1, "快速", "quick", "check"     | workflows/quick-check.md   | 快速狀態檢查     |
+| 2, "完整", "full", "analyze"    | workflows/full-analysis.md | 完整分析工作流   |
+| 3, "壓測", "stress", "scenario" | workflows/stress-test.md   | 情境壓力測試     |
+| 4, "學習", "方法論", "why"      | references/methodology.md  | 方法論說明       |
+| 提供參數 (如殖利率衝擊)         | workflows/stress-test.md   | 使用參數執行壓測 |
+
+**路由後，閱讀對應工作流程並完全遵循其步驟。**
+</routing>
+
+<input_schema>
+
+<parameter name="country" required="true" default="JP">
+**Type**: string
+**Description**: 固定 JP / Japan（預留擴展多國）
+</parameter>
+
+<parameter name="analysis_window_days" required="false" default="504">
+**Type**: int
+**Description**: 殖利率與市場指標分析視窗（交易日數）
+</parameter>
+
+<parameter name="yield_tenors" required="false" default='["2Y","10Y","30Y"]'>
+**Type**: array[string]
+**Description**: JGB 觀察期限
+</parameter>
+
+<parameter name="tax_revenue_series" required="false" default="general_account_tax">
+**Type**: string
+**Options**: `national_tax` | `general_account_tax` | `total_revenue`
+**Description**: 稅收口徑選擇
+</parameter>
+
+<parameter name="interest_payment_series" required="false" default="interest_only">
+**Type**: string
+**Options**: `interest_only` | `debt_service`
+**Description**: 利息支出口徑（純利息 vs 含本金償還）
+</parameter>
+
+<parameter name="stress_scenarios" required="false">
+**Type**: array[object]
+**Description**: 壓力測試情境設定
+
+每個情境包含：
+- `name` (string): 情境名稱
+- `delta_yield_bp` (int): 殖利率上升幅度（bp）
+- `pass_through_year1` (float): 第一年再定價比例（預設 0.15）
+- `pass_through_year2` (float): 第二年再定價比例（預設 0.15）
+- `tax_shock` (float): 稅收衝擊（如 -0.05 表示下降 5%）
+</parameter>
+
+<parameter name="include_us_assets_channel" required="false" default="true">
+**Type**: boolean
+**Description**: 是否計算日本對美資產外溢通道
+</parameter>
+
+<parameter name="output_format" required="false" default="markdown">
+**Type**: string
+**Options**: `json` | `markdown`
+</parameter>
+
+</input_schema>
+
+<output_schema>
+參見 `templates/output-json.md` 的完整結構定義。
+
+**摘要**：
+```json
+{
+  "skill": "analyze_japan_debt_service_tax_burden",
+  "as_of": "2026-01-20",
+  "yield_stats": {
+    "tenor": "10Y",
+    "latest": 1.23,
+    "zscore": 2.10,
+    "percentile": 0.97,
+    "interpretation": "近兩年分位數 97%，屬於偏極端區"
+  },
+  "fiscal": {
+    "tax_revenue_jpy": 72000000000000,
+    "interest_payments_jpy": 24000000000000,
+    "debt_stock_jpy": 1200000000000000,
+    "interest_tax_ratio": 0.333,
+    "risk_band": "yellow",
+    "definition": {...}
+  },
+  "stress_tests": [...],
+  "spillover_channel": {...},
+  "headline_takeaways": [...]
+}
+```
+</output_schema>
+
+<reference_index>
+**參考文件** (`references/`)
+
+| 文件                      | 內容                                       |
+|---------------------------|--------------------------------------------|
+| data-sources.md           | 資料來源與 API 端點（MOF、BOJ、FRED、TIC） |
+| methodology.md            | 計算方法論與風險分級邏輯                   |
+| japan-fiscal-structure.md | 日本財政結構與債務特徵                     |
+</reference_index>
+
+<workflows_index>
+| Workflow         | Purpose                      |
+|------------------|------------------------------|
+| quick-check.md   | 快速狀態檢查（1分鐘內完成）  |
+| full-analysis.md | 完整分析工作流（含所有步驟） |
+| stress-test.md   | 自定義情境壓力測試           |
+</workflows_index>
+
+<templates_index>
+| Template           | Purpose           |
+|--------------------|-------------------|
+| output-json.md     | JSON 輸出結構定義 |
+| output-markdown.md | Markdown 報告模板 |
+</templates_index>
+
+<scripts_index>
+| Script                 | Command    | Purpose            |
+|------------------------|------------|--------------------|
+| japan_debt_analyzer.py | `--quick`  | 快速檢查           |
+| japan_debt_analyzer.py | `--full`   | 完整分析           |
+| japan_debt_analyzer.py | `--stress` | 壓力測試           |
+| fetch_jgb_yields.py    |            | 抓取 JGB 殖利率    |
+| fetch_mof_fiscal.py    |            | 抓取財務省財政數據 |
+</scripts_index>
+
+<success_criteria>
+Skill 成功執行時：
+
+- [ ] 輸出當前 interest/tax ratio 與風險分級
+- [ ] 殖利率分位數/Z-score 判斷是否極端
+- [ ] 壓力測試結果含敏感度分析
+- [ ] 明確標示資料口徑與滯後
+- [ ] 若啟用，輸出外溢通道評估
+- [ ] 可操作的 headline takeaways
+</success_criteria>
+
+<directory_structure>
+```
+analyze-japan-debt-service-tax-burden/
+├── SKILL.md                           # 本文件（路由器）
+├── skill.yaml                         # 前端展示元數據
+├── manifest.json                      # 技能元資料
+├── workflows/
+│   ├── quick-check.md                 # 快速檢查工作流
+│   ├── full-analysis.md               # 完整分析工作流
+│   └── stress-test.md                 # 壓力測試工作流
+├── references/
+│   ├── data-sources.md                # 資料來源說明
+│   ├── methodology.md                 # 方法論與公式
+│   └── japan-fiscal-structure.md      # 日本財政結構
+├── templates/
+│   ├── output-json.md                 # JSON 輸出模板
+│   └── output-markdown.md             # Markdown 報告模板
+├── scripts/
+│   ├── japan_debt_analyzer.py         # 主分析腳本
+│   ├── fetch_jgb_yields.py            # JGB 殖利率抓取
+│   └── fetch_mof_fiscal.py            # 財務省數據抓取
+└── examples/
+    └── sample-output.json             # 範例輸出
+```
+</directory_structure>

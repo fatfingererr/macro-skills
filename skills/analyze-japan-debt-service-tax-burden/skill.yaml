@@ -1,0 +1,145 @@
+# 前端展示專用（元資料從 manifest.json 讀取）
+displayName: 分析日本債務利息負擔
+emoji: "💴"
+authorUrl: https://github.com/fatfingererr/macro-skills
+
+tools:
+  - claude-code
+
+featured: false
+installCount: 0
+
+testQuestions:
+  - question: '分析日本當前的債務利息支出佔稅收比例'
+    expectedResult: |
+      此分析器會：
+      1. 從日本財務省/BOJ 抓取最新財政與殖利率數據
+      2. 計算 interest/tax ratio（利息/稅收比）
+      3. 判斷風險分級（綠/黃/橘/紅）
+      4. 輸出結構化結果與解讀
+
+  - question: '如果日本10年期國債殖利率上升200bp，利息負擔會如何變化？'
+    expectedResult: |
+      壓力測試會：
+      1. 以當前債務存量為基礎
+      2. 假設年度再定價比例（約15%）
+      3. 計算利率衝擊後的新利息支出
+      4. 重新計算 interest/tax ratio 與風險分級
+      5. 輸出一年/兩年後的壓測結果
+
+  - question: '日本持有多少美國資產？會不會因為財政壓力而拋售？'
+    expectedResult: |
+      外溢通道分析會：
+      1. 從 TIC 抓取日本持有美國證券數據
+      2. 估算日本對美資產總規模（約 $3T）
+      3. 說明潛在通道與量級
+      4. 強調「是否拋售」屬行為假設，需謹慎解讀
+
+qualityScore:
+  overall: 70
+  badge: 白銀
+  metrics:
+    architecture: 80
+    maintainability: 75
+    content: 85
+    community: 10
+    security: 95
+    compliance: 80
+  details: |
+    **架構（80/100）**
+    - 清晰的三層分析架構（現況/壓測/外溢）
+    - 模組化腳本設計
+    - 多數據源支援
+
+    **可維護性（75/100）**
+    - 工作流程分離清晰
+    - 參數定義完整
+    - 口徑選擇可配置
+
+    **內容（85/100）**
+    - 完整的方法論文檔
+    - 風險分級邏輯透明
+    - 敘事核對功能實用
+
+    **社區（10/100）**
+    - 新技能，尚無社區貢獻
+
+    **安全（95/100）**
+    - 僅讀取公開經濟數據
+    - 無需 API key
+
+    **規範符合性（80/100）**
+    - 遵循 Claude Code 規範
+    - 完整的文件結構
+
+bestPractices:
+  - title: 明示口徑選擇
+    description: 不同稅收/利息口徑會產生不同數值，務必標示使用的口徑
+
+  - title: 注意資料滯後
+    description: 財政數據通常有1-2年滯後，殖利率為即時數據，兩者時間點不同
+
+  - title: 壓測假設透明
+    description: pass_through 是結構性假設，若無實際再融資數據需明確標示
+
+  - title: 外溢謹慎解讀
+    description: 「持有資產」不等於「會拋售」，只標示通道與量級，不做行為預測
+
+pitfalls:
+  - title: 混淆利息與本金
+    description: 「利息支出」與「債務服務（含本金償還）」是不同概念
+    consequence: 可能高估或低估真實利息負擔
+
+  - title: 忽略再定價滯後
+    description: 利率上升不會立即影響所有存量債務
+    consequence: 可能過度高估短期衝擊
+
+  - title: 直接採信媒體數字
+    description: 「1/3」「2/3」等敘事可能使用不同口徑
+    consequence: 無法進行有意義的比較與追蹤
+
+faq:
+  - question: 為什麼我的計算結果和媒體報導不同？
+    answer: |
+      可能原因：
+      1. **口徑不同**：國稅 vs 一般會計稅收 vs 總收入
+      2. **年度不同**：財政數據有滯後，可能用不同財政年度
+      3. **利息定義**：純利息 vs 含本金償還的債務服務
+
+      建議：同時輸出多口徑結果進行對照。
+
+  - question: pass_through 參數應該設多少？
+    answer: |
+      日本政府債務平均到期約 8-9 年，意味著每年約 11-12% 的存量債務到期需要再融資。
+
+      考慮新發債務，15% 是合理的保守估計。若有實際發債/到期數據，可更精確計算。
+
+  - question: 紅燈代表什麼？日本會違約嗎？
+    answer: |
+      紅燈（>55%）表示財政彈性極度受限，**不代表會違約**。
+
+      日本有多個特殊因素：
+      - 95%+ 債務由國內持有
+      - 央行持有大量國債
+      - 經常帳順差提供外匯緩衝
+
+      風險分級僅供敘事對照，不是違約預測。
+
+about:
+  repository: https://github.com/fatfingererr/macro-skills
+  branch: main
+  additionalInfo: |
+    ## 使用情境
+
+    當你看到以下敘事時，可以用這個 Skill 核對：
+    - 「日債殖利率飆升到 40 年新高」
+    - 「利息支出吃掉 1/3 稅收」
+    - 「日本可能被迫拋售美債」
+    - 「債務利息螺旋」
+
+    ## 核心價值
+
+    把**敘事轉換為可驗證的數據**，並提供：
+    - 口徑透明的現況核對
+    - 可重現的壓力測試
+    - 不誇張的風險評估
