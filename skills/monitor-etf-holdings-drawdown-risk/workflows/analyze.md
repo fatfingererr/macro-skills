@@ -194,6 +194,23 @@ python scripts/divergence_detector.py \
   --output result.json
 ```
 
+## Step 10: 生成視覺化報告（可選）
+
+使用 `visualize_divergence.py` 生成完整的圖表報告：
+
+```bash
+python scripts/visualize_divergence.py \
+  --result result.json \
+  --output ../../../output/
+```
+
+**輸出內容**：
+- PNG 圖表（高解析度 300 DPI）
+- PDF 報告
+- 包含：價格-庫存時間序列、壓力分數儀表盤、關鍵指標表格
+
+**檔名格式**：`{ETF}_divergence_report_{YYYYMMDD}.png`
+
 </process>
 
 <success_criteria>
@@ -207,4 +224,5 @@ python scripts/divergence_detector.py \
 - [ ] 兩種對立假設解釋
 - [ ] 下一步驗證建議清單
 - [ ] 結果輸出為指定格式
+- [ ] **視覺化報告**（PNG + PDF）
 </success_criteria>

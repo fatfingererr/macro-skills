@@ -73,19 +73,20 @@ def fetch_price_series(symbol, start_date, end_date):
 
 **可用代碼**：
 
-| 代碼 | 名稱 | 說明 |
-|------|------|------|
-| XAGUSD=X | 白銀現貨 | Silver Spot |
-| XAUUSD=X | 黃金現貨 | Gold Spot |
-| SI=F | 白銀期貨近月 | Silver Futures Front Month |
-| GC=F | 黃金期貨近月 | Gold Futures Front Month |
-| SLV | SLV ETF | iShares Silver Trust |
-| GLD | GLD ETF | SPDR Gold Shares |
+| 代碼 | 名稱 | 說明 | 狀態 |
+|------|------|------|------|
+| ~~XAGUSD=X~~ | ~~白銀現貨~~ | ~~Silver Spot~~ | ❌ 已失效 |
+| ~~XAUUSD=X~~ | ~~黃金現貨~~ | ~~Gold Spot~~ | ❌ 已失效 |
+| **SI=F** | **白銀期貨近月** | Silver Futures Front Month | ✅ 推薦使用 |
+| **GC=F** | **黃金期貨近月** | Gold Futures Front Month | ✅ 推薦使用 |
+| SLV | SLV ETF | iShares Silver Trust | ✅ 可用 |
+| GLD | GLD ETF | SPDR Gold Shares | ✅ 可用 |
 
 **注意事項**：
-- 使用 `Adj Close`（調整後收盤價）
+- **2026-01 更新**：Yahoo Finance 的現貨代碼（XAGUSD=X, XAUUSD=X）已失效，改用期貨代碼（SI=F, GC=F）
+- 使用 `Close`（收盤價）
 - 週末與假日無數據
-- 現貨價格 (=X) 可能有數據品質問題
+- 期貨價格與現貨價格高度相關，適合用於背離分析
 
 ## 交叉驗證數據源
 

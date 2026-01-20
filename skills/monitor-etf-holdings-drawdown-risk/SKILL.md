@@ -78,32 +78,42 @@ stress_score = 100 × min(1.0,
 
 ```bash
 cd skills/monitor-etf-holdings-drawdown-risk
-pip install pandas numpy yfinance selenium webdriver-manager beautifulsoup4  # 首次使用
-python scripts/divergence_detector.py --etf SLV --commodity XAGUSD --quick
+pip install pandas numpy yfinance selenium webdriver-manager beautifulsoup4 matplotlib  # 首次使用
+python scripts/divergence_detector.py --etf SLV --quick
 ```
 
 輸出範例：
 ```json
 {
-  "asof": "2026-01-16",
-  "divergence": true,
-  "price_return_window": 0.32,
-  "inventory_change_window": -0.18,
-  "inventory_decade_low": true,
-  "stress_score_0_100": 78.5,
+  "asof": "2026-01-20",
+  "divergence": false,
+  "price_return_window": 1.92,
+  "inventory_change_window": 0.15,
+  "inventory_decade_low": false,
+  "stress_score_0_100": 20.0,
   "interpretations": ["Physical Tightness", "ETF Flow Hypothesis"]
 }
 ```
 
-**完整分析**：
+**完整分析 + 視覺化報告**：
 ```bash
+# 1. 執行背離偵測
 python scripts/divergence_detector.py \
   --etf SLV \
-  --commodity XAGUSD \
   --start 2010-01-01 \
-  --end 2026-01-01 \
+  --end 2026-01-20 \
   --output result.json
+
+# 2. 生成視覺化報告
+python scripts/visualize_divergence.py \
+  --result result.json \
+  --output ../../../output/
 ```
+
+**輸出**：
+- JSON 分析結果：`result.json`
+- 視覺化報告：`output/SLV_divergence_report_20260120.png`
+- PDF 報告：`output/SLV_divergence_report_20260120.pdf`
 
 </quick_start>
 
@@ -192,10 +202,11 @@ monitor-etf-holdings-drawdown-risk/
 <scripts_index>
 | Script                  | Command                                 | Purpose              |
 |-------------------------|-----------------------------------------|----------------------|
-| divergence_detector.py  | `--etf SLV --commodity XAGUSD --quick`  | 快速檢查背離狀態     |
+| divergence_detector.py  | `--etf SLV --quick`                     | 快速檢查背離狀態     |
 | divergence_detector.py  | `--start DATE --end DATE --output FILE` | 完整歷史分析         |
+| visualize_divergence.py | `--result result.json --output DIR`     | 生成視覺化報告       |
 | fetch_etf_holdings.py   | `--etf SLV --output holdings.csv`       | 抓取 ETF 庫存        |
-| fetch_prices.py         | `--symbol XAGUSD --output prices.csv`   | 抓取商品價格         |
+| fetch_prices.py         | `--symbol SI=F --output prices.csv`     | 抓取商品價格         |
 </scripts_index>
 
 <input_schema_summary>
