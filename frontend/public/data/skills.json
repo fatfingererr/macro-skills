@@ -832,9 +832,7 @@
       "實物短缺",
       "白銀",
       "黃金",
-      "SLV",
-      "GLD",
-      "PSLV",
+      "交割風險",
       "供需分析",
       "宏觀經濟"
     ],
@@ -845,18 +843,21 @@
     ],
     "featured": false,
     "installCount": 0,
-    "content": "<essential_principles>\r\n\r\n<principle name=\"divergence_core\">\r\n**背離訊號核心邏輯**\r\n\r\n背離事件定義：\r\n- **價格上漲**：`price_return >= min_price_return_pct`（如 +15%）\r\n- **庫存下滑**：`inventory_change <= -min_inventory_drawdown_pct`（如 -10%）\r\n- **同時發生**：在相同視窗期（如 180 天）內同時滿足\r\n\r\n當價格與庫存同向時（同漲同跌）為正常；**逆向時**（價漲庫跌）才需要警覺。\r\n</principle>\r\n\r\n<principle name=\"dual_hypothesis\">\r\n**雙重假設驗證**\r\n\r\n不能直接把「庫存下降」解讀為「實物被搶」，需要交叉驗證：\r\n\r\n| 假設 | 支持條件 | 反駁條件 |\r\n|------|----------|----------|\r\n| **實物緊張** | COMEX/LBMA 下降、backwardation、lease rates 上升、零售溢價擴大 | 其他庫存穩定、contango、溢價平穩 |\r\n| **資金流/贖回** | ETF 流出但交易所庫存穩定、期貨結構不緊 | 多重庫存同步下降 |\r\n\r\n**輸出兩種解釋，讓用戶判斷哪個更符合當前數據。**\r\n</principle>\r\n\r\n<principle name=\"data_access\">\r\n**資料取得方式**\r\n\r\n本 skill 優先使用：\r\n- **ETF 官網庫存**：Selenium 模擬人類瀏覽器行為抓取（避免 API 限制）\r\n- **Yahoo Finance**：`yfinance` 套件取得現貨/期貨價格\r\n- **交叉驗證**：COMEX 庫存、期貨結構等公開數據\r\n\r\n腳本位於 `scripts/` 目錄，遵循 `references/data-sources.md` 的反偵測策略。\r\n</principle>\r\n\r\n<principle name=\"stress_scoring\">\r\n**壓力分數計算**\r\n\r\n```\r\nstress_score = 100 × min(1.0,\r\n    0.6 × divergence_severity +      # 背離嚴重度\r\n    0.2 × decade_low_bonus +         # 十年低點加成\r\n    0.2 × ratio_extreme_bonus        # 比值極端加成\r\n)\r\n```\r\n\r\n| 分數區間 | 解讀 |\r\n|----------|------|\r\n| 0-30     | 正常，無明顯背離 |\r\n| 30-60    | 輕度背離，值得關注 |\r\n| 60-80    | 中度背離，建議深入驗證 |\r\n| 80-100   | 重度背離，高度警戒 |\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n監控實物型 ETF（如 SLV、PSLV、GLD）的持倉與商品價格背離現象：\r\n\r\n1. **偵測背離**：價格上漲但 ETF 庫存下滑\r\n2. **評估嚴重度**：計算背離程度、十年低點、比值極端\r\n3. **交叉驗證**：使用 COMEX、期貨結構、零售溢價等指標\r\n4. **產出洞察**：提供兩種對立假設，避免單一敘事偏誤\r\n\r\n輸出：背離狀態、壓力分數、交叉驗證結果、下一步檢查建議。\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：檢查 SLV 背離狀態**\r\n\r\n```bash\r\ncd skills/monitor-etf-holdings-drawdown-risk\r\npip install pandas numpy yfinance selenium webdriver-manager beautifulsoup4  # 首次使用\r\npython scripts/divergence_detector.py --etf SLV --commodity XAGUSD --quick\r\n```\r\n\r\n輸出範例：\r\n```json\r\n{\r\n  \"asof\": \"2026-01-16\",\r\n  \"divergence\": true,\r\n  \"price_return_window\": 0.32,\r\n  \"inventory_change_window\": -0.18,\r\n  \"inventory_decade_low\": true,\r\n  \"stress_score_0_100\": 78.5,\r\n  \"interpretations\": [\"Physical Tightness\", \"ETF Flow Hypothesis\"]\r\n}\r\n```\r\n\r\n**完整分析**：\r\n```bash\r\npython scripts/divergence_detector.py \\\r\n  --etf SLV \\\r\n  --commodity XAGUSD \\\r\n  --start 2010-01-01 \\\r\n  --end 2026-01-01 \\\r\n  --output result.json\r\n```\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼操作？\r\n\r\n1. **快速檢查** - 查看指定 ETF 目前的背離狀態與壓力分數\r\n2. **完整分析** - 執行完整的歷史背離分析\r\n3. **交叉驗證** - 使用多指標驗證背離訊號的真實性\r\n4. **監控模式** - 設定持續監控與背離警報\r\n5. **方法論學習** - 了解背離偵測與雙重假設邏輯\r\n\r\n**請選擇或直接提供分析參數（如 ETF 代碼）。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                        | Action                                        |\r\n|---------------------------------|-----------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"check\"     | 執行 `scripts/divergence_detector.py --quick` |\r\n| 2, \"分析\", \"analyze\", \"full\"    | 閱讀 `workflows/analyze.md` 並執行            |\r\n| 3, \"驗證\", \"validate\", \"cross\"  | 閱讀 `workflows/cross-validate.md` 並執行     |\r\n| 4, \"監控\", \"monitor\", \"alert\"   | 閱讀 `workflows/monitor.md` 並執行            |\r\n| 5, \"學習\", \"方法論\", \"why\"      | 閱讀 `references/methodology.md`              |\r\n| 提供 ETF 代碼 (如 SLV, GLD)     | 閱讀 `workflows/analyze.md` 並使用參數執行    |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\nmonitor-etf-holdings-drawdown-risk/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── manifest.json                      # 技能元數據\r\n├── workflows/\r\n│   ├── analyze.md                     # 完整背離分析工作流\r\n│   ├── monitor.md                     # 持續監控工作流\r\n│   └── cross-validate.md              # 交叉驗證工作流\r\n├── references/\r\n│   ├── data-sources.md                # ETF 庫存與價格資料來源\r\n│   ├── methodology.md                 # 背離偵測方法論\r\n│   └── input-schema.md                # 完整輸入參數定義\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n└── scripts/\r\n    ├── divergence_detector.py         # 主偵測腳本\r\n    ├── fetch_etf_holdings.py          # ETF 庫存抓取（Selenium）\r\n    └── fetch_prices.py                # 價格數據抓取\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**方法論**: references/methodology.md\r\n- 背離偵測邏輯\r\n- 雙重假設驗證框架\r\n- 壓力分數計算\r\n\r\n**資料來源**: references/data-sources.md\r\n- ETF 官網庫存抓取（Selenium）\r\n- Yahoo Finance 價格數據\r\n- 交叉驗證數據源（COMEX、LBMA）\r\n\r\n**輸入參數**: references/input-schema.md\r\n- 完整參數定義\r\n- 預設值與建議範圍\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow          | Purpose          | 使用時機               |\r\n|-------------------|------------------|------------------------|\r\n| analyze.md        | 完整背離分析     | 需要完整歷史分析時     |\r\n| monitor.md        | 持續監控狀態     | 日常監控或警報         |\r\n| cross-validate.md | 交叉驗證背離訊號 | 確認背離真實性時       |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose             |\r\n|--------------------|---------------------|\r\n| output-json.md     | JSON 輸出結構定義   |\r\n| output-markdown.md | Markdown 報告模板   |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script                  | Command                                 | Purpose              |\r\n|-------------------------|-----------------------------------------|----------------------|\r\n| divergence_detector.py  | `--etf SLV --commodity XAGUSD --quick`  | 快速檢查背離狀態     |\r\n| divergence_detector.py  | `--start DATE --end DATE --output FILE` | 完整歷史分析         |\r\n| fetch_etf_holdings.py   | `--etf SLV --output holdings.csv`       | 抓取 ETF 庫存        |\r\n| fetch_prices.py         | `--symbol XAGUSD --output prices.csv`   | 抓取商品價格         |\r\n</scripts_index>\r\n\r\n<input_schema_summary>\r\n\r\n**核心參數**\r\n\r\n| 參數                   | 類型   | 預設值     | 說明                       |\r\n|------------------------|--------|------------|----------------------------|\r\n| etf_ticker             | string | (必填)     | ETF/信託代碼（如 SLV）     |\r\n| commodity_price_symbol | string | (必填)     | 商品價格代碼（如 XAGUSD）  |\r\n| start_date             | string | 10Y 前     | 分析起始日                 |\r\n| end_date               | string | today      | 分析結束日                 |\r\n\r\n**背離參數**\r\n\r\n| 參數                       | 類型  | 預設值 | 說明                   |\r\n|----------------------------|-------|--------|------------------------|\r\n| divergence_window_days     | int   | 180    | 背離計算視窗（天）     |\r\n| decade_low_window_days     | int   | 3650   | 十年低點視窗（天）     |\r\n| min_price_return_pct       | float | 0.15   | 價格上漲門檻           |\r\n| min_inventory_drawdown_pct | float | 0.10   | 庫存下滑門檻           |\r\n\r\n完整參數定義見 `references/input-schema.md`。\r\n\r\n</input_schema_summary>\r\n\r\n<output_schema_summary>\r\n```json\r\n{\r\n  \"skill\": \"monitor-etf-holdings-drawdown-risk\",\r\n  \"asof\": \"2026-01-16\",\r\n  \"inputs\": {\r\n    \"etf_ticker\": \"SLV\",\r\n    \"commodity_price_symbol\": \"XAGUSD\"\r\n  },\r\n  \"result\": {\r\n    \"divergence\": true,\r\n    \"price_return_window\": 0.32,\r\n    \"inventory_change_window\": -0.18,\r\n    \"inventory_decade_low\": true,\r\n    \"inventory_to_price_ratio_z\": -2.4,\r\n    \"stress_score_0_100\": 78.5\r\n  },\r\n  \"interpretations\": [...],\r\n  \"next_checks\": [...]\r\n}\r\n```\r\n\r\n完整輸出結構見 `templates/output-json.md`。\r\n</output_schema_summary>\r\n\r\n<success_criteria>\r\n執行成功時應產出：\r\n\r\n- [ ] 背離狀態判定（divergence: true/false）\r\n- [ ] 價格變化與庫存變化數值\r\n- [ ] 十年低點判定\r\n- [ ] 庫存/價格比值 Z 分數\r\n- [ ] 壓力分數（0-100）\r\n- [ ] 兩種對立假設解釋\r\n- [ ] 下一步驗證建議清單\r\n</success_criteria>",
+    "content": "<essential_principles>\r\n\r\n<principle name=\"divergence_core\">\r\n**背離訊號核心邏輯**\r\n\r\n背離事件定義：\r\n- **價格上漲**：`price_return >= min_price_return_pct`（如 +15%）\r\n- **庫存下滑**：`inventory_change <= -min_inventory_drawdown_pct`（如 -10%）\r\n- **同時發生**：在相同視窗期（如 180 天）內同時滿足\r\n\r\n當價格與庫存同向時（同漲同跌）為正常；**逆向時**（價漲庫跌）才需要警覺。\r\n</principle>\r\n\r\n<principle name=\"dual_hypothesis\">\r\n**雙重假設驗證**\r\n\r\n不能直接把「庫存下降」解讀為「實物被搶」，需要交叉驗證：\r\n\r\n| 假設 | 支持條件 | 反駁條件 |\r\n|------|----------|----------|\r\n| **實物緊張** | COMEX/LBMA 下降、backwardation、lease rates 上升、零售溢價擴大 | 其他庫存穩定、contango、溢價平穩 |\r\n| **資金流/贖回** | ETF 流出但交易所庫存穩定、期貨結構不緊 | 多重庫存同步下降 |\r\n\r\n**輸出兩種解釋，讓用戶判斷哪個更符合當前數據。**\r\n</principle>\r\n\r\n<principle name=\"data_access\">\r\n**資料取得方式**\r\n\r\n本 skill 優先使用：\r\n- **ETF 官網庫存**：Selenium 模擬人類瀏覽器行為抓取（避免 API 限制）\r\n- **Yahoo Finance**：`yfinance` 套件取得現貨/期貨價格\r\n- **交叉驗證**：COMEX 庫存、期貨結構等公開數據\r\n\r\n腳本位於 `scripts/` 目錄，遵循 `references/data-sources.md` 的反偵測策略。\r\n</principle>\r\n\r\n<principle name=\"stress_scoring\">\r\n**壓力分數計算**\r\n\r\n```\r\nstress_score = 100 × min(1.0,\r\n    0.6 × divergence_severity +      # 背離嚴重度\r\n    0.2 × decade_low_bonus +         # 十年低點加成\r\n    0.2 × ratio_extreme_bonus        # 比值極端加成\r\n)\r\n```\r\n\r\n| 分數區間 | 解讀 |\r\n|----------|------|\r\n| 0-30     | 正常，無明顯背離 |\r\n| 30-60    | 輕度背離，值得關注 |\r\n| 60-80    | 中度背離，建議深入驗證 |\r\n| 80-100   | 重度背離，高度警戒 |\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n監控實物型 ETF（如 SLV、PSLV、GLD）的持倉與商品價格背離現象：\r\n\r\n1. **偵測背離**：價格上漲但 ETF 庫存下滑\r\n2. **評估嚴重度**：計算背離程度、十年低點、比值極端\r\n3. **交叉驗證**：使用 COMEX、期貨結構、零售溢價等指標\r\n4. **產出洞察**：提供兩種對立假設，避免單一敘事偏誤\r\n\r\n輸出：背離狀態、壓力分數、交叉驗證結果、下一步檢查建議。\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：檢查 SLV 背離狀態**\r\n\r\n```bash\r\ncd skills/monitor-etf-holdings-drawdown-risk\r\npip install pandas numpy yfinance selenium webdriver-manager beautifulsoup4 matplotlib  # 首次使用\r\npython scripts/divergence_detector.py --etf SLV --quick\r\n```\r\n\r\n輸出範例：\r\n```json\r\n{\r\n  \"asof\": \"2026-01-20\",\r\n  \"divergence\": false,\r\n  \"price_return_window\": 1.92,\r\n  \"inventory_change_window\": 0.15,\r\n  \"inventory_decade_low\": false,\r\n  \"stress_score_0_100\": 20.0,\r\n  \"interpretations\": [\"Physical Tightness\", \"ETF Flow Hypothesis\"]\r\n}\r\n```\r\n\r\n**完整分析 + 視覺化報告**：\r\n```bash\r\n# 1. 執行背離偵測\r\npython scripts/divergence_detector.py \\\r\n  --etf SLV \\\r\n  --start 2010-01-01 \\\r\n  --end 2026-01-20 \\\r\n  --output result.json\r\n\r\n# 2. 生成視覺化報告\r\npython scripts/visualize_divergence.py \\\r\n  --result result.json \\\r\n  --output ../../../output/\r\n```\r\n\r\n**輸出**：\r\n- JSON 分析結果：`result.json`\r\n- 視覺化報告：`output/SLV_divergence_report_20260120.png`\r\n- PDF 報告：`output/SLV_divergence_report_20260120.pdf`\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼操作？\r\n\r\n1. **快速檢查** - 查看指定 ETF 目前的背離狀態與壓力分數\r\n2. **完整分析** - 執行完整的歷史背離分析\r\n3. **交叉驗證** - 使用多指標驗證背離訊號的真實性\r\n4. **監控模式** - 設定持續監控與背離警報\r\n5. **方法論學習** - 了解背離偵測與雙重假設邏輯\r\n\r\n**請選擇或直接提供分析參數（如 ETF 代碼）。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                        | Action                                        |\r\n|---------------------------------|-----------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"check\"     | 執行 `scripts/divergence_detector.py --quick` |\r\n| 2, \"分析\", \"analyze\", \"full\"    | 閱讀 `workflows/analyze.md` 並執行            |\r\n| 3, \"驗證\", \"validate\", \"cross\"  | 閱讀 `workflows/cross-validate.md` 並執行     |\r\n| 4, \"監控\", \"monitor\", \"alert\"   | 閱讀 `workflows/monitor.md` 並執行            |\r\n| 5, \"學習\", \"方法論\", \"why\"      | 閱讀 `references/methodology.md`              |\r\n| 提供 ETF 代碼 (如 SLV, GLD)     | 閱讀 `workflows/analyze.md` 並使用參數執行    |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\nmonitor-etf-holdings-drawdown-risk/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── manifest.json                      # 技能元數據\r\n├── workflows/\r\n│   ├── analyze.md                     # 完整背離分析工作流\r\n│   ├── monitor.md                     # 持續監控工作流\r\n│   └── cross-validate.md              # 交叉驗證工作流\r\n├── references/\r\n│   ├── data-sources.md                # ETF 庫存與價格資料來源\r\n│   ├── methodology.md                 # 背離偵測方法論\r\n│   └── input-schema.md                # 完整輸入參數定義\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n└── scripts/\r\n    ├── divergence_detector.py         # 主偵測腳本\r\n    ├── fetch_etf_holdings.py          # ETF 庫存抓取（Selenium）\r\n    └── fetch_prices.py                # 價格數據抓取\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**方法論**: references/methodology.md\r\n- 背離偵測邏輯\r\n- 雙重假設驗證框架\r\n- 壓力分數計算\r\n\r\n**資料來源**: references/data-sources.md\r\n- ETF 官網庫存抓取（Selenium）\r\n- Yahoo Finance 價格數據\r\n- 交叉驗證數據源（COMEX、LBMA）\r\n\r\n**輸入參數**: references/input-schema.md\r\n- 完整參數定義\r\n- 預設值與建議範圍\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow          | Purpose          | 使用時機               |\r\n|-------------------|------------------|------------------------|\r\n| analyze.md        | 完整背離分析     | 需要完整歷史分析時     |\r\n| monitor.md        | 持續監控狀態     | 日常監控或警報         |\r\n| cross-validate.md | 交叉驗證背離訊號 | 確認背離真實性時       |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose             |\r\n|--------------------|---------------------|\r\n| output-json.md     | JSON 輸出結構定義   |\r\n| output-markdown.md | Markdown 報告模板   |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script                  | Command                                 | Purpose              |\r\n|-------------------------|-----------------------------------------|----------------------|\r\n| divergence_detector.py  | `--etf SLV --quick`                     | 快速檢查背離狀態     |\r\n| divergence_detector.py  | `--start DATE --end DATE --output FILE` | 完整歷史分析         |\r\n| visualize_divergence.py | `--result result.json --output DIR`     | 生成視覺化報告       |\r\n| fetch_etf_holdings.py   | `--etf SLV --output holdings.csv`       | 抓取 ETF 庫存        |\r\n| fetch_prices.py         | `--symbol SI=F --output prices.csv`     | 抓取商品價格         |\r\n</scripts_index>\r\n\r\n<input_schema_summary>\r\n\r\n**核心參數**\r\n\r\n| 參數                   | 類型   | 預設值     | 說明                       |\r\n|------------------------|--------|------------|----------------------------|\r\n| etf_ticker             | string | (必填)     | ETF/信託代碼（如 SLV）     |\r\n| commodity_price_symbol | string | (必填)     | 商品價格代碼（如 XAGUSD）  |\r\n| start_date             | string | 10Y 前     | 分析起始日                 |\r\n| end_date               | string | today      | 分析結束日                 |\r\n\r\n**背離參數**\r\n\r\n| 參數                       | 類型  | 預設值 | 說明                   |\r\n|----------------------------|-------|--------|------------------------|\r\n| divergence_window_days     | int   | 180    | 背離計算視窗（天）     |\r\n| decade_low_window_days     | int   | 3650   | 十年低點視窗（天）     |\r\n| min_price_return_pct       | float | 0.15   | 價格上漲門檻           |\r\n| min_inventory_drawdown_pct | float | 0.10   | 庫存下滑門檻           |\r\n\r\n完整參數定義見 `references/input-schema.md`。\r\n\r\n</input_schema_summary>\r\n\r\n<output_schema_summary>\r\n```json\r\n{\r\n  \"skill\": \"monitor-etf-holdings-drawdown-risk\",\r\n  \"asof\": \"2026-01-16\",\r\n  \"inputs\": {\r\n    \"etf_ticker\": \"SLV\",\r\n    \"commodity_price_symbol\": \"XAGUSD\"\r\n  },\r\n  \"result\": {\r\n    \"divergence\": true,\r\n    \"price_return_window\": 0.32,\r\n    \"inventory_change_window\": -0.18,\r\n    \"inventory_decade_low\": true,\r\n    \"inventory_to_price_ratio_z\": -2.4,\r\n    \"stress_score_0_100\": 78.5\r\n  },\r\n  \"interpretations\": [...],\r\n  \"next_checks\": [...]\r\n}\r\n```\r\n\r\n完整輸出結構見 `templates/output-json.md`。\r\n</output_schema_summary>\r\n\r\n<success_criteria>\r\n執行成功時應產出：\r\n\r\n- [ ] 背離狀態判定（divergence: true/false）\r\n- [ ] 價格變化與庫存變化數值\r\n- [ ] 十年低點判定\r\n- [ ] 庫存/價格比值 Z 分數\r\n- [ ] 壓力分數（0-100）\r\n- [ ] 兩種對立假設解釋\r\n- [ ] 下一步驗證建議清單\r\n</success_criteria>",
     "path": "skills/monitor-etf-holdings-drawdown-risk/SKILL.md",
-    "directoryStructure": "monitor-etf-holdings-drawdown-risk/\n├── manifest.json\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   └── methodology.md\n├── scripts\n│   ├── divergence_detector.py\n│   ├── fetch_etf_holdings.py\n│   └── fetch_prices.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    ├── cross-validate.md\n    └── monitor.md",
+    "directoryStructure": "monitor-etf-holdings-drawdown-risk/\n├── data\n│   ├── debug_after_wait.png\n│   ├── debug_page.html\n│   ├── debug_screenshot.png\n│   ├── debug_top.png\n│   ├── gld_divergence_result.json\n│   ├── GLD_holdings_cache.csv\n│   ├── macromicro_debug.html\n│   ├── macromicro_full_data.json\n│   ├── macromicro_slv_data.json\n│   └── SLV_holdings_cache.csv\n├── manifest.json\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   └── methodology.md\n├── scripts\n│   ├── divergence_detector.py\n│   ├── fetch_etf_holdings.py\n│   ├── fetch_prices.py\n│   ├── visualize_divergence.py\n│   └── __pycache__\n│       ├── fetch_etf_holdings.cpython-312.pyc\n│       └── fetch_prices.cpython-312.pyc\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    ├── cross-validate.md\n    └── monitor.md",
+    "lastUpdated": "2026-01-20",
     "rating": 3,
     "testQuestions": [
       {
         "question": "檢查 SLV 白銀 ETF 是否存在價格-庫存背離現象",
-        "expectedResult": "SLV 白銀 ETF 背離分析結果（截至 2026-01-16）\n\n背離狀態\n┌─────────────────────────────┬─────────┬──────────────────────────┐\n│            指標             │  數值   │           狀態           │\n├─────────────────────────────┼─────────┼──────────────────────────┤\n│ 背離判定                    │ true    │ 價漲庫跌，背離成立       │\n├─────────────────────────────┼─────────┼──────────────────────────┤\n│ 180 日價格變化              │ +32%    │ 顯著上漲                 │\n├─────────────────────────────┼─────────┼──────────────────────────┤\n│ 180 日庫存變化              │ -18%    │ 顯著下滑                 │\n├─────────────────────────────┼─────────┼──────────────────────────┤\n│ 庫存十年低點                │ true    │ 處於十年最低區間         │\n├─────────────────────────────┼─────────┼──────────────────────────┤\n│ 庫存/價格比值 Z             │ -2.4    │ 極端偏低（< -2）         │\n└─────────────────────────────┴─────────┴──────────────────────────┘\n\n壓力分數：78.5 / 100（中高風險）\n\n雙重假設解釋\n┌──────────────────────┬────────────────────────────────────────────┐\n│         假設         │                 支持條件                   │\n├──────────────────────┼────────────────────────────────────────────┤\n│ 實物緊張假設         │ 若 COMEX/LBMA 庫存同步下降、期貨           │\n│                      │ backwardation 加劇、lease rates 上升、     │\n│                      │ 零售溢價擴大 → 支持此假設                  │\n├──────────────────────┼────────────────────────────────────────────┤\n│ ETF 資金流假設       │ 若其他庫存指標不跟、期貨結構平穩、         │\n│                      │ 零售溢價穩定 → 較可能是投資人贖回          │\n└──────────────────────┴────────────────────────────────────────────┘\n\n下一步驗證建議\n1. 核對 SLV 官方持倉時間序列是否真為十年低點\n2. 交叉比對 COMEX registered/eligible 是否同步下降\n3. 檢查期貨曲線是否 backwardation 加劇\n4. 觀察零售銀條/銀幣 premium 是否擴大\n"
+        "imagePath": "images/SLV-divergence-report-2026-01-20.png",
+        "expectedResult": "SLV 白銀 ETF 背離分析報告                                                                                                                                                                          \n                                                                                                                                                                                                 截至日期：2026-01-19                                                                                                                                                                                                                                                                                                                                                                                    \n---                                                                                                                                                                                                  核心結論                                                                                                                                                                                           \n┌──────────┬────────────┬──────────┐\n│   指標   │    數值    │   判定   │\n├──────────┼────────────┼──────────┤\n│ 背離狀態 │ 否         │ ✅ 正常  │\n├──────────┼────────────┼──────────┤\n│ 壓力分數 │ 20.0 / 100 │ 低風險   │\n├──────────┼────────────┼──────────┤\n│ 壓力等級 │ LOW        │ 無需警戒 │\n└──────────┴────────────┴──────────┘\n---\n詳細數據\n\n最新持倉與價格\n\n- 白銀價格：$93.27 / oz（SI=F 期貨）\n- SLV 持倉量：5.17 億盎司（16,073 噸）\n- 庫存/價格比值 Z 分數：-3.70（極端偏低）\n\n180 天視窗變化\n┌──────────┬─────────┬──────────┐\n│   指標   │ 變化率  │   說明   │\n├──────────┼─────────┼──────────┤\n│ 價格變化 │ +191.6% │ 大幅上漲 │\n├──────────┼─────────┼──────────┤\n│ 庫存變化 │ +14.7%  │ 同步增長 │\n└──────────┴─────────┴──────────┘\n結論：價格與庫存同向上漲，不存在背離。\n\n---\n歷史對比\n┌──────────────┬───────────────────┐\n│     指標     │       數值        │\n├──────────────┼───────────────────┤\n│ 十年最低庫存 │ 3.07 億盎司       │\n├──────────────┼───────────────────┤\n│ 十年最高庫存 │ 6.77 億盎司       │\n├──────────────┼───────────────────┤\n│ 當前百分位   │ 56.6%（中間偏上） │\n├──────────────┼───────────────────┤\n│ 十年低點？   │ 否                │\n└──────────────┴───────────────────┘\n---\n解讀\n\n當前 SLV 不存在「價漲庫跌」的背離現象：\n\n1. 白銀價格強勁上漲（180 天內翻倍）\n2. SLV 持倉同步增加（+14.7%），顯示資金流入而非流出\n3. 庫存水平位於歷史中間區間，並非十年低點\n\n雖然庫存/價格比值 Z 分數為 -3.70（表示相對價格而言庫存偏低），但這主要反映價格上漲速度快於庫存增速，而非實物緊張。\n\n---\n下一步驗證建議\n\n1. 核對 SLV 官方持倉時間序列（避免數據源誤差）\n2. 交叉比對 COMEX registered/eligible 庫存變化\n3. 檢查白銀期貨曲線是否出現 backwardation\n4. 觀察零售銀條/銀幣溢價是否擴大\n\n---\n結果已保存至：slv_divergence_result.json\n"
       },
       {
         "question": "幫我分析 GLD 黃金 ETF 的持倉變化與金價的關係",
-        "expectedResult": "GLD 黃金 ETF 背離分析結果\n\n背離狀態\n┌─────────────────────────────┬─────────┬──────────────────────────┐\n│            指標             │  數值   │           狀態           │\n├─────────────────────────────┼─────────┼──────────────────────────┤\n│ 背離判定                    │ false   │ 無明顯背離               │\n├─────────────────────────────┼─────────┼──────────────────────────┤\n│ 180 日價格變化              │ +18%    │ 上漲                     │\n├─────────────────────────────┼─────────┼──────────────────────────┤\n│ 180 日庫存變化              │ +5%     │ 輕微上升                 │\n├─────────────────────────────┼─────────┼──────────────────────────┤\n│ 庫存十年低點                │ false   │ 未處於歷史低點           │\n└─────────────────────────────┴─────────┴──────────────────────────┘\n\n壓力分數：15.2 / 100（正常）\n\n分析結論\nGLD 持倉與金價同向變動，未出現背離訊號。\n價格上漲伴隨庫存增加，符合正常市場行為。\n"
+        "imagePath": "images/GLD-divergence-report-2026-01-20.png",
+        "expectedResult": "GLD 黃金 ETF 持倉-價格背離分析結果                                                                                                                                                                                                                                                                                                                                                                      \n分析摘要                                                                                                                                                                                           \n┌──────────┬────────────┬────────────────────┐                                                                                                                                                     \n│   指標   │    數值    │        說明        │                                                                                                                                                       ├──────────┼────────────┼────────────────────┤                                                                                                                                                     \n│ 分析日期 │ 2026-01-19 │                    │                                                                                                                                                       ├──────────┼────────────┼────────────────────┤                                                                                                                                                     \n│ 背離狀態 │ ❌ 否      │ 價格與持倉同向變動 │\n├──────────┼────────────┼────────────────────┤\n│ 壓力分數 │ 20.0/100   │ LOW (低風險)       │\n└──────────┴────────────┴────────────────────┘\n關鍵指標\n┌──────────────────┬─────────────────────────┬────────────────────────────┐\n│       項目       │          數值           │            解讀            │\n├──────────────────┼─────────────────────────┼────────────────────────────┤\n│ 180天金價變化    │ +44.6%                  │ 金價大幅上漲               │\n├──────────────────┼─────────────────────────┼────────────────────────────┤\n│ 180天持倉變化    │ +1.4%                   │ 持倉小幅增加（非下降）     │\n├──────────────────┼─────────────────────────┼────────────────────────────┤\n│ 當前持倉量       │ 3,490 萬盎司 (1,086 噸) │                            │\n├──────────────────┼─────────────────────────┼────────────────────────────┤\n│ 持倉歷史百分位   │ 68.6%                   │ 處於十年中上水位           │\n├──────────────────┼─────────────────────────┼────────────────────────────┤\n│ 庫存十年低點     │ 否                      │ 遠離歷史低點               │\n├──────────────────┼─────────────────────────┼────────────────────────────┤\n│ 庫存/價格 Z 分數 │ -2.33                   │ 比值偏低（金價相對持倉高） │\n└──────────────────┴─────────────────────────┴────────────────────────────┘\n分析結論\n\n目前 GLD 不存在「價漲庫跌」的背離現象。\n\n雖然過去 180 天金價大漲 44.6%，但 GLD 持倉並未下滑，反而小幅增加 1.4%。這表示：\n\n1. 投資人持續買入黃金 ETF：金價上漲伴隨持倉增加，符合正常市場邏輯\n2. 無實物緊張訊號：沒有「價格上漲、但 ETF 被大量贖回」的異常現象\n3. 持倉處於健康水位：目前持倉約 3,490 萬盎司，在十年歷史中處於第 68 百分位\n\n圖表說明\n\n上方圖表顯示：\n- 藍線 (GC=F)：黃金期貨價格，2024 年底以來大幅上漲\n- 紅線 (GLD)：ETF 持倉量，2025 年以來從低點回升\n- 兩者走勢大致同向，沒有明顯背離\n\n雙重假設解釋\n┌─────────────────┬────────────────────────────┐\n│      假設       │          目前狀態          │\n├─────────────────┼────────────────────────────┤\n│ 實物緊張假說    │ ⚪ 不適用 - 價格與持倉同向 │\n├─────────────────┼────────────────────────────┤\n│ 資金流/贖回假說 │ ⚪ 不適用 - 持倉未下滑     │\n└─────────────────┴────────────────────────────┘\n建議後續觀察\n\n1. 核對 COMEX 黃金庫存是否同步穩定\n2. 檢查黃金期貨曲線結構（contango vs backwardation）\n3. 觀察零售金條/金幣溢價是否擴大\n\n---\n報告檔案位置：\n- PNG: images/GLD_divergence_report_20260120.png\n- JSON: data/gld_divergence_result.json\n\n數據來源：MacroMicro (財經 M 平方) + Yahoo Finance\n"
       }
     ],
     "qualityScore": {
@@ -909,15 +910,15 @@
     ],
     "faq": [
       {
-        "question": "什麼是「價格-庫存背離」？",
-        "answer": "當商品價格上漲但對應 ETF 的實物持倉卻下降時，\n稱為「價格-庫存背離」。這可能意味著：\n1. 實物供給緊張（bullish）\n2. ETF 投資人資金外流（neutral）\n\n需要交叉驗證才能判斷哪種解釋更可信。\n"
+        "question": "什麼是價格與庫存背離？",
+        "answer": "當商品價格上漲但對應 ETF 的實物持倉卻下降時，\n稱為「價格-庫存背離」。這可能意味著：\n1. 實物供給緊張（看漲）\n2. ETF 投資人資金外流（正常情況）\n\n需要交叉驗證才能判斷哪種解釋更可信。\n"
       },
       {
         "question": "為什麼需要雙重假設？",
         "answer": "社群敘事常把「ETF 庫存下降」直接解讀為「銀行搶銀條」，\n但這忽略了 ETF 贖回機制。雙重假設框架要求：\n- 提供支持「實物緊張」的條件\n- 提供支持「資金流變化」的條件\n讓用戶根據實際數據判斷。\n"
       },
       {
-        "question": "stress_score 如何計算？",
+        "question": "壓力分數如何計算？",
         "answer": "壓力分數 = 100 × min(1.0,\n  0.6 × 背離嚴重度 +\n  0.2 × 十年低點加成 +\n  0.2 × 比值極端加成\n)\n\n- 背離嚴重度 = 價格漲幅 × 庫存跌幅\n- 十年低點加成 = 1.0 如果庫存處於十年低點\n- 比值極端加成 = 1.0 如果庫存/價格比值 Z < -2\n"
       }
     ],
@@ -928,6 +929,128 @@
     },
     "methodology": "### 什麼是「價格-庫存背離」？\r\n\r\n在正常市場中，商品價格與對應 ETF 持倉應該**同向變動**：\r\n- 價格上漲 → 投資人買入 ETF → ETF 購買實物 → 持倉增加\r\n- 價格下跌 → 投資人賣出 ETF → ETF 賣出實物 → 持倉減少\r\n\r\n當出現**逆向變動**時（價格上漲但持倉下降），稱為「背離」（Divergence）。\r\n\r\n### 背離的兩種解釋\r\n\r\n**解釋 A：實物供給緊張（Physical Tightness）**\r\n- 實物需求強勁，交易所/金庫存量被提取\r\n- ETF 無法及時補充持倉\r\n- 可能預示供需失衡\r\n\r\n**解釋 B：ETF 資金流/贖回（ETF Flow）**\r\n- 投資人資金外流，贖回 ETF 份額\r\n- ETF 被迫賣出實物\r\n- 不代表整體市場實物短缺\r\n\r\n**重要**：不能只看 ETF 持倉就下結論，需要交叉驗證。\r\n\r\n## 偵測邏輯\r\n\r\n### 背離事件定義\r\n\r\n```\r\nDivergence Event = True\r\n  IF price_return >= min_price_return_pct (如 +15%)\r\n  AND inventory_change <= -min_inventory_drawdown_pct (如 -10%)\r\n  WITHIN divergence_window_days (如 180 天)\r\n```\r\n\r\n### 視窗期選擇\r\n\r\n| 視窗長度 | 特性         | 適用場景           |\r\n|----------|--------------|--------------------|\r\n| 30 天    | 短期波動敏感 | 日常監控           |\r\n| 90 天    | 季度視角     | 趨勢確認           |\r\n| 180 天   | 半年視角     | 結構性判斷（推薦） |\r\n| 365 天   | 年度視角     | 長期結構           |\r\n\r\n### 門檻參數\r\n\r\n| 參數                       | 預設值 | 說明                         |\r\n|----------------------------|--------|------------------------------|\r\n| min_price_return_pct       | 15%    | 價格需上漲多少才算「上漲期」 |\r\n| min_inventory_drawdown_pct | 10%    | 庫存需下滑多少才算「被抽走」 |\r\n\r\n門檻過低會產生太多假訊號，過高可能錯過真實背離。\r\n\r\n## 嚴重度評估\r\n\r\n### 十年低點判定\r\n\r\n```python\r\ninventory_decade_low = inventory <= rolling_min(inventory, 3650 days) × 1.001\r\n```\r\n\r\n當庫存處於十年最低區間時，背離訊號更具意義。\r\n\r\n### 庫存/價格比值 Z 分數\r\n\r\n```python\r\nratio = inventory / price\r\nratio_z = (ratio - rolling_mean(ratio, 3650)) / rolling_std(ratio, 3650)\r\n```\r\n\r\n| ratio_z | 解讀                       |\r\n|---------|----------------------------|\r\n| > 2     | 極高：庫存相對價格非常充裕 |\r\n| 0 附近  | 正常                       |\r\n| < -2    | 極低：庫存相對價格非常緊張 |\r\n\r\n### 壓力分數計算\r\n\r\n```python\r\nstress_score = 100 × min(1.0,\r\n    0.6 × divergence_severity +      # 背離嚴重度 = price_return × (-inventory_change)\r\n    0.2 × decade_low_bonus +         # 1.0 if decade_low else 0.0\r\n    0.2 × ratio_extreme_bonus        # 1.0 if ratio_z < -2 else 0.0\r\n)\r\n```\r\n\r\n| 分數區間 | 等級 | 建議行動           |\r\n|----------|------|--------------------|\r\n| 0-30     | 正常 | 無需特別關注       |\r\n| 30-60    | 輕度 | 保持監控           |\r\n| 60-80    | 中度 | 建議交叉驗證       |\r\n| 80-100   | 重度 | 高度警戒，深入分析 |\r\n\r\n## 雙重假設驗證框架\r\n\r\n### Physical Tightness 假設\r\n\r\n**支持條件**：\r\n- COMEX registered/eligible 庫存同步下降\r\n- 期貨曲線從 contango 轉為 backwardation\r\n- 白銀/黃金 lease rates 上升\r\n- 零售銀條/銀幣溢價擴大\r\n- LBMA 金庫存量下降\r\n\r\n**如果多數條件成立**：較支持「實物緊張」解釋\r\n\r\n### ETF Flow 假設\r\n\r\n**支持條件**：\r\n- COMEX 庫存穩定或上升\r\n- 期貨曲線維持 contango\r\n- 零售溢價平穩\r\n- ETF 資金流數據顯示淨流出\r\n- 其他 ETF（如 PSLV）持倉不降\r\n\r\n**如果多數條件成立**：較支持「資金流動」解釋\r\n\r\n### 驗證矩陣\r\n\r\n| 指標        | Physical Tightness | ETF Flow    |\r\n|-------------|--------------------|-------------|\r\n| COMEX 庫存  | 下降 ↓             | 穩定/上升 ↑ |\r\n| 期貨曲線    | Backwardation      | Contango    |\r\n| Lease rates | 上升 ↑             | 穩定        |\r\n| 零售溢價    | 擴大 ↑             | 穩定        |\r\n| 其他 ETF    | 同步下降           | 不同步      |\r\n\r\n## 歷史案例\r\n\r\n### 2020-2021 白銀背離事件\r\n\r\n**背景**：\r\n- 2020 年 COVID 導致礦山停產，實物供給收縮\r\n- 2021 年 WallStreetBets 發起「白銀擠壓」運動\r\n\r\n**觀察**：\r\n- SLV 持倉在 2021 初大幅增加後，於下半年持續下滑\r\n- 同期銀價維持高位震盪\r\n- COMEX 庫存同步下降\r\n- 零售溢價一度飆升至 20%+\r\n\r\n**結論**：同時存在 Physical Tightness 和 ETF Flow 因素\r\n\r\n### 2022-2023 黃金背離事件\r\n\r\n**背景**：\r\n- 央行大量購金（尤其中國、俄羅斯）\r\n- 但西方 ETF 持續流出\r\n\r\n**觀察**：\r\n- GLD 持倉持續下滑\r\n- 金價在央行購買支撐下上漲\r\n- COMEX 庫存相對穩定\r\n\r\n**結論**：主要是 ETF Flow（西方資金流出），非實物短缺\r\n\r\n## 限制與注意事項\r\n\r\n### 數據品質\r\n\r\n1. **ETF 持倉延遲**：通常有 1-2 天延遲\r\n2. **庫存口徑差異**：不同來源的庫存定義可能不同\r\n3. **選擇器失效**：網站改版可能導致爬蟲失敗\r\n\r\n### 解讀偏誤\r\n\r\n1. **敘事先行**：不要先有結論再找數據\r\n2. **單一指標**：不要只看 ETF 持倉就下結論\r\n3. **過度解讀**：正常波動不等於「危機」\r\n\r\n### 模型限制\r\n\r\n1. **線性假設**：壓力分數的加權可能過度簡化\r\n2. **歷史依賴**：十年視窗假設歷史模式會重複\r\n3. **缺乏因果**：只能識別相關性，無法證明因果\r\n\r\n## 建議工作流程\r\n\r\n1. **初步篩選**：執行快速檢查，看是否有背離\r\n2. **嚴重度評估**：計算壓力分數，判斷是否需要關注\r\n3. **交叉驗證**：使用多指標驗證背離真實性\r\n4. **雙重假設**：同時考慮兩種解釋，不預設立場\r\n5. **持續監控**：設定警報，追蹤趨勢變化\r\n",
     "downloadUrl": "downloads/monitor-etf-holdings-drawdown-risk-0.1.0.zip"
+  },
+  {
+    "id": "detect-palladium-lead-silver-turns",
+    "name": "detect-palladium-lead-silver-turns",
+    "displayName": "辨識鈀金領先白銀轉折點",
+    "description": "以鈀金的先行轉向作為確認條件，檢驗白銀短期漲跌是否獲得工業景氣與風險情緒的同步支持，並標記缺乏鈀金參與度的失敗走勢。",
+    "emoji": "⤴️",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "鈀金",
+      "白銀",
+      "貴金屬",
+      "拐點偵測",
+      "領先指標",
+      "跨金屬確認",
+      "失敗走勢",
+      "流動性噪音",
+      "技術分析"
+    ],
+    "category": "indicator-monitoring",
+    "dataLevel": "free-nolimit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\r\n\r\n<principle name=\"cross_metal_confirmation\">\r\n**跨金屬確認核心**\r\n\r\n「鈀金領先白銀」的假說需要可量化驗證：\r\n- 以 cross-correlation 估計最佳領先滯後（lead-lag）\r\n- 當銀出現拐點時，檢查鈀金是否在確認窗口內先行或同步出現同向拐點\r\n- 未被確認的拐點視為「失敗推動」的候選\r\n\r\n```\r\nLead-Lag = argmax(cross_correlation(pd_ret[t-k:t], ag_ret[t:t+k]))\r\nConfirmed = pd_turn exists within [ag_turn.ts - window, ag_turn.ts + window]\r\n```\r\n</principle>\r\n\r\n<principle name=\"turning_point_detection\">\r\n**拐點偵測三法**\r\n\r\n| 方法           | 原理                          | 適用場景       |\r\n|----------------|-------------------------------|----------------|\r\n| `pivot`        | 左右 N 根K棒內的局部極值      | 結構明確的趨勢 |\r\n| `peaks`        | scipy find_peaks + prominence | 自動化密度控制 |\r\n| `slope_change` | 趨勢斜率由正轉負或反之        | 平滑趨勢追蹤   |\r\n\r\n建議從 `pivot` 開始，左右各 3-5 根K棒，再依需求調整。\r\n</principle>\r\n\r\n<principle name=\"participation_judgment\">\r\n**參與度判定**\r\n\r\n鈀金是否「參與」銀的走勢，有多種衡量方式：\r\n\r\n| 指標               | 定義               | 門檻建議          |\r\n|--------------------|--------------------|-------------------|\r\n| `returns_corr`     | 報酬率滾動相關係數 | > 0.5             |\r\n| `direction_agree`  | 同向漲跌的比例     | > 60%             |\r\n| `vol_expansion`    | 兩者波動同步擴張   | σ_pd / σ_ag > 0.8 |\r\n| `breakout_confirm` | 銀突破時鈀金也突破 | 同向突破          |\r\n\r\n未達門檻時，銀的動作可能是「流動性噪音」而非趨勢確認。\r\n</principle>\r\n\r\n<principle name=\"failure_move_detection\">\r\n**失敗走勢判定**\r\n\r\n將「無鈀金參與的銀動作」落地為可回測的規則：\r\n\r\n| 規則                         | 定義                            | 後果               |\r\n|------------------------------|---------------------------------|--------------------|\r\n| `no_confirm_then_revert`     | 無確認 + 銀在 N 根K內回撤過起點 | 標記為 failed_move |\r\n| `no_confirm_then_break_fail` | 無確認 + 銀突破後回落跌破突破點 | 假突破             |\r\n\r\n歷史統計：未確認事件的失敗率 vs 已確認事件的成功率。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n偵測「鈀金領先、白銀跟隨」的跨金屬拐點：\r\n\r\n1. **數據取得**：白銀與鈀金的 OHLCV（yfinance: SI=F, PA=F）\r\n2. **拐點偵測**：識別兩者的局部高低點（pivot / peaks / slope_change）\r\n3. **領先滯後估計**：cross-correlation 找最佳 lag\r\n4. **跨金屬確認**：銀的拐點是否在窗口內被鈀金同向拐點確認\r\n5. **失敗走勢判定**：未確認的銀拐點是否符合失敗規則\r\n\r\n輸出：確認率、失敗率、每個事件的詳細判定、風控建議。\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：偵測白銀近期拐點是否被鈀金確認**\r\n\r\n```bash\r\ncd skills/detect-palladium-lead-silver-turns\r\npip install pandas numpy yfinance scipy statsmodels  # 首次使用\r\npython scripts/palladium_lead_silver.py --silver SI=F --palladium PA=F --quick\r\n```\r\n\r\n輸出範例：\r\n```json\r\n{\r\n  \"symbol_pair\": {\"silver\": \"SI=F\", \"palladium\": \"PA=F\"},\r\n  \"as_of\": \"2026-01-14\",\r\n  \"timeframe\": \"1h\",\r\n  \"estimated_pd_leads_by_bars\": 6,\r\n  \"lead_lag_corr\": 0.42,\r\n  \"confirmation_rate\": 0.71,\r\n  \"unconfirmed_failure_rate\": 0.64,\r\n  \"latest_event\": {\r\n    \"ts\": \"2026-01-15T14:00:00Z\",\r\n    \"turn\": \"top\",\r\n    \"confirmed\": false,\r\n    \"participation_ok\": false,\r\n    \"failed_move\": true\r\n  }\r\n}\r\n```\r\n\r\n**完整分析**：\r\n```bash\r\npython scripts/palladium_lead_silver.py --silver SI=F --palladium PA=F --timeframe 1h --lookback 1000 --output result.json\r\n```\r\n\r\n**生成視覺化圖表**：\r\n```bash\r\npip install matplotlib  # 首次使用\r\npython scripts/plot_palladium_silver.py --silver SI=F --palladium PA=F --output output/\r\n```\r\n\r\n圖表包含：\r\n- 銀/鈀價格疊加與拐點標記\r\n- 確認/未確認事件分布\r\n- 滾動相關係數時間序列\r\n- 失敗走勢統計\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼操作？\r\n\r\n1. **快速偵測** - 檢查最近白銀拐點是否被鈀金確認\r\n2. **歷史回測** - 回溯分析跨金屬確認的有效性\r\n3. **持續監控** - 設定警報當出現新拐點時通知\r\n4. **參數調校** - 找出最佳的確認窗口與參與度門檻\r\n5. **方法論學習** - 了解跨金屬領先滯後的理論基礎\r\n\r\n**請選擇或直接提供分析參數開始。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                           | Action                                                 |\r\n|------------------------------------|--------------------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"check\"        | 執行 `python scripts/palladium_lead_silver.py --quick` |\r\n| 2, \"回測\", \"backtest\", \"history\"   | 閱讀 `workflows/backtest.md` 並執行                    |\r\n| 3, \"監控\", \"monitor\", \"alert\"      | 閱讀 `workflows/monitor.md` 並執行                     |\r\n| 4, \"調校\", \"optimize\", \"tune\"      | 閱讀 `workflows/detect.md` 的參數調校部分              |\r\n| 5, \"學習\", \"方法論\", \"why\"         | 閱讀 `references/methodology.md`                       |\r\n| 提供參數（如 timeframe, lookback） | 閱讀 `workflows/detect.md` 並使用參數執行              |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\ndetect-palladium-lead-silver-turns/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── manifest.json                      # 技能元數據\r\n├── workflows/\r\n│   ├── detect.md                      # 單次偵測工作流\r\n│   ├── backtest.md                    # 歷史回測工作流\r\n│   └── monitor.md                     # 持續監控工作流\r\n├── references/\r\n│   ├── methodology.md                 # 跨金屬領先滯後方法論\r\n│   ├── input-schema.md                # 完整輸入參數定義\r\n│   └── data-sources.md                # 資料來源說明\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n├── scripts/\r\n│   ├── palladium_lead_silver.py       # 主偵測腳本\r\n│   └── plot_palladium_silver.py       # 視覺化圖表腳本\r\n└── examples/\r\n    └── silver-palladium-2024.json     # 範例輸出\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**方法論**: references/methodology.md\r\n- 跨金屬領先滯後原理\r\n- 拐點偵測三法詳解\r\n- 參與度與確認邏輯\r\n- 失敗走勢的市場含義\r\n\r\n**資料來源**: references/data-sources.md\r\n- Yahoo Finance 期貨代碼\r\n- 宏觀濾鏡數據來源\r\n- 數據頻率與對齊\r\n\r\n**輸入參數**: references/input-schema.md\r\n- 完整參數定義\r\n- 預設值與建議範圍\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow    | Purpose  | 使用時機           |\r\n|-------------|----------|--------------------|\r\n| detect.md   | 單次偵測 | 檢查特定時間範圍   |\r\n| backtest.md | 歷史回測 | 驗證確認邏輯有效性 |\r\n| monitor.md  | 持續監控 | 日常追蹤或警報     |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構定義 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script                   | Command                                          | Purpose          |\r\n|--------------------------|--------------------------------------------------|------------------|\r\n| palladium_lead_silver.py | `--silver SI=F --palladium PA=F --quick`         | 快速檢查當前狀態 |\r\n| palladium_lead_silver.py | `--silver SI=F --palladium PA=F --lookback 1000` | 完整歷史分析     |\r\n| plot_palladium_silver.py | `--silver SI=F --palladium PA=F --output dir/`   | 生成視覺化圖表   |\r\n</scripts_index>\r\n\r\n<input_schema_summary>\r\n\r\n**核心參數**\r\n\r\n| 參數             | 類型   | 預設值     | 說明         |\r\n|------------------|--------|------------|--------------|\r\n| silver_symbol    | string | (required) | 白銀標的代碼 |\r\n| palladium_symbol | string | (required) | 鈀金標的代碼 |\r\n| timeframe        | string | 1h         | 分析時間尺度 |\r\n| lookback_bars    | int    | 1000       | 回溯K棒數    |\r\n\r\n**拐點偵測參數**\r\n\r\n| 參數                | 類型   | 預設值 | 說明                |\r\n|---------------------|--------|--------|---------------------|\r\n| turn_method         | string | pivot  | 拐點偵測方法        |\r\n| pivot_left          | int    | 3      | pivot 左側確認K數   |\r\n| pivot_right         | int    | 3      | pivot 右側確認K數   |\r\n| confirm_window_bars | int    | 6      | 跨金屬確認窗口      |\r\n| lead_lag_max_bars   | int    | 24     | 領先滯後最大滯後K數 |\r\n\r\n**參與度參數**\r\n\r\n| 參數                    | 類型   | 預設值                 | 說明           |\r\n|-------------------------|--------|------------------------|----------------|\r\n| participation_metric    | string | direction_agree        | 參與度衡量方式 |\r\n| participation_threshold | float  | 0.6                    | 參與度門檻     |\r\n| failure_rule            | string | no_confirm_then_revert | 失敗走勢規則   |\r\n\r\n完整參數定義見 `references/input-schema.md`。\r\n\r\n</input_schema_summary>\r\n\r\n<output_schema_summary>\r\n```json\r\n{\r\n  \"skill\": \"detect-palladium-lead-silver-turns\",\r\n  \"symbol_pair\": {\"silver\": \"SI=F\", \"palladium\": \"PA=F\"},\r\n  \"as_of\": \"2026-01-14\",\r\n  \"timeframe\": \"1h\",\r\n  \"lookback_bars\": 1200,\r\n  \"summary\": {\r\n    \"estimated_pd_leads_by_bars\": 6,\r\n    \"lead_lag_corr\": 0.42,\r\n    \"confirmation_rate\": 0.71,\r\n    \"unconfirmed_failure_rate\": 0.64,\r\n    \"total_ag_turns\": 24,\r\n    \"confirmed_turns\": 17,\r\n    \"failed_moves\": 5\r\n  },\r\n  \"events\": [\r\n    {\r\n      \"ts\": \"2026-01-08T10:00:00Z\",\r\n      \"turn\": \"bottom\",\r\n      \"confirmed\": true,\r\n      \"confirmation_lag_bars\": -3,\r\n      \"participation_ok\": true,\r\n      \"failed_move\": false\r\n    }\r\n  ],\r\n  \"interpretation\": {\r\n    \"regime_assessment\": \"...\",\r\n    \"tactics\": [\"...\", \"...\"]\r\n  }\r\n}\r\n```\r\n\r\n完整輸出結構見 `templates/output-json.md`。\r\n</output_schema_summary>\r\n\r\n<success_criteria>\r\n執行成功時應產出：\r\n\r\n- [ ] 鈀金對白銀的最佳領先滯後估計（bars）\r\n- [ ] 領先滯後的相關係數\r\n- [ ] 白銀拐點被鈀金確認的確認率\r\n- [ ] 未確認事件的失敗走勢比例\r\n- [ ] 每個白銀拐點的詳細判定（confirmed, participation, failed）\r\n- [ ] 行情解讀與戰術建議\r\n- [ ] 時間序列資料（可選，用於視覺化）\r\n- [ ] 視覺化圖表 PNG（可選，使用 plot_palladium_silver.py）\r\n</success_criteria>",
+    "path": "skills/detect-palladium-lead-silver-turns/SKILL.md",
+    "directoryStructure": "detect-palladium-lead-silver-turns/\n├── examples\n│   └── silver-palladium-2024.json\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   └── methods.md\n├── scripts\n│   ├── palladium_lead_silver.py\n│   └── plot_palladium_silver.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── backtest.md\n    ├── detect.md\n    └── monitor.md",
+    "lastUpdated": "2026-01-16",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "白銀最近的拐點有被鈀金確認嗎？幫我偵測並判斷是否為失敗走勢",
+        "expectedResult": "白銀（SI=F）與鈀金（PA=F）跨金屬拐點偵測結果（數據截至 2026-01-14）\n\n┌─────────────────────────────┬────────┬─────────────────────────────┐\n│            指標             │  數值  │            狀態             │\n├─────────────────────────────┼────────┼─────────────────────────────┤\n│ 鈀金領先白銀                │ 6 bars │ 鈀金平均領先 6 根 K 棒      │\n├─────────────────────────────┼────────┼─────────────────────────────┤\n│ 領先滯後相關係數            │ 0.42   │ 中等正相關                  │\n├─────────────────────────────┼────────┼─────────────────────────────┤\n│ 確認率                      │ 71%    │ 白銀拐點被鈀金確認的比例    │\n├─────────────────────────────┼────────┼─────────────────────────────┤\n│ 未確認失敗率                │ 64%    │ 未被確認的拐點失敗比例      │\n└─────────────────────────────┴────────┴─────────────────────────────┘\n\n最新事件（2026-01-15T14:00:00Z）\n\n- 類型：top（頂部拐點）\n- 鈀金確認：否\n- 參與度：不足\n- 判定：**失敗走勢（failed_move）**\n\n┌───────────────────────────────────────────────────────────────────┐\n│                        可操作的建議                              │\n├───────────────────────────────────────────────────────────────────┤\n│ 1. 當前白銀頂部未被鈀金確認，視為「流動性噪音」而非趨勢反轉    │\n│ 2. 避免基於此拐點進行方向性交易                                 │\n│ 3. 等待下一個被鈀金確認的拐點再決策                             │\n│ 4. 若已有部位，可暫時觀望而非立即調整                           │\n└───────────────────────────────────────────────────────────────────┘\n\n行情解讀\n\n鈀金在本回溯窗口內對白銀報酬的最佳領先滯後為 +6 bars（鈀金先動）。\n未被鈀金確認的白銀拐點事件，其後續回撤/回到區間的比例顯著較高。\n當前白銀頂部缺乏鈀金參與，歷史統計顯示此類情況失敗概率較高。\n"
+      },
+      {
+        "question": "幫我回測過去 1000 根 1 小時 K 線，分析鈀金領先白銀的有效性",
+        "expectedResult": "跨金屬確認歷史回測結果（SI=F vs PA=F，1h，1000 bars）\n\n📊 領先滯後分析\n\n- 最佳滯後：+6 bars（鈀金領先白銀 6 根 K 棒）\n- 相關係數：0.42（中等正相關）\n- 置信區間：[3, 9] bars（95% CI）\n\n📈 拐點確認統計\n\n┌─────────────────┬────────┬────────┬────────┐\n│     類型        │ 總數   │ 已確認 │ 確認率 │\n├─────────────────┼────────┼────────┼────────┤\n│ 底部拐點        │ 12     │ 9      │ 75%    │\n├─────────────────┼────────┼────────┼────────┤\n│ 頂部拐點        │ 12     │ 8      │ 67%    │\n├─────────────────┼────────┼────────┼────────┤\n│ 合計            │ 24     │ 17     │ 71%    │\n└─────────────────┴────────┴────────┴────────┘\n\n📉 失敗走勢分析\n\n未確認事件（7 個）的後續表現：\n- 失敗走勢（回撤過起點）：5 個（71%）\n- 延續走勢：2 個（29%）\n\n已確認事件（17 個）的後續表現：\n- 成功延續：14 個（82%）\n- 後續回撤：3 個（18%）\n\n✅ 結論\n\n1. 鈀金確認顯著提高白銀拐點的有效性\n2. 未確認事件的失敗率是已確認事件的 3.9 倍\n3. 建議將「鈀金確認」作為白銀交易的過濾條件\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 70,
+      "badge": "白銀",
+      "metrics": {
+        "architecture": 80,
+        "maintainability": 75,
+        "content": 80,
+        "community": 20,
+        "security": 95,
+        "compliance": 80
+      },
+      "details": "**架構（80/100）**\n- 清晰的跨金屬確認邏輯\n- 多種拐點偵測方法\n- 可配置的參與度判定\n\n**可維護性（75/100）**\n- 參數定義完整\n- 多資料來源支援\n- 工作流程分離\n\n**內容（80/100）**\n- 領先滯後分析原理\n- 失敗走勢判定規則\n- 實用的交易建議\n\n**社區（20/100）**\n- 新技能，尚無社區貢獻\n\n**安全（95/100）**\n- 僅讀取公開價格數據\n- 無需 API key\n\n**規範符合性（80/100）**\n- 遵循 Claude Code 規範\n- 完整的文件結構\n"
+    },
+    "bestPractices": [
+      {
+        "title": "使用足夠的回溯數據",
+        "description": "至少 500 根 K 棒才能產生統計有效的領先滯後估計"
+      },
+      {
+        "title": "確認窗口與時間尺度配合",
+        "description": "1h 圖建議 6-12 bars，4h 圖建議 3-6 bars"
+      },
+      {
+        "title": "多重確認優於單一確認",
+        "description": "同時檢查拐點確認和參與度，減少假陽性"
+      },
+      {
+        "title": "失敗走勢是警告而非訊號",
+        "description": "未確認拐點提示謹慎，但不代表反向交易"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "僅看領先滯後不看確認",
+        "description": "領先滯後是平均值，單次事件可能偏離",
+        "consequence": "錯誤預期鈀金動作後銀必然跟隨"
+      },
+      {
+        "title": "確認窗口設得太小",
+        "description": "窗口太小會錯過有效但稍晚的確認",
+        "consequence": "確認率偏低，判定過於嚴格"
+      },
+      {
+        "title": "忽略參與度判定",
+        "description": "僅有拐點確認但波動不匹配",
+        "consequence": "誤將弱相關當作強確認"
+      },
+      {
+        "title": "把未確認當作反向訊號",
+        "description": "未確認只是「不支持」，不是「反對」",
+        "consequence": "貿然反向交易造成虧損"
+      }
+    ],
+    "faq": [
+      {
+        "question": "為什麼選擇鈀金作為白銀的領先指標？",
+        "answer": "鈀金與白銀同屬貴金屬，但鈀金市場較小、流動性較低，\n對宏觀變化的反應更敏感。當工業需求或避險情緒變化時，\n鈀金往往先行反應，白銀隨後跟進。\n\n這種領先關係在短週期（小時/日線）上較為顯著，\n在更長週期上兩者可能受不同基本面驅動。\n"
+      },
+      {
+        "question": "確認窗口應該設多大？",
+        "answer": "確認窗口取決於分析的時間尺度：\n\n| 時間尺度 | 建議窗口 | 說明 |\n|----------|----------|------|\n| 1h       | 6-12 bars| 約半天到一天 |\n| 4h       | 3-6 bars | 約半天到一天 |\n| 1d       | 2-5 bars | 約一週 |\n\n窗口過小會錯過有效確認，過大會納入不相關事件。\n"
+      },
+      {
+        "question": "失敗走勢該如何應對？",
+        "answer": "當偵測到「失敗走勢」時：\n\n1. **不要立即反向交易**：失敗走勢只是「缺乏支持」，不是「明確反對」\n2. **縮小倉位或觀望**：降低風險暴露，等待更明確的訊號\n3. **設定更寬的停損**：預期波動可能較大\n4. **等待下一個確認事件**：有鈀金參與的拐點更可靠\n"
+      },
+      {
+        "question": "可以用其他金屬代替鈀金嗎？",
+        "answer": "理論上可以，但效果可能不同：\n\n- **鉑金（PL=F）**：與鈀金同為汽車催化劑金屬，可作為替代\n- **黃金（GC=F）**：流動性高，但可能是跟隨者而非領先者\n- **銅（HG=F）**：工業屬性強，與白銀工業需求相關\n\n建議先用此技能的方法論驗證其他金屬對的領先滯後關係。\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 參考來源\n\n- 推文/圖表：「鈀金是白銀短期領先指標」的觀察\n- 跨市場分析：貴金屬之間的相互領先關係\n\n## 數據來源\n\n**Yahoo Finance（免費，無需 API key）**\n- 白銀期貨：SI=F（COMEX Silver）\n- 鈀金期貨：PA=F（NYMEX Palladium）\n- 使用 yfinance 套件抓取\n\n**FRED（宏觀濾鏡，可選）**\n- DXY：美元指數\n- TIPS：實質利率代理\n- VIX：風險情緒\n\n## 適用場景\n\n- 白銀短期交易確認\n- 貴金屬板塊輪動判斷\n- 流動性噪音過濾\n- 跨金屬套利研究\n"
+    },
+    "methodology": "### 為什麼要 **跨金屬確認** ？\r\n\r\n白銀同時具有：\r\n- **貴金屬屬性**：受美元、實質利率、避險情緒影響\r\n- **工業金屬屬性**：受製造業循環、景氣預期、風險偏好影響\r\n\r\n鈀金相對更偏向：\r\n- **純工業／景氣敏感金屬**（需求集中、波動更高、對風險切換更敏感）\r\n- **市場結構更薄**（同樣的資金流動對價格衝擊更大），因此常呈現**反應更快**的特性\r\n\r\n因此在短週期（例如一小時到數日）中，鈀金常像是**工業／風險因子**的**高波動溫度計**：  \r\n當市場正在交易景氣預期、風險情緒或宏觀流動性拐點時，鈀金往往先動或更明顯地轉向，而白銀後續才跟上。\r\n\r\n### 解讀範例\r\n\r\n1. **先看鈀金（藍線）是否出現轉折訊號**\r\n   - 若鈀金先轉弱（形成局部高點、或動能斜率下滑），代表**工業／風險因子**在降溫\r\n2. **再看白銀（價格走勢）是否出現對應的結構**\r\n   - 若白銀隨後也出現較明確的高點（例如高點抬不上去、或跌破短期支撐），則判為**跨金屬確認成立**\r\n3. **若白銀單獨上衝但鈀金未跟進**\r\n   - 將其歸類為**缺乏參與度**的行情\r\n   - 預期更容易出現：回到區間、快速回撤、假突破\r\n\r\n### 這種結構為何有可能特別一致？\r\n\r\n因為短週期的資金往往在交易同一件事：  \r\n**工業景氣預期（採購經理人指數／庫存循環／風險偏好）＋宏觀流動性（美元／利率）**。  \r\n鈀金更像高波動的第一反應，白銀因為還混有**貴金屬層**而稍滯後，所以你會在近期更常看到**鈀先轉、銀後跟**的視覺一致性。\r\n\r\n### 什麼時候會失效？\r\n\r\n這套方法很強，但不是物理定律。兩種常見失效情境：\r\n\r\n1. **白銀被貴金屬層主導**\r\n   - 例如避險情緒、金銀比修正、實質利率急變  \r\n   - 白銀可能走自己的節奏，鈀金未必同步確認\r\n\r\n2. **鈀金被自身供需／事件主導**\r\n   - 汽車鏈、替代效應、供給擾動等  \r\n   - 鈀金可能獨走，反而不該拿來確認白銀走勢",
+    "downloadUrl": "downloads/detect-palladium-lead-silver-turns-0.1.0.zip"
   },
   {
     "id": "lithium-supply-demand-gap-radar",
@@ -1198,26 +1321,16 @@
     "downloadUrl": "downloads/google-trends-ath-detector-0.1.1.zip"
   },
   {
-    "id": "detect-palladium-lead-silver-turns",
-    "name": "detect-palladium-lead-silver-turns",
-    "displayName": "辨識鈀金領先白銀轉折點",
-    "description": "以鈀金的先行轉向作為確認條件，檢驗白銀短期漲跌是否獲得工業景氣與風險情緒的同步支持，並標記缺乏鈀金參與度的失敗走勢。",
-    "emoji": "⤴️",
+    "id": "cost-density-net-rr-calculator",
+    "name": "cost-density-net-rr-calculator",
+    "displayName": "計算成本密度淨風報比",
+    "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
+    "emoji": "🧮",
     "version": "0.1.0",
     "license": "MIT",
-    "author": "Ricky Wang",
+    "author": "macro-skills",
     "authorUrl": "https://github.com/fatfingererr/macro-skills",
-    "tags": [
-      "鈀金",
-      "白銀",
-      "貴金屬",
-      "拐點偵測",
-      "領先指標",
-      "跨金屬確認",
-      "失敗走勢",
-      "流動性噪音",
-      "技術分析"
-    ],
+    "tags": [],
     "category": "indicator-monitoring",
     "dataLevel": "free-nolimit",
     "tools": [
@@ -1225,99 +1338,93 @@
     ],
     "featured": false,
     "installCount": 0,
-    "content": "<essential_principles>\r\n\r\n<principle name=\"cross_metal_confirmation\">\r\n**跨金屬確認核心**\r\n\r\n「鈀金領先白銀」的假說需要可量化驗證：\r\n- 以 cross-correlation 估計最佳領先滯後（lead-lag）\r\n- 當銀出現拐點時，檢查鈀金是否在確認窗口內先行或同步出現同向拐點\r\n- 未被確認的拐點視為「失敗推動」的候選\r\n\r\n```\r\nLead-Lag = argmax(cross_correlation(pd_ret[t-k:t], ag_ret[t:t+k]))\r\nConfirmed = pd_turn exists within [ag_turn.ts - window, ag_turn.ts + window]\r\n```\r\n</principle>\r\n\r\n<principle name=\"turning_point_detection\">\r\n**拐點偵測三法**\r\n\r\n| 方法           | 原理                          | 適用場景       |\r\n|----------------|-------------------------------|----------------|\r\n| `pivot`        | 左右 N 根K棒內的局部極值      | 結構明確的趨勢 |\r\n| `peaks`        | scipy find_peaks + prominence | 自動化密度控制 |\r\n| `slope_change` | 趨勢斜率由正轉負或反之        | 平滑趨勢追蹤   |\r\n\r\n建議從 `pivot` 開始，左右各 3-5 根K棒，再依需求調整。\r\n</principle>\r\n\r\n<principle name=\"participation_judgment\">\r\n**參與度判定**\r\n\r\n鈀金是否「參與」銀的走勢，有多種衡量方式：\r\n\r\n| 指標               | 定義               | 門檻建議          |\r\n|--------------------|--------------------|-------------------|\r\n| `returns_corr`     | 報酬率滾動相關係數 | > 0.5             |\r\n| `direction_agree`  | 同向漲跌的比例     | > 60%             |\r\n| `vol_expansion`    | 兩者波動同步擴張   | σ_pd / σ_ag > 0.8 |\r\n| `breakout_confirm` | 銀突破時鈀金也突破 | 同向突破          |\r\n\r\n未達門檻時，銀的動作可能是「流動性噪音」而非趨勢確認。\r\n</principle>\r\n\r\n<principle name=\"failure_move_detection\">\r\n**失敗走勢判定**\r\n\r\n將「無鈀金參與的銀動作」落地為可回測的規則：\r\n\r\n| 規則                         | 定義                            | 後果               |\r\n|------------------------------|---------------------------------|--------------------|\r\n| `no_confirm_then_revert`     | 無確認 + 銀在 N 根K內回撤過起點 | 標記為 failed_move |\r\n| `no_confirm_then_break_fail` | 無確認 + 銀突破後回落跌破突破點 | 假突破             |\r\n\r\n歷史統計：未確認事件的失敗率 vs 已確認事件的成功率。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n偵測「鈀金領先、白銀跟隨」的跨金屬拐點：\r\n\r\n1. **數據取得**：白銀與鈀金的 OHLCV（yfinance: SI=F, PA=F）\r\n2. **拐點偵測**：識別兩者的局部高低點（pivot / peaks / slope_change）\r\n3. **領先滯後估計**：cross-correlation 找最佳 lag\r\n4. **跨金屬確認**：銀的拐點是否在窗口內被鈀金同向拐點確認\r\n5. **失敗走勢判定**：未確認的銀拐點是否符合失敗規則\r\n\r\n輸出：確認率、失敗率、每個事件的詳細判定、風控建議。\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：偵測白銀近期拐點是否被鈀金確認**\r\n\r\n```bash\r\ncd skills/detect-palladium-lead-silver-turns\r\npip install pandas numpy yfinance scipy statsmodels  # 首次使用\r\npython scripts/palladium_lead_silver.py --silver SI=F --palladium PA=F --quick\r\n```\r\n\r\n輸出範例：\r\n```json\r\n{\r\n  \"symbol_pair\": {\"silver\": \"SI=F\", \"palladium\": \"PA=F\"},\r\n  \"as_of\": \"2026-01-14\",\r\n  \"timeframe\": \"1h\",\r\n  \"estimated_pd_leads_by_bars\": 6,\r\n  \"lead_lag_corr\": 0.42,\r\n  \"confirmation_rate\": 0.71,\r\n  \"unconfirmed_failure_rate\": 0.64,\r\n  \"latest_event\": {\r\n    \"ts\": \"2026-01-15T14:00:00Z\",\r\n    \"turn\": \"top\",\r\n    \"confirmed\": false,\r\n    \"participation_ok\": false,\r\n    \"failed_move\": true\r\n  }\r\n}\r\n```\r\n\r\n**完整分析**：\r\n```bash\r\npython scripts/palladium_lead_silver.py --silver SI=F --palladium PA=F --timeframe 1h --lookback 1000 --output result.json\r\n```\r\n\r\n**生成視覺化圖表**：\r\n```bash\r\npip install matplotlib  # 首次使用\r\npython scripts/plot_palladium_silver.py --silver SI=F --palladium PA=F --output output/\r\n```\r\n\r\n圖表包含：\r\n- 銀/鈀價格疊加與拐點標記\r\n- 確認/未確認事件分布\r\n- 滾動相關係數時間序列\r\n- 失敗走勢統計\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼操作？\r\n\r\n1. **快速偵測** - 檢查最近白銀拐點是否被鈀金確認\r\n2. **歷史回測** - 回溯分析跨金屬確認的有效性\r\n3. **持續監控** - 設定警報當出現新拐點時通知\r\n4. **參數調校** - 找出最佳的確認窗口與參與度門檻\r\n5. **方法論學習** - 了解跨金屬領先滯後的理論基礎\r\n\r\n**請選擇或直接提供分析參數開始。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                           | Action                                                 |\r\n|------------------------------------|--------------------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"check\"        | 執行 `python scripts/palladium_lead_silver.py --quick` |\r\n| 2, \"回測\", \"backtest\", \"history\"   | 閱讀 `workflows/backtest.md` 並執行                    |\r\n| 3, \"監控\", \"monitor\", \"alert\"      | 閱讀 `workflows/monitor.md` 並執行                     |\r\n| 4, \"調校\", \"optimize\", \"tune\"      | 閱讀 `workflows/detect.md` 的參數調校部分              |\r\n| 5, \"學習\", \"方法論\", \"why\"         | 閱讀 `references/methodology.md`                       |\r\n| 提供參數（如 timeframe, lookback） | 閱讀 `workflows/detect.md` 並使用參數執行              |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\ndetect-palladium-lead-silver-turns/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── manifest.json                      # 技能元數據\r\n├── workflows/\r\n│   ├── detect.md                      # 單次偵測工作流\r\n│   ├── backtest.md                    # 歷史回測工作流\r\n│   └── monitor.md                     # 持續監控工作流\r\n├── references/\r\n│   ├── methodology.md                 # 跨金屬領先滯後方法論\r\n│   ├── input-schema.md                # 完整輸入參數定義\r\n│   └── data-sources.md                # 資料來源說明\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n├── scripts/\r\n│   ├── palladium_lead_silver.py       # 主偵測腳本\r\n│   └── plot_palladium_silver.py       # 視覺化圖表腳本\r\n└── examples/\r\n    └── silver-palladium-2024.json     # 範例輸出\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**方法論**: references/methodology.md\r\n- 跨金屬領先滯後原理\r\n- 拐點偵測三法詳解\r\n- 參與度與確認邏輯\r\n- 失敗走勢的市場含義\r\n\r\n**資料來源**: references/data-sources.md\r\n- Yahoo Finance 期貨代碼\r\n- 宏觀濾鏡數據來源\r\n- 數據頻率與對齊\r\n\r\n**輸入參數**: references/input-schema.md\r\n- 完整參數定義\r\n- 預設值與建議範圍\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow    | Purpose  | 使用時機           |\r\n|-------------|----------|--------------------|\r\n| detect.md   | 單次偵測 | 檢查特定時間範圍   |\r\n| backtest.md | 歷史回測 | 驗證確認邏輯有效性 |\r\n| monitor.md  | 持續監控 | 日常追蹤或警報     |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構定義 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script                   | Command                                          | Purpose          |\r\n|--------------------------|--------------------------------------------------|------------------|\r\n| palladium_lead_silver.py | `--silver SI=F --palladium PA=F --quick`         | 快速檢查當前狀態 |\r\n| palladium_lead_silver.py | `--silver SI=F --palladium PA=F --lookback 1000` | 完整歷史分析     |\r\n| plot_palladium_silver.py | `--silver SI=F --palladium PA=F --output dir/`   | 生成視覺化圖表   |\r\n</scripts_index>\r\n\r\n<input_schema_summary>\r\n\r\n**核心參數**\r\n\r\n| 參數             | 類型   | 預設值     | 說明         |\r\n|------------------|--------|------------|--------------|\r\n| silver_symbol    | string | (required) | 白銀標的代碼 |\r\n| palladium_symbol | string | (required) | 鈀金標的代碼 |\r\n| timeframe        | string | 1h         | 分析時間尺度 |\r\n| lookback_bars    | int    | 1000       | 回溯K棒數    |\r\n\r\n**拐點偵測參數**\r\n\r\n| 參數                | 類型   | 預設值 | 說明                |\r\n|---------------------|--------|--------|---------------------|\r\n| turn_method         | string | pivot  | 拐點偵測方法        |\r\n| pivot_left          | int    | 3      | pivot 左側確認K數   |\r\n| pivot_right         | int    | 3      | pivot 右側確認K數   |\r\n| confirm_window_bars | int    | 6      | 跨金屬確認窗口      |\r\n| lead_lag_max_bars   | int    | 24     | 領先滯後最大滯後K數 |\r\n\r\n**參與度參數**\r\n\r\n| 參數                    | 類型   | 預設值                 | 說明           |\r\n|-------------------------|--------|------------------------|----------------|\r\n| participation_metric    | string | direction_agree        | 參與度衡量方式 |\r\n| participation_threshold | float  | 0.6                    | 參與度門檻     |\r\n| failure_rule            | string | no_confirm_then_revert | 失敗走勢規則   |\r\n\r\n完整參數定義見 `references/input-schema.md`。\r\n\r\n</input_schema_summary>\r\n\r\n<output_schema_summary>\r\n```json\r\n{\r\n  \"skill\": \"detect-palladium-lead-silver-turns\",\r\n  \"symbol_pair\": {\"silver\": \"SI=F\", \"palladium\": \"PA=F\"},\r\n  \"as_of\": \"2026-01-14\",\r\n  \"timeframe\": \"1h\",\r\n  \"lookback_bars\": 1200,\r\n  \"summary\": {\r\n    \"estimated_pd_leads_by_bars\": 6,\r\n    \"lead_lag_corr\": 0.42,\r\n    \"confirmation_rate\": 0.71,\r\n    \"unconfirmed_failure_rate\": 0.64,\r\n    \"total_ag_turns\": 24,\r\n    \"confirmed_turns\": 17,\r\n    \"failed_moves\": 5\r\n  },\r\n  \"events\": [\r\n    {\r\n      \"ts\": \"2026-01-08T10:00:00Z\",\r\n      \"turn\": \"bottom\",\r\n      \"confirmed\": true,\r\n      \"confirmation_lag_bars\": -3,\r\n      \"participation_ok\": true,\r\n      \"failed_move\": false\r\n    }\r\n  ],\r\n  \"interpretation\": {\r\n    \"regime_assessment\": \"...\",\r\n    \"tactics\": [\"...\", \"...\"]\r\n  }\r\n}\r\n```\r\n\r\n完整輸出結構見 `templates/output-json.md`。\r\n</output_schema_summary>\r\n\r\n<success_criteria>\r\n執行成功時應產出：\r\n\r\n- [ ] 鈀金對白銀的最佳領先滯後估計（bars）\r\n- [ ] 領先滯後的相關係數\r\n- [ ] 白銀拐點被鈀金確認的確認率\r\n- [ ] 未確認事件的失敗走勢比例\r\n- [ ] 每個白銀拐點的詳細判定（confirmed, participation, failed）\r\n- [ ] 行情解讀與戰術建議\r\n- [ ] 時間序列資料（可選，用於視覺化）\r\n- [ ] 視覺化圖表 PNG（可選，使用 plot_palladium_silver.py）\r\n</success_criteria>",
-    "path": "skills/detect-palladium-lead-silver-turns/SKILL.md",
-    "directoryStructure": "detect-palladium-lead-silver-turns/\n├── examples\n│   └── silver-palladium-2024.json\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   └── methods.md\n├── scripts\n│   ├── palladium_lead_silver.py\n│   └── plot_palladium_silver.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── backtest.md\n    ├── detect.md\n    └── monitor.md",
-    "lastUpdated": "2026-01-16",
+    "content": "<essential_principles>\r\n**成本密度模型核心原則**\r\n\r\n**1. 核心公式**\r\n\r\n所有計算基於以下關係：\r\n\r\n```\r\nCost Density = (c/V + s)           # 成本密度（pips 等效）\r\nx = Cost Density / P               # 負載係數\r\nRR_net = (RR_g - x) / (1 + x)      # 淨風險報酬比\r\nWR_min = (1 + x) / (1 + RR_g)      # 最低勝率\r\nP_critical = CostDensity × (RR_g + 2) / RR_g  # 效率減半點\r\n```\r\n\r\n**2. 參數定義**\r\n\r\n| 參數 | 定義                      | 單位         |\r\n|------|---------------------------|--------------|\r\n| RR_g | 毛風險報酬比（目標/停損） | 無單位       |\r\n| P    | 停損大小                  | pips/points  |\r\n| c    | 來回佣金（每手）          | 帳戶貨幣     |\r\n| s    | 來回點差                  | pips/points  |\r\n| V    | 每 pip 價值（每手）       | 帳戶貨幣/pip |\r\n| R    | 固定風險（可選，會抵消）  | 帳戶貨幣     |\r\n\r\n**3. 關鍵洞察**\r\n\r\n- **雙曲線衰減**: P → 0 時，x → ∞，RR_net → -1\r\n- **R 無關性**: RR_net 不依賴固定風險 R\r\n- **剪刀效應**: 短時間框架同時增加成本負擔與降低訊號品質\r\n\r\n**4. 單位一致性規則**\r\n\r\n- P 和 s 必須使用相同基準（都是 pips 或都是 points）\r\n- c 必須是 round-turn（來回）佣金\r\n- V 必須是每 pip 每手的價值\r\n</essential_principles>\r\n\r\n<intake>\r\n**您想要執行什麼操作？**\r\n\r\n1. **Compute** - 計算單一參數組合的成本密度與效率指標\r\n2. **Sweep** - 掃描停損範圍，生成 RR_net/WR_min 曲線表\r\n3. **Analyze** - 解讀結果，提供策略建議\r\n\r\n**等待回應後再繼續。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                             | Workflow             | Description          |\r\n|--------------------------------------|----------------------|----------------------|\r\n| 1, \"compute\", \"calculate\", \"single\"  | workflows/compute.md | 單次計算成本密度指標 |\r\n| 2, \"sweep\", \"grid\", \"curve\", \"range\" | workflows/sweep.md   | 網格掃描與閾值搜尋   |\r\n| 3, \"analyze\", \"interpret\", \"explain\" | workflows/analyze.md | 結果解讀與策略建議   |\r\n\r\n**讀取工作流程後，請完全遵循其步驟。**\r\n</routing>\r\n\r\n<reference_index>\r\n**參考文件** (`references/`)\r\n\r\n| 文件        | 內容                     |\r\n|-------------|--------------------------|\r\n| formulas.md | 完整公式推導與數學證明   |\r\n| theory.md   | 市場微結構理論背景與文獻 |\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow   | Purpose                    |\r\n|------------|----------------------------|\r\n| compute.md | 單次計算成本密度與效率指標 |\r\n| sweep.md   | 網格掃描與閾值搜尋         |\r\n| analyze.md | 結果解讀與策略建議         |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose          |\r\n|--------------------|------------------|\r\n| output-schema.yaml | 輸出 JSON schema |\r\n| input-schema.yaml  | 輸入參數 schema  |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script          | Purpose             |\r\n|-----------------|---------------------|\r\n| cost_density.py | Python 計算實作     |\r\n| cost_density.ts | TypeScript 計算實作 |\r\n</scripts_index>\r\n\r\n<quick_start>\r\n**快速計算（XAU/USD 範例）：**\r\n\r\n輸入：\r\n```json\r\n{\r\n  \"RR_g\": 3.0,\r\n  \"c\": 7.0,\r\n  \"s\": 1.5,\r\n  \"V\": 10.0,\r\n  \"P\": 20\r\n}\r\n```\r\n\r\n計算：\r\n```python\r\ncost_density = 7.0/10.0 + 1.5  # = 2.2 pips\r\nx = 2.2 / 20                    # = 0.11\r\nRR_net = (3.0 - 0.11) / (1 + 0.11)  # = 2.60\r\nWR_min = (1 + 0.11) / (1 + 3.0)     # = 27.7%\r\nP_critical = 2.2 * (3.0 + 2) / 3.0  # = 3.67 pips\r\n```\r\n\r\n輸出：\r\n```json\r\n{\r\n  \"cost_density\": 2.2,\r\n  \"x\": 0.11,\r\n  \"RR_net\": 2.60,\r\n  \"WR_min\": 0.277,\r\n  \"P_critical\": 3.67,\r\n  \"Loss_RR\": 0.133\r\n}\r\n```\r\n</quick_start>\r\n\r\n<success_criteria>\r\nSkill 成功執行時：\r\n- [ ] 輸入參數通過驗證（單位一致性）\r\n- [ ] 正確計算 cost_density、x、RR_net、WR_min\r\n- [ ] 識別是否處於高摩擦區（P < P_critical）\r\n- [ ] 輸出符合 outputs_schema\r\n- [ ] 提供 zh-TW 解釋說明\r\n</success_criteria>",
+    "path": "skills/cost-density-net-rr-calculator/SKILL.md",
+    "directoryStructure": "cost-density-net-rr-calculator/\n├── examples\n│   ├── eurusd_low_cost.json\n│   ├── high_frequency_warning.json\n│   └── xauusd_default.json\n├── manifest.json\n├── references\n│   ├── formulas.md\n│   └── theory.md\n├── scripts\n│   ├── cost_density.py\n│   └── cost_density.ts\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── input-schema.yaml\n│   └── output-schema.yaml\n└── workflows\n    ├── analyze.md\n    ├── compute.md\n    └── sweep.md",
+    "lastUpdated": "2026-01-15",
     "rating": 3,
     "testQuestions": [
       {
-        "question": "白銀最近的拐點有被鈀金確認嗎？幫我偵測並判斷是否為失敗走勢",
-        "expectedResult": "白銀（SI=F）與鈀金（PA=F）跨金屬拐點偵測結果（數據截至 2026-01-14）\n\n┌─────────────────────────────┬────────┬─────────────────────────────┐\n│            指標             │  數值  │            狀態             │\n├─────────────────────────────┼────────┼─────────────────────────────┤\n│ 鈀金領先白銀                │ 6 bars │ 鈀金平均領先 6 根 K 棒      │\n├─────────────────────────────┼────────┼─────────────────────────────┤\n│ 領先滯後相關係數            │ 0.42   │ 中等正相關                  │\n├─────────────────────────────┼────────┼─────────────────────────────┤\n│ 確認率                      │ 71%    │ 白銀拐點被鈀金確認的比例    │\n├─────────────────────────────┼────────┼─────────────────────────────┤\n│ 未確認失敗率                │ 64%    │ 未被確認的拐點失敗比例      │\n└─────────────────────────────┴────────┴─────────────────────────────┘\n\n最新事件（2026-01-15T14:00:00Z）\n\n- 類型：top（頂部拐點）\n- 鈀金確認：否\n- 參與度：不足\n- 判定：**失敗走勢（failed_move）**\n\n┌───────────────────────────────────────────────────────────────────┐\n│                        可操作的建議                              │\n├───────────────────────────────────────────────────────────────────┤\n│ 1. 當前白銀頂部未被鈀金確認，視為「流動性噪音」而非趨勢反轉    │\n│ 2. 避免基於此拐點進行方向性交易                                 │\n│ 3. 等待下一個被鈀金確認的拐點再決策                             │\n│ 4. 若已有部位，可暫時觀望而非立即調整                           │\n└───────────────────────────────────────────────────────────────────┘\n\n行情解讀\n\n鈀金在本回溯窗口內對白銀報酬的最佳領先滯後為 +6 bars（鈀金先動）。\n未被鈀金確認的白銀拐點事件，其後續回撤/回到區間的比例顯著較高。\n當前白銀頂部缺乏鈀金參與，歷史統計顯示此類情況失敗概率較高。\n"
+        "question": "計算 XAU/USD 在停損 20 pips 時的淨風險報酬比（佣金 $7，點差 1.5 pips）",
+        "expectedResult": "此技能會：\n1. 計算成本密度 = (7/10 + 1.5) = 2.2 pips\n2. 計算負載係數 x = 2.2/20 = 0.11\n3. 計算 RR_net = (3.0 - 0.11)/(1 + 0.11) = 2.60\n4. 計算 WR_min = (1 + 0.11)/(1 + 3.0) = 27.7%\n"
       },
       {
-        "question": "幫我回測過去 1000 根 1 小時 K 線，分析鈀金領先白銀的有效性",
-        "expectedResult": "跨金屬確認歷史回測結果（SI=F vs PA=F，1h，1000 bars）\n\n📊 領先滯後分析\n\n- 最佳滯後：+6 bars（鈀金領先白銀 6 根 K 棒）\n- 相關係數：0.42（中等正相關）\n- 置信區間：[3, 9] bars（95% CI）\n\n📈 拐點確認統計\n\n┌─────────────────┬────────┬────────┬────────┐\n│     類型        │ 總數   │ 已確認 │ 確認率 │\n├─────────────────┼────────┼────────┼────────┤\n│ 底部拐點        │ 12     │ 9      │ 75%    │\n├─────────────────┼────────┼────────┼────────┤\n│ 頂部拐點        │ 12     │ 8      │ 67%    │\n├─────────────────┼────────┼────────┼────────┤\n│ 合計            │ 24     │ 17     │ 71%    │\n└─────────────────┴────────┴────────┴────────┘\n\n📉 失敗走勢分析\n\n未確認事件（7 個）的後續表現：\n- 失敗走勢（回撤過起點）：5 個（71%）\n- 延續走勢：2 個（29%）\n\n已確認事件（17 個）的後續表現：\n- 成功延續：14 個（82%）\n- 後續回撤：3 個（18%）\n\n✅ 結論\n\n1. 鈀金確認顯著提高白銀拐點的有效性\n2. 未確認事件的失敗率是已確認事件的 3.9 倍\n3. 建議將「鈀金確認」作為白銀交易的過濾條件\n"
+        "question": "掃描停損從 5 到 50 pips，找出 RR_net 下降 20% 的臨界點",
+        "expectedResult": "此技能會產生 P vs RR_net 表格，標記：\n- RR_net > 0 的最小 P\n- Loss_RR 達到 20%、40% 的 P 值\n- P_critical（效率減半點）\n"
+      },
+      {
+        "question": "分析為何微型時間框架策略難以獲利",
+        "expectedResult": "此技能會解釋：\n- 縮小停損導致成本雙曲線增長\n- 精確度需求與訊號品質的「剪刀效應」\n- 建議在回測中用 RR_net 替代 RR_g\n"
       }
     ],
     "qualityScore": {
-      "overall": 70,
+      "overall": 75,
       "badge": "白銀",
       "metrics": {
-        "architecture": 80,
-        "maintainability": 75,
-        "content": 80,
-        "community": 20,
-        "security": 95,
+        "architecture": 85,
+        "maintainability": 80,
+        "content": 90,
+        "community": 30,
+        "security": 100,
         "compliance": 80
       },
-      "details": "**架構（80/100）**\n- 清晰的跨金屬確認邏輯\n- 多種拐點偵測方法\n- 可配置的參與度判定\n\n**可維護性（75/100）**\n- 參數定義完整\n- 多資料來源支援\n- 工作流程分離\n\n**內容（80/100）**\n- 領先滯後分析原理\n- 失敗走勢判定規則\n- 實用的交易建議\n\n**社區（20/100）**\n- 新技能，尚無社區貢獻\n\n**安全（95/100）**\n- 僅讀取公開價格數據\n- 無需 API key\n\n**規範符合性（80/100）**\n- 遵循 Claude Code 規範\n- 完整的文件結構\n"
+      "details": "**架構（85/100）**\n- ✅ 模組化 router pattern 設計\n- ✅ 清晰的公式與理論分離\n- ⚠️ Alpha 階段\n\n**可維護性（80/100）**\n- ✅ 工作流程分離（計算/掃描/分析）\n- ✅ 公式參考文件獨立\n\n**內容（90/100）**\n- ✅ 完整的數學推導\n- ✅ 實際案例（XAU/USD）\n\n**社區（30/100）**\n- ⚠️ 新技能，尚無社區貢獻\n\n**安全（100/100）**\n- ✅ 純計算，無外部數據依賴\n\n**規範符合性（80/100）**\n- ✅ 遵循 Claude Code 規範\n"
     },
     "bestPractices": [
       {
-        "title": "使用足夠的回溯數據",
-        "description": "至少 500 根 K 棒才能產生統計有效的領先滯後估計"
+        "title": "確保單位一致性",
+        "description": "P（停損）和 s（點差）必須使用相同的 pip/point 基準"
       },
       {
-        "title": "確認窗口與時間尺度配合",
-        "description": "1h 圖建議 6-12 bars，4h 圖建議 3-6 bars"
+        "title": "使用 RR_net 進行回測",
+        "description": "微型時間框架回測應使用 RR_net 而非 RR_g"
       },
       {
-        "title": "多重確認優於單一確認",
-        "description": "同時檢查拐點確認和參與度，減少假陽性"
+        "title": "監控 P_critical 閾值",
+        "description": "停損低於 P_critical 時，策略進入高摩擦區"
       },
       {
-        "title": "失敗走勢是警告而非訊號",
-        "description": "未確認拐點提示謹慎，但不代表反向交易"
+        "title": "考慮滑點影響",
+        "description": "此模型假設理想執行，實際交易需額外考慮滑點"
       }
     ],
     "pitfalls": [
       {
-        "title": "僅看領先滯後不看確認",
-        "description": "領先滯後是平均值，單次事件可能偏離",
-        "consequence": "錯誤預期鈀金動作後銀必然跟隨"
+        "title": "單位混淆",
+        "description": "P 使用 pips 但 s 使用 points，或 c 不是 round-turn",
+        "consequence": "計算結果完全錯誤"
       },
       {
-        "title": "確認窗口設得太小",
-        "description": "窗口太小會錯過有效但稍晚的確認",
-        "consequence": "確認率偏低，判定過於嚴格"
+        "title": "忽略 R 的無關性",
+        "description": "誤以為改變固定風險 R 會影響 RR_net",
+        "consequence": "錯誤的部位規模決策"
       },
       {
-        "title": "忽略參與度判定",
-        "description": "僅有拐點確認但波動不匹配",
-        "consequence": "誤將弱相關當作強確認"
-      },
-      {
-        "title": "把未確認當作反向訊號",
-        "description": "未確認只是「不支持」，不是「反對」",
-        "consequence": "貿然反向交易造成虧損"
+        "title": "線性外推",
+        "description": "假設縮小停損會線性降低效率",
+        "consequence": "低估微型時間框架的成本衝擊"
       }
     ],
     "faq": [
       {
-        "question": "為什麼選擇鈀金作為白銀的領先指標？",
-        "answer": "鈀金與白銀同屬貴金屬，但鈀金市場較小、流動性較低，\n對宏觀變化的反應更敏感。當工業需求或避險情緒變化時，\n鈀金往往先行反應，白銀隨後跟進。\n\n這種領先關係在短週期（小時/日線）上較為顯著，\n在更長週期上兩者可能受不同基本面驅動。\n"
+        "question": "為什麼 RR_net 與 R（固定風險）無關？",
+        "answer": "在固定風險框架中，部位規模 = R / (P × V)。\n當推導 RR_net 時，R 在分子分母同時出現並抵消，\n證明效率衰減與帳戶規模無關，僅取決於 RR_g、P 和成本密度。\n"
       },
       {
-        "question": "確認窗口應該設多大？",
-        "answer": "確認窗口取決於分析的時間尺度：\n\n| 時間尺度 | 建議窗口 | 說明 |\n|----------|----------|------|\n| 1h       | 6-12 bars| 約半天到一天 |\n| 4h       | 3-6 bars | 約半天到一天 |\n| 1d       | 2-5 bars | 約一週 |\n\n窗口過小會錯過有效確認，過大會納入不相關事件。\n"
+        "question": "什麼是「獲利事件視界」？",
+        "answer": "當停損縮小到某個臨界值以下，無論預測準確度多高，\n正期望值都變得統計上不可能達成。這個閾值稱為「事件視界」，\n類似於黑洞的概念——一旦越過，就無法逃脫負期望值。\n"
       },
       {
-        "question": "失敗走勢該如何應對？",
-        "answer": "當偵測到「失敗走勢」時：\n\n1. **不要立即反向交易**：失敗走勢只是「缺乏支持」，不是「明確反對」\n2. **縮小倉位或觀望**：降低風險暴露，等待更明確的訊號\n3. **設定更寬的停損**：預期波動可能較大\n4. **等待下一個確認事件**：有鈀金參與的拐點更可靠\n"
-      },
-      {
-        "question": "可以用其他金屬代替鈀金嗎？",
-        "answer": "理論上可以，但效果可能不同：\n\n- **鉑金（PL=F）**：與鈀金同為汽車催化劑金屬，可作為替代\n- **黃金（GC=F）**：流動性高，但可能是跟隨者而非領先者\n- **銅（HG=F）**：工業屬性強，與白銀工業需求相關\n\n建議先用此技能的方法論驗證其他金屬對的領先滯後關係。\n"
+        "question": "P_critical 如何計算？",
+        "answer": "P_critical = CostDensity × (RR_g + 2) / RR_g\n\n這是策略效率減半（RR_net = 0.5 × RR_g）時的停損大小。\n低於此值進入高摩擦區，效率急劇下降。\n"
       }
     ],
     "about": {
       "repository": "https://github.com/fatfingererr/macro-skills",
       "branch": "main",
-      "additionalInfo": "## 參考來源\n\n- 推文/圖表：「鈀金是白銀短期領先指標」的觀察\n- 跨市場分析：貴金屬之間的相互領先關係\n\n## 數據來源\n\n**Yahoo Finance（免費，無需 API key）**\n- 白銀期貨：SI=F（COMEX Silver）\n- 鈀金期貨：PA=F（NYMEX Palladium）\n- 使用 yfinance 套件抓取\n\n**FRED（宏觀濾鏡，可選）**\n- DXY：美元指數\n- TIPS：實質利率代理\n- VIX：風險情緒\n\n## 適用場景\n\n- 白銀短期交易確認\n- 貴金屬板塊輪動判斷\n- 流動性噪音過濾\n- 跨金屬套利研究\n"
+      "additionalInfo": "## 理論來源\n\n基於 Sergei Sukhov 的論文：\n\"Geometry of Advantage Decay: A Quantitative Model for Risk-Reward\nDegradation in High-Friction Trading Environments\"\n\n## 相關文獻\n\n- Kyle (1985): Continuous Auctions and Insider Trading\n- Glosten & Milgrom (1985): Bid-ask spread models\n- Easley & O'Hara (1987): Price, trade size, and information\n"
     },
-    "methodology": "### 為什麼要 **跨金屬確認** ？\r\n\r\n白銀同時具有：\r\n- **貴金屬屬性**：受美元、實質利率、避險情緒影響\r\n- **工業金屬屬性**：受製造業循環、景氣預期、風險偏好影響\r\n\r\n鈀金相對更偏向：\r\n- **純工業／景氣敏感金屬**（需求集中、波動更高、對風險切換更敏感）\r\n- **市場結構更薄**（同樣的資金流動對價格衝擊更大），因此常呈現**反應更快**的特性\r\n\r\n因此在短週期（例如一小時到數日）中，鈀金常像是**工業／風險因子**的**高波動溫度計**：  \r\n當市場正在交易景氣預期、風險情緒或宏觀流動性拐點時，鈀金往往先動或更明顯地轉向，而白銀後續才跟上。\r\n\r\n### 解讀範例\r\n\r\n1. **先看鈀金（藍線）是否出現轉折訊號**\r\n   - 若鈀金先轉弱（形成局部高點、或動能斜率下滑），代表**工業／風險因子**在降溫\r\n2. **再看白銀（價格走勢）是否出現對應的結構**\r\n   - 若白銀隨後也出現較明確的高點（例如高點抬不上去、或跌破短期支撐），則判為**跨金屬確認成立**\r\n3. **若白銀單獨上衝但鈀金未跟進**\r\n   - 將其歸類為**缺乏參與度**的行情\r\n   - 預期更容易出現：回到區間、快速回撤、假突破\r\n\r\n### 這種結構為何有可能特別一致？\r\n\r\n因為短週期的資金往往在交易同一件事：  \r\n**工業景氣預期（採購經理人指數／庫存循環／風險偏好）＋宏觀流動性（美元／利率）**。  \r\n鈀金更像高波動的第一反應，白銀因為還混有**貴金屬層**而稍滯後，所以你會在近期更常看到**鈀先轉、銀後跟**的視覺一致性。\r\n\r\n### 什麼時候會失效？\r\n\r\n這套方法很強，但不是物理定律。兩種常見失效情境：\r\n\r\n1. **白銀被貴金屬層主導**\r\n   - 例如避險情緒、金銀比修正、實質利率急變  \r\n   - 白銀可能走自己的節奏，鈀金未必同步確認\r\n\r\n2. **鈀金被自身供需／事件主導**\r\n   - 汽車鏈、替代效應、供給擾動等  \r\n   - 鈀金可能獨走，反而不該拿來確認白銀走勢",
-    "downloadUrl": "downloads/detect-palladium-lead-silver-turns-0.1.0.zip"
+    "downloadUrl": "downloads/cost-density-net-rr-calculator-0.1.0.zip"
   },
   {
     "id": "demographic-fiscal-trap-analyzer",
@@ -1445,112 +1552,6 @@
     },
     "methodology": "### 1. 財政陷阱理論\r\n「人口-財政陷阱」建立在以下經濟學原理之上：\r\n\r\n#### 1.1 債務動態方程式\r\n標準政府債務動態：\r\n\r\n```\r\nd(t) = d(t-1) × (1 + r) / (1 + g) + pb(t)\r\n```\r\n\r\n簡化為：\r\n```\r\nΔd ≈ (r - g) × d + pb\r\n```\r\n\r\n其中：\r\n- d = 債務/GDP 比率\r\n- r = 名義利率（債務成本）\r\n- g = 名義 GDP 成長率\r\n- pb = 基本財政餘額/GDP（= 支出 - 收入 - 利息）\r\n\r\n**核心洞察**：當 r > g 且 pb ≥ 0 時，債務比率將自動膨脹，形成「雪球效應」。\r\n\r\n#### 1.2 老化的財政影響\r\n人口老化透過兩個管道影響財政：\r\n\r\n**支出端**：\r\n- 養老金支出：與老年人口規模正相關\r\n- 健康支出：老年人均醫療支出為年輕人的 3-5 倍\r\n- 長照支出：隨 80+ 人口增加而急升\r\n\r\n**收入端**：\r\n- 勞動人口縮減 → 所得稅基萎縮\r\n- 消費結構改變 → 消費稅稅基變化\r\n- 企業投資下降 → 企業稅收減少\r\n\r\n#### 1.3 金融抑制理論\r\nReinhart & Sbrancia (2015) 定義金融抑制為：\r\n> 政府透過人為壓低利率、強制銀行持有國債、資本管制等手段，將債務成本轉嫁給儲蓄者。\r\n\r\n當財政改革政治成本過高，金融抑制成為「最小阻力路徑」：\r\n- 負實質利率侵蝕債務實質價值\r\n- 對儲蓄者的隱性課稅\r\n- 避免名義違約的政治代價\r\n\r\n---\r\n\r\n## 分析框架\r\n\r\n### 2. 四支柱評分系統\r\n\r\n本技能採用四維度評分架構，各支柱設計如下：\r\n\r\n#### 2.1 老化壓力 (Aging Pressure)\r\n\r\n**定義**：衡量人口老化對財政的壓力程度\r\n\r\n**計算公式**：\r\n```python\r\naging_level = old_age_dependency_ratio[end_year]  # 65+/15-64\r\naging_slope = linear_regression_slope(old_age_dependency[end_year-10:end_year])\r\n\r\naging_pressure = 0.5 × zscore(aging_level) + 0.5 × zscore(aging_slope)\r\n```\r\n\r\n**權重配置邏輯**：\r\n- 水準 (50%)：當前老化程度決定即期財政壓力\r\n- 斜率 (50%)：趨勢決定未來壓力演化速度\r\n\r\n**資料來源**：\r\n- 首選：World Bank WDI (SP.POP.DPND.OL)\r\n- 次選：UN World Population Prospects\r\n\r\n#### 2.2 債務動態 (Debt Dynamics)\r\n\r\n**定義**：衡量政府債務的可持續性與演化趨勢\r\n\r\n**計算公式**：\r\n```python\r\ndebt_level = debt_to_gdp[end_year]\r\ndebt_slope = linear_regression_slope(debt_to_gdp[end_year-5:end_year])\r\nr_minus_g = nominal_yield_10y[end_year] - nominal_gdp_growth[end_year]\r\n\r\ndebt_dynamics = (\r\n    0.50 × zscore(debt_level) +\r\n    0.30 × zscore(debt_slope) +\r\n    0.20 × zscore(r_minus_g)\r\n)\r\n```\r\n\r\n**權重配置邏輯**：\r\n- 水準 (50%)：高債務水準本身即為風險\r\n- 斜率 (30%)：上升趨勢顯示問題惡化中\r\n- r-g (20%)：決定債務自動演化方向\r\n\r\n**資料來源**：\r\n- 債務：IMF WEO (GGXWDG_NGDP) 或 World Bank (GC.DOD.TOTL.GD.ZS)\r\n- 利率：OECD (IRLT) 或各國央行\r\n- 成長：World Bank (NY.GDP.MKTP.KD.ZG) + CPI 推算名義成長\r\n\r\n#### 2.3 官僚膨脹 (Bloat Index)\r\n\r\n**定義**：衡量政府支出的規模與效率\r\n\r\n**計算公式**：\r\n```python\r\ngov_consumption = government_consumption_to_gdp[end_year]\r\ngov_expenditure = government_expenditure_to_gdp[end_year]\r\n\r\nbloat_index = 0.6 × zscore(gov_consumption) + 0.4 × zscore(gov_expenditure)\r\n```\r\n\r\n**權重配置邏輯**：\r\n- 政府消費 (60%)：直接反映官僚體系規模\r\n- 總支出 (40%)：包含移轉性支出的整體規模\r\n\r\n**延伸指標**（若資料可用）：\r\n- 公部門薪資佔 GDP 比例\r\n- 公務員人數佔就業人口比例\r\n- 政府採購效率指數\r\n\r\n**資料來源**：\r\n- World Bank WDI (NE.CON.GOVT.ZS, GC.XPN.TOTL.GD.ZS)\r\n- IMF Government Finance Statistics\r\n\r\n#### 2.4 成長拖累 (Growth Drag)\r\n\r\n**定義**：低成長對財政可持續性的負面影響\r\n\r\n**計算公式**：\r\n```python\r\nnominal_growth = nominal_gdp_growth[end_year]\r\ngrowth_drag = zscore(-nominal_growth)  # 負向：低成長 = 高拖累\r\n```\r\n\r\n**邏輯**：\r\n- 低成長 → r-g 缺口擴大 → 債務自動膨脹\r\n- 低成長 → 稅基萎縮 → 財政收入下降\r\n- 低成長 → 政治壓力 → 更難削減支出\r\n\r\n---\r\n\r\n### 3. Z-Score 標準化\r\n\r\n#### 3.1 標準化公式\r\n```python\r\nzscore(x) = (x - μ) / σ\r\n```\r\n\r\n其中 μ 和 σ 為**跨國截面**統計量（非時間序列）。\r\n\r\n#### 3.2 截面選擇\r\n根據分析目的選擇截面群組：\r\n- 全球比較：使用全部可用國家\r\n- OECD 比較：僅使用 OECD 成員國\r\n- 區域比較：使用特定區域國家\r\n\r\n#### 3.3 解讀標準\r\n| Z-Score    | 解讀         | 風險等級 |\r\n|------------|--------------|----------|\r\n| > 2.0      | 極端高於平均 | 紅燈     |\r\n| 1.5 - 2.0  | 顯著高於平均 | 橙燈     |\r\n| 0.5 - 1.5  | 略高於平均   | 黃燈     |\r\n| -0.5 - 0.5 | 接近平均     | 綠燈     |\r\n| < -0.5     | 低於平均     | 優良     |\r\n\r\n---\r\n\r\n### 4. 象限分類\r\n\r\n#### 4.1 雙軸定義\r\n- **X 軸**：Aging Pressure (z-score)\r\n- **Y 軸**：Debt Dynamics (z-score)\r\n- **閾值**：z = 1.0 作為高/低分界\r\n\r\n#### 4.2 四象限意涵\r\n\r\n| 象限 | 老化 | 債務 | 特徵                   | 典型國家      |\r\n|------|------|------|------------------------|---------------|\r\n| Q1   | 高   | 高   | 雙重壓力，政策空間極窄 | JPN, ITA, GRC |\r\n| Q2   | 高   | 低   | 老化主導，債務尚有空間 | DEU, KOR      |\r\n| Q3   | 低   | 高   | 債務主導，人口紅利尚存 | USA, BRA      |\r\n| Q4   | 低   | 低   | 相對健康，政策空間寬廣 | IND, IDN      |\r\n\r\n---\r\n\r\n### 5. 通膨激勵指數\r\n\r\n#### 5.1 理論基礎\r\n當以下條件成立，政府有強烈動機選擇「通膨稀釋」路徑：\r\n1. 債務水準高 → 稀釋效益大\r\n2. r > g → 難以透過成長去槓桿\r\n3. 支出剛性高 → 難以削減開支\r\n4. 已有負實質利率歷史 → 路徑依賴\r\n\r\n#### 5.2 計算公式\r\n```python\r\ninflation_incentive = (\r\n    0.40 × zscore(debt_level) +\r\n    0.20 × zscore(r_minus_g) +\r\n    0.20 × zscore(neg_real_rate_share_5y) +\r\n    0.20 × zscore(bloat_index)\r\n)\r\n```\r\n\r\n#### 5.3 解讀\r\n| 分數      | 政策傾向     | 投資意涵           |\r\n|-----------|--------------|--------------------|\r\n| < 0.5     | 正統財政     | 名義債券相對安全   |\r\n| 0.5 - 1.5 | 溫和金融抑制 | 實質報酬承壓       |\r\n| > 1.5     | 強烈稀釋動機 | 應持有通膨保值資產 |\r\n\r\n---\r\n\r\n## 參考文獻\r\n\r\n1. Reinhart, C. M., & Sbrancia, M. B. (2015). \"The Liquidation of Government Debt.\" *Economic Policy*, 30(82), 291-333.\r\n\r\n2. Blanchard, O. (2019). \"Public Debt and Low Interest Rates.\" *American Economic Review*, 109(4), 1197-1229.\r\n\r\n3. IMF (2023). *Fiscal Monitor: Climate Crossroads*. International Monetary Fund.\r\n\r\n4. OECD (2021). *Pensions at a Glance 2021*. OECD Publishing.\r\n\r\n5. UN DESA (2022). *World Population Prospects 2022*. United Nations.\r\n",
     "downloadUrl": "downloads/demographic-fiscal-trap-analyzer-0.1.0.zip"
-  },
-  {
-    "id": "cost-density-net-rr-calculator",
-    "name": "cost-density-net-rr-calculator",
-    "displayName": "計算成本密度淨風報比",
-    "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
-    "emoji": "🧮",
-    "version": "0.1.0",
-    "license": "MIT",
-    "author": "macro-skills",
-    "authorUrl": "https://github.com/fatfingererr/macro-skills",
-    "tags": [],
-    "category": "indicator-monitoring",
-    "dataLevel": "free-nolimit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": false,
-    "installCount": 0,
-    "content": "<essential_principles>\r\n**成本密度模型核心原則**\r\n\r\n**1. 核心公式**\r\n\r\n所有計算基於以下關係：\r\n\r\n```\r\nCost Density = (c/V + s)           # 成本密度（pips 等效）\r\nx = Cost Density / P               # 負載係數\r\nRR_net = (RR_g - x) / (1 + x)      # 淨風險報酬比\r\nWR_min = (1 + x) / (1 + RR_g)      # 最低勝率\r\nP_critical = CostDensity × (RR_g + 2) / RR_g  # 效率減半點\r\n```\r\n\r\n**2. 參數定義**\r\n\r\n| 參數 | 定義                      | 單位         |\r\n|------|---------------------------|--------------|\r\n| RR_g | 毛風險報酬比（目標/停損） | 無單位       |\r\n| P    | 停損大小                  | pips/points  |\r\n| c    | 來回佣金（每手）          | 帳戶貨幣     |\r\n| s    | 來回點差                  | pips/points  |\r\n| V    | 每 pip 價值（每手）       | 帳戶貨幣/pip |\r\n| R    | 固定風險（可選，會抵消）  | 帳戶貨幣     |\r\n\r\n**3. 關鍵洞察**\r\n\r\n- **雙曲線衰減**: P → 0 時，x → ∞，RR_net → -1\r\n- **R 無關性**: RR_net 不依賴固定風險 R\r\n- **剪刀效應**: 短時間框架同時增加成本負擔與降低訊號品質\r\n\r\n**4. 單位一致性規則**\r\n\r\n- P 和 s 必須使用相同基準（都是 pips 或都是 points）\r\n- c 必須是 round-turn（來回）佣金\r\n- V 必須是每 pip 每手的價值\r\n</essential_principles>\r\n\r\n<intake>\r\n**您想要執行什麼操作？**\r\n\r\n1. **Compute** - 計算單一參數組合的成本密度與效率指標\r\n2. **Sweep** - 掃描停損範圍，生成 RR_net/WR_min 曲線表\r\n3. **Analyze** - 解讀結果，提供策略建議\r\n\r\n**等待回應後再繼續。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                             | Workflow             | Description          |\r\n|--------------------------------------|----------------------|----------------------|\r\n| 1, \"compute\", \"calculate\", \"single\"  | workflows/compute.md | 單次計算成本密度指標 |\r\n| 2, \"sweep\", \"grid\", \"curve\", \"range\" | workflows/sweep.md   | 網格掃描與閾值搜尋   |\r\n| 3, \"analyze\", \"interpret\", \"explain\" | workflows/analyze.md | 結果解讀與策略建議   |\r\n\r\n**讀取工作流程後，請完全遵循其步驟。**\r\n</routing>\r\n\r\n<reference_index>\r\n**參考文件** (`references/`)\r\n\r\n| 文件        | 內容                     |\r\n|-------------|--------------------------|\r\n| formulas.md | 完整公式推導與數學證明   |\r\n| theory.md   | 市場微結構理論背景與文獻 |\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow   | Purpose                    |\r\n|------------|----------------------------|\r\n| compute.md | 單次計算成本密度與效率指標 |\r\n| sweep.md   | 網格掃描與閾值搜尋         |\r\n| analyze.md | 結果解讀與策略建議         |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose          |\r\n|--------------------|------------------|\r\n| output-schema.yaml | 輸出 JSON schema |\r\n| input-schema.yaml  | 輸入參數 schema  |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script          | Purpose             |\r\n|-----------------|---------------------|\r\n| cost_density.py | Python 計算實作     |\r\n| cost_density.ts | TypeScript 計算實作 |\r\n</scripts_index>\r\n\r\n<quick_start>\r\n**快速計算（XAU/USD 範例）：**\r\n\r\n輸入：\r\n```json\r\n{\r\n  \"RR_g\": 3.0,\r\n  \"c\": 7.0,\r\n  \"s\": 1.5,\r\n  \"V\": 10.0,\r\n  \"P\": 20\r\n}\r\n```\r\n\r\n計算：\r\n```python\r\ncost_density = 7.0/10.0 + 1.5  # = 2.2 pips\r\nx = 2.2 / 20                    # = 0.11\r\nRR_net = (3.0 - 0.11) / (1 + 0.11)  # = 2.60\r\nWR_min = (1 + 0.11) / (1 + 3.0)     # = 27.7%\r\nP_critical = 2.2 * (3.0 + 2) / 3.0  # = 3.67 pips\r\n```\r\n\r\n輸出：\r\n```json\r\n{\r\n  \"cost_density\": 2.2,\r\n  \"x\": 0.11,\r\n  \"RR_net\": 2.60,\r\n  \"WR_min\": 0.277,\r\n  \"P_critical\": 3.67,\r\n  \"Loss_RR\": 0.133\r\n}\r\n```\r\n</quick_start>\r\n\r\n<success_criteria>\r\nSkill 成功執行時：\r\n- [ ] 輸入參數通過驗證（單位一致性）\r\n- [ ] 正確計算 cost_density、x、RR_net、WR_min\r\n- [ ] 識別是否處於高摩擦區（P < P_critical）\r\n- [ ] 輸出符合 outputs_schema\r\n- [ ] 提供 zh-TW 解釋說明\r\n</success_criteria>",
-    "path": "skills/cost-density-net-rr-calculator/SKILL.md",
-    "directoryStructure": "cost-density-net-rr-calculator/\n├── examples\n│   ├── eurusd_low_cost.json\n│   ├── high_frequency_warning.json\n│   └── xauusd_default.json\n├── manifest.json\n├── references\n│   ├── formulas.md\n│   └── theory.md\n├── scripts\n│   ├── cost_density.py\n│   └── cost_density.ts\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── input-schema.yaml\n│   └── output-schema.yaml\n└── workflows\n    ├── analyze.md\n    ├── compute.md\n    └── sweep.md",
-    "lastUpdated": "2026-01-15",
-    "rating": 3,
-    "testQuestions": [
-      {
-        "question": "計算 XAU/USD 在停損 20 pips 時的淨風險報酬比（佣金 $7，點差 1.5 pips）",
-        "expectedResult": "此技能會：\n1. 計算成本密度 = (7/10 + 1.5) = 2.2 pips\n2. 計算負載係數 x = 2.2/20 = 0.11\n3. 計算 RR_net = (3.0 - 0.11)/(1 + 0.11) = 2.60\n4. 計算 WR_min = (1 + 0.11)/(1 + 3.0) = 27.7%\n"
-      },
-      {
-        "question": "掃描停損從 5 到 50 pips，找出 RR_net 下降 20% 的臨界點",
-        "expectedResult": "此技能會產生 P vs RR_net 表格，標記：\n- RR_net > 0 的最小 P\n- Loss_RR 達到 20%、40% 的 P 值\n- P_critical（效率減半點）\n"
-      },
-      {
-        "question": "分析為何微型時間框架策略難以獲利",
-        "expectedResult": "此技能會解釋：\n- 縮小停損導致成本雙曲線增長\n- 精確度需求與訊號品質的「剪刀效應」\n- 建議在回測中用 RR_net 替代 RR_g\n"
-      }
-    ],
-    "qualityScore": {
-      "overall": 75,
-      "badge": "白銀",
-      "metrics": {
-        "architecture": 85,
-        "maintainability": 80,
-        "content": 90,
-        "community": 30,
-        "security": 100,
-        "compliance": 80
-      },
-      "details": "**架構（85/100）**\n- ✅ 模組化 router pattern 設計\n- ✅ 清晰的公式與理論分離\n- ⚠️ Alpha 階段\n\n**可維護性（80/100）**\n- ✅ 工作流程分離（計算/掃描/分析）\n- ✅ 公式參考文件獨立\n\n**內容（90/100）**\n- ✅ 完整的數學推導\n- ✅ 實際案例（XAU/USD）\n\n**社區（30/100）**\n- ⚠️ 新技能，尚無社區貢獻\n\n**安全（100/100）**\n- ✅ 純計算，無外部數據依賴\n\n**規範符合性（80/100）**\n- ✅ 遵循 Claude Code 規範\n"
-    },
-    "bestPractices": [
-      {
-        "title": "確保單位一致性",
-        "description": "P（停損）和 s（點差）必須使用相同的 pip/point 基準"
-      },
-      {
-        "title": "使用 RR_net 進行回測",
-        "description": "微型時間框架回測應使用 RR_net 而非 RR_g"
-      },
-      {
-        "title": "監控 P_critical 閾值",
-        "description": "停損低於 P_critical 時，策略進入高摩擦區"
-      },
-      {
-        "title": "考慮滑點影響",
-        "description": "此模型假設理想執行，實際交易需額外考慮滑點"
-      }
-    ],
-    "pitfalls": [
-      {
-        "title": "單位混淆",
-        "description": "P 使用 pips 但 s 使用 points，或 c 不是 round-turn",
-        "consequence": "計算結果完全錯誤"
-      },
-      {
-        "title": "忽略 R 的無關性",
-        "description": "誤以為改變固定風險 R 會影響 RR_net",
-        "consequence": "錯誤的部位規模決策"
-      },
-      {
-        "title": "線性外推",
-        "description": "假設縮小停損會線性降低效率",
-        "consequence": "低估微型時間框架的成本衝擊"
-      }
-    ],
-    "faq": [
-      {
-        "question": "為什麼 RR_net 與 R（固定風險）無關？",
-        "answer": "在固定風險框架中，部位規模 = R / (P × V)。\n當推導 RR_net 時，R 在分子分母同時出現並抵消，\n證明效率衰減與帳戶規模無關，僅取決於 RR_g、P 和成本密度。\n"
-      },
-      {
-        "question": "什麼是「獲利事件視界」？",
-        "answer": "當停損縮小到某個臨界值以下，無論預測準確度多高，\n正期望值都變得統計上不可能達成。這個閾值稱為「事件視界」，\n類似於黑洞的概念——一旦越過，就無法逃脫負期望值。\n"
-      },
-      {
-        "question": "P_critical 如何計算？",
-        "answer": "P_critical = CostDensity × (RR_g + 2) / RR_g\n\n這是策略效率減半（RR_net = 0.5 × RR_g）時的停損大小。\n低於此值進入高摩擦區，效率急劇下降。\n"
-      }
-    ],
-    "about": {
-      "repository": "https://github.com/fatfingererr/macro-skills",
-      "branch": "main",
-      "additionalInfo": "## 理論來源\n\n基於 Sergei Sukhov 的論文：\n\"Geometry of Advantage Decay: A Quantitative Model for Risk-Reward\nDegradation in High-Friction Trading Environments\"\n\n## 相關文獻\n\n- Kyle (1985): Continuous Auctions and Insider Trading\n- Glosten & Milgrom (1985): Bid-ask spread models\n- Easley & O'Hara (1987): Price, trade size, and information\n"
-    },
-    "downloadUrl": "downloads/cost-density-net-rr-calculator-0.1.0.zip"
   },
   {
     "id": "compute-precious-miner-gross-margin",

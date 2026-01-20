@@ -147,6 +147,24 @@
       ]
     },
     {
+      "name": "detect-palladium-lead-silver-turns",
+      "description": "以鈀金的先行轉向作為確認條件，檢驗白銀短期漲跌是否獲得工業景氣與風險情緒的同步支持，並標記缺乏鈀金參與度的失敗走勢。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-palladium-lead-silver-turns",
+      "category": "indicator-monitoring",
+      "tags": [
+        "鈀金",
+        "白銀",
+        "貴金屬",
+        "拐點偵測",
+        "領先指標",
+        "跨金屬確認"
+      ]
+    },
+    {
       "name": "lithium-supply-demand-gap-radar",
       "description": "將鋰產業鏈（礦端 → 精煉化學品 → 電池與終端需求），整合為一套可運算的替代指標；再把這些指標映射到鋰主題 ETF（如 LIT）的成分暴露與長期價格走勢，形成可供決策的依據。 ",
       "version": "0.1.0",
@@ -183,22 +201,15 @@
       ]
     },
     {
-      "name": "detect-palladium-lead-silver-turns",
-      "description": "以鈀金的先行轉向作為確認條件，檢驗白銀短期漲跌是否獲得工業景氣與風險情緒的同步支持，並標記缺乏鈀金參與度的失敗走勢。",
+      "name": "cost-density-net-rr-calculator",
+      "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
       "version": "0.1.0",
       "author": {
-        "name": "Ricky Wang"
+        "name": "macro-skills"
       },
-      "source": "./skills/detect-palladium-lead-silver-turns",
+      "source": "./skills/cost-density-net-rr-calculator",
       "category": "indicator-monitoring",
-      "tags": [
-        "鈀金",
-        "白銀",
-        "貴金屬",
-        "拐點偵測",
-        "領先指標",
-        "跨金屬確認"
-      ]
+      "tags": []
     },
     {
       "name": "demographic-fiscal-trap-analyzer",
@@ -217,17 +228,6 @@
         "通貨膨脹",
         "人口老化"
       ]
-    },
-    {
-      "name": "cost-density-net-rr-calculator",
-      "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
-      "version": "0.1.0",
-      "author": {
-        "name": "macro-skills"
-      },
-      "source": "./skills/cost-density-net-rr-calculator",
-      "category": "indicator-monitoring",
-      "tags": []
     },
     {
       "name": "compute-precious-miner-gross-margin",
