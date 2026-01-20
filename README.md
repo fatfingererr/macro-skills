@@ -174,6 +174,9 @@ featured: false               # 是否為精選
 
 本 Repository 受 [Skillstore](https://skillstore.io/zh-hans) 啟發而建立，待未來成熟後願合併回 Skillstore。
 
+除此之外，也使用到以下的第三方 Skill，非常感謝：
+- 基於 [cclank/news-aggregator-skill](https://github.com/cclank/news-aggregator-skill) 用於列出中國宏觀新聞消息
+
 ## 授權條款
 
 MIT License
