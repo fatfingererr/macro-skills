@@ -237,13 +237,14 @@ def quick_check(
 
 
 # 商品代碼對照表
+# 註：XAGUSD=X 已失效，改用 SI=F（白銀期貨）
 COMMODITY_MAPPING = {
-    "SLV": "XAGUSD=X",
-    "PSLV": "XAGUSD=X",
-    "GLD": "XAUUSD=X",
-    "PHYS": "XAUUSD=X",
-    "IAU": "XAUUSD=X",
-    "SIVR": "XAGUSD=X"
+    "SLV": "SI=F",      # 白銀期貨（XAGUSD=X 已失效）
+    "PSLV": "SI=F",     # 白銀期貨
+    "GLD": "GC=F",      # 黃金期貨
+    "PHYS": "GC=F",     # 黃金期貨
+    "IAU": "GC=F",      # 黃金期貨
+    "SIVR": "SI=F"      # 白銀期貨
 }
 
 
