@@ -102,7 +102,7 @@ D* = D_now × (R*/R_now)         # 需要的稀釋折扣
 
 ```bash
 cd skills/backsolve-miner-vs-metal-ratio-with-fundamentals
-pip install pandas numpy yfinance httpx beautifulsoup4 lxml  # 首次使用
+pip install pandas numpy yfinance matplotlib  # 首次使用
 python scripts/fundamental_analyzer.py --quick
 ```
 
@@ -115,6 +115,38 @@ python scripts/fundamental_analyzer.py \
   --region-profile us_sec \
   --start-date 2015-01-01 \
   --output result.json
+```
+
+**生成視覺化儀表板**
+
+```bash
+python scripts/visualize_factors.py --quick --output output/
+# 輸出: output/sil_silver_factor_analysis_YYYY-MM-DD.png
+```
+
+視覺化儀表板包含四個面板：
+1. **比率時間序列**：歷史走勢 + 分位數區間（底部/頂部）
+2. **因子雷達圖**：四大因子健康度一覽
+3. **因子評分長條圖**：成本、槓桿、倍數、稀釋各項評分
+4. **情境熱力圖**：倍數擴張 × 白銀變動的組合分析
+
+**共同上漲情境模擬**
+
+```bash
+python scripts/scenario_path_simulator.py --quick --output output/
+# 輸出: output/scenario_path_YYYY-MM-DD.png + return_heatmap_YYYY-MM-DD.png
+```
+
+核心公式：**礦業股漲幅 = (1 + 銀價漲幅) × (R₁/R₀) - 1**
+
+自訂參數：
+```bash
+python scripts/scenario_path_simulator.py \
+  --silver-monthly 5 \      # 銀價每月漲幅 5%
+  --ratio-start 1.10 \      # 比率起點
+  --ratio-end 1.20 \        # 比率終點
+  --months 6 \              # 模擬 6 個月
+  --heatmap                 # 同時生成熱力圖
 ```
 
 **輸出範例**：
@@ -164,6 +196,8 @@ python scripts/fundamental_analyzer.py \
 4. **門檻反推** - 給定目標比率，計算需要的因子組合
 5. **事件研究** - 歷史底部事件的因子驅動排名
 6. **方法論學習** - 了解回算邏輯與數據來源
+7. **視覺化** - 生成四面板儀表板圖表
+8. **共同上漲情境** - 模擬銀價與礦業股同漲時的比例關係與路徑
 
 **請選擇或直接提供分析參數。**
 </intake>
@@ -177,6 +211,9 @@ python scripts/fundamental_analyzer.py \
 | 4, "反推", "backsolve", "門檻" | 閱讀 `references/backsolve-math.md` 並執行反推分析             |
 | 5, "事件", "event", "底部"     | 閱讀 `workflows/analyze.md` 並聚焦事件研究                     |
 | 6, "學習", "方法論", "why"     | 閱讀 `references/fundamental-factors.md` + `backsolve-math.md` |
+| 7, "視覺化", "圖", "chart"     | 執行 `python scripts/visualize_factors.py --quick`             |
+| 8, "共同上漲", "情境", "路徑"  | 執行 `python scripts/scenario_path_simulator.py --quick`       |
+| "比例關係", "漲幅", "要漲多少" | 執行 `python scripts/scenario_path_simulator.py --quick`       |
 | 提供參數 (如 ETF/金屬代理)     | 閱讀 `workflows/analyze.md` 並使用參數執行                     |
 
 **路由後，閱讀對應文件並執行。**
@@ -200,7 +237,9 @@ backsolve-miner-vs-metal-ratio-with-fundamentals/
 │   ├── output-json.md                 # JSON 輸出模板
 │   └── output-markdown.md             # Markdown 報告模板
 ├── scripts/
-│   └── fundamental_analyzer.py        # 主計算腳本
+│   ├── fundamental_analyzer.py        # 主計算腳本
+│   ├── visualize_factors.py           # 視覺化儀表板腳本
+│   └── scenario_path_simulator.py     # 共同上漲情境模擬器
 └── examples/
     └── sample-output.json             # 範例輸出
 ```
@@ -246,12 +285,18 @@ backsolve-miner-vs-metal-ratio-with-fundamentals/
 </templates_index>
 
 <scripts_index>
-| Script                  | Command                              | Purpose           |
-|-------------------------|--------------------------------------|-------------------|
-| fundamental_analyzer.py | `--quick`                            | 快速分析 SIL/SI=F |
-| fundamental_analyzer.py | `--miner-universe etf:SILJ`          | 自訂礦業股 ETF    |
-| fundamental_analyzer.py | `--backsolve-target 1.7`             | 指定反推目標比率  |
-| fundamental_analyzer.py | `--event-study --min-separation 180` | 執行事件研究      |
+| Script                     | Command                              | Purpose                    |
+|----------------------------|--------------------------------------|----------------------------|
+| fundamental_analyzer.py    | `--quick`                            | 快速分析 SIL/SI=F          |
+| fundamental_analyzer.py    | `--miner-universe etf:SILJ`          | 自訂礦業股 ETF             |
+| fundamental_analyzer.py    | `--backsolve-target 1.7`             | 指定反推目標比率           |
+| fundamental_analyzer.py    | `--event-study --min-separation 180` | 執行事件研究               |
+| visualize_factors.py       | `--quick --output output/`           | 生成四面板視覺化儀表板     |
+| visualize_factors.py       | `--input result.json`                | 從 JSON 結果生成圖表       |
+| scenario_path_simulator.py | `--quick`                            | 共同上漲情境路徑模擬       |
+| scenario_path_simulator.py | `--silver-monthly 5 --months 6`      | 自訂銀價月漲幅與模擬月數   |
+| scenario_path_simulator.py | `--ratio-start 1.10 --ratio-end 1.20`| 自訂比率起終點             |
+| scenario_path_simulator.py | `--heatmap`                          | 同時生成收益率熱力圖       |
 </scripts_index>
 
 <input_schema_summary>
@@ -364,4 +409,5 @@ backsolve-miner-vs-metal-ratio-with-fundamentals/
 - [ ] 結果輸出為指定格式（JSON 或 Markdown）
 - [ ] 數據來源與方法標註（aisc_method 等）
 - [ ] 風險提示與後續研究建議
+- [ ] 視覺化儀表板（PNG 格式，檔名含日期）
 </success_criteria>
