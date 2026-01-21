@@ -1,0 +1,147 @@
+{
+  "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
+  "version": "0.1.0",
+  "displayName": "回推礦業股對金屬價格比率的基本面因子",
+  "description": "從網路自動抓取礦業公司財務報表與營運揭露（產量、成本、資本支出），回算「礦業股/金屬本體比率」的基本面解釋與區間門檻（如 1.2/1.7），並輸出可重現的估值拆解（成本因子 / 槓桿因子 / 倍數因子 / 稀釋因子）。",
+  "author": "Ricky Wang",
+  "license": "MIT",
+  "category": "commodity-sd",
+  "tags": [
+    "礦業股",
+    "基本面",
+    "AISC",
+    "槓桿",
+    "倍數",
+    "稀釋",
+    "財報分析",
+    "估值",
+    "白銀",
+    "黃金",
+    "SEC",
+    "EDGAR"
+  ],
+  "dataLevel": "free-limit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "yfinance>=0.2.0",
+      "httpx>=0.24.0",
+      "beautifulsoup4>=4.11.0",
+      "lxml>=4.9.0"
+    ],
+    "optional": [
+      "selenium>=4.0.0",
+      "webdriver-manager>=4.0.0",
+      "pypdf>=3.0.0",
+      "rapidfuzz>=3.0.0",
+      "statsmodels>=0.13.0",
+      "matplotlib>=3.5.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/fundamental_analyzer.py"
+  },
+  "workflows": [
+    {
+      "id": "analyze",
+      "name": "完整基本面分析",
+      "description": "抓取財報、計算因子、反推門檻",
+      "file": "workflows/analyze.md"
+    },
+    {
+      "id": "data-fetch",
+      "name": "數據抓取",
+      "description": "ETF 持股與財報抓取流程",
+      "file": "workflows/data-fetch.md"
+    }
+  ],
+  "references": [
+    "references/input-schema.md",
+    "references/data-sources.md",
+    "references/fundamental-factors.md",
+    "references/backsolve-math.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md"
+  ],
+  "examples": [
+    "examples/sample-output.json"
+  ],
+  "dataSources": [
+    {
+      "name": "Yahoo Finance",
+      "type": "primary",
+      "url": "https://finance.yahoo.com",
+      "api": "yfinance 套件取得價格、市值、財務摘要"
+    },
+    {
+      "name": "SEC EDGAR",
+      "type": "primary",
+      "url": "https://www.sec.gov/edgar",
+      "api": "10-K/10-Q XBRL 財報數據"
+    },
+    {
+      "name": "SEDAR+",
+      "type": "alternative",
+      "url": "https://www.sedarplus.ca",
+      "api": "加拿大公司年報與 MD&A"
+    },
+    {
+      "name": "ETF Provider Holdings",
+      "type": "primary",
+      "url": "https://www.globalxetfs.com",
+      "api": "ETF 發行商官方持股 CSV"
+    },
+    {
+      "name": "SEC N-PORT",
+      "type": "alternative",
+      "url": "https://www.sec.gov/cgi-bin/browse-edgar",
+      "api": "基金季度持股申報"
+    }
+  ],
+  "defaultProxies": {
+    "miner": {
+      "primary": "SIL",
+      "alternatives": [
+        "SILJ",
+        "GDXJ",
+        "GDX"
+      ],
+      "description": "Global X Silver Miners ETF 作為主要礦業股代理"
+    },
+    "metal": {
+      "primary": "SI=F",
+      "alternatives": [
+        "XAGUSD=X",
+        "SLV",
+        "GC=F"
+      ],
+      "description": "COMEX 白銀期貨作為主要金屬代理"
+    }
+  },
+  "fundamentalMethods": {
+    "aisc": {
+      "reported_text_extract": "從 MD&A 文字抽取揭露的 AISC",
+      "proxy_cash_cost_plus_sustaining": "Proxy 回算：(OpCost + SustCapex + G&A - Byproduct) / Oz",
+      "hybrid": "優先抽取，缺失時用 proxy 補齊"
+    },
+    "leverage": {
+      "net_debt_to_ev": "NetDebt / EV",
+      "net_debt_to_ebitda": "NetDebt / EBITDA",
+      "interest_coverage": "EBITDA / 利息支出"
+    },
+    "multiple": {
+      "ev_to_ebitda": "EV / EBITDA",
+      "p_to_nav_proxy": "P / NAV 代理值",
+      "fcf_yield": "FCF / MarketCap"
+    },
+    "dilution": {
+      "weighted_avg_shares": "加權平均股數 YoY 變化",
+      "shares_outstanding": "流通股數 YoY 變化"
+    }
+  }
+}

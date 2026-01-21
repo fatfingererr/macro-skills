@@ -1,0 +1,150 @@
+{
+  "skill": "backsolve_miner_vs_metal_ratio_with_fundamentals",
+  "version": "0.1.0",
+  "generated_at": "2026-01-21T12:00:00Z",
+
+  "inputs": {
+    "metal_symbol": "SI=F",
+    "miner_universe": {
+      "type": "etf_holdings",
+      "etf_ticker": "SIL"
+    },
+    "region_profile": "us_sec",
+    "time_range": {
+      "start": "2015-01-01",
+      "end": "2026-01-21",
+      "frequency": "weekly"
+    }
+  },
+
+  "now": {
+    "date": "2026-01-17",
+    "metal_price": 94.4,
+    "miner_price": 103.4,
+    "ratio": 1.13,
+    "ratio_percentile": 0.111,
+    "zone": "bottom"
+  },
+
+  "thresholds": {
+    "bottom_ratio": 1.20,
+    "top_ratio": 1.70,
+    "median_ratio": 1.51
+  },
+
+  "fundamentals_weighted": {
+    "aisc_usd_per_oz": 28.0,
+    "net_debt_to_ev": 0.25,
+    "ev_to_ebitda": 6.4,
+    "shares_yoy_change": 0.12
+  },
+
+  "factors_now": {
+    "cost_factor_C": 0.7034,
+    "leverage_factor_1_minus_L": 0.75,
+    "multiple_M": 6.4,
+    "dilution_discount_D": 0.89
+  },
+
+  "backsolve_to_top": {
+    "target_ratio": 1.70,
+    "ratio_multiplier": 1.50,
+    "single_factor": {
+      "multiple_only_need": 9.6,
+      "multiple_change_pct": 0.50,
+      "deleverage_only_need_1_minus_L": 1.125,
+      "deleverage_feasible": false,
+      "cost_only_need_C": 1.055,
+      "cost_only_implied_aisc": -5.2,
+      "cost_feasible": false,
+      "dilution_only_need_D": 1.335,
+      "dilution_feasible": false
+    },
+    "two_factor_grid": [
+      {
+        "scenario": "multiple_up_metal_down",
+        "multiple_change": 0.20,
+        "metal_change": -0.15,
+        "achieved_multiplier": 1.52,
+        "hits_target": true
+      },
+      {
+        "scenario": "multiple_up_metal_down",
+        "multiple_change": 0.30,
+        "metal_change": 0.00,
+        "achieved_multiplier": 1.30,
+        "hits_target": false
+      }
+    ]
+  },
+
+  "event_study": {
+    "bottom_threshold": 1.20,
+    "events_count": 5,
+    "bottom_events": [
+      {
+        "date": "2015-08-07",
+        "ratio": 1.15,
+        "dominant_driver": "multiple_compression"
+      },
+      {
+        "date": "2020-03-20",
+        "ratio": 1.08,
+        "dominant_driver": "leverage_spike"
+      },
+      {
+        "date": "2022-09-02",
+        "ratio": 1.12,
+        "dominant_driver": "cost_increase"
+      },
+      {
+        "date": "2024-06-28",
+        "ratio": 1.10,
+        "dominant_driver": "dilution"
+      },
+      {
+        "date": "2026-01-02",
+        "ratio": 1.13,
+        "dominant_driver": "multiple_compression"
+      }
+    ]
+  },
+
+  "holdings_detail": [
+    {
+      "ticker": "PAAS",
+      "name": "Pan American Silver",
+      "weight": 0.125,
+      "aisc": 24.5,
+      "aisc_method": "reported",
+      "net_debt_to_ev": 0.18,
+      "ev_to_ebitda": 7.2,
+      "shares_yoy": 0.05
+    },
+    {
+      "ticker": "AG",
+      "name": "First Majestic Silver",
+      "weight": 0.082,
+      "aisc": 26.8,
+      "aisc_method": "reported",
+      "net_debt_to_ev": 0.22,
+      "ev_to_ebitda": 6.8,
+      "shares_yoy": 0.08
+    }
+  ],
+
+  "summary": "SIL/白銀比率處於歷史底部區間（11.1% 分位數），主要驅動因素為倍數壓縮（EV/EBITDA 從 8x 壓縮至 6.4x）。回到歷史頂部需要倍數擴張約 50%，或結合倍數 +20% 與白銀回調 -15%。",
+
+  "notes": [
+    "AISC 使用 hybrid 方法回算，部分公司為 proxy 值",
+    "財報數據時滯 1-2 季，反映過去而非當前狀態",
+    "建議交叉驗證：COT 持倉、ETF 流量、美元/實質利率"
+  ],
+
+  "data_sources": {
+    "prices": "yfinance",
+    "filings": "sec_edgar",
+    "holdings": "globalxetfs.com",
+    "holdings_date": "2026-01-15"
+  }
+}
