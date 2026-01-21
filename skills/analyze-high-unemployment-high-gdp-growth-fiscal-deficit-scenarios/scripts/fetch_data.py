@@ -80,8 +80,8 @@ def fetch_fred_csv(
     try:
         df = pd.read_csv(
             StringIO(response.text),
-            parse_dates=["DATE"],
-            index_col="DATE"
+            parse_dates=["observation_date"],
+            index_col="observation_date"
         )
         series = df[series_id].replace(".", pd.NA).astype(float)
         series.name = series_id

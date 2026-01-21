@@ -5,6 +5,8 @@
 
 分析「失業率走高／勞動市場轉弱」但「GDP 仍維持高位」的情境下，
 財政赤字占 GDP 可能擴張的區間，並生成對長天期美債的風險解讀。
+
+支援視覺化輸出（三軸圖表）。
 """
 
 import argparse
@@ -18,6 +20,18 @@ import pandas as pd
 
 # 導入數據抓取模組
 from fetch_data import fetch_multiple_series, validate_data
+
+# 嘗試導入視覺化模組（可選）
+try:
+    from visualizer import (
+        plot_gromen_style_chart,
+        identify_crossover_events,
+        generate_scenario_projection,
+        generate_summary_stats
+    )
+    HAS_VISUALIZER = True
+except ImportError:
+    HAS_VISUALIZER = False
 
 
 # ============================================================
@@ -61,7 +75,7 @@ def compute_ujo(unemploy: pd.Series, jtsjol: pd.Series) -> pd.Series:
 
 
 def compute_sahm_rule(unrate: pd.Series) -> pd.Series:
-    """計算 Sahm Rule"""
+    """計算 薩姆規則"""
     ur_3m_ma = unrate.rolling(3).mean()
     ur_12m_min = unrate.rolling(12).min()
     sahm = ur_3m_ma - ur_12m_min
@@ -102,7 +116,7 @@ def identify_labor_softening_events(
     ujo_threshold_pctl : float
         UJO 分位數門檻
     sahm_threshold : float
-        Sahm Rule 門檻
+        薩姆規則 門檻
     delta_ur_threshold : float
         ΔUR 門檻
     min_duration : int
@@ -566,6 +580,29 @@ def main():
         choices=["json", "markdown"],
         help="輸出格式 (預設: json)"
     )
+    # 視覺化選項
+    parser.add_argument(
+        "--visualize",
+        action="store_true",
+        help="生成視覺化圖表（三軸圖表）"
+    )
+    parser.add_argument(
+        "--scenario-type",
+        type=str,
+        default="moderate",
+        choices=["mild", "moderate", "severe", "none"],
+        help="情境模擬類型 (預設: moderate)"
+    )
+    parser.add_argument(
+        "--chart-output",
+        type=str,
+        help="圖表輸出檔案路徑"
+    )
+    parser.add_argument(
+        "--no-show",
+        action="store_true",
+        help="不顯示圖表（僅保存）"
+    )
 
     args = parser.parse_args()
 
@@ -586,7 +623,7 @@ def main():
     else:
         result = run_analysis(config)
 
-    # 輸出
+    # 輸出 JSON/Markdown
     output_str = json.dumps(result, ensure_ascii=False, indent=2, default=str)
 
     if args.output:
@@ -596,6 +633,64 @@ def main():
         print("\n分析結果:")
         print("=" * 60)
         print(output_str)
+
+    # 視覺化
+    if args.visualize:
+        if not HAS_VISUALIZER:
+            print("\n警告：視覺化模組不可用，請確認 matplotlib 已安裝")
+            print("      pip install matplotlib")
+            return
+
+        import matplotlib.pyplot as plt
+
+        print("\n" + "=" * 60)
+        print("生成視覺化圖表...")
+
+        # 重新抓取完整數據用於視覺化
+        vis_data = fetch_multiple_series(
+            ['UNRATE', 'UNEMPLOY', 'JTSJOL', 'FYFSGDA188S'],
+            years=args.lookback
+        )
+
+        # 識別 crossover 事件
+        events = identify_crossover_events(
+            vis_data['UNEMPLOY'],
+            vis_data['JTSJOL'],
+            vis_data['FYFSGDA188S']
+        )
+
+        # 生成情境投影
+        scenario = None
+        if args.scenario_type != 'none':
+            scenario = generate_scenario_projection(
+                vis_data,
+                scenario_type=args.scenario_type,
+                horizon_months=args.horizon * 3  # 季轉月
+            )
+
+        # 決定輸出路徑
+        if args.chart_output:
+            chart_path = args.chart_output
+        else:
+            output_dir = Path(__file__).parent.parent / 'output'
+            output_dir.mkdir(parents=True, exist_ok=True)
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            chart_path = str(output_dir / f'fiscal_deficit_scenario_{timestamp}.png')
+
+        # 繪製圖表
+        fig = plot_gromen_style_chart(
+            vis_data,
+            events,
+            scenario=scenario,
+            output_path=chart_path,
+            title='Job Openings, Unemployment & Federal Deficit/GDP\n(with Scenario Projection)'
+        )
+
+        print(f"圖表已保存至: {chart_path}")
+
+        # 顯示圖表
+        if not args.no_show:
+            plt.show()
 
 
 if __name__ == "__main__":
