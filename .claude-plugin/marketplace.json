@@ -266,6 +266,24 @@
       ]
     },
     {
+      "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
+      "description": "從網路自動抓取礦業公司財務報表與營運揭露（產量、成本、資本支出），回算「礦業股/金屬本體比率」的基本面解釋與區間門檻（如 1.2/1.7），並輸出可重現的估值拆解（成本因子 / 槓桿因子 / 倍數因子 / 稀釋因子）。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/backsolve-miner-vs-metal-ratio-with-fundamentals",
+      "category": "commodity-sd",
+      "tags": [
+        "礦業股",
+        "基本面",
+        "AISC",
+        "槓桿",
+        "倍數",
+        "稀釋"
+      ]
+    },
+    {
       "name": "analyze-silver-miner-metal-ratio",
       "description": "以「銀礦股價格 / 白銀價格」的相對比率衡量礦業股板塊相對於金屬本體的估值區間（偏貴/偏便宜），並用歷史分位數與類比區間推導「底部/頂部」訊號與情境推演。",
       "version": "0.1.0",

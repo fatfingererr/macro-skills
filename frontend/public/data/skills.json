@@ -1768,6 +1768,134 @@
     "downloadUrl": "downloads/compute-precious-miner-gross-margin-0.1.0.zip"
   },
   {
+    "id": "backsolve-miner-vs-metal-ratio-with-fundamentals",
+    "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
+    "displayName": "回推礦業股對金屬價格比率的基本面因子",
+    "description": "從網路自動抓取礦業公司財務報表與營運揭露（產量、成本、資本支出），回算「礦業股/金屬本體比率」的基本面解釋與區間門檻（如 1.2/1.7），並輸出可重現的估值拆解（成本因子 / 槓桿因子 / 倍數因子 / 稀釋因子）。",
+    "emoji": "🔎",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "礦業股",
+      "基本面",
+      "AISC",
+      "槓桿",
+      "倍數",
+      "稀釋",
+      "財報分析",
+      "估值",
+      "白銀",
+      "黃金",
+      "SEC",
+      "EDGAR"
+    ],
+    "category": "commodity-sd",
+    "dataLevel": "free-limit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\n\n<principle name=\"ratio_decomposition\">\n**比率拆解核心公式**\n\n礦業股/金屬價格比率可分解為四大基本面因子：\n\n```\nR_t ≈ K × M_t × (1-L_t) × C_t × D_t\n```\n\n其中：\n- **K**: 校準常數（由觀測值估計）\n- **M_t**: 倍數因子（EV/EBITDA）\n- **(1-L_t)**: 槓桿因子（1 - NetDebt/EV）\n- **C_t**: 成本因子（1 - AISC/S_t）\n- **D_t**: 稀釋因子（Shares_base / Shares_t）\n\n此拆解讓「比率變動」有可歸因的量化解釋。\n</principle>\n\n<principle name=\"aisc_extraction\">\n**AISC 抽取優先順序**\n\n全維持成本（AISC）是礦業股估值的核心驅動：\n\n| 優先級 | 來源            | 方法                                        |\n|--------|-----------------|---------------------------------------------|\n| 1      | MD&A / 財報附註 | 關鍵字抽取：「AISC」「all-in sustaining」   |\n| 2      | 年報簡報 PDF    | 解析表格：$/oz 或 $/ounce                   |\n| 3      | Proxy 回算      | (OpCost + SustCapex + G&A - Byproduct) / Oz |\n\n當直接揭露不可得時，以 proxy 回算補缺；記錄 `aisc_method` 以標註來源。\n</principle>\n\n<principle name=\"backsolve_logic\">\n**反推邏輯（Backsolve）**\n\n目標：給定目標比率 R*（如歷史頂部 1.7），反推需要哪些因子條件。\n\n**單因子反推**：假設其他因子不變，只調整單一因子\n\n```\nM* = M_now × (R*/R_now)         # 需要的倍數\n(1-L*) = (1-L_now) × (R*/R_now) # 需要的去槓桿\nC* = C_now × (R*/R_now)         # 需要的成本改善 → 反推 AISC*\nD* = D_now × (R*/R_now)         # 需要的稀釋折扣\n```\n\n**雙因子組合**：以網格列舉可行組合（如倍數 +20% + 白銀 -15%）。\n</principle>\n\n<principle name=\"event_study\">\n**事件研究方法**\n\n識別「比率落入底部分位」的歷史事件，回看事件當期的四大因子狀態：\n\n1. **AISC 是否上升**：成本壓力\n2. **NetDebt/EV 是否惡化**：槓桿壓力\n3. **EV/EBITDA 是否壓縮**：倍數壓力\n4. **Shares 是否上升**：稀釋壓力\n\n排名「哪個因子貢獻最大」，識別驅動底部的主因。\n</principle>\n\n<principle name=\"data_priority\">\n**數據來源優先順序**\n\n遵循「結構化優先」原則：\n\n1. **SEC XBRL (10-K/10-Q)**：直接取欄位（債務、現金、股數、CFO、Capex）\n2. **SEDAR+ (加拿大)**：銀礦公司常在加拿大上市\n3. **公司 IR 年報/MD&A**：補齊 AISC、產量等非標準欄位\n4. **ETF Holdings**：官方 CSV 或 SEC N-PORT\n\n抓取時使用 Selenium 模擬人類行為，避免被封鎖。\n</principle>\n\n</essential_principles>\n\n<objective>\n實作「礦業股/金屬價格比率」基本面回算系統：\n\n1. **數據整合**：抓取價格、ETF 持股、財務報表、營運揭露\n2. **因子計算**：計算 AISC、槓桿、倍數、稀釋四大因子\n3. **比率拆解**：建立 R_t ≈ K × M × (1-L) × C × D 近似式\n4. **門檻反推**：給定目標比率，反推需要的因子組合\n5. **事件研究**：歷史底部事件的因子驅動分析\n6. **輸出報告**：結構化 JSON 與可讀 Markdown\n\n目標用戶：看到 SIL/白銀比率極端時，想用「真實財報」驗證驅動因素。\n</objective>\n\n<quick_start>\n\n**最快的方式：使用預設參數分析**\n\n```bash\ncd skills/backsolve-miner-vs-metal-ratio-with-fundamentals\npip install pandas numpy yfinance httpx beautifulsoup4 lxml  # 首次使用\npython scripts/fundamental_analyzer.py --quick\n```\n\n**完整分析（含財報抓取）**\n\n```bash\npython scripts/fundamental_analyzer.py \\\n  --metal-symbol SI=F \\\n  --miner-universe etf:SIL \\\n  --region-profile us_sec \\\n  --start-date 2015-01-01 \\\n  --output result.json\n```\n\n**輸出範例**：\n\n```json\n{\n  \"now\": {\n    \"metal_price\": 94.4,\n    \"miner_price\": 103.4,\n    \"ratio\": 1.13,\n    \"ratio_percentile\": 0.111\n  },\n  \"thresholds\": {\n    \"bottom_ratio\": 1.20,\n    \"top_ratio\": 1.70,\n    \"median_ratio\": 1.51\n  },\n  \"fundamentals_weighted\": {\n    \"aisc_usd_per_oz\": 28.0,\n    \"net_debt_to_ev\": 0.25,\n    \"ev_to_ebitda\": 6.4,\n    \"shares_yoy_change\": 0.12\n  },\n  \"factors_now\": {\n    \"cost_factor_C\": 0.7034,\n    \"leverage_factor_1_minus_L\": 0.75,\n    \"multiple_M\": 6.4,\n    \"dilution_discount_D\": 0.89\n  },\n  \"backsolve_to_top\": {\n    \"multiple_only_need\": 9.1,\n    \"deleverage_only_need_1_minus_L\": 1.12,\n    \"cost_only_implied_aisc\": 15.6,\n    \"dilution_only_need_D\": 1.26\n  }\n}\n```\n\n</quick_start>\n\n<intake>\n需要進行什麼操作？\n\n1. **快速分析** - 使用預設參數（SIL / SI=F）計算當前因子狀態\n2. **完整分析** - 抓取財報、計算因子、反推門檻\n3. **因子拆解** - 深入了解四大因子的計算邏輯\n4. **門檻反推** - 給定目標比率，計算需要的因子組合\n5. **事件研究** - 歷史底部事件的因子驅動排名\n6. **方法論學習** - 了解回算邏輯與數據來源\n\n**請選擇或直接提供分析參數。**\n</intake>\n\n<routing>\n| Response                       | Action                                                         |\n|--------------------------------|----------------------------------------------------------------|\n| 1, \"快速\", \"quick\", \"分析\"     | 執行 `python scripts/fundamental_analyzer.py --quick`          |\n| 2, \"完整\", \"full\", \"財報\"      | 閱讀 `workflows/analyze.md` 並執行                             |\n| 3, \"因子\", \"factor\", \"拆解\"    | 閱讀 `references/fundamental-factors.md`                       |\n| 4, \"反推\", \"backsolve\", \"門檻\" | 閱讀 `references/backsolve-math.md` 並執行反推分析             |\n| 5, \"事件\", \"event\", \"底部\"     | 閱讀 `workflows/analyze.md` 並聚焦事件研究                     |\n| 6, \"學習\", \"方法論\", \"why\"     | 閱讀 `references/fundamental-factors.md` + `backsolve-math.md` |\n| 提供參數 (如 ETF/金屬代理)     | 閱讀 `workflows/analyze.md` 並使用參數執行                     |\n\n**路由後，閱讀對應文件並執行。**\n</routing>\n\n<directory_structure>\n```\nbacksolve-miner-vs-metal-ratio-with-fundamentals/\n├── SKILL.md                           # 本文件（路由器）\n├── skill.yaml                         # 前端展示元數據\n├── manifest.json                      # 技能元數據\n├── workflows/\n│   ├── analyze.md                     # 完整分析工作流\n│   └── data-fetch.md                  # 數據抓取工作流\n├── references/\n│   ├── input-schema.md                # 完整輸入參數定義\n│   ├── data-sources.md                # 數據來源說明\n│   ├── fundamental-factors.md         # 四大因子計算邏輯\n│   └── backsolve-math.md              # 反推數學公式\n├── templates/\n│   ├── output-json.md                 # JSON 輸出模板\n│   └── output-markdown.md             # Markdown 報告模板\n├── scripts/\n│   └── fundamental_analyzer.py        # 主計算腳本\n└── examples/\n    └── sample-output.json             # 範例輸出\n```\n</directory_structure>\n\n<reference_index>\n\n**輸入參數**: references/input-schema.md\n- 完整參數定義\n- 預設值與建議範圍\n- 各方法選項說明\n\n**數據來源**: references/data-sources.md\n- 價格數據（yfinance / stooq / alphavantage）\n- 財報數據（SEC EDGAR / SEDAR+ / 公司 IR）\n- ETF 持股（官方 CSV / N-PORT / 手動 URL）\n\n**因子計算**: references/fundamental-factors.md\n- AISC 成本因子\n- 槓桿因子\n- 倍數因子\n- 稀釋因子\n\n**反推數學**: references/backsolve-math.md\n- 單因子反推公式\n- 雙因子組合網格\n- 校準常數估計\n\n</reference_index>\n\n<workflows_index>\n| Workflow      | Purpose  | 使用時機                    |\n|---------------|----------|-----------------------------|\n| analyze.md    | 完整分析 | 需要抓取財報並計算因子      |\n| data-fetch.md | 數據抓取 | 了解如何抓取 ETF 持股與財報 |\n</workflows_index>\n\n<templates_index>\n| Template           | Purpose           |\n|--------------------|-------------------|\n| output-json.md     | JSON 輸出結構定義 |\n| output-markdown.md | Markdown 報告模板 |\n</templates_index>\n\n<scripts_index>\n| Script                  | Command                              | Purpose           |\n|-------------------------|--------------------------------------|-------------------|\n| fundamental_analyzer.py | `--quick`                            | 快速分析 SIL/SI=F |\n| fundamental_analyzer.py | `--miner-universe etf:SILJ`          | 自訂礦業股 ETF    |\n| fundamental_analyzer.py | `--backsolve-target 1.7`             | 指定反推目標比率  |\n| fundamental_analyzer.py | `--event-study --min-separation 180` | 執行事件研究      |\n</scripts_index>\n\n<input_schema_summary>\n\n**核心參數**\n\n| 參數                 | 類型   | 預設值  | 說明                                    |\n|----------------------|--------|---------|-----------------------------------------|\n| metal_symbol         | string | SI=F    | 金屬價格代碼（SI=F 白銀、GC=F 黃金）    |\n| miner_universe       | object | etf:SIL | 礦業股/ETF 定義                         |\n| region_profile       | string | us_sec  | 監管與揭露來源（us_sec / canada_sedar） |\n| time_range.start     | string | 5 年前  | 分析起點（YYYY-MM-DD）                  |\n| time_range.end       | string | today   | 分析終點                                |\n| time_range.frequency | string | weekly  | 取樣頻率（daily/weekly/monthly）        |\n\n**因子方法選擇**\n\n| 參數                         | 類型   | 預設值              | 說明          |\n|------------------------------|--------|---------------------|---------------|\n| fundamental_methods.aisc     | string | hybrid              | AISC 抽取方法 |\n| fundamental_methods.leverage | string | net_debt_to_ev      | 槓桿計算方法  |\n| fundamental_methods.multiple | string | ev_to_ebitda        | 倍數計算方法  |\n| fundamental_methods.dilution | string | weighted_avg_shares | 稀釋計算方法  |\n\n**分位門檻**\n\n| 參數                    | 類型  | 預設值 | 說明           |\n|-------------------------|-------|--------|----------------|\n| ratio_thresholds.bottom | float | 0.20   | 底部分位數門檻 |\n| ratio_thresholds.top    | float | 0.80   | 頂部分位數門檻 |\n\n完整參數定義見 `references/input-schema.md`。\n\n</input_schema_summary>\n\n<output_schema_summary>\n```json\n{\n  \"skill\": \"backsolve_miner_vs_metal_ratio_with_fundamentals\",\n  \"inputs\": {\n    \"metal_symbol\": \"SI=F\",\n    \"miner_universe\": {\"type\": \"etf_holdings\", \"etf_ticker\": \"SIL\"},\n    \"region_profile\": \"us_sec\"\n  },\n  \"now\": {\n    \"metal_price\": 94.4,\n    \"miner_price\": 103.4,\n    \"ratio\": 1.13,\n    \"ratio_percentile\": 0.111\n  },\n  \"thresholds\": {\n    \"bottom_ratio\": 1.20,\n    \"top_ratio\": 1.70,\n    \"median_ratio\": 1.51\n  },\n  \"fundamentals_weighted\": {\n    \"aisc_usd_per_oz\": 28.0,\n    \"net_debt_to_ev\": 0.25,\n    \"ev_to_ebitda\": 6.4,\n    \"shares_yoy_change\": 0.12\n  },\n  \"factors_now\": {\n    \"cost_factor_C\": 0.7034,\n    \"leverage_factor_1_minus_L\": 0.75,\n    \"multiple_M\": 6.4,\n    \"dilution_discount_D\": 0.89\n  },\n  \"backsolve_to_top\": {\n    \"multiple_only_need\": 9.1,\n    \"deleverage_only_need_1_minus_L\": 1.12,\n    \"cost_only_implied_aisc\": 15.6,\n    \"dilution_only_need_D\": 1.26,\n    \"two_factor_grid_examples\": [\n      {\"multiple_up\": 1.20, \"metal_down\": -0.15, \"hits_top\": true},\n      {\"deleverage\": -0.10, \"multiple_up\": 1.15, \"hits_top\": true}\n    ]\n  },\n  \"event_study\": {\n    \"bottom_events\": [\n      {\n        \"date\": \"2026-01-02\",\n        \"ratio\": 1.13,\n        \"aisc\": 29.1,\n        \"net_debt_to_ev\": 0.27,\n        \"ev_to_ebitda\": 5.8,\n        \"shares_yoy\": 0.14,\n        \"dominant_driver\": \"multiple_compression\"\n      }\n    ]\n  },\n  \"summary\": \"比率處於歷史底部，主要驅動為倍數壓縮...\",\n  \"notes\": [\n    \"AISC 使用 hybrid 方法回算，部分公司為 proxy 值\",\n    \"建議交叉驗證：COT 持倉、ETF 流量、美元/實質利率\"\n  ]\n}\n```\n\n完整輸出結構見 `templates/output-json.md`。\n</output_schema_summary>\n\n<success_criteria>\n執行成功時應產出：\n\n- [ ] 當前比率與歷史分位數\n- [ ] 四大基本面因子（AISC、槓桿、倍數、稀釋）\n- [ ] 權重加總後的組合因子\n- [ ] 門檻反推結果（單因子 + 雙因子組合）\n- [ ] 歷史底部事件的因子驅動排名\n- [ ] 結果輸出為指定格式（JSON 或 Markdown）\n- [ ] 數據來源與方法標註（aisc_method 等）\n- [ ] 風險提示與後續研究建議\n</success_criteria>",
+    "path": "skills/backsolve-miner-vs-metal-ratio-with-fundamentals/SKILL.md",
+    "directoryStructure": "backsolve-miner-vs-metal-ratio-with-fundamentals/\n├── examples\n│   └── sample-output.json\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── backsolve-math.md\n│   ├── data-sources.md\n│   ├── fundamental-factors.md\n│   └── input-schema.md\n├── scripts\n│   └── fundamental_analyzer.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    └── data-fetch.md",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "分析目前 SIL 對白銀比率處於底部的原因，是成本上升、槓桿壓力、倍數壓縮還是股權稀釋？",
+        "expectedResult": "SIL/白銀比率基本面因子分析\n\n當前狀態\n┌────────────┬───────────────┬────────────────────┐\n│    指標    │     數值      │        解讀        │\n├────────────┼───────────────┼────────────────────┤\n│ 當前比率   │ 1.13          │ SIL價格 / 白銀價格 │\n├────────────┼───────────────┼────────────────────┤\n│ 歷史分位數 │ 11.1%         │ 處於歷史底部區間   │\n├────────────┼───────────────┼────────────────────┤\n│ 區間判定   │ 底部 (bottom) │ ≤ 20% 分位數       │\n└────────────┴───────────────┴────────────────────┘\n\n四大基本面因子\n┌─────────────┬───────────────┬────────────────────────────────┐\n│    因子     │   當前值      │             解讀               │\n├─────────────┼───────────────┼────────────────────────────────┤\n│ 成本因子 C  │ 0.703         │ AISC = $28/oz，成本偏高        │\n├─────────────┼───────────────┼────────────────────────────────┤\n│ 槓桿因子    │ 0.75          │ NetDebt/EV = 25%，槓桿中等     │\n├─────────────┼───────────────┼────────────────────────────────┤\n│ 倍數因子 M  │ 6.4x          │ EV/EBITDA 偏低，倍數壓縮明顯   │\n├─────────────┼───────────────┼────────────────────────────────┤\n│ 稀釋因子 D  │ 0.89          │ 股數 YoY +12%，有稀釋壓力      │\n└─────────────┴───────────────┴────────────────────────────────┘\n\n主要驅動因素排名\n1. 倍數壓縮（EV/EBITDA 從 8x 壓縮至 6.4x）\n2. 股權稀釋（過去一年股本增加 12%）\n3. 成本上升（AISC 從 $24 升至 $28/oz）\n4. 槓桿中性（無明顯惡化）\n\n結論：比率落入底部主要由「倍數壓縮」驅動，次要為股權稀釋與成本上升。\n"
+      },
+      {
+        "question": "如果 SIL/白銀比率要回到歷史頂部 1.7，需要什麼條件？",
+        "expectedResult": "門檻反推分析：回到頂部比率 1.7\n\n當前狀態\n┌───────────────────────┬──────────────┐\n│         指標          │     數值     │\n├───────────────────────┼──────────────┤\n│ 當前比率              │ 1.13         │\n├───────────────────────┼──────────────┤\n│ 目標比率（頂部）      │ 1.70         │\n├───────────────────────┼──────────────┤\n│ 需要的倍數           │ 1.50x        │\n└───────────────────────┴──────────────┘\n\n單因子反推\n┌───────────────────────┬──────────────────────────────────┐\n│       假設條件        │           需要的調整             │\n├───────────────────────┼──────────────────────────────────┤\n│ 只靠倍數擴張          │ EV/EBITDA 從 6.4x 升至 9.6x      │\n├───────────────────────┼──────────────────────────────────┤\n│ 只靠去槓桿            │ NetDebt/EV 從 25% 降至 0%        │\n├───────────────────────┼──────────────────────────────────┤\n│ 只靠成本改善          │ AISC 從 $28 降至 $16/oz          │\n├───────────────────────┼──────────────────────────────────┤\n│ 只靠減少稀釋          │ 股數需減少 33%（不現實）         │\n└───────────────────────┴──────────────────────────────────┘\n\n雙因子組合\n┌───────────────────────┬──────────────┬──────────────┬────────────────┐\n│         組合          │   倍數調整   │   其他調整   │   是否達標     │\n├───────────────────────┼──────────────┼──────────────┼────────────────┤\n│ 倍數 + 白銀回調       │ EV/EBITDA +20% │ 白銀 -20%    │ ✓              │\n├───────────────────────┼──────────────┼──────────────┼────────────────┤\n│ 倍數 + 去槓桿         │ EV/EBITDA +15% │ Debt -15%    │ ✓              │\n├───────────────────────┼──────────────┼──────────────┼────────────────┤\n│ 成本 + 倍數           │ AISC -$5/oz   │ EV/EBITDA +10% │ ✓              │\n└───────────────────────┴──────────────┴──────────────┴────────────────┘\n\n結論：回到頂部需要多個因子同時改善，單靠倍數擴張需要 50%，較難實現。\n"
+      },
+      {
+        "question": "歷史上比率落入底部時，哪個因子是主要驅動？",
+        "expectedResult": "歷史底部事件的因子驅動分析\n\n偵測到 5 次底部區間事件\n┌─────┬────────────┬──────────────────────────────────────┐\n│  #  │    日期    │           主要驅動因子               │\n├─────┼────────────┼──────────────────────────────────────┤\n│ 1   │ 2015-08-07 │ 倍數壓縮（商品熊市末期）             │\n├─────┼────────────┼──────────────────────────────────────┤\n│ 2   │ 2020-03-20 │ 槓桿惡化 + 倍數壓縮（COVID 危機）    │\n├─────┼────────────┼──────────────────────────────────────┤\n│ 3   │ 2022-09-02 │ 成本上升（通膨推高 AISC）            │\n├─────┼────────────┼──────────────────────────────────────┤\n│ 4   │ 2024-06-28 │ 股權稀釋 + 倍數壓縮                  │\n├─────┼────────────┼──────────────────────────────────────┤\n│ 5   │ 2026-01-02 │ 倍數壓縮（當前）                     │\n└─────┴────────────┴──────────────────────────────────────┘\n\n因子驅動統計\n┌─────────────────┬──────────────┬──────────────────────────────────┐\n│      因子       │  出現次數    │             說明                 │\n├─────────────────┼──────────────┼──────────────────────────────────┤\n│ 倍數壓縮        │ 5/5 (100%)   │ 最常見的底部驅動因素             │\n├─────────────────┼──────────────┼──────────────────────────────────┤\n│ 成本上升        │ 2/5 (40%)    │ 通膨環境下較常見                 │\n├─────────────────┼──────────────┼──────────────────────────────────┤\n│ 槓桿惡化        │ 2/5 (40%)    │ 危機時期較常見                   │\n├─────────────────┼──────────────┼──────────────────────────────────┤\n│ 股權稀釋        │ 2/5 (40%)    │ 熊市末期礦企增發融資             │\n└─────────────────┴──────────────┴──────────────────────────────────┘\n\n結論：倍數壓縮是歷史上最常見的底部驅動因素，通常伴隨 1-2 個次要因子。\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 65,
+      "badge": "白銀",
+      "metrics": {
+        "architecture": 80,
+        "maintainability": 70,
+        "content": 85,
+        "community": 20,
+        "security": 75,
+        "compliance": 70
+      },
+      "details": "**架構（80/100）**\n- 清晰的路由器模式\n- 分層的 workflows/references\n- 完整的因子拆解邏輯\n\n**可維護性（70/100）**\n- SEC EDGAR 格式可能變動\n- AISC 抽取需持續調整\n- 需監控 ETF 成分變化\n\n**內容（85/100）**\n- 完整的四因子拆解方法論\n- 清晰的反推數學公式\n- 含事件研究與風險提示\n\n**社群（20/100）**\n- 新建技能，尚無社群反饋\n\n**安全（75/100）**\n- 需爬蟲抓取財報\n- 建議設定合理爬取間隔\n\n**合規（70/100）**\n- SEC/SEDAR 公開數據\n- 需遵守網站使用條款\n"
+    },
+    "bestPractices": [
+      {
+        "title": "使用 hybrid 方法抽取 AISC",
+        "description": "優先從 MD&A 抽取揭露值，缺失時用 proxy 回算補齊"
+      },
+      {
+        "title": "限制爬取頻率",
+        "description": "財報數據季度更新，無需高頻抓取；建議每日最多 1 次"
+      },
+      {
+        "title": "快取財報數據",
+        "description": "財報內容不常變，應快取避免重複抓取"
+      },
+      {
+        "title": "關注權重分布",
+        "description": "前 10 大持股通常占 ETF 50%+ 權重，優先分析"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "過度依賴 Proxy AISC",
+        "description": "當直接揭露不可得時使用 proxy 回算，可能有誤差",
+        "consequence": "成本因子估計不準確"
+      },
+      {
+        "title": "忽略財報時滯",
+        "description": "最新財報可能是 1-2 季前的數據",
+        "consequence": "因子狀態反映過去而非當前"
+      },
+      {
+        "title": "ETF 成分變動",
+        "description": "季度調倉可能導致持股權重變化",
+        "consequence": "權重加總時需確認數據日期"
+      },
+      {
+        "title": "單一因子歸因",
+        "description": "實際上多因子同時作用，單因子反推為極端情境",
+        "consequence": "不應視為預測"
+      }
+    ],
+    "faq": [
+      {
+        "question": "AISC 和 Cash Cost 有什麼差別？",
+        "answer": "- **Cash Cost**：直接營運成本（採礦、加工）\n- **AISC (All-In Sustaining Cost)**：Cash Cost + 維持性資本支出 + G&A - 副產品抵減\n\nAISC 更能反映礦企的「全成本」，是估值的關鍵驅動。\n"
+      },
+      {
+        "question": "為何倍數壓縮是最常見的底部因素？",
+        "answer": "礦業股是「高 Beta」資產，市場風險偏好下降時首先被拋售：\n- 流動性收緊 → 資金撤離風險資產\n- 商品悲觀預期 → 獲利預估下調\n- 結果：EV/EBITDA 壓縮\n\n這通常是「情緒面」而非「基本面」驅動。\n"
+      },
+      {
+        "question": "股權稀釋如何影響比率？",
+        "answer": "礦業公司常透過增發融資：\n- 股本增加 → 每股價值稀釋\n- 即使總市值不變，股價也會下跌\n- 結果：比率下降\n\n稀釋因子 D = Shares_base / Shares_now，D < 1 表示有稀釋。\n"
+      },
+      {
+        "question": "如何驗證 AISC 抽取結果？",
+        "answer": "1. 交叉比對年報簡報（通常有表格）\n2. 查看產業報告（如 World Silver Survey）\n3. 比較同業數值（PAAS、AG、HL 等）\n4. 檢查 aisc_method 標註是否為 proxy\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 使用場景\n\n1. **驗證比率訊號**：當看到「礦業股/金屬價格比率在底部」時，用財報驗證驅動因素\n2. **因子歸因**：識別成本、槓桿、倍數、稀釋哪個是主因\n3. **門檻反推**：量化「回到頂部」需要的條件\n4. **事件研究**：歷史底部的因子驅動模式\n\n## 與 analyze-silver-miner-metal-ratio 的差異\n\n| 項目                     | 本技能                       | 比率分析技能              |\n|--------------------------|------------------------------|---------------------------|\n| 核心輸入                 | 財報數據 + 價格              | 價格數據                  |\n| 因子拆解                 | 四大因子（AISC/槓桿/倍數/稀釋） | 無                        |\n| 門檻反推                 | 基於因子的反推               | 基於價格的反推            |\n| 數據抓取                 | 需要爬蟲抓取財報             | 僅 yfinance               |\n| 適用場景                 | 深度基本面驗證               | 快速比率篩選              |\n\n## 預設代理\n\n**礦業股**：SIL (Global X Silver Miners ETF)\n**白銀**：SI=F (COMEX 白銀期貨)\n"
+    },
+    "methodology": "\r\n當你看到「礦業股（或礦業 ETF）相對金屬本體」的比率（例如 **SIL／白銀**）落在歷史極端（底部或頂部），市場常見的解釋會停在一句話：  \r\n> 「礦業股太便宜了／礦業股太貴了」\r\n\r\n但這句話不夠。因為礦業股的價格不是只跟金屬價格走，它還受 **成本、負債、估值倍數、股本稀釋**影響。  \r\n所以這個 Skill 的目標是：**把比率的變動拆成可驗證的財務原因**，而且用「公司申報的財報與營運揭露」去回算，不靠感覺。\r\n\r\n---\r\n\r\n## 核心原理：把「比率」拆成四個可量化因子\r\n我們觀察的比率是：\r\n\r\n- **比率 = 礦業股價格 ÷ 金屬價格**  \r\n  例如：`SIL 價格 ÷ 白銀價格`\r\n\r\n這個比率為什麼會上去或下來？Skill 會用財報把原因拆成四類：\r\n\r\n### 1) 成本因子：每盎司成本（例如全維持成本）相對金屬價格\r\n- 若金屬價格很高，但公司成本也跟著上升，**獲利不一定變好**  \r\n- Skill 會從公司揭露或財報文本中抓取「每盎司成本」與「產量」，必要時用財報科目做近似回算  \r\n- 結果是回答：  \r\n  **比率低，是不是因為成本上升把利潤吃掉？**\r\n\r\n### 2) 槓桿因子：負債與現金結構（資產負債表）\r\n- 負債高、現金少的公司，即使金屬漲，市場也會更保守  \r\n- Skill 會用財報計算「淨負債」並結合市值推估企業整體價值  \r\n- 結果是回答：  \r\n  **比率低，是不是因為槓桿風險折價？**\r\n\r\n### 3) 倍數因子：市場願意給的估值倍數\r\n- 即使獲利上升，市場仍可能用更低倍數定價（例如因為政策風險、項目不確定、景氣循環）  \r\n- Skill 會用財報推估獲利能力，再對照市場估值，得到「倍數」的高低  \r\n- 結果是回答：  \r\n  **比率低，是不是因為估值倍數被壓縮？**\r\n\r\n### 4) 稀釋因子：股本增加（每股價值被稀釋）\r\n- 礦業很常見「增資、可轉債、併購發股」  \r\n- 即使公司總獲利增加，如果股本膨脹得更快，每股價值反而上不去  \r\n- Skill 會追蹤股數變化，回算稀釋對比率的影響  \r\n- 結果是回答：  \r\n  **比率低，是不是因為股本稀釋把每股漲幅抵消？**\r\n\r\n---\r\n\r\n## 用 SIL／白銀案例示範：我們會怎麼做\r\n你目前的觀察重點是：\r\n\r\n- **SIL／白銀比率在歷史底部區**\r\n- 同時 **白銀價格處於歷史高位**\r\n- 形成「比率低 + 金屬高」的背離組合\r\n\r\n### 第一步：用市場數據確認「這是極端」\r\n- 把過去十多年每日的 `SIL／白銀` 比率做分位數\r\n- 確認當前落在底部區（例如低於 20% 分位）\r\n\r\n### 第二步：抓「SIL 主要成分股」的財報資料（真實回算）\r\n- 取權重最大的公司（例如前 10 大）  \r\n- 對每家公司抓：\r\n  1) 每盎司成本（能抓就抓，抓不到就用財報回算近似）\r\n  2) 負債與現金（淨負債）\r\n  3) 現金流與資本支出（是否被維持性支出吃掉）\r\n  4) 股本變化（是否持續稀釋）\r\n\r\n### 第三步：把「比率低」拆成四個可能原因，逐一量化\r\nSkill 會輸出像這樣的結論架構（每一項都對應到實際數據）：\r\n\r\n- **成本面**：如果多數公司每盎司成本上升明顯 → 比率低可能是合理折價  \r\n- **槓桿面**：若淨負債偏高、再融資壓力大 → 市場會壓低估值  \r\n- **倍數面**：若市場把倍數壓得很低 → 可能是情緒或風險溢酬在主導  \r\n- **稀釋面**：若股數增加快 → 即使銀價高，每股漲幅也會被稀釋抵消\r\n\r\n### 第四步：做你要的「回到 1.7」或「回到 1.2」的真實回算\r\n這是 Skill 最實用的一段：  \r\n它不是只算「礦業股要漲多少、白銀要跌多少」，而是會同時回答：\r\n\r\n- **如果要回到頂部區（例如 1.7）**\r\n  - 需要：倍數回升到什麼水平？  \r\n  - 或：淨負債要降到什麼程度？  \r\n  - 或：成本要改善到什麼程度？  \r\n  - 或：稀釋要停止到什麼程度？\r\n\r\n這個 Skill 的精髓是：  \r\n**先用分位數找出比率極端，再用財報把極端拆解成成本、槓桿、倍數、稀釋四種可驗證的原因，最後回算要回到頂部或中位數需要哪些“真實財務條件”。**",
+    "downloadUrl": "downloads/backsolve-miner-vs-metal-ratio-with-fundamentals-0.1.0.zip"
+  },
+  {
     "id": "analyze-silver-miner-metal-ratio",
     "name": "analyze-silver-miner-metal-ratio",
     "displayName": "評估銀礦股對銀價比率",
