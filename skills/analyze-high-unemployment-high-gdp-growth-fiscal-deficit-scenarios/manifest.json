@@ -1,0 +1,152 @@
+{
+  "name": "analyze-high-unemployment-high-gdp-growth-fiscal-deficit-scenarios",
+  "version": "0.1.0",
+  "displayName": "高失業高GDP財政赤字情境分析",
+  "description": "在「失業率走高／勞動市場轉弱」但「名目或實質 GDP 仍維持高位（或仍在成長）」的情境下，依據歷史關聯估算美國財政赤字占 GDP（Deficit/GDP）可能擴張的區間，並生成對長天期美債（長久期 UST）供給/利率風險的情境解讀。",
+  "author": "Ricky Wang",
+  "license": "MIT",
+  "category": "macro-indicator",
+  "tags": [
+    "失業率",
+    "GDP",
+    "財政赤字",
+    "勞動市場",
+    "JOLTS",
+    "Sahm Rule",
+    "美國國債",
+    "期限溢酬",
+    "FRED",
+    "宏觀經濟"
+  ],
+  "dataLevel": "free-nolimit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "requests>=2.28.0",
+      "scipy>=1.9.0"
+    ],
+    "optional": [
+      "matplotlib>=3.5.0",
+      "statsmodels>=0.14.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/analyzer.py"
+  },
+  "workflows": [
+    {
+      "id": "analyze",
+      "name": "完整情境分析",
+      "description": "執行完整的歷史事件研究與赤字區間推估",
+      "file": "workflows/analyze.md"
+    },
+    {
+      "id": "scenario",
+      "name": "自訂情境推演",
+      "description": "輸入自訂的失業衝擊情境進行推演",
+      "file": "workflows/scenario.md"
+    },
+    {
+      "id": "ust-risk",
+      "name": "UST風險解讀",
+      "description": "生成長天期美債的供給/利率風險報告",
+      "file": "workflows/ust-risk.md"
+    }
+  ],
+  "references": [
+    "references/data-sources.md",
+    "references/methodology.md",
+    "references/input-schema.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md"
+  ],
+  "examples": [],
+  "dataSources": [
+    {
+      "name": "FRED",
+      "type": "primary",
+      "url": "https://fred.stlouisfed.org",
+      "api": "CSV endpoint (no API key required)",
+      "series": {
+        "labor": [
+          "UNRATE",
+          "UNEMPLOY",
+          "JTSJOL",
+          "ICSA"
+        ],
+        "gdp": [
+          "GDP",
+          "GDPC1"
+        ],
+        "fiscal": [
+          "FYFSGDA188S",
+          "FGEXPND",
+          "FGRECPT"
+        ]
+      }
+    }
+  ],
+  "modelConfig": {
+    "defaultParams": {
+      "country": "US",
+      "lookback_years": 30,
+      "frequency": "quarterly",
+      "slack_metric": "unemployed_to_job_openings_ratio",
+      "high_gdp_percentile_threshold": 0.70,
+      "labor_soft_percentile_threshold": 0.80,
+      "sahm_threshold": 0.5,
+      "horizon_quarters": 8,
+      "gdp_path": "high_gdp_sticky",
+      "model": "event_study_banding",
+      "output_format": "json"
+    },
+    "laborIndicatorSet": {
+      "use_jolts": true,
+      "use_unemployment_rate": true,
+      "use_unemployed_level": true,
+      "use_sahm_rule": true
+    },
+    "fredSeries": {
+      "UNRATE": {
+        "name": "Unemployment Rate",
+        "frequency": "monthly",
+        "transform": "level"
+      },
+      "UNEMPLOY": {
+        "name": "Unemployed Level (Thousands)",
+        "frequency": "monthly",
+        "transform": "level"
+      },
+      "JTSJOL": {
+        "name": "Job Openings: Total Nonfarm (Thousands)",
+        "frequency": "monthly",
+        "transform": "level"
+      },
+      "ICSA": {
+        "name": "Initial Claims",
+        "frequency": "weekly",
+        "transform": "4w_ma"
+      },
+      "GDP": {
+        "name": "Gross Domestic Product (Billions)",
+        "frequency": "quarterly",
+        "transform": "level"
+      },
+      "GDPC1": {
+        "name": "Real GDP (Billions, Chained 2017)",
+        "frequency": "quarterly",
+        "transform": "level"
+      },
+      "FYFSGDA188S": {
+        "name": "Federal Surplus or Deficit as % of GDP",
+        "frequency": "annual",
+        "transform": "level"
+      }
+    }
+  }
+}
