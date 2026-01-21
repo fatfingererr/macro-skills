@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-白銀礦業/金屬比率分析器
+銀礦股價/銀價比率分析器
 
-以「白銀礦業價格 ÷ 白銀價格」的相對比率衡量礦業板塊相對於金屬本體的估值區間，
+以「銀礦股價格 ÷ 白銀價格」的相對比率衡量礦業股板塊相對於金屬本體的估值區間，
 並用歷史分位數與類比區間推導「底部/頂部」訊號與情境推演。
 
 Usage:
@@ -30,7 +30,7 @@ except ImportError:
 def parse_args() -> argparse.Namespace:
     """解析命令列參數"""
     parser = argparse.ArgumentParser(
-        description="白銀礦業/金屬比率分析器",
+        description="銀礦股價/銀價比率分析",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 範例:
@@ -49,7 +49,7 @@ def parse_args() -> argparse.Namespace:
         "--miner-proxy",
         type=str,
         default="SIL",
-        help="白銀礦業代表（預設：SIL）"
+        help="銀礦股代表（預設：SIL）"
     )
     parser.add_argument(
         "--metal-proxy",
@@ -103,8 +103,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--forward-horizons",
         type=str,
-        default="252,504,756",
-        help="前瞻期（逗號分隔，預設：252,504,756）"
+        default="52,104,156",
+        help="前瞻期（逗號分隔，週頻下預設：52,104,156 對應 1/2/3 年）"
     )
     parser.add_argument(
         "--scenario-target",
@@ -141,7 +141,7 @@ def fetch_price_data(
     Parameters
     ----------
     miner_proxy : str
-        礦業代理代號
+        礦業股代理代號
     metal_proxy : str
         金屬代理代號
     start_date : str
@@ -154,7 +154,7 @@ def fetch_price_data(
     Returns
     -------
     Tuple[pd.Series, pd.Series]
-        (礦業價格序列, 金屬價格序列)
+        (礦業股價格序列, 金屬價格序列)
     """
     if verbose:
         print(f"正在下載數據：{miner_proxy}, {metal_proxy}")
@@ -202,7 +202,7 @@ def resample_data(
     Parameters
     ----------
     miner : pd.Series
-        礦業價格序列
+        礦業股價格序列
     metal : pd.Series
         金屬價格序列
     freq : str
@@ -244,7 +244,7 @@ def calculate_ratio(
     Parameters
     ----------
     miner : pd.Series
-        礦業價格序列
+        礦業股價格序列
     metal : pd.Series
         金屬價格序列
     smoothing_window : int
@@ -350,9 +350,16 @@ def calculate_forward_returns(
                     rets.append(ret)
 
         if rets:
-            horizon_years = H / 252
+            # 根據 H 的大小判斷是週頻還是日頻
+            # 週頻：52 週 = 1 年；日頻：252 日 = 1 年
+            if H <= 156:  # 週頻 (52*3=156)
+                horizon_years = H / 52
+                period_label = "weeks" if H < 52 else "year"
+            else:  # 日頻
+                horizon_years = H / 252
+                period_label = "days" if H < 252 else "year"
             results[H] = {
-                "horizon_label": f"{horizon_years:.0f} year" if horizon_years >= 1 else f"{H} days",
+                "horizon_label": f"{horizon_years:.0f} year" if horizon_years >= 1 else f"{H} {period_label}",
                 "count": len(rets),
                 "median": float(np.median(rets)),
                 "mean": float(np.mean(rets)),
@@ -404,8 +411,8 @@ def calculate_scenarios(
         "metal_multiplier_if_miner_flat": float(metal_multiplier),
         "metal_drop_pct_if_miner_flat": float(metal_drop_pct),
         "interpretation": {
-            "miner_scenario": f"若白銀不變，礦業需漲 {(miner_multiplier - 1) * 100:.1f}% 才回到{target_label}估值",
-            "metal_scenario": f"若礦業不變，白銀需跌 {metal_drop_pct * 100:.1f}% 才回到{target_label}估值"
+            "miner_scenario": f"若白銀不變，礦業股需漲 {(miner_multiplier - 1) * 100:.1f}% 才回到{target_label}估值",
+            "metal_scenario": f"若礦業股不變，白銀需跌 {metal_drop_pct * 100:.1f}% 才回到{target_label}估值"
         }
     }
 
@@ -450,13 +457,13 @@ def generate_summary(
     """生成一句話結論"""
     if zone == "bottom":
         zone_desc = "底部區間"
-        valuation_desc = "礦業相對白銀偏便宜"
+        valuation_desc = "礦業股相對白銀偏便宜"
     elif zone == "top":
         zone_desc = "頂部區間"
-        valuation_desc = "礦業相對白銀偏貴"
+        valuation_desc = "礦業股相對白銀偏貴"
     else:
         zone_desc = "中性區間"
-        valuation_desc = "礦業相對白銀處於正常水位"
+        valuation_desc = "礦業股相對白銀處於正常水位"
 
     # 取得 1 年前瞻報酬
     fwd_1y = forward_returns.get(252, {})
@@ -466,9 +473,9 @@ def generate_summary(
         fwd_desc = ""
 
     return (
-        f"白銀礦業/白銀比率目前處於歷史 {ratio_percentile:.1f} 百分位（{zone_desc}），"
+        f"銀礦股價/銀價比率目前處於歷史 {ratio_percentile:.1f} 百分位（{zone_desc}），"
         f"顯示{valuation_desc}。{fwd_desc}"
-        f"若白銀不變，礦業需漲 {miner_gain_pct * 100:.1f}% 才回到頂部估值。"
+        f"若白銀不變，礦業股需漲 {miner_gain_pct * 100:.1f}% 才回到頂部估值。"
     )
 
 
@@ -492,7 +499,7 @@ def analyze_silver_miner_metal_ratio(
     Parameters
     ----------
     miner_proxy : str
-        白銀礦業代表
+        銀礦股代表
     metal_proxy : str
         白銀價格代表
     start_date : str, optional
@@ -522,7 +529,7 @@ def analyze_silver_miner_metal_ratio(
         分析結果
     """
     if forward_horizons is None:
-        forward_horizons = [252, 504, 756]
+        forward_horizons = [52, 104, 156]  # 週頻下對應 1/2/3 年
 
     if start_date is None:
         start_date = (datetime.now() - timedelta(days=365 * 10)).strftime("%Y-%m-%d")
@@ -638,8 +645,8 @@ def analyze_silver_miner_metal_ratio(
         "notes": [
             "比率訊號衡量的是『相對估值』，不是單邊價格保證。",
             f"歷史類比樣本量僅 {len(bottom_events)} 次，統計推論能力有限。",
-            "礦業可能因成本上升、地緣/政策風險、增發稀釋而合理落後。",
-            "建議搭配：礦業成本曲線、COT 持倉、ETF 流量、美元/實質利率做交叉驗證。"
+            "礦業股可能因成本上升、地緣/政策風險、增發稀釋而合理落後。",
+            "建議搭配：礦業股成本曲線、COT 持倉、ETF 流量、美元/實質利率做交叉驗證。"
         ],
 
         "recommended_next_checks": [
