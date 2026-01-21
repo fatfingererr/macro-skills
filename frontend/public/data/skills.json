@@ -114,6 +114,127 @@
     "downloadUrl": "downloads/zeberg-salomon-rotator-0.1.2.zip"
   },
   {
+    "id": "evaluate-exponential-trend-deviation-regimes",
+    "name": "evaluate-exponential-trend-deviation-regimes",
+    "displayName": "評估行情與指數趨勢偏離程度",
+    "description": "計算資產價格相對長期指數成長趨勢線的偏離度，衡量當前是否處於歷史極端區間，並可選擇性地進行宏觀因子分析以判斷行情體質。",
+    "emoji": "📈",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "趨勢",
+      "偏離度",
+      "歷史峰值",
+      "指數成長",
+      "技術分析",
+      "宏觀分析"
+    ],
+    "category": "business-cycles",
+    "dataLevel": "free-nolimit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": true,
+    "installCount": 0,
+    "content": "<essential_principles>\n**資產趨勢偏離度分析 核心原則**\n\n<principle name=\"exponential_trend_fitting\">\n**指數趨勢線擬合**\n多數資產在長期（數十年）尺度上遵循指數成長路徑。透過對數價格線性回歸（y = a + b*t where y = log(price)）擬合趨勢線，trend = exp(a + b*t)。偏離度 = (price / trend - 1) × 100%。\n</principle>\n\n<principle name=\"historical_context\">\n**歷史極端對照**\n透過計算當前偏離度在歷史分布中的分位數，以及與歷史峰值/谷值的比較，提供市場位置的脈絡。使用者可指定特定日期作為參考點，或由系統自動識別歷史極端值。\n</principle>\n\n<principle name=\"regime_classification\">\n**行情體質判定（選用）**\n針對特定資產（如黃金、股指），可結合宏觀因子進行行情體質分析。不同資產有不同的體質分類框架，使用者可自定義判定規則與因子權重。\n</principle>\n\n<principle name=\"universal_applicability\">\n**通用適用性**\n本技能適用於任何具有長期指數成長特性的資產：商品（黃金、原油）、股票指數、加密貨幣、房地產等。核心邏輯不預設特定資產或歷史峰值。\n</principle>\n</essential_principles>\n\n<intake>\n**您想要執行什麼操作？**\n\n1. **單資產偵測** - 計算單一資產的趨勢偏離度與歷史分位數\n2. **歷史對照分析** - 將當前偏離度與使用者指定的歷史日期或自動識別的極端值進行比較\n3. **宏觀因子分解** - 詳細拆解各宏觀代理指標對行情體質判定的貢獻（適用於支援的資產類別）\n\n**等待回應後再繼續。**\n</intake>\n\n<routing>\n| Response                           | Workflow              | Description |\n|------------------------------------|-----------------------|-------------|\n| 1, \"detect\", \"single\", \"偵測\"      | workflows/detect.md   | 單資產趨勢偏離度偵測與體質判定 |\n| 2, \"compare\", \"historical\", \"對照\" | workflows/compare.md  | 歷史峰值詳細對照分析 |\n| 3, \"macro\", \"breakdown\", \"因子\"    | workflows/macro.md    | 宏觀因子分解與貢獻度分析 |\n\n**讀取工作流程後，請完全遵循其步驟。**\n</routing>\n\n<quick_start>\n**快速開始**\n\n```bash\n# 安裝依賴\npip install pandas numpy yfinance pandas-datareader statsmodels\n\n# 快速偵測（範例：黃金期貨）\ncd skills/evaluate-exponential-trend-deviation-regimes\npython scripts/trend_deviation.py --symbol GC=F --quick\n\n# 分析其他資產（範例：S&P 500）\npython scripts/trend_deviation.py --symbol ^GSPC --start 1950-01-01\n\n# 完整分析（含宏觀因子，目前支援黃金）\npython scripts/trend_deviation.py --symbol GC=F --start 1970-01-01 --include-macro\n\n# 指定歷史參考日期\npython scripts/trend_deviation.py --symbol GC=F --compare-peaks \"2011-09-06,2020-08-07\"\n\n# 生成視覺化圖表（輸出 PNG + JSON）\npython scripts/generate_chart.py --output ./output/\n```\n</quick_start>\n\n<reference_index>\n**參考文件** (`references/`)\n\n| 文件 | 內容 |\n|------|------|\n| input-schema.md | 輸入參數詳細定義與驗證規則 |\n| methodology.md | 指數趨勢擬合與偏離度計算方法論 |\n| regime-rules.md | 1970s-like vs 2000s-like 體質判定規則 |\n| data-sources.md | 數據來源與替代方案說明 |\n</reference_index>\n\n<workflows_index>\n| Workflow | Purpose |\n|----------|---------|\n| detect.md | 單資產趨勢偏離度偵測與體質判定 |\n| compare.md | 歷史峰值詳細對照分析 |\n| macro.md | 宏觀因子分解與貢獻度分析 |\n</workflows_index>\n\n<templates_index>\n| Template | Purpose |\n|----------|---------|\n| output-json.md | JSON 輸出結構定義 |\n| output-markdown.md | Markdown 報告輸出模板 |\n</templates_index>\n\n<scripts_index>\n| Script | Purpose |\n|--------|---------|\n| trend_deviation.py | 主要分析腳本：趨勢擬合、偏離度計算、體質判定 |\n| generate_chart.py | 視覺化圖表生成：偏離度歷史圖表與峰值標註 |\n</scripts_index>\n\n<examples_index>\n**範例輸出** (`examples/`)\n\n| 文件 | 內容 |\n|------|------|\n| gold-deviation-2026.json | 2026 年黃金趨勢偏離度分析範例 |\n</examples_index>\n\n<success_criteria>\nSkill 成功執行時：\n- [ ] 成功擬合黃金價格的指數趨勢線\n- [ ] 計算出當前偏離度百分比與歷史分位數\n- [ ] 與 2011/1980 峰值進行有效比較\n- [ ] 綜合宏觀代理指標得出 regime 判定（1970s-like / 2000s-like）\n- [ ] 輸出完整的 JSON 或 Markdown 報告\n- [ ] （選用）生成視覺化圖表（PNG）標註歷史峰值與當前位置\n</success_criteria>",
+    "path": "skills/evaluate-exponential-trend-deviation-regimes/SKILL.md",
+    "directoryStructure": "evaluate-exponential-trend-deviation-regimes/\n├── examples\n│   ├── gold-deviation-2026.json\n│   └── gold-trend-deviation.md\n├── images\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   ├── methodology.md\n│   └── regime-rules.md\n├── scripts\n│   ├── generate_chart.py\n│   └── trend_deviation.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── compare.md\n    ├── detect.md\n    └── macro.md",
+    "lastUpdated": "2026-01-15",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "黃金目前的指數趨勢偏離度是多少？是否已超過 2011 年峰值？",
+        "imagePath": "images/gold-deviation-analysis-2026-01-15.png",
+        "expectedResult": "黃金指數趨勢偏離度分析結果\n\n當前狀態（截至 2025 年 12 月）\n┌────────────┬───────────┐\n│    指標    │   數值    │\n├────────────┼───────────┤\n│ 當前金價   │ $4,318.59 │\n├────────────┼───────────┤\n│ 趨勢線價格 │ $2,161.81 │\n├────────────┼───────────┤\n│ 當前偏離度 │ 99.8%     │\n├────────────┼───────────┤\n│ 歷史分位數 │ 94.8%     │\n└────────────┴───────────┘\n歷史峰值比較\n┌──────────────┬────────┬──────────────────────┐\n│   峰值時期   │ 偏離度 │      與當前差距      │\n├──────────────┼────────┼──────────────────────┤\n│ 1980 年 1 月 │ 288.5% │ -188.7 ppt（未超過） │\n├──────────────┼────────┼──────────────────────┤\n│ 2011 年 8 月 │ 83.1%  │ +16.7 ppt（已超過）  │\n└──────────────┴────────┴──────────────────────┘\n---\n結論\n\n是的，黃金已超越 2011 年峰值偏離度。\n當前黃金偏離指數趨勢線 99.8%，超過 2011 年峰值（83.1%）約 16.7 個百分點。這意味著以趨勢偏離度衡量，黃金的「泡沫程度」已超過 2011 年那波行情。\n然而，與 1980 年那種 blow-off 式的峰值（288.5%）相比，當前偏離度仍有相當距離。若行情體質類似 1970 年代（高通膨、負實質利率），理論上仍有延伸空間。\n"
+      },
+      {
+        "question": "分析 S&P 500 的指數趨勢偏離度",
+        "imagePath": "images/sp500-trend-deviation-2026-01-15.png",
+        "expectedResult": "S&P 500 指數趨勢偏離度分析報告\n\n分析日期: 2026-01-15\n數據範圍: 1950-01-31 至 2026-01-31（76 年，913 個月）\n\n---\n趨勢擬合參數\n┌────────────┬────────────────────────────────────┐\n│    參數    │                數值                │\n├────────────┼────────────────────────────────────┤\n│ 年化成長率 │ 7.34%                              │\n├────────────┼────────────────────────────────────┤\n│ 趨勢公式   │ trend = exp(3.0619 + 0.005899 × t) │\n└────────────┴────────────────────────────────────┘\n---\n當前狀態\n┌────────────┬──────────┬────────────────────────────────────────┐\n│    指標    │   數值   │                  解讀                  │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 當前價格   │ 6,926.60 │ -                                      │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 趨勢價值   │ 4,637.36 │ 長期指數趨勢的「公允值」               │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 偏離度     │ +49.4%   │ 價格高於趨勢近 50%                     │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 歷史分位數 │ 94.9%    │ 在 76 年歷史中僅有 5% 時間比現在更偏離 │\n└────────────┴──────────┴────────────────────────────────────────┘\n---\n歷史分布統計\n┌───────────────┬───────────────────┐\n│    分位數     │      偏離度       │\n├───────────────┼───────────────────┤\n│ 25%           │ -16.0%            │\n├───────────────┼───────────────────┤\n│ 50%（中位數） │ -0.4%             │\n├───────────────┼───────────────────┤\n│ 75%           │ +23.2%            │\n├───────────────┼───────────────────┤\n│ 90%           │ +38.8%            │\n├───────────────┼───────────────────┤\n│ 95%           │ +49.4% ← 當前位置 │\n├───────────────┼───────────────────┤\n│ 99%           │ +88.5%            │\n└───────────────┴───────────────────┘\n---\n歷史極端值對照\n┌─────────────────────┬────────────┬─────────┬────────────────┐\n│        事件         │    日期    │ 偏離度  │   與當前比較   │\n├─────────────────────┼────────────┼─────────┼────────────────┤\n│ 2000 年網路泡沫頂點 │ 2000-03-31 │ +101.2% │ 當前僅達其 49% │\n├─────────────────────┼────────────┼─────────┼────────────────┤\n│ 1982 年沃克緊縮谷底 │ 1982-07-31 │ -49.8%  │ 歷史最悲觀時刻 │\n└─────────────────────┴────────────┴─────────┴────────────────┘\n---\n關鍵洞察\n\n1. 極端但未達歷史峰值\n當前 +49.4% 的偏離度位於歷史第 95 分位，屬於「偏高但非極端」區間。2000 年網路泡沫時偏離度達 +101.2%，是當前的兩倍。\n2. 長期趨勢穩健\nS&P 500 在 76 年間維持約 7.3% 的年化複合成長率，這反映了美國經濟與企業盈利的長期成長。\n3. 當前定價隱含樂觀預期\n價格高於趨勢 49%，暗示市場正在計入：\n  - AI 革命帶來的生產力躍升\n  - 企業盈利持續超預期成長\n  - 流動性環境相對寬鬆\n4. 風險提示\n歷史上當偏離度超過 +40% 後，未來 3-5 年的回報率通常低於長期平均。這不是「崩盤訊號」，而是「預期回報降低」的警示。\n\n---\n結論\n\nS&P 500 當前處於 歷史高偏離區間（95 分位），但距離 2000 年的泡沫極端值仍有相當距離。這表明市場定價偏向樂觀，但尚未進入「非理性繁榮」的極端狀態。\n\n---\n圖表說明：\n\n上圖 - 價格與趨勢線\n- 藍線：S&P 500 實際價格（對數尺度）\n- 紅色虛線：長期指數趨勢線（年化 7.3%）\n- 可見價格圍繞趨勢線上下波動，目前明顯高於趨勢\n\n下圖 - 偏離度\n- 紅色區域：高於趨勢的時期\n- 綠色區域：低於趨勢的時期\n- 紅色虛線：95 分位（約 +50%）\n- 綠色虛線：5 分位（約 -40%）\n\n關鍵觀察：\n1. 2000 年網路泡沫 創下 +101.2% 的歷史最高偏離度\n2. 1982 年 是歷史最悲觀時刻（-49.8%）\n3. 當前 +49.4% 正好位於 95 分位線上，偏離度較高但遠未達到泡沫極端\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 75,
+      "badge": "白銀",
+      "metrics": {
+        "architecture": 80,
+        "maintainability": 75,
+        "content": 85,
+        "community": 20,
+        "security": 95,
+        "compliance": 80
+      },
+      "details": "**架構（80/100）**\n- 清晰的指數趨勢擬合方法論\n- 歷史對照機制完整\n- 宏觀因子整合設計合理\n\n**可維護性（75/100）**\n- 參數定義完整\n- 多數據來源支援\n- 工作流程分離\n\n**內容（85/100）**\n- 1970s vs 2000s 行情體質分類有理論依據\n- 歷史峰值對照（2011/1980）有實際意義\n- 宏觀代理指標選擇合理\n\n**社區（20/100）**\n- 新技能，尚無社區貢獻\n\n**安全（95/100）**\n- 僅讀取公開價格數據\n- 無需 API key\n\n**規範符合性（80/100）**\n- 遵循 Claude Code 規範\n- 完整的文件結構\n"
+    },
+    "bestPractices": [
+      {
+        "title": "使用足夠長的歷史數據",
+        "description": "建議至少 10-20 年歷史數據，以捕捉完整的週期。不同資產需要不同的起始日期"
+      },
+      {
+        "title": "月頻數據降低噪音",
+        "description": "長期趨勢分析建議使用月頻數據，日頻噪音太大。腳本會自動轉換"
+      },
+      {
+        "title": "不預設歷史峰值",
+        "description": "讓系統自動識別歷史極端值，或由使用者根據資產特性指定有意義的參考日期"
+      },
+      {
+        "title": "理解偏離度的含義",
+        "description": "偏離度是風險評估工具，不是交易訊號。高偏離可能持續很久，也可能快速回歸"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "把偏離度當作交易訊號",
+        "description": "偏離度是風險評估工具，不是做多做空訊號",
+        "consequence": "過早逆勢操作可能遭遇趨勢延續的虧損"
+      },
+      {
+        "title": "使用固定的歷史參考點",
+        "description": "不同資產有不同的週期特性，不應套用其他資產的歷史峰值",
+        "consequence": "參考點失去意義，誤導決策"
+      },
+      {
+        "title": "趨勢線擬合區間選擇不當",
+        "description": "若只用近期數據擬合，趨勢斜率會被近期行情扭曲",
+        "consequence": "偏離度計算失真"
+      },
+      {
+        "title": "忽略結構性變化",
+        "description": "資產的長期成長率可能因市場結構、制度變化而改變",
+        "consequence": "簡單的全樣本擬合可能不適用於有結構性轉折的資產"
+      }
+    ],
+    "faq": [
+      {
+        "question": "什麼是「指數趨勢偏離度」？",
+        "answer": "指數趨勢偏離度衡量當前價格與長期指數成長趨勢線的距離，以百分比表示。\n\n計算方式：\n1. 對歷史價格取對數：y = log(price)\n2. 對時間做線性回歸：y = a + b*t\n3. 趨勢價格：trend = exp(a + b*t)\n4. 偏離度：(price / trend - 1) × 100%\n\n正偏離表示價格高於趨勢，負偏離表示低於趨勢。\n"
+      },
+      {
+        "question": "這個工具適用於哪些資產？",
+        "answer": "適用於具有長期指數成長特性的資產：\n\n**商品**：黃金、白銀、原油、銅等\n**股票指數**：S&P 500、納斯達克、全球指數等\n**加密貨幣**：比特幣、以太坊等（需注意歷史較短）\n**ETF**：各類 ETF\n**房地產指數**：房價指數、REIT 等\n\n核心要求：有足夠長的歷史數據（建議 ≥ 10 年）\n"
+      },
+      {
+        "question": "如何選擇歷史參考日期？",
+        "answer": "有兩種方式：\n\n**1. 自動識別**（推薦）：\n- 讓系統自動找出歷史最大偏離度\n- 不需要預先知道資產的歷史\n\n**2. 手動指定**：\n- 根據資產特性指定有意義的歷史峰值/谷值\n- 例如：黃金可參考 1980、2011；股市可參考 2000、2008、2020\n\n**黃金範例**：`--compare-peaks \"2011-09-06,1980-01-21\"`\n**股市範例**：`--compare-peaks \"2000-03-24,2007-10-09,2020-02-19\"`\n"
+      },
+      {
+        "question": "宏觀因子分析支援哪些資產？",
+        "answer": "目前宏觀因子分析主要針對黃金設計（1970s-like vs 2000s-like 體質）。\n\n其他資產的宏觀分析需要自定義因子和判定規則。\n\n若不使用 `--include-macro` 參數，工具會純粹計算偏離度，\n適用於所有資產。\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 參考來源\n\n- 靈感來自 Twitter/X 上關於「% distance from exponential growth trendline」的討論\n- 適用於多種資產類別的指數趨勢偏離度分析\n\n## 數據來源\n\n**Yahoo Finance（免費，無需 API key）**\n- 支援：股票、期貨、ETF、指數、加密貨幣等\n- 使用 yfinance 套件抓取\n\n**FRED（免費，無需 API key，選用）**\n- 宏觀因子：實質利率、通膨預期、美元指數等\n- 使用 pandas-datareader 套件抓取\n\n**Stooq（替代來源）**\n- 各類資產歷史數據\n- CSV 下載\n\n## 適用場景\n\n- 長期投資配置決策\n- 評估資產是否處於歷史極端區間\n- 風險管理與倉位調整\n- 多資產比較分析\n\n## 黃金專用功能\n\n針對黃金，可使用 `--include-macro` 參數進行：\n- 1970s-like vs 2000s-like 行情體質判定\n- 基於實質利率、通膨、地緣風險、美元的多因子分析\n\n參考範例：`examples/gold-deviation-2026.json`\n"
+    },
+    "methodology": "### 資產長期遵循指數成長\n\n許多資產在長期（數十年）尺度上遵循指數成長路徑，主要原因：\n\n1. **經濟成長**：全球經濟、貨幣供應量長期以指數方式增長\n2. **複利效應**：任何穩定的成長率在長期都會表現為指數形式\n3. **通膨因素**：名目價格會隨著通膨而增長\n\n**適用資產範例**：\n- **商品**：黃金、白銀、原油（受貨幣供應與購買力影響）\n- **股票指數**：S&P 500、NASDAQ（受經濟成長與盈利成長驅動）\n- **加密貨幣**：比特幣、以太坊（受採用率與網絡效應驅動）\n- **房地產**：房價指數（受收入成長與都市化影響）\n\n### 偏離度的意義\n\n偏離度衡量當前價格與「公允長期趨勢」的距離：\n\n- **正偏離**：價格高於趨勢，可能反映過度樂觀或極端事件\n- **負偏離**：價格低於趨勢，可能反映過度悲觀或錯誤定價\n",
+    "downloadUrl": "downloads/evaluate-exponential-trend-deviation-regimes-0.1.0.zip"
+  },
+  {
     "id": "detect-atr-squeeze-regime",
     "name": "detect-atr-squeeze-regime",
     "displayName": "波動擠壓行情偵測",
@@ -234,127 +355,6 @@
     },
     "methodology": "# 波動擠壓行情偵測方法論\r\n\r\n## 概念來源\r\n\r\n本方法論基於 Saxo Bank 商品策略主管 Ole Hansen 對白銀市場的分析觀點。\r\n\r\n**核心洞察**：當資產的波動率（以 14 日 ATR% 衡量）顯著超過歷史常態時，市場進入「波動主導的擠壓行情」，此時：\r\n\r\n- 技術位（支撐/壓力）的可靠度下降\r\n- 停損容易被「噪音」掃掉\r\n- 價格運動更多反映「被迫流」而非基本面\r\n\r\n## ATR 百分比（ATR%）\r\n\r\n### 為何使用百分比？\r\n\r\n傳統 ATR 是絕對值（以價格單位計算），無法：\r\n- 跨資產比較（$30 的白銀 vs $2000 的黃金）\r\n- 建立「常態」基準\r\n- 判斷波動是否「異常」\r\n\r\n**解決方案**：將 ATR 轉換為收盤價的百分比\r\n\r\n```\r\nATR% = ATR / Close * 100\r\n```\r\n\r\n例如：\r\n- 白銀 ATR = $2.17，Close = $30.00 → ATR% = 7.23%\r\n- 黃金 ATR = $57.00，Close = $2000.00 → ATR% = 2.85%\r\n\r\n### ATR 計算方法\r\n\r\n**True Range（真實波幅）**：\r\n\r\n```\r\nTR = max(High - Low, |High - Prev_Close|, |Low - Prev_Close|)\r\n```\r\n\r\n**14 日 EMA 平滑**：\r\n\r\n```python\r\n# EMA 平滑（預設）\r\nATR = TR.ewm(span=14, adjust=False).mean()\r\n\r\n# Wilder 平滑（替代）\r\nATR = TR.ewm(alpha=1/14, adjust=False).mean()\r\n```\r\n\r\n## 基準期選擇\r\n\r\n### 為何選擇 3 年（756 交易日）？\r\n\r\n- **涵蓋週期**：3 年足以涵蓋多數資產的波動週期\r\n- **統計穩定**：樣本量足夠計算有意義的均值\r\n- **實用性**：不會因太長而對當前市場失去敏感度\r\n\r\n### 基準計算\r\n\r\n```python\r\nbaseline_atr_pct = atr_pct.rolling(756).mean()\r\nratio = current_atr_pct / baseline_atr_pct\r\n```\r\n\r\n## 三行情分類\r\n\r\n### 1. 秩序市場（Orderly Market）\r\n\r\n**條件**：ratio < 1.2\r\n\r\n**特徵**：\r\n- 波動在歷史常態範圍內\r\n- 技術分析有效\r\n- 停損可精準設置\r\n- 趨勢追蹤策略可靠\r\n\r\n**建議**：\r\n- 正常交易策略\r\n- 標準停損（1.0-1.5 ATR）\r\n- 任意時間框架\r\n\r\n### 2. 波動偏高趨勢（Elevated Volatility Trend）\r\n\r\n**條件**：1.2 <= ratio < 2.0\r\n\r\n**特徵**：\r\n- 波動高於常態但仍有結構\r\n- 技術位有效性下降\r\n- 方向性仍可辨識\r\n- 需要適應性調整\r\n\r\n**建議**：\r\n- 適度放寬停損（1.5-2.0 ATR）\r\n- 降低倉位規模\r\n- 偏向較長時間框架\r\n\r\n### 3. 波動主導的擠壓行情（Volatility-Dominated Squeeze）\r\n\r\n**條件**：ratio >= 2.0 AND atr_pct >= 6.0%\r\n\r\n**特徵**：\r\n- 波動遠超常態\r\n- 技術位失靈\r\n- 「被迫流」主導價格\r\n- 停損頻繁被掃\r\n\r\n**建議**：\r\n- 大幅放寬停損（2.0-3.0 ATR）\r\n- 顯著降低倉位\r\n- 切換到週線以上\r\n- 使用期權/價差結構\r\n\r\n## 反身性機制\r\n\r\n### 什麼是「被迫流」？\r\n\r\n在擠壓行情下，價格運動不再主要反映：\r\n- 基本面變化\r\n- 技術面突破\r\n- 市場共識改變\r\n\r\n而是被以下「被迫流」主導：\r\n\r\n1. **保證金調整**\r\n   - 波動上升 → 保證金要求提高\r\n   - 無法追加保證金的部位被強制平倉\r\n\r\n2. **槓桿去化**\r\n   - 高槓桿投機者被迫減倉\r\n   - 連鎖反應放大波動\r\n\r\n3. **期權避險**\r\n   - Delta/Gamma 避險需求\r\n   - 價格接近執行價時避險量激增\r\n   - 正反饋循環\r\n\r\n4. **空頭回補**\r\n   - 空頭停損觸發\r\n   - 「軋空」放大上漲\r\n\r\n5. **被動再平衡**\r\n   - 風險平價/目標波動率策略\r\n   - 波動上升時自動減倉\r\n   - 加劇賣壓\r\n\r\n### 為何技術位失靈？\r\n\r\n技術分析的前提是：\r\n> 支撐/壓力位反映市場參與者的共識\r\n\r\n但在擠壓行情下：\r\n> 價格突破更多是流動性事件的結果，而非共識改變\r\n\r\n例如：\r\n- 白銀跌破 $28 支撐\r\n- 不是因為市場轉空\r\n- 而是因為大量停損單在該位置被觸發\r\n- 價格可能在數小時內收回\r\n\r\n## 技術位可靠度評分\r\n\r\n### 計算公式\r\n\r\n```python\r\ndef calculate_reliability_score(regime: str, ratio: float) -> int:\r\n    if regime == \"volatility_dominated_squeeze\":\r\n        # 2.0x -> 50分, 4.5x -> 0分\r\n        score = max(0, int(50 - (ratio - 2.0) * 20))\r\n    elif regime == \"elevated_volatility_trend\":\r\n        # 1.2x -> 100分, 2.0x -> 50分\r\n        score = int(50 + (2.0 - ratio) * 50 / 0.8)\r\n    else:\r\n        # 0.8x -> 100分, 1.2x -> 90分\r\n        score = int(100 - (ratio - 0.8) * 25)\r\n\r\n    return max(0, min(100, score))\r\n```\r\n\r\n### 解讀\r\n\r\n| 分數   | 等級 | 意義                 |\r\n|--------|------|----------------------|\r\n| 80-100 | 高   | 技術分析高度可靠     |\r\n| 50-79  | 中   | 需謹慎使用，放寬容忍 |\r\n| 20-49  | 低   | 技術位參考價值有限   |\r\n| 0-19   | 極低 | 視技術位為噪音       |\r\n\r\n## 實際案例\r\n\r\n### 白銀 2020 年 3 月（COVID-19）\r\n\r\n- ATR% 峰值：12.45%\r\n- Ratio 峰值：4.15x\r\n- 持續：37 天\r\n- 特徵：恐慌性拋售 + 流動性枯竭\r\n\r\n### 白銀 2024 年 8 月（日圓套利平倉）\r\n\r\n- ATR% 峰值：8.92%\r\n- Ratio 峰值：2.97x\r\n- 持續：37 天\r\n- 特徵：跨資產去槓桿連鎖反應\r\n\r\n## 局限性\r\n\r\n1. **滯後性**：ATR 是滯後指標，擠壓開始時才會偵測到\r\n2. **閾值敏感**：2.0x 和 6.0% 的門檻是經驗值，非普適\r\n3. **基準污染**：若基準期本身包含異常期間，判定會失準\r\n4. **資產差異**：不同資產的「正常」波動水平不同\r\n\r\n## 參考資料\r\n\r\n- Ole Hansen, Saxo Bank Commodity Strategy\r\n- True Range: J. Welles Wilder, \"New Concepts in Technical Trading Systems\" (1978)\r\n- 反身性理論: George Soros, \"The Alchemy of Finance\" (1987)\r\n",
     "downloadUrl": "downloads/detect-atr-squeeze-regime-0.1.0.zip"
-  },
-  {
-    "id": "evaluate-exponential-trend-deviation-regimes",
-    "name": "evaluate-exponential-trend-deviation-regimes",
-    "displayName": "評估行情與指數趨勢偏離程度",
-    "description": "計算資產價格相對長期指數成長趨勢線的偏離度，衡量當前是否處於歷史極端區間，並可選擇性地進行宏觀因子分析以判斷行情體質。",
-    "emoji": "📈",
-    "version": "0.1.0",
-    "license": "MIT",
-    "author": "Ricky Wang",
-    "authorUrl": "https://github.com/fatfingererr/macro-skills",
-    "tags": [
-      "趨勢",
-      "偏離度",
-      "歷史峰值",
-      "指數成長",
-      "技術分析",
-      "宏觀分析"
-    ],
-    "category": "business-cycles",
-    "dataLevel": "free-nolimit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": true,
-    "installCount": 0,
-    "content": "<essential_principles>\n**資產趨勢偏離度分析 核心原則**\n\n<principle name=\"exponential_trend_fitting\">\n**指數趨勢線擬合**\n多數資產在長期（數十年）尺度上遵循指數成長路徑。透過對數價格線性回歸（y = a + b*t where y = log(price)）擬合趨勢線，trend = exp(a + b*t)。偏離度 = (price / trend - 1) × 100%。\n</principle>\n\n<principle name=\"historical_context\">\n**歷史極端對照**\n透過計算當前偏離度在歷史分布中的分位數，以及與歷史峰值/谷值的比較，提供市場位置的脈絡。使用者可指定特定日期作為參考點，或由系統自動識別歷史極端值。\n</principle>\n\n<principle name=\"regime_classification\">\n**行情體質判定（選用）**\n針對特定資產（如黃金、股指），可結合宏觀因子進行行情體質分析。不同資產有不同的體質分類框架，使用者可自定義判定規則與因子權重。\n</principle>\n\n<principle name=\"universal_applicability\">\n**通用適用性**\n本技能適用於任何具有長期指數成長特性的資產：商品（黃金、原油）、股票指數、加密貨幣、房地產等。核心邏輯不預設特定資產或歷史峰值。\n</principle>\n</essential_principles>\n\n<intake>\n**您想要執行什麼操作？**\n\n1. **單資產偵測** - 計算單一資產的趨勢偏離度與歷史分位數\n2. **歷史對照分析** - 將當前偏離度與使用者指定的歷史日期或自動識別的極端值進行比較\n3. **宏觀因子分解** - 詳細拆解各宏觀代理指標對行情體質判定的貢獻（適用於支援的資產類別）\n\n**等待回應後再繼續。**\n</intake>\n\n<routing>\n| Response                           | Workflow              | Description |\n|------------------------------------|-----------------------|-------------|\n| 1, \"detect\", \"single\", \"偵測\"      | workflows/detect.md   | 單資產趨勢偏離度偵測與體質判定 |\n| 2, \"compare\", \"historical\", \"對照\" | workflows/compare.md  | 歷史峰值詳細對照分析 |\n| 3, \"macro\", \"breakdown\", \"因子\"    | workflows/macro.md    | 宏觀因子分解與貢獻度分析 |\n\n**讀取工作流程後，請完全遵循其步驟。**\n</routing>\n\n<quick_start>\n**快速開始**\n\n```bash\n# 安裝依賴\npip install pandas numpy yfinance pandas-datareader statsmodels\n\n# 快速偵測（範例：黃金期貨）\ncd skills/evaluate-exponential-trend-deviation-regimes\npython scripts/trend_deviation.py --symbol GC=F --quick\n\n# 分析其他資產（範例：S&P 500）\npython scripts/trend_deviation.py --symbol ^GSPC --start 1950-01-01\n\n# 完整分析（含宏觀因子，目前支援黃金）\npython scripts/trend_deviation.py --symbol GC=F --start 1970-01-01 --include-macro\n\n# 指定歷史參考日期\npython scripts/trend_deviation.py --symbol GC=F --compare-peaks \"2011-09-06,2020-08-07\"\n\n# 生成視覺化圖表（輸出 PNG + JSON）\npython scripts/generate_chart.py --output ./output/\n```\n</quick_start>\n\n<reference_index>\n**參考文件** (`references/`)\n\n| 文件 | 內容 |\n|------|------|\n| input-schema.md | 輸入參數詳細定義與驗證規則 |\n| methodology.md | 指數趨勢擬合與偏離度計算方法論 |\n| regime-rules.md | 1970s-like vs 2000s-like 體質判定規則 |\n| data-sources.md | 數據來源與替代方案說明 |\n</reference_index>\n\n<workflows_index>\n| Workflow | Purpose |\n|----------|---------|\n| detect.md | 單資產趨勢偏離度偵測與體質判定 |\n| compare.md | 歷史峰值詳細對照分析 |\n| macro.md | 宏觀因子分解與貢獻度分析 |\n</workflows_index>\n\n<templates_index>\n| Template | Purpose |\n|----------|---------|\n| output-json.md | JSON 輸出結構定義 |\n| output-markdown.md | Markdown 報告輸出模板 |\n</templates_index>\n\n<scripts_index>\n| Script | Purpose |\n|--------|---------|\n| trend_deviation.py | 主要分析腳本：趨勢擬合、偏離度計算、體質判定 |\n| generate_chart.py | 視覺化圖表生成：偏離度歷史圖表與峰值標註 |\n</scripts_index>\n\n<examples_index>\n**範例輸出** (`examples/`)\n\n| 文件 | 內容 |\n|------|------|\n| gold-deviation-2026.json | 2026 年黃金趨勢偏離度分析範例 |\n</examples_index>\n\n<success_criteria>\nSkill 成功執行時：\n- [ ] 成功擬合黃金價格的指數趨勢線\n- [ ] 計算出當前偏離度百分比與歷史分位數\n- [ ] 與 2011/1980 峰值進行有效比較\n- [ ] 綜合宏觀代理指標得出 regime 判定（1970s-like / 2000s-like）\n- [ ] 輸出完整的 JSON 或 Markdown 報告\n- [ ] （選用）生成視覺化圖表（PNG）標註歷史峰值與當前位置\n</success_criteria>",
-    "path": "skills/evaluate-exponential-trend-deviation-regimes/SKILL.md",
-    "directoryStructure": "evaluate-exponential-trend-deviation-regimes/\n├── examples\n│   ├── gold-deviation-2026.json\n│   └── gold-trend-deviation.md\n├── images\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   ├── methodology.md\n│   └── regime-rules.md\n├── scripts\n│   ├── generate_chart.py\n│   └── trend_deviation.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── compare.md\n    ├── detect.md\n    └── macro.md",
-    "lastUpdated": "2026-01-15",
-    "rating": 3,
-    "testQuestions": [
-      {
-        "question": "黃金目前的指數趨勢偏離度是多少？是否已超過 2011 年峰值？",
-        "imagePath": "images/gold-deviation-analysis-2026-01-15.png",
-        "expectedResult": "黃金指數趨勢偏離度分析結果\n\n當前狀態（截至 2025 年 12 月）\n┌────────────┬───────────┐\n│    指標    │   數值    │\n├────────────┼───────────┤\n│ 當前金價   │ $4,318.59 │\n├────────────┼───────────┤\n│ 趨勢線價格 │ $2,161.81 │\n├────────────┼───────────┤\n│ 當前偏離度 │ 99.8%     │\n├────────────┼───────────┤\n│ 歷史分位數 │ 94.8%     │\n└────────────┴───────────┘\n歷史峰值比較\n┌──────────────┬────────┬──────────────────────┐\n│   峰值時期   │ 偏離度 │      與當前差距      │\n├──────────────┼────────┼──────────────────────┤\n│ 1980 年 1 月 │ 288.5% │ -188.7 ppt（未超過） │\n├──────────────┼────────┼──────────────────────┤\n│ 2011 年 8 月 │ 83.1%  │ +16.7 ppt（已超過）  │\n└──────────────┴────────┴──────────────────────┘\n---\n結論\n\n是的，黃金已超越 2011 年峰值偏離度。\n當前黃金偏離指數趨勢線 99.8%，超過 2011 年峰值（83.1%）約 16.7 個百分點。這意味著以趨勢偏離度衡量，黃金的「泡沫程度」已超過 2011 年那波行情。\n然而，與 1980 年那種 blow-off 式的峰值（288.5%）相比，當前偏離度仍有相當距離。若行情體質類似 1970 年代（高通膨、負實質利率），理論上仍有延伸空間。\n"
-      },
-      {
-        "question": "分析 S&P 500 的指數趨勢偏離度",
-        "imagePath": "images/sp500-trend-deviation-2026-01-15.png",
-        "expectedResult": "S&P 500 指數趨勢偏離度分析報告\n\n分析日期: 2026-01-15\n數據範圍: 1950-01-31 至 2026-01-31（76 年，913 個月）\n\n---\n趨勢擬合參數\n┌────────────┬────────────────────────────────────┐\n│    參數    │                數值                │\n├────────────┼────────────────────────────────────┤\n│ 年化成長率 │ 7.34%                              │\n├────────────┼────────────────────────────────────┤\n│ 趨勢公式   │ trend = exp(3.0619 + 0.005899 × t) │\n└────────────┴────────────────────────────────────┘\n---\n當前狀態\n┌────────────┬──────────┬────────────────────────────────────────┐\n│    指標    │   數值   │                  解讀                  │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 當前價格   │ 6,926.60 │ -                                      │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 趨勢價值   │ 4,637.36 │ 長期指數趨勢的「公允值」               │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 偏離度     │ +49.4%   │ 價格高於趨勢近 50%                     │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 歷史分位數 │ 94.9%    │ 在 76 年歷史中僅有 5% 時間比現在更偏離 │\n└────────────┴──────────┴────────────────────────────────────────┘\n---\n歷史分布統計\n┌───────────────┬───────────────────┐\n│    分位數     │      偏離度       │\n├───────────────┼───────────────────┤\n│ 25%           │ -16.0%            │\n├───────────────┼───────────────────┤\n│ 50%（中位數） │ -0.4%             │\n├───────────────┼───────────────────┤\n│ 75%           │ +23.2%            │\n├───────────────┼───────────────────┤\n│ 90%           │ +38.8%            │\n├───────────────┼───────────────────┤\n│ 95%           │ +49.4% ← 當前位置 │\n├───────────────┼───────────────────┤\n│ 99%           │ +88.5%            │\n└───────────────┴───────────────────┘\n---\n歷史極端值對照\n┌─────────────────────┬────────────┬─────────┬────────────────┐\n│        事件         │    日期    │ 偏離度  │   與當前比較   │\n├─────────────────────┼────────────┼─────────┼────────────────┤\n│ 2000 年網路泡沫頂點 │ 2000-03-31 │ +101.2% │ 當前僅達其 49% │\n├─────────────────────┼────────────┼─────────┼────────────────┤\n│ 1982 年沃克緊縮谷底 │ 1982-07-31 │ -49.8%  │ 歷史最悲觀時刻 │\n└─────────────────────┴────────────┴─────────┴────────────────┘\n---\n關鍵洞察\n\n1. 極端但未達歷史峰值\n當前 +49.4% 的偏離度位於歷史第 95 分位，屬於「偏高但非極端」區間。2000 年網路泡沫時偏離度達 +101.2%，是當前的兩倍。\n2. 長期趨勢穩健\nS&P 500 在 76 年間維持約 7.3% 的年化複合成長率，這反映了美國經濟與企業盈利的長期成長。\n3. 當前定價隱含樂觀預期\n價格高於趨勢 49%，暗示市場正在計入：\n  - AI 革命帶來的生產力躍升\n  - 企業盈利持續超預期成長\n  - 流動性環境相對寬鬆\n4. 風險提示\n歷史上當偏離度超過 +40% 後，未來 3-5 年的回報率通常低於長期平均。這不是「崩盤訊號」，而是「預期回報降低」的警示。\n\n---\n結論\n\nS&P 500 當前處於 歷史高偏離區間（95 分位），但距離 2000 年的泡沫極端值仍有相當距離。這表明市場定價偏向樂觀，但尚未進入「非理性繁榮」的極端狀態。\n\n---\n圖表說明：\n\n上圖 - 價格與趨勢線\n- 藍線：S&P 500 實際價格（對數尺度）\n- 紅色虛線：長期指數趨勢線（年化 7.3%）\n- 可見價格圍繞趨勢線上下波動，目前明顯高於趨勢\n\n下圖 - 偏離度\n- 紅色區域：高於趨勢的時期\n- 綠色區域：低於趨勢的時期\n- 紅色虛線：95 分位（約 +50%）\n- 綠色虛線：5 分位（約 -40%）\n\n關鍵觀察：\n1. 2000 年網路泡沫 創下 +101.2% 的歷史最高偏離度\n2. 1982 年 是歷史最悲觀時刻（-49.8%）\n3. 當前 +49.4% 正好位於 95 分位線上，偏離度較高但遠未達到泡沫極端\n"
-      }
-    ],
-    "qualityScore": {
-      "overall": 75,
-      "badge": "白銀",
-      "metrics": {
-        "architecture": 80,
-        "maintainability": 75,
-        "content": 85,
-        "community": 20,
-        "security": 95,
-        "compliance": 80
-      },
-      "details": "**架構（80/100）**\n- 清晰的指數趨勢擬合方法論\n- 歷史對照機制完整\n- 宏觀因子整合設計合理\n\n**可維護性（75/100）**\n- 參數定義完整\n- 多數據來源支援\n- 工作流程分離\n\n**內容（85/100）**\n- 1970s vs 2000s 行情體質分類有理論依據\n- 歷史峰值對照（2011/1980）有實際意義\n- 宏觀代理指標選擇合理\n\n**社區（20/100）**\n- 新技能，尚無社區貢獻\n\n**安全（95/100）**\n- 僅讀取公開價格數據\n- 無需 API key\n\n**規範符合性（80/100）**\n- 遵循 Claude Code 規範\n- 完整的文件結構\n"
-    },
-    "bestPractices": [
-      {
-        "title": "使用足夠長的歷史數據",
-        "description": "建議至少 10-20 年歷史數據，以捕捉完整的週期。不同資產需要不同的起始日期"
-      },
-      {
-        "title": "月頻數據降低噪音",
-        "description": "長期趨勢分析建議使用月頻數據，日頻噪音太大。腳本會自動轉換"
-      },
-      {
-        "title": "不預設歷史峰值",
-        "description": "讓系統自動識別歷史極端值，或由使用者根據資產特性指定有意義的參考日期"
-      },
-      {
-        "title": "理解偏離度的含義",
-        "description": "偏離度是風險評估工具，不是交易訊號。高偏離可能持續很久，也可能快速回歸"
-      }
-    ],
-    "pitfalls": [
-      {
-        "title": "把偏離度當作交易訊號",
-        "description": "偏離度是風險評估工具，不是做多做空訊號",
-        "consequence": "過早逆勢操作可能遭遇趨勢延續的虧損"
-      },
-      {
-        "title": "使用固定的歷史參考點",
-        "description": "不同資產有不同的週期特性，不應套用其他資產的歷史峰值",
-        "consequence": "參考點失去意義，誤導決策"
-      },
-      {
-        "title": "趨勢線擬合區間選擇不當",
-        "description": "若只用近期數據擬合，趨勢斜率會被近期行情扭曲",
-        "consequence": "偏離度計算失真"
-      },
-      {
-        "title": "忽略結構性變化",
-        "description": "資產的長期成長率可能因市場結構、制度變化而改變",
-        "consequence": "簡單的全樣本擬合可能不適用於有結構性轉折的資產"
-      }
-    ],
-    "faq": [
-      {
-        "question": "什麼是「指數趨勢偏離度」？",
-        "answer": "指數趨勢偏離度衡量當前價格與長期指數成長趨勢線的距離，以百分比表示。\n\n計算方式：\n1. 對歷史價格取對數：y = log(price)\n2. 對時間做線性回歸：y = a + b*t\n3. 趨勢價格：trend = exp(a + b*t)\n4. 偏離度：(price / trend - 1) × 100%\n\n正偏離表示價格高於趨勢，負偏離表示低於趨勢。\n"
-      },
-      {
-        "question": "這個工具適用於哪些資產？",
-        "answer": "適用於具有長期指數成長特性的資產：\n\n**商品**：黃金、白銀、原油、銅等\n**股票指數**：S&P 500、納斯達克、全球指數等\n**加密貨幣**：比特幣、以太坊等（需注意歷史較短）\n**ETF**：各類 ETF\n**房地產指數**：房價指數、REIT 等\n\n核心要求：有足夠長的歷史數據（建議 ≥ 10 年）\n"
-      },
-      {
-        "question": "如何選擇歷史參考日期？",
-        "answer": "有兩種方式：\n\n**1. 自動識別**（推薦）：\n- 讓系統自動找出歷史最大偏離度\n- 不需要預先知道資產的歷史\n\n**2. 手動指定**：\n- 根據資產特性指定有意義的歷史峰值/谷值\n- 例如：黃金可參考 1980、2011；股市可參考 2000、2008、2020\n\n**黃金範例**：`--compare-peaks \"2011-09-06,1980-01-21\"`\n**股市範例**：`--compare-peaks \"2000-03-24,2007-10-09,2020-02-19\"`\n"
-      },
-      {
-        "question": "宏觀因子分析支援哪些資產？",
-        "answer": "目前宏觀因子分析主要針對黃金設計（1970s-like vs 2000s-like 體質）。\n\n其他資產的宏觀分析需要自定義因子和判定規則。\n\n若不使用 `--include-macro` 參數，工具會純粹計算偏離度，\n適用於所有資產。\n"
-      }
-    ],
-    "about": {
-      "repository": "https://github.com/fatfingererr/macro-skills",
-      "branch": "main",
-      "additionalInfo": "## 參考來源\n\n- 靈感來自 Twitter/X 上關於「% distance from exponential growth trendline」的討論\n- 適用於多種資產類別的指數趨勢偏離度分析\n\n## 數據來源\n\n**Yahoo Finance（免費，無需 API key）**\n- 支援：股票、期貨、ETF、指數、加密貨幣等\n- 使用 yfinance 套件抓取\n\n**FRED（免費，無需 API key，選用）**\n- 宏觀因子：實質利率、通膨預期、美元指數等\n- 使用 pandas-datareader 套件抓取\n\n**Stooq（替代來源）**\n- 各類資產歷史數據\n- CSV 下載\n\n## 適用場景\n\n- 長期投資配置決策\n- 評估資產是否處於歷史極端區間\n- 風險管理與倉位調整\n- 多資產比較分析\n\n## 黃金專用功能\n\n針對黃金，可使用 `--include-macro` 參數進行：\n- 1970s-like vs 2000s-like 行情體質判定\n- 基於實質利率、通膨、地緣風險、美元的多因子分析\n\n參考範例：`examples/gold-deviation-2026.json`\n"
-    },
-    "methodology": "### 資產長期遵循指數成長\n\n許多資產在長期（數十年）尺度上遵循指數成長路徑，主要原因：\n\n1. **經濟成長**：全球經濟、貨幣供應量長期以指數方式增長\n2. **複利效應**：任何穩定的成長率在長期都會表現為指數形式\n3. **通膨因素**：名目價格會隨著通膨而增長\n\n**適用資產範例**：\n- **商品**：黃金、白銀、原油（受貨幣供應與購買力影響）\n- **股票指數**：S&P 500、NASDAQ（受經濟成長與盈利成長驅動）\n- **加密貨幣**：比特幣、以太坊（受採用率與網絡效應驅動）\n- **房地產**：房價指數（受收入成長與都市化影響）\n\n### 偏離度的意義\n\n偏離度衡量當前價格與「公允長期趨勢」的距離：\n\n- **正偏離**：價格高於趨勢，可能反映過度樂觀或極端事件\n- **負偏離**：價格低於趨勢，可能反映過度悲觀或錯誤定價\n",
-    "downloadUrl": "downloads/evaluate-exponential-trend-deviation-regimes-0.1.0.zip"
   },
   {
     "id": "wasde-ingestor",
@@ -1646,131 +1646,6 @@
     "downloadUrl": "downloads/cost-density-net-rr-calculator-0.1.0.zip"
   },
   {
-    "id": "analyze-silver-miner-metal-ratio",
-    "name": "analyze-silver-miner-metal-ratio",
-    "displayName": "評估銀礦業對銀價比率",
-    "description": "以「白銀礦業價格 / 白銀價格」的相對比率衡量礦業板塊相對於金屬本體的估值區間（偏貴/偏便宜），並用歷史分位數與類比區間推導「底部/頂部」訊號與情境推演。",
-    "emoji": "⛏️",
-    "version": "0.1.0",
-    "license": "MIT",
-    "author": "Ricky Wang",
-    "authorUrl": "https://github.com/fatfingererr/macro-skills",
-    "tags": [
-      "白銀",
-      "礦業",
-      "SIL",
-      "SILJ",
-      "相對估值",
-      "分位數",
-      "歷史類比",
-      "情境推演",
-      "底部訊號"
-    ],
-    "category": "commodity-sd",
-    "dataLevel": "free-nolimit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": false,
-    "installCount": 0,
-    "content": "<essential_principles>\r\n\r\n<principle name=\"ratio_definition\">\r\n**比率定義與意義**\r\n\r\n礦業/金屬比率（Miner-to-Metal Ratio）：\r\n\r\n```\r\nratio_t = miner_price_t / metal_price_t\r\n```\r\n\r\n其中：\r\n- **miner_price**：白銀礦業代表（ETF 如 SIL/SILJ，或自建礦業指數）\r\n- **metal_price**：白銀價格（期貨 SI=F、現貨 XAGUSD、ETF SLV）\r\n\r\n此比率衡量「礦業相對於金屬本體」的估值水位：\r\n- **比率高**：礦業相對白銀偏貴（可能過度樂觀、槓桿溢價高）\r\n- **比率低**：礦業相對白銀偏便宜（可能被低估、或反映成本/股權稀釋風險）\r\n</principle>\r\n\r\n<principle name=\"quantile_interpretation\">\r\n**分位數解讀邏輯**\r\n\r\n使用歷史分位數（Percentile Rank）判斷當前比率位置：\r\n\r\n| 分位數區間 | 標籤           | 直覺                     |\r\n|------------|----------------|--------------------------|\r\n| ≤ 20%      | bottom (底部)  | 礦業相對白銀歷史上很便宜 |\r\n| 20-40%     | low (偏低)     | 礦業相對估值偏低         |\r\n| 40-60%     | neutral (中性) | 歷史中位區間             |\r\n| 60-80%     | high (偏高)    | 礦業相對估值偏高         |\r\n| ≥ 80%      | top (頂部)     | 礦業相對白銀歷史上很貴   |\r\n\r\n**底部區間不等於白銀必漲**：可能是礦業因成本/稀釋被合理定價。\r\n</principle>\r\n\r\n<principle name=\"divergence_signal\">\r\n**背離訊號的意義**\r\n\r\n當出現「比率低 + 白銀高」的組合：\r\n\r\n- **比率處於底部區**：礦業相對白銀偏便宜\r\n- **白銀處於高位**：金屬價格已在歷史高檔\r\n\r\n此「背離」意味著：\r\n1. 礦業可能有追趕空間（均值回歸邏輯）\r\n2. 或礦業正確反映了結構性問題（成本、稀釋、地緣風險）\r\n\r\n需結合基本面交叉驗證，而非盲目視為買入訊號。\r\n</principle>\r\n\r\n<principle name=\"scenario_math\">\r\n**情境推演計算**\r\n\r\n目標：若比率要回到歷史頂部（或中位），需要什麼條件？\r\n\r\n假設當前比率 = 1.14，目標比率（頂部門檻）= 2.45：\r\n\r\n**情境 A：白銀不變，礦業需漲多少？**\r\n```\r\nminer_multiplier = target_ratio / current_ratio\r\n                 = 2.45 / 1.14 = 2.15x (需漲 115%)\r\n```\r\n\r\n**情境 B：礦業不變，白銀需跌多少？**\r\n```\r\nmetal_multiplier = current_ratio / target_ratio\r\n                 = 1.14 / 2.45 = 0.46 (需跌 54%)\r\n```\r\n\r\n此推演提供「極端情境」的量化參考，非預測。\r\n</principle>\r\n\r\n<principle name=\"data_alignment\">\r\n**數據對齊原則**\r\n\r\n- **頻率選擇**：長週期訊號建議使用週頻（1wk）或月頻（1mo）\r\n- **平滑視窗**：可選 4 週或 3 個月移動平均降低雜訊\r\n- **事件去重**：類比事件間隔需 ≥ min_separation_days（如 180 天）\r\n\r\n本 skill 使用 yfinance 取得 ETF/期貨數據，預設週頻對齊。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n實作「白銀礦業/金屬比率」分析模型：\r\n\r\n1. **數據整合**：取得礦業代理與白銀價格序列\r\n2. **比率計算**：計算相對比率並可選平滑\r\n3. **分位數判斷**：當前比率在歷史的位置\r\n4. **類比事件**：歷史底部區間的事件識別\r\n5. **前瞻驗證**：底部事件後白銀的 1/2/3 年表現\r\n6. **情境推演**：礦業需漲多少 / 白銀需跌多少才回到頂部\r\n\r\n輸出：當前狀態、歷史類比、情境推演、風險提示。\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：執行預設情境分析**\r\n\r\n```bash\r\ncd skills/analyze-silver-miner-metal-ratio\r\npip install pandas numpy yfinance  # 首次使用\r\npython scripts/ratio_analyzer.py --quick\r\n```\r\n\r\n輸出範例：\r\n```json\r\n{\r\n  \"skill\": \"analyze_silver_miner_metal_ratio\",\r\n  \"current\": {\r\n    \"ratio\": 1.14,\r\n    \"ratio_percentile\": 18.7,\r\n    \"zone\": \"bottom\",\r\n    \"bottom_threshold\": 1.16,\r\n    \"top_threshold\": 2.45\r\n  },\r\n  \"history_analogs\": {\r\n    \"bottom_event_dates\": [\"2010-08-06\", \"2016-01-29\", \"2020-03-20\"],\r\n    \"forward_metal_returns\": {\r\n      \"252\": {\"count\": 3, \"median\": 0.42, \"win_rate\": 1.0}\r\n    }\r\n  },\r\n  \"scenarios\": {\r\n    \"target\": \"return_to_top\",\r\n    \"miner_multiplier_if_metal_flat\": 2.15,\r\n    \"metal_drop_pct_if_miner_flat\": 0.54\r\n  }\r\n}\r\n```\r\n\r\n**完整情境分析**：\r\n```bash\r\npython scripts/ratio_analyzer.py \\\r\n  --miner-proxy SIL \\\r\n  --metal-proxy SI=F \\\r\n  --start-date 2008-01-01 \\\r\n  --freq 1wk \\\r\n  --smoothing-window 4 \\\r\n  --bottom-quantile 0.20 \\\r\n  --top-quantile 0.80 \\\r\n  --output result.json\r\n```\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼操作？\r\n\r\n1. **快速分析** - 使用預設參數（SIL / SI=F）計算當前比率狀態\r\n2. **完整分析** - 自訂參數進行情境分析（可選擇礦業/金屬代理、分位門檻）\r\n3. **歷史驗證** - 查看底部區間事件的前瞻報酬統計\r\n4. **情境推演** - 計算「回到頂部」需要的礦業漲幅或白銀跌幅\r\n5. **方法論學習** - 了解比率邏輯與分位數解讀\r\n\r\n**請選擇或直接提供分析參數。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                      | Action                                          |\r\n|-------------------------------|-------------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"分析\"    | 執行 `python scripts/ratio_analyzer.py --quick` |\r\n| 2, \"完整\", \"full\", \"自訂\"     | 閱讀 `workflows/analyze.md` 並執行              |\r\n| 3, \"歷史\", \"驗證\", \"backtest\" | 閱讀 `workflows/analyze.md` 並聚焦歷史類比      |\r\n| 4, \"情境\", \"scenario\", \"推演\" | 閱讀 `workflows/analyze.md` 並聚焦情境推演      |\r\n| 5, \"學習\", \"方法論\", \"why\"    | 閱讀 `references/methodology.md`                |\r\n| 提供參數 (如礦業/金屬代理)    | 閱讀 `workflows/analyze.md` 並使用參數執行      |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\nanalyze-silver-miner-metal-ratio/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── manifest.json                      # 技能元數據\r\n├── workflows/\r\n│   ├── analyze.md                     # 完整情境分析工作流\r\n│   └── data-research.md               # 數據源研究與替代方案\r\n├── references/\r\n│   ├── methodology.md                 # 方法論與計算邏輯\r\n│   ├── input-schema.md                # 完整輸入參數定義\r\n│   └── data-sources.md                # 數據來源與獲取方式\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n├── scripts/\r\n│   └── ratio_analyzer.py              # 主計算腳本\r\n└── examples/\r\n    └── sample-output.json             # 範例輸出\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**方法論**: references/methodology.md\r\n- 比率定義與直覺\r\n- 分位數解讀邏輯\r\n- 背離訊號的意義\r\n- 情境推演數學\r\n- 歷史驗證方法\r\n\r\n**資料來源**: references/data-sources.md\r\n- 礦業代理（ETF/指數）\r\n- 白銀價格代理\r\n- 數據對齊原則\r\n\r\n**輸入參數**: references/input-schema.md\r\n- 完整參數定義\r\n- 預設值與建議範圍\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow         | Purpose      | 使用時機                        |\r\n|------------------|--------------|---------------------------------|\r\n| analyze.md       | 完整情境分析 | 需要自訂參數計算比率與情境      |\r\n| data-research.md | 數據源研究   | 了解如何獲取或替代礦業/金屬數據 |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構定義 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script            | Command                              | Purpose           |\r\n|-------------------|--------------------------------------|-------------------|\r\n| ratio_analyzer.py | `--quick`                            | 快速分析 SIL/SI=F |\r\n| ratio_analyzer.py | `--miner-proxy SILJ --freq 1mo`      | 自訂礦業與頻率    |\r\n| ratio_analyzer.py | `--scenario-target return_to_median` | 回到中位數情境    |\r\n</scripts_index>\r\n\r\n<input_schema_summary>\r\n\r\n**核心參數**\r\n\r\n| 參數        | 類型   | 預設值  | 說明                          |\r\n|-------------|--------|---------|-------------------------------|\r\n| miner_proxy | string | SIL     | 白銀礦業代表（ETF/指數代號）  |\r\n| metal_proxy | string | SI=F    | 白銀價格代表（期貨/現貨/ETF） |\r\n| start_date  | string | 10 年前 | 歷史回溯起點（YYYY-MM-DD）    |\r\n| end_date    | string | today   | 分析終點                      |\r\n| freq        | string | 1wk     | 取樣頻率（1d/1wk/1mo）        |\r\n\r\n**進階參數**\r\n\r\n| 參數                | 類型   | 預設值          | 說明                             |\r\n|---------------------|--------|-----------------|----------------------------------|\r\n| smoothing_window    | int    | 4               | 比率平滑視窗（週數/月數）        |\r\n| bottom_quantile     | float  | 0.20            | 底部估值區分位數門檻             |\r\n| top_quantile        | float  | 0.80            | 頂部估值區分位數門檻             |\r\n| min_separation_days | int    | 180             | 類比事件去重間隔                 |\r\n| forward_horizons    | list   | [252, 504, 756] | 前瞻期（交易日，對應 1/2/3 年）  |\r\n| scenario_target     | string | return_to_top   | 情境目標（return_to_top/median） |\r\n\r\n完整參數定義見 `references/input-schema.md`。\r\n\r\n</input_schema_summary>\r\n\r\n<output_schema_summary>\r\n```json\r\n{\r\n  \"skill\": \"analyze_silver_miner_metal_ratio\",\r\n  \"inputs\": {\r\n    \"miner_proxy\": \"SIL\",\r\n    \"metal_proxy\": \"SI=F\",\r\n    \"start_date\": \"2010-01-01\",\r\n    \"freq\": \"1wk\"\r\n  },\r\n  \"current\": {\r\n    \"ratio\": 1.14,\r\n    \"ratio_percentile\": 18.7,\r\n    \"zone\": \"bottom\",\r\n    \"bottom_threshold\": 1.16,\r\n    \"top_threshold\": 2.45\r\n  },\r\n  \"history_analogs\": {\r\n    \"bottom_event_dates\": [\"2010-08-06\", \"2016-01-29\", \"2020-03-20\"],\r\n    \"forward_metal_returns\": {\r\n      \"252\": {\"count\": 3, \"median\": 0.42, \"mean\": 0.39, \"win_rate\": 1.0, \"worst\": 0.18},\r\n      \"504\": {\"count\": 3, \"median\": 0.71, \"mean\": 0.66, \"win_rate\": 1.0, \"worst\": 0.31}\r\n    }\r\n  },\r\n  \"scenarios\": {\r\n    \"target\": \"return_to_top\",\r\n    \"target_ratio\": 2.45,\r\n    \"miner_multiplier_if_metal_flat\": 2.15,\r\n    \"metal_multiplier_if_miner_flat\": 0.46,\r\n    \"metal_drop_pct_if_miner_flat\": 0.54\r\n  },\r\n  \"summary\": \"白銀礦業/白銀比率落在歷史低分位，顯示礦業相對白銀偏便宜...\",\r\n  \"notes\": [\r\n    \"比率訊號衡量的是『相對估值』，不是單邊價格保證。\",\r\n    \"礦業與金屬可能同漲，但礦業也可能因成本上升、地緣/政策風險、增發稀釋而落後。\",\r\n    \"建議搭配：礦業獲利率(成本曲線)、白銀實質利率/美元、投機部位(COT)、ETF 流量等做交叉驗證。\"\r\n  ]\r\n}\r\n```\r\n\r\n完整輸出結構見 `templates/output-json.md`。\r\n</output_schema_summary>\r\n\r\n<success_criteria>\r\n執行成功時應產出：\r\n\r\n- [ ] 當前比率與歷史分位數\r\n- [ ] 估值區間判定（bottom/low/neutral/high/top）\r\n- [ ] 歷史底部事件列表與去重\r\n- [ ] 底部事件後的前瞻報酬統計（平均/中位/勝率/最差）\r\n- [ ] 情境推演（礦業需漲多少 / 白銀需跌多少）\r\n- [ ] 結果輸出為指定格式（JSON 或 Markdown）\r\n- [ ] 風險提示與後續研究建議\r\n</success_criteria>",
-    "path": "skills/analyze-silver-miner-metal-ratio/SKILL.md",
-    "directoryStructure": "analyze-silver-miner-metal-ratio/\n├── examples\n│   └── sample-output.json\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   └── method.md\n├── scripts\n│   └── ratio_analyzer.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    └── data-research.md",
-    "rating": 3,
-    "testQuestions": [
-      {
-        "question": "分析目前 SIL/白銀 比率是否處於歷史底部區間",
-        "expectedResult": "輸出當前比率狀態：\n- 當前比率值（如 1.14）\n- 歷史分位數（如 18.7 百分位）\n- 區間標記（bottom）\n- 底部/頂部門檻值\n"
-      },
-      {
-        "question": "歷史上礦業/白銀比率落入底部區間後，白銀價格的前瞻表現如何？",
-        "expectedResult": "輸出歷史類比分析：\n- 底部事件日期列表\n- 1/2/3 年前瞻報酬的中位數、平均、勝率\n- 最差情境說明\n"
-      },
-      {
-        "question": "如果礦業/白銀比率要回到歷史頂部，礦業需要漲多少？白銀需要跌多少？",
-        "expectedResult": "輸出情境推演：\n- 目標比率（頂部門檻）\n- 礦業需要的倍數（如 2.15x）\n- 白銀需要下跌的幅度（如 54%）\n"
-      }
-    ],
-    "qualityScore": {
-      "overall": 70,
-      "badge": "白銀",
-      "metrics": {
-        "architecture": 80,
-        "maintainability": 75,
-        "content": 85,
-        "community": 20,
-        "security": 90,
-        "compliance": 80
-      },
-      "details": "**架構（80/100）**\n- 清晰的路由器模式\n- 分層的 workflows/references\n- 可擴展的腳本設計\n\n**可維護性（75/100）**\n- 使用 yfinance 公開數據\n- 需關注 ETF 代號變動\n\n**內容（85/100）**\n- 完整的方法論說明\n- 清晰的輸入/輸出定義\n- 含情境推演與風險提示\n\n**社群（20/100）**\n- 新建技能，尚無社群反饋\n\n**安全（90/100）**\n- 純公開市場數據\n- 無爬蟲/API 金鑰需求\n\n**合規（80/100）**\n- 數據來源透明\n- 明確標註風險提示\n"
-    },
-    "bestPractices": [
-      {
-        "title": "使用週頻或月頻數據",
-        "description": "長週期訊號應避免日頻雜訊，建議使用週頻或月頻"
-      },
-      {
-        "title": "設定合理的分位門檻",
-        "description": "預設 20/80 分位，可依市場特性調整至 10/90 或 25/75"
-      },
-      {
-        "title": "關注背離訊號",
-        "description": "「比率低 + 白銀高」的組合更有參考價值"
-      },
-      {
-        "title": "結合基本面驗證",
-        "description": "比率訊號應搭配礦業成本、股權稀釋、ETF 流量等交叉驗證"
-      }
-    ],
-    "pitfalls": [
-      {
-        "title": "將比率訊號視為價格預測",
-        "description": "比率反映「相對估值」，不是單邊價格保證",
-        "consequence": "可能在礦業持續落後時錯誤加碼"
-      },
-      {
-        "title": "忽略礦業的結構性問題",
-        "description": "礦業可能因成本上升、地緣風險、股權稀釋而合理偏低",
-        "consequence": "相對便宜不等於買入機會"
-      },
-      {
-        "title": "過度依賴歷史類比",
-        "description": "過往 3 次底部事件的樣本量不足以做統計推論",
-        "consequence": "對勝率過度自信"
-      },
-      {
-        "title": "忽略 ETF 結構差異",
-        "description": "SIL vs SILJ 成分股差異大，需注意代理選擇",
-        "consequence": "結論可能因代理不同而不一致"
-      }
-    ],
-    "faq": [
-      {
-        "question": "SIL 和 SILJ 有什麼差別？",
-        "answer": "- **SIL (Global X Silver Miners ETF)**：追蹤大型白銀礦業，成分股較穩定\n- **SILJ (ETFMG Prime Junior Silver Miners ETF)**：追蹤小型/初級礦業，波動更大\n\n建議使用 SIL 作為主要代理，SILJ 作為槓桿/投機參考。\n"
-      },
-      {
-        "question": "為何用 SI=F 而非 SLV 作為白銀代理？",
-        "answer": "- **SI=F (COMEX 白銀期貨)**：直接反映白銀現貨價格\n- **SLV (iShares Silver Trust)**：含 ETF 溢價/折價，可能有偏差\n\n若交易日對齊有困難，SLV 是可接受的替代方案。\n"
-      },
-      {
-        "question": "底部區間事件後一定會漲嗎？",
-        "answer": "**不一定。** 歷史上的 3 次底部事件確實對應了白銀的中長期底部，但：\n- 樣本量僅 3 次，統計意義有限\n- 未來可能出現結構性破壞（如礦業成本永久上升）\n- 需結合其他因子（COT 持倉、ETF 流量、美元/實質利率）\n"
-      },
-      {
-        "question": "如何解讀情境推演？",
-        "answer": "情境推演提供「極端參考」：\n- 「礦業需漲 2.15x」意味著若白銀不變，礦業需翻倍以上才回到頂部估值\n- 「白銀需跌 54%」意味著若礦業不變，白銀需腰斬才回到頂部估值\n\n這些是量化邊界，非預測。實際可能是兩者同時調整。\n"
-      }
-    ],
-    "about": {
-      "repository": "https://github.com/fatfingererr/macro-skills",
-      "branch": "main",
-      "additionalInfo": "## 使用場景\n\n1. **驗證推文說法**：當看到「礦業/金屬比率在底部」的說法時，可用本 skill 驗證\n2. **歷史事件研究**：底部區間後的前瞻報酬統計\n3. **情境推演**：量化「回到頂部」需要的條件\n4. **背離偵測**：識別「比率低 + 白銀高」的潛在機會\n\n## 預設代理\n\n**礦業**：SIL (Global X Silver Miners ETF)\n**白銀**：SI=F (COMEX 白銀期貨)\n\n## 參考推文邏輯\n\n本 skill 系統化了以下類型的推文分析：\n> \"Silver miners / Silver ratio is near historic lows.\n> The previous 3 times this happened represented major multi-year bottoms.\"\n"
-    },
-    "methodology": "### 比率說明\r\n\r\n這個分析把 **白銀礦業公司（或礦業類指數、基金）** 和 **白銀價格** 放在同一個尺度上比較，做成一個比率：\r\n\r\n> **相對估值比率 = 白銀礦業價格 ÷ 白銀價格**\r\n\r\n它不是在問 **白銀會不會漲** ，而是在問更關鍵的一句話：\r\n\r\n> **在同樣的白銀價格背景下，市場給礦業的估值是偏貴、偏便宜，還是普通？**\r\n\r\n因為礦業本質上是 **用白銀賺錢的公司** ，理論上白銀上漲會改善礦業收入與利潤，但市場不一定會立刻用同樣幅度去調整礦業股價。\r\n\r\n所以礦業相對白銀常常會出現 **落後** 或 **超前** 的波動，這就是比率有用的地方。\r\n\r\n把礦業價格除以白銀價格後，等於把 **白銀這個共同因素** 先扣掉，留下更接近 **市場給礦業的相對評價** 。\r\n\r\n直覺上可以這樣理解：\r\n\r\n- **比率偏高**：礦業相對白銀 **更貴**   \r\n  可能代表市場對礦業的樂觀情緒更強、估值更熱，或礦業的利潤被預期會大幅改善。\r\n\r\n- **比率偏低**：礦業相對白銀 **更便宜**   \r\n  可能代表市場對礦業比較保守、礦業股價跟不上白銀，或礦業有成本、政策、經營等風險被放大解讀。\r\n\r\n### 怎麼用它判斷 **接近頂部或底部** ？\r\n\r\n這個方法通常會把長期歷史的比率分成三種區域：\r\n\r\n1. **底部區（相對低估）**  \r\n   比率落到歷史偏低的位置，代表 **礦業相對白銀很便宜** 。\r\n2. **中性區**  \r\n   比率在歷史正常範圍，代表相對估值不特別極端。\r\n3. **頂部區（相對高估）**  \r\n   比率落到歷史偏高位置，代表 **礦業相對白銀很貴** 。\r\n\r\n重點不是某個固定數字，而是 **在長期分布裡的位置** ：  \r\n比率越接近歷史低點，越像相對低估；越接近歷史高點，越像相對高估。\r\n\r\n### 使用這個方法時，應該注意什麼？\r\n\r\n1. **這是相對估值，不是保證獲利的買賣訊號**  \r\n   比率偏低只表示 **相對便宜** ，不代表立刻上漲。\r\n2. **礦業不是白銀的完美影子**  \r\n   礦業還受很多因素影響，例如：開採成本、能源價格、匯率、政策與稅制、礦區風險、公司是否增發稀釋、管理品質等。\r\n3. **最好搭配其他指標交叉驗證**  \r\n   例如：礦業利潤狀況、成本曲線、資金流、整體風險偏好等，避免只靠單一比率下結論。",
-    "downloadUrl": "downloads/analyze-silver-miner-metal-ratio-0.1.0.zip"
-  },
-  {
     "id": "compute-precious-miner-gross-margin",
     "name": "compute-precious-miner-gross-margin",
     "displayName": "計算貴金屬礦業毛利率",
@@ -1891,6 +1766,134 @@
     },
     "methodology": "# 方法論：貴金屬礦業毛利率代理值\n\n## 核心概念\n\n### 毛利率代理值 (Gross Margin Proxy)\n\n本 skill 使用的「毛利率代理值」是一個簡化公式，用於快速估算礦業的邊際盈利能力：\n\n```\ngross_margin_proxy = (metal_price - unit_cost) / metal_price\n```\n\n**重要說明**：\n- 此指標**不等同會計報表的毛利率 (GAAP Gross Margin)**\n- 會計毛利率需考慮副產品收入、非現金項目、會計準則差異\n- 本代理值的優點是**可快速計算、跨公司可比、便於時序分析**\n\n### 與會計毛利率的差異\n\n| 項目       | Margin Proxy           | GAAP Gross Margin          |\n|------------|------------------------|----------------------------|\n| 計算方式   | (Price - AISC) / Price | (Revenue - COGS) / Revenue |\n| 副產品處理 | AISC 已扣除副產品收入  | 需單獨調整                 |\n| 非現金項目 | 不含                   | 含折舊/攤銷                |\n| 可比性     | 高（標準化公式）       | 低（會計政策差異）         |\n| 即時性     | 可用即時金價估算       | 需等財報披露               |\n\n---\n\n## 成本指標口徑\n\n### Cost Metric 層次\n\n```\n┌─────────────────────────────────────────────────────────┐\n│                    All-In Cost (AIC)                    │\n│  ┌───────────────────────────────────────────────────┐  │\n│  │               AISC (All-In Sustaining Cost)       │  │\n│  │  ┌─────────────────────────────────────────────┐  │  │\n│  │  │              Cash Cost (C1)                 │  │  │\n│  │  │  - 採掘成本                                 │  │  │\n│  │  │  - 加工成本                                 │  │  │\n│  │  │  - 場內一般行政                             │  │  │\n│  │  └─────────────────────────────────────────────┘  │  │\n│  │  + 維持資本開支 (Sustaining CapEx)               │  │\n│  │  + 勘探費用                                       │  │\n│  │  + 一般行政費用                                   │  │\n│  └───────────────────────────────────────────────────┘  │\n│  + 成長資本開支 (Growth CapEx)                          │\n│  + 併購相關費用                                          │\n└─────────────────────────────────────────────────────────┘\n```\n\n### 各口徑比較\n\n| 口徑           | 定義            | 典型值 (Gold)   | 適用場景                 |\n|----------------|-----------------|-----------------|--------------------------|\n| Cash Cost (C1) | 直接現場成本    | $800-1,200/oz   | 現金流壓力測試           |\n| AISC           | C1 + 維持開支   | $1,100-1,500/oz | **行業標準**（WGC 定義） |\n| All-In Cost    | AISC + 成長開支 | $1,300-1,800/oz | 完整經濟成本             |\n\n**建議**：優先使用 **AISC**，因其：\n- 由 World Gold Council 標準化定義（2013 年起）\n- 跨公司可比性最佳\n- 多數公司在季報中揭露\n\n---\n\n## 聚合方法\n\n### 籃子聚合邏輯\n\n當分析多家礦業時，需將個別毛利率聚合為「籃子毛利率」：\n\n**1. Equal Weight（等權重）**\n```python\nbasket_margin = Σ margin_i / N\n```\n- 每家公司貢獻相同\n- 適用於：關注「典型礦業」表現\n\n**2. Production Weighted（產量加權）**\n```python\nbasket_margin = Σ (margin_i × prod_i) / Σ prod_i\n```\n- 大型生產商貢獻較大\n- 適用於：反映「產業整體毛利」\n- **建議使用此方法**\n\n**3. Market Cap Weighted（市值加權）**\n```python\nbasket_margin = Σ (margin_i × mcap_i) / Σ mcap_i\n```\n- 與 GDX/GDXJ 等 ETF 曝險結構接近\n- 適用於：分析「股權曝險」毛利\n\n---\n\n## 歷史分位數計算\n\n### 方法\n\n使用滾動視窗計算當前毛利率在歷史分布中的位置：\n\n```python\ndef percentile_rank(series, window_years=20):\n    window = window_years * 4  # 季度\n    ranks = series.rolling(window, min_periods=4).apply(\n        lambda x: (x.iloc[-1] > x[:-1]).mean()\n    )\n    return ranks\n```\n\n### 區間標記\n\n| 分位數 | 標記                | 解讀                         |\n|--------|---------------------|------------------------------|\n| ≥ 90%  | extreme_high_margin | 毛利極端高，均值回歸風險     |\n| 70-90% | high_margin         | 毛利較高，礦業盈利良好       |\n| 30-70% | neutral             | 毛利中等                     |\n| 10-30% | low_margin          | 毛利較低，部分礦業壓力       |\n| < 10%  | extreme_low_margin  | 毛利極端低，可能觸及成本支撐 |\n\n### 視窗選擇考量\n\n| 視窗  | 覆蓋週期  | 優點   | 缺點             |\n|-------|-----------|--------|------------------|\n| 10 年 | ~2 個週期 | 較敏感 | 樣本較少         |\n| 15 年 | ~3 個週期 | 平衡   | -                |\n| 20 年 | ~4 個週期 | 穩健   | 可能錯過結構變化 |\n\n**建議**：使用 **15-20 年**，覆蓋 2-4 個完整商品週期。\n\n---\n\n## 驅動拆解\n\n### 毛利變化分解\n\n毛利率變化可歸因於價格或成本：\n\n```\nΔmargin ≈ f(Δprice, Δcost)\n```\n\n展開（一階近似）：\n```\nΔmargin ≈ (1/P) × ΔP - (1/P) × ΔC + O(...)\n         = (ΔP - ΔC) / P\n```\n\n### 驅動判斷規則\n\n```python\nif abs(price_change) > abs(cost_change) * 2:\n    driver = \"PRICE_DRIVEN\"\nelif abs(cost_change) > abs(price_change) * 2:\n    driver = \"COST_DRIVEN\"\nelse:\n    driver = \"MIXED\"\n```\n\n### 驅動類型與含義\n\n| 驅動類型       | 毛利變化 | 解讀                                  |\n|----------------|----------|---------------------------------------|\n| PRICE_RALLY    | ↑        | 金價上漲帶動，可持續性取決於金價      |\n| COST_DECLINE   | ↑        | 成本下降帶動，可能是暫時（油價/匯率） |\n| COST_INFLATION | ↓        | 成本通膨壓力，需關注趨勢              |\n| PRICE_DROP     | ↓        | 金價下跌帶動，需關注支撐位            |\n| MIXED          | -        | 價格與成本同向或幅度相近              |\n\n---\n\n## 數據對齊\n\n### 頻率處理\n\n金屬價格為日頻，成本數據為季頻，需要對齊：\n\n**方法 1：Forward Fill（建議）**\n```python\ncost_quarterly.reindex(daily_index, method=\"ffill\")\n```\n- 季度成本值延續到下一季報發布\n- 優點：簡單、避免前視偏誤\n\n**方法 2：同季均價**\n```python\nprice_quarterly = price_daily.resample('Q').mean()\n```\n- 將價格也降到季頻\n- 優點：數據乾淨、避免假精度\n\n**建議**：使用**季度頻率**作為基準，以 Method 2 對齊。\n\n### 缺值處理\n\n| 情況               | 處理方式                        |\n|--------------------|---------------------------------|\n| 某季成本缺失       | 前一季 forward-fill，或該季降權 |\n| 連續多季缺失       | 從籃子中剔除該公司              |\n| 成本異常（如重組） | Winsorize 或標記排除            |\n\n---\n\n## 離群處理\n\n### Winsorize 方法\n\n將極端值縮至指定分位數：\n\n```python\ndef winsorize(series, lower=0.01, upper=0.99):\n    low = series.quantile(lower)\n    high = series.quantile(upper)\n    return series.clip(low, high)\n```\n\n### 適用場景\n\n- **一次性減記**：成本異常飆高\n- **資產出售**：成本異常降低\n- **會計變更**：口徑不連續\n\n**建議**：使用 **winsorize_1_99**（1-99 分位數），保留 98% 數據。\n\n---\n\n## 模型限制\n\n1. **非會計毛利率**：不可直接與財報比較\n2. **成本滯後**：季報發布滯後 1-2 個月\n3. **口徑差異**：不同公司的 AISC 定義可能略有差異\n4. **副產品複雜**：白銀礦常有黃金/銅副產品，AISC 處理方式各異\n5. **串流公司除外**：FNV、WPM 等串流公司的成本結構不同，不適用本模型\n\n---\n\n## 參考文獻\n\n- World Gold Council (2013). \"Guidance Note on Non-GAAP Metrics – All-In Sustaining Costs and All-In Costs\"\n- VanEck (2024). \"The Case for Gold Mining Stocks\"\n- Kitco News. \"AISC Tracking Reports\"\n",
     "downloadUrl": "downloads/compute-precious-miner-gross-margin-0.1.0.zip"
+  },
+  {
+    "id": "analyze-silver-miner-metal-ratio",
+    "name": "analyze-silver-miner-metal-ratio",
+    "displayName": "評估銀礦股對銀價比率",
+    "description": "以「銀礦股價格 / 白銀價格」的相對比率衡量礦業股板塊相對於金屬本體的估值區間（偏貴/偏便宜），並用歷史分位數與類比區間推導「底部/頂部」訊號與情境推演。",
+    "emoji": "⛏️",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "白銀",
+      "礦業股",
+      "SIL",
+      "SILJ",
+      "相對估值",
+      "分位數",
+      "歷史類比",
+      "情境推演",
+      "底部訊號"
+    ],
+    "category": "commodity-sd",
+    "dataLevel": "free-nolimit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\r\n\r\n<principle name=\"ratio_definition\">\r\n**比率定義與意義**\r\n\r\n礦業股/金屬比率（Miner-to-Metal Ratio）：\r\n\r\n```\r\nratio_t = miner_price_t / metal_price_t\r\n```\r\n\r\n其中：\r\n- **miner_price**：銀礦股代表（ETF 如 SIL/SILJ，或自建礦業股指數）\r\n- **metal_price**：白銀價格（期貨 SI=F、現貨 XAGUSD、ETF SLV）\r\n\r\n此比率衡量「礦業股相對於金屬本體」的估值水位：\r\n- **比率高**：礦業股相對白銀偏貴（可能過度樂觀、槓桿溢價高）\r\n- **比率低**：礦業股相對白銀偏便宜（可能被低估、或反映成本/股權稀釋風險）\r\n</principle>\r\n\r\n<principle name=\"quantile_interpretation\">\r\n**分位數解讀邏輯**\r\n\r\n使用歷史分位數（Percentile Rank）判斷當前比率位置：\r\n\r\n| 分位數區間 | 標籤           | 直覺                       |\r\n|------------|----------------|----------------------------|\r\n| ≤ 20%      | bottom (底部)  | 礦業股相對白銀歷史上很便宜 |\r\n| 20-40%     | low (偏低)     | 礦業股相對估值偏低         |\r\n| 40-60%     | neutral (中性) | 歷史中位區間               |\r\n| 60-80%     | high (偏高)    | 礦業股相對估值偏高         |\r\n| ≥ 80%      | top (頂部)     | 礦業股相對白銀歷史上很貴   |\r\n\r\n**底部區間不等於白銀必漲**：可能是礦業股因成本/稀釋被合理定價。\r\n</principle>\r\n\r\n<principle name=\"divergence_signal\">\r\n**背離訊號的意義**\r\n\r\n當出現「比率低 + 白銀高」的組合：\r\n\r\n- **比率處於底部區**：礦業股相對白銀偏便宜\r\n- **白銀處於高位**：金屬價格已在歷史高檔\r\n\r\n此「背離」意味著：\r\n1. 礦業股可能有追趕空間（均值回歸邏輯）\r\n2. 或礦業股正確反映了結構性問題（成本、稀釋、地緣風險）\r\n\r\n需結合基本面交叉驗證，而非盲目視為買入訊號。\r\n</principle>\r\n\r\n<principle name=\"scenario_math\">\r\n**情境推演計算**\r\n\r\n目標：若比率要回到歷史頂部（或中位），需要什麼條件？\r\n\r\n假設當前比率 = 1.14，目標比率（頂部門檻）= 2.45：\r\n\r\n**情境 A：白銀不變，礦業股需漲多少？**\r\n```\r\nminer_multiplier = target_ratio / current_ratio\r\n                 = 2.45 / 1.14 = 2.15x (需漲 115%)\r\n```\r\n\r\n**情境 B：礦業股不變，白銀需跌多少？**\r\n```\r\nmetal_multiplier = current_ratio / target_ratio\r\n                 = 1.14 / 2.45 = 0.46 (需跌 54%)\r\n```\r\n\r\n此推演提供「極端情境」的量化參考，非預測。\r\n</principle>\r\n\r\n<principle name=\"data_alignment\">\r\n**數據對齊原則**\r\n\r\n- **頻率選擇**：長週期訊號建議使用週頻（1wk）或月頻（1mo）\r\n- **平滑視窗**：可選 4 週或 3 個月移動平均降低雜訊\r\n- **事件去重**：類比事件間隔需 ≥ min_separation_days（如 180 天）\r\n\r\n本 skill 使用 yfinance 取得 ETF/期貨數據，預設週頻對齊。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n實作「銀礦股價 / 銀價比率」分析模型：\r\n\r\n1. **數據整合**：取得礦業股代理與白銀價格序列\r\n2. **比率計算**：計算相對比率並可選平滑\r\n3. **分位數判斷**：當前比率在歷史的位置\r\n4. **類比事件**：歷史底部區間的事件識別\r\n5. **前瞻驗證**：底部事件後白銀的 1/2/3 年表現\r\n6. **情境推演**：礦業股需漲多少 / 白銀需跌多少才回到頂部\r\n\r\n輸出：當前狀態、歷史類比、情境推演、風險提示。\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：執行預設情境分析**\r\n\r\n```bash\r\ncd skills/analyze-silver-miner-metal-ratio\r\npip install pandas numpy yfinance matplotlib  # 首次使用\r\npython scripts/ratio_analyzer.py --quick\r\n```\r\n\r\n**生成視覺化圖表（基本版）**\r\n\r\n```bash\r\npython scripts/ratio_plotter.py --quick --output-dir ../../output\r\n```\r\n\r\n**生成完整版圖表（含底部事件、前瞻報酬統計）**\r\n\r\n```bash\r\npython scripts/ratio_plotter.py --comprehensive --start-date 2010-01-01 --output-dir ../../output\r\n```\r\n\r\n圖表輸出路徑：\r\n- 基本版：`output/sil_silver_ratio_YYYY-MM-DD.png`\r\n- 完整版：`output/sil_silver_ratio_comprehensive_YYYY-MM-DD.png`\r\n\r\n輸出範例：\r\n```json\r\n{\r\n  \"skill\": \"analyze_silver_miner_metal_ratio\",\r\n  \"current\": {\r\n    \"ratio\": 1.14,\r\n    \"ratio_percentile\": 18.7,\r\n    \"zone\": \"bottom\",\r\n    \"bottom_threshold\": 1.16,\r\n    \"top_threshold\": 2.45\r\n  },\r\n  \"history_analogs\": {\r\n    \"bottom_event_dates\": [\"2010-08-06\", \"2016-01-29\", \"2020-03-20\"],\r\n    \"forward_metal_returns\": {\r\n      \"252\": {\"count\": 3, \"median\": 0.42, \"win_rate\": 1.0}\r\n    }\r\n  },\r\n  \"scenarios\": {\r\n    \"target\": \"return_to_top\",\r\n    \"miner_multiplier_if_metal_flat\": 2.15,\r\n    \"metal_drop_pct_if_miner_flat\": 0.54\r\n  }\r\n}\r\n```\r\n\r\n**完整情境分析**：\r\n```bash\r\npython scripts/ratio_analyzer.py \\\r\n  --miner-proxy SIL \\\r\n  --metal-proxy SI=F \\\r\n  --start-date 2008-01-01 \\\r\n  --freq 1wk \\\r\n  --smoothing-window 4 \\\r\n  --bottom-quantile 0.20 \\\r\n  --top-quantile 0.80 \\\r\n  --output result.json\r\n```\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼操作？\r\n\r\n1. **快速分析** - 使用預設參數（SIL / SI=F）計算當前比率狀態\r\n2. **完整分析** - 自訂參數進行情境分析（可選擇礦業股/金屬代理、分位門檻）\r\n3. **視覺化圖表** - 生成比率走勢圖，標記當前位置與分位數區間\r\n4. **歷史驗證** - 查看底部區間事件的前瞻報酬統計\r\n5. **情境推演** - 計算「回到頂部」需要的礦業股漲幅或白銀跌幅\r\n6. **方法論學習** - 了解比率邏輯與分位數解讀\r\n\r\n**請選擇或直接提供分析參數。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                      | Action                                                              |\r\n|-------------------------------|---------------------------------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"分析\"    | 執行 `python scripts/ratio_analyzer.py --quick`                     |\r\n| 2, \"完整\", \"full\", \"自訂\"     | 閱讀 `workflows/analyze.md` 並執行                                  |\r\n| 3, \"圖表\", \"chart\", \"視覺化\"  | 執行 `python scripts/ratio_plotter.py --quick --output-dir output/` |\r\n| 4, \"歷史\", \"驗證\", \"backtest\" | 閱讀 `workflows/analyze.md` 並聚焦歷史類比                          |\r\n| 5, \"情境\", \"scenario\", \"推演\" | 閱讀 `workflows/analyze.md` 並聚焦情境推演                          |\r\n| 6, \"學習\", \"方法論\", \"why\"    | 閱讀 `references/methodology.md`                                    |\r\n| 提供參數 (如礦業股/金屬代理)  | 閱讀 `workflows/analyze.md` 並使用參數執行                          |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\nanalyze-silver-miner-metal-ratio/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── manifest.json                      # 技能元數據\r\n├── workflows/\r\n│   ├── analyze.md                     # 完整情境分析工作流\r\n│   └── data-research.md               # 數據源研究與替代方案\r\n├── references/\r\n│   ├── methodology.md                 # 方法論與計算邏輯\r\n│   ├── input-schema.md                # 完整輸入參數定義\r\n│   └── data-sources.md                # 數據來源與獲取方式\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n├── scripts/\r\n│   ├── ratio_analyzer.py              # 主計算腳本\r\n│   └── ratio_plotter.py               # 視覺化圖表腳本\r\n└── examples/\r\n    └── sample-output.json             # 範例輸出\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**方法論**: references/methodology.md\r\n- 比率定義與直覺\r\n- 分位數解讀邏輯\r\n- 背離訊號的意義\r\n- 情境推演數學\r\n- 歷史驗證方法\r\n\r\n**資料來源**: references/data-sources.md\r\n- 礦業股代理（ETF/指數）\r\n- 白銀價格代理\r\n- 數據對齊原則\r\n\r\n**輸入參數**: references/input-schema.md\r\n- 完整參數定義\r\n- 預設值與建議範圍\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow         | Purpose      | 使用時機                          |\r\n|------------------|--------------|-----------------------------------|\r\n| analyze.md       | 完整情境分析 | 需要自訂參數計算比率與情境        |\r\n| data-research.md | 數據源研究   | 了解如何獲取或替代礦業股/金屬數據 |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構定義 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script            | Command                                                    | Purpose                                |\r\n|-------------------|------------------------------------------------------------|----------------------------------------|\r\n| ratio_analyzer.py | `--quick`                                                  | 快速分析 SIL/SI=F                      |\r\n| ratio_analyzer.py | `--miner-proxy SILJ --freq 1mo`                            | 自訂礦業股與頻率                       |\r\n| ratio_analyzer.py | `--scenario-target return_to_median`                       | 回到中位數情境                         |\r\n| ratio_plotter.py  | `--quick --output-dir ../../output`                        | 快速生成基本版圖表                     |\r\n| ratio_plotter.py  | `--comprehensive --start-date 2010-01-01 --output-dir ...` | 完整版圖表（含底部事件、前瞻報酬統計） |\r\n</scripts_index>\r\n\r\n<input_schema_summary>\r\n\r\n**核心參數**\r\n\r\n| 參數        | 類型   | 預設值  | 說明                          |\r\n|-------------|--------|---------|-------------------------------|\r\n| miner_proxy | string | SIL     | 銀礦股代表（ETF/指數代號）    |\r\n| metal_proxy | string | SI=F    | 白銀價格代表（期貨/現貨/ETF） |\r\n| start_date  | string | 10 年前 | 歷史回溯起點（YYYY-MM-DD）    |\r\n| end_date    | string | today   | 分析終點                      |\r\n| freq        | string | 1wk     | 取樣頻率（1d/1wk/1mo）        |\r\n\r\n**進階參數**\r\n\r\n| 參數                | 類型   | 預設值         | 說明                             |\r\n|---------------------|--------|----------------|----------------------------------|\r\n| smoothing_window    | int    | 4              | 比率平滑視窗（週數/月數）        |\r\n| bottom_quantile     | float  | 0.20           | 底部估值區分位數門檻             |\r\n| top_quantile        | float  | 0.80           | 頂部估值區分位數門檻             |\r\n| min_separation_days | int    | 180            | 類比事件去重間隔                 |\r\n| forward_horizons    | list   | [52, 104, 156] | 前瞻期（週數，對應 1/2/3 年）    |\r\n| scenario_target     | string | return_to_top  | 情境目標（return_to_top/median） |\r\n\r\n完整參數定義見 `references/input-schema.md`。\r\n\r\n</input_schema_summary>\r\n\r\n<output_schema_summary>\r\n```json\r\n{\r\n  \"skill\": \"analyze_silver_miner_metal_ratio\",\r\n  \"inputs\": {\r\n    \"miner_proxy\": \"SIL\",\r\n    \"metal_proxy\": \"SI=F\",\r\n    \"start_date\": \"2010-01-01\",\r\n    \"freq\": \"1wk\"\r\n  },\r\n  \"current\": {\r\n    \"ratio\": 1.14,\r\n    \"ratio_percentile\": 18.7,\r\n    \"zone\": \"bottom\",\r\n    \"bottom_threshold\": 1.16,\r\n    \"top_threshold\": 2.45\r\n  },\r\n  \"history_analogs\": {\r\n    \"bottom_event_dates\": [\"2010-08-06\", \"2016-01-29\", \"2020-03-20\"],\r\n    \"forward_metal_returns\": {\r\n      \"252\": {\"count\": 3, \"median\": 0.42, \"mean\": 0.39, \"win_rate\": 1.0, \"worst\": 0.18},\r\n      \"504\": {\"count\": 3, \"median\": 0.71, \"mean\": 0.66, \"win_rate\": 1.0, \"worst\": 0.31}\r\n    }\r\n  },\r\n  \"scenarios\": {\r\n    \"target\": \"return_to_top\",\r\n    \"target_ratio\": 2.45,\r\n    \"miner_multiplier_if_metal_flat\": 2.15,\r\n    \"metal_multiplier_if_miner_flat\": 0.46,\r\n    \"metal_drop_pct_if_miner_flat\": 0.54\r\n  },\r\n  \"summary\": \"銀礦股價 / 銀價比率落在歷史低分位，顯示礦業股相對白銀偏便宜...\",\r\n  \"notes\": [\r\n    \"比率訊號衡量的是『相對估值』，不是單邊價格保證。\",\r\n    \"礦業股與金屬可能同漲，但礦業股也可能因成本上升、地緣/政策風險、增發稀釋而落後。\",\r\n    \"建議搭配：礦業股獲利率(成本曲線)、白銀實質利率/美元、投機部位(COT)、ETF 流量等做交叉驗證。\"\r\n  ]\r\n}\r\n```\r\n\r\n完整輸出結構見 `templates/output-json.md`。\r\n</output_schema_summary>\r\n\r\n<success_criteria>\r\n執行成功時應產出：\r\n\r\n- [ ] 當前比率與歷史分位數\r\n- [ ] 估值區間判定（bottom/low/neutral/high/top）\r\n- [ ] 歷史底部事件列表與去重\r\n- [ ] 底部事件後的前瞻報酬統計（平均/中位/勝率/最差）\r\n- [ ] 情境推演（礦業股需漲多少 / 白銀需跌多少）\r\n- [ ] 結果輸出為指定格式（JSON 或 Markdown）\r\n- [ ] 視覺化圖表輸出（若需要）\r\n- [ ] 風險提示與後續研究建議\r\n</success_criteria>",
+    "path": "skills/analyze-silver-miner-metal-ratio/SKILL.md",
+    "directoryStructure": "analyze-silver-miner-metal-ratio/\n├── examples\n│   └── sample-output.json\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   └── method.md\n├── scripts\n│   ├── ratio_analyzer.py\n│   └── ratio_plotter.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    └── data-research.md",
+    "lastUpdated": "2026-01-21",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "分析目前 SIL 對白銀比率是否處於歷史底部區間",
+        "imagePath": "images/sil-silver-ratio-2026-01-21.png",
+        "expectedResult": "SIL/白銀比率分析結果\n\n當前狀態                                                                                                                                                                                      \n┌────────────┬───────────────┬────────────────────┐\n│    指標    │     數值      │        解讀        │                                                                                                                                                \n├────────────┼───────────────┼────────────────────┤\n│ 當前比率   │ 1.13          │ SIL價格 / 白銀價格 │\n├────────────┼───────────────┼────────────────────┤\n│ 歷史分位數 │ 16.6%         │ 處於歷史底部區間   │\n├────────────┼───────────────┼────────────────────┤\n│ 區間判定   │ 底部 (bottom) │ ≤ 20% 分位數       │\n└────────────┴───────────────┴────────────────────┘\n歷史門檻\n\n- 底部門檻 (20%): 1.17\n- 中位數: 1.51\n- 頂部門檻 (80%): 1.70\n\n背離訊號 ⚠️\n\n偵測到明顯背離：\n- 比率處於底部區間（礦業股相對白銀便宜）\n- 白銀價格處於歷史 100 百分位（10年高點）\n\n這意味著：白銀漲到歷史高位，但礦業股漲幅遠落後金屬本體。\n\n情境推演\n┌──────────┬──────────────┬──────────────────────────────────┐\n│   情境   │     條件     │               結果               │\n├──────────┼──────────────┼──────────────────────────────────┤\n│ 礦業股追趕 │ 白銀維持不變 │ SIL 需漲 +50.7% 才回到頂部估值   │\n├──────────┼──────────────┼──────────────────────────────────┤\n│ 白銀回落 │ 礦業股維持不變 │ 白銀需跌 -33.7% 才使比率回到頂部 │\n└──────────┴──────────────┴──────────────────────────────────┘\n歷史底部事件\n\n過去10年偵測到 6 次底部區間事件：\n- 2022-12-30\n- 2023-06-30\n- 2023-12-29\n- 2024-06-28\n- 2024-12-27\n- 2026-01-16 ← 目前仍在底部區間\n\n結論\n\n是的，SIL/白銀比率確實處於歷史底部區間，且出現罕見的「比率低 + 白銀高」背離組合。\n\n這可能意味著：\n1. 礦業股存在均值回歸追趕空間\n2. 或市場正確定價礦業股的結構性問題（成本上升、股權稀釋、營運風險）\n\n建議後續驗證\n\n- 檢查 SIL 成分股的 AISC 成本趨勢\n- 查看 COT 報告白銀投機淨部位\n- 觀察 SLV ETF 持倉量變化\n- 比較 GDX/GDXJ 黃金礦業股是否有類似現象\n\n輸出圖表\n\n已生成：output/sil-silver-ratio-2026-01-21.png\n\n圖表清楚顯示：\n- 當前比率 1.13，處於歷史 16.8% 分位數（底部區間）\n- 2016-2017 年比率高達 2.0+ 是頂部區間\n- 白銀價格飆升至 $94（歷史高位），但礦業股（SIL $103）漲幅明顯落後\n"
+      },
+      {
+        "question": "歷史上礦業股對白銀比率落入底部區間後，白銀價格的前瞻表現如何？",
+        "expectedResult": "歷史底部區間後的白銀前瞻表現                                                                                                                                                                       \n                                                                                                                                                                                                 使用 2010-2026 年的數據，偵測到 9 次底部區間事件：                                                                                                                                                    \n底部事件日期                                                                                                                                                                                       \n┌─────┬────────────┬────────────────────────┐\n│  #  │    日期    │          背景          │\n├─────┼────────────┼────────────────────────┤\n│ 1   │ 2015-08-07 │ 中國股災、商品熊市末期 │\n├─────┼────────────┼────────────────────────┤\n│ 2   │ 2016-02-05 │ Fed 加息初期、市場恐慌 │\n├─────┼────────────┼────────────────────────┤\n│ 3   │ 2022-09-02 │ Fed 激進加息、美元強勢 │\n├─────┼────────────┼────────────────────────┤\n│ 4   │ 2023-03-03 │ 銀行危機前夕           │\n├─────┼────────────┼────────────────────────┤\n│ 5   │ 2023-09-01 │ 利率高原期             │\n├─────┼────────────┼────────────────────────┤\n│ 6   │ 2024-03-01 │                        │\n├─────┼────────────┼────────────────────────┤\n│ 7   │ 2024-08-30 │                        │\n├─────┼────────────┼────────────────────────┤\n│ 8   │ 2025-02-28 │                        │\n├─────┼────────────┼────────────────────────┤\n│ 9   │ 2026-01-02 │ ← 當前仍在底部區間     │\n└─────┴────────────┴────────────────────────┘\n---\n白銀前瞻報酬統計\n┌────────┬────────┬────────────┬──────────┬──────┬─────────┬───────┐\n│ 前瞻期 │ 樣本數 │ 中位數報酬 │ 平均報酬 │ 勝率 │  最佳   │ 最差  │\n├────────┼────────┼────────────┼──────────┼──────┼─────────┼───────┤\n│ 1 年   │ 7      │ +33.5%     │ +27.3%   │ 100% │ +39.9%  │ +9.8% │\n├────────┼────────┼────────────┼──────────┼──────┼─────────┼───────┤\n│ 2 年   │ 5      │ +48.0%     │ +39.6%   │ 100% │ +65.9%  │ +9.5% │\n├────────┼────────┼────────────┼──────────┼──────┼─────────┼───────┤\n│ 3 年   │ 3      │ +7.6%      │ +45.9%   │ 100% │ +126.1% │ +4.0% │\n└────────┴────────┴────────────┴──────────┴──────┴─────────┴───────┘\n---\n關鍵發現\n\n1. 100% 勝率：歷史上 7 次底部事件後 1 年，白銀全數上漲\n2. 中位數 +33.5%：1 年後的典型報酬相當可觀\n3. 最差情境 +9.8%：即使是表現最差的底部事件，1 年後仍有正報酬\n4. 2 年後中位數 +48%：持有期越長，報酬中位數越高\n\n風險提示\n\n- 樣本量僅 7-9 次，統計推論能力有限\n- 歷史表現不保證未來結果\n- 當前白銀已在歷史 100% 分位數（高位），背離訊號需謹慎解讀\n- 礦業股落後可能反映結構性成本問題，而非單純低估\n\n結論\n\n從歷史數據看，比率落入底部區間是白銀的正面訊號，1 年後中位數報酬 +33.5%，勝率 100%。但當前特殊之處在於白銀已處於歷史高位，礦業股卻未跟漲，這種背離需要交叉驗證礦業股基本面。\n"
+      },
+      {
+        "question": "如果銀礦股價對銀價的比率要回到歷史頂部，礦業股需要漲多少？白銀需要跌多少？",
+        "imagePath": "images/sil-silver-ratio-comprehensive-2026-01-21.png",
+        "expectedResult": "情境推演：回到歷史頂部需要什麼條件？                                                                                                                                                               \n\n當前狀態                                                                                                                                                                                                 \n┌───────────────────────┬──────────────┐                                                                                                                                                           \n│         指標          │     數值     │                                                                                                                                                             \n├───────────────────────┼──────────────┤\n│ 當前比率              │ 1.13         │\n├───────────────────────┼──────────────┤\n│ 頂部門檻 (80% 分位數) │ 1.79         │\n├───────────────────────┼──────────────┤\n│ 中位數                │ 1.57         │\n├───────────────────────┼──────────────┤\n│ 當前分位數            │ 11.1% (底部) │\n└───────────────────────┴──────────────┘\n---\n情境 A：白銀不變，礦業股需漲多少？\n\n目標比率 / 當前比率 = 1.79 / 1.13 = 1.58x\n\n礦業股 (SIL) 需漲 +57.8%\n\n以當前 SIL = $103.4 計算：\n- 目標價 = $103.4 × 1.58 = $163.4\n\n---\n情境 B：礦業股不變，白銀需跌多少？\n\n當前比率 / 目標比率 = 1.13 / 1.79 = 0.63\n\n白銀需跌 -36.6%\n\n以當前白銀 = $94.4 計算：\n- 目標價 = $94.4 × 0.63 = $59.5\n\n---\n情境 C：回到中位數 (更保守)\n┌──────────┬──────────┬────────────────────────┐\n│   方向   │   條件   │          幅度          │\n├──────────┼──────────┼────────────────────────┤\n│ 礦業股追趕 │ 白銀不變 │ SIL 需漲 +38.6% → $143 │\n├──────────┼──────────┼────────────────────────┤\n│ 白銀回落 │ 礦業股不變 │ 白銀需跌 -27.9% → $68  │\n└──────────┴──────────┴────────────────────────┘\n---\n實際情境：兩者同時調整\n\n歷史上通常是兩者同時變動：\n┌───────────────────────┬──────────┬──────────┬────────────────┐\n│         情境          │ 礦業股變化 │ 白銀變化 │  比率回到頂部  │\n├───────────────────────┼──────────┼──────────┼────────────────┤\n│ 礦業股大幅追漲          │ +40%     │ +0%      │ ✗ (僅到中位)   │\n├───────────────────────┼──────────┼──────────┼────────────────┤\n│ 礦業股追漲 + 白銀小跌   │ +30%     │ -15%     │ ✓              │\n├───────────────────────┼──────────┼──────────┼────────────────┤\n│ 礦業股溫和漲 + 白銀大跌 │ +10%     │ -30%     │ ✓              │\n├───────────────────────┼──────────┼──────────┼────────────────┤\n│ 極端熊市              │ -20%     │ -50%     │ ✓ (但兩敗俱傷) │\n└───────────────────────┴──────────┴──────────┴────────────────┘\n---\n歷史類比\n\n過去比率從底部回到頂部的案例：\n┌───────────────────┬──────────┬──────────┬──────────┬──────────┐\n│       期間        │ 起始比率 │ 終點比率 │ 礦業股漲幅 │ 白銀漲幅 │\n├───────────────────┼──────────┼──────────┼──────────┼──────────┤\n│ 2016 Q1 → 2016 Q3 │ ~1.2     │ ~2.0     │ +180%    │ +50%     │\n├───────────────────┼──────────┼──────────┼──────────┼──────────┤\n│ 2020 Q1 → 2020 Q3 │ ~1.3     │ ~1.9     │ +200%    │ +140%    │\n└───────────────────┴──────────┴──────────┴──────────┴──────────┘\n結論：歷史上比率回升時，礦業股漲幅通常顯著跑贏白銀（槓桿效應）。\n\n圖表亮點\n\n上半部：比率走勢圖\n- 9 次底部事件以垂直綠線標記\n- 當前比率 1.13，處於 11.1% 分位數（底部）\n\n左下：價格走勢對比\n- 礦業 vs 白銀正規化價格\n- 標題顯示「礦業需漲 58% 才回到頂部估值」\n\n右下：前瞻報酬統計\n- 1 年：中位數 +34%，勝率 100%\n- 2 年：中位數 +48%，勝率 100%\n- 3 年：中位數 +8%，勝率 100%\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 70,
+      "badge": "白銀",
+      "metrics": {
+        "architecture": 80,
+        "maintainability": 75,
+        "content": 85,
+        "community": 20,
+        "security": 90,
+        "compliance": 80
+      },
+      "details": "**架構（80/100）**\n- 清晰的路由器模式\n- 分層的 workflows/references\n- 可擴展的腳本設計\n\n**可維護性（75/100）**\n- 使用 yfinance 公開數據\n- 需關注 ETF 代號變動\n\n**內容（85/100）**\n- 完整的方法論說明\n- 清晰的輸入/輸出定義\n- 含情境推演與風險提示\n\n**社群（20/100）**\n- 新建技能，尚無社群反饋\n\n**安全（90/100）**\n- 純公開市場數據\n- 無爬蟲/API 金鑰需求\n\n**合規（80/100）**\n- 數據來源透明\n- 明確標註風險提示\n"
+    },
+    "bestPractices": [
+      {
+        "title": "使用週頻或月頻數據",
+        "description": "長週期訊號應避免日頻雜訊，建議使用週頻或月頻"
+      },
+      {
+        "title": "設定合理的分位門檻",
+        "description": "預設 20/80 分位，可依市場特性調整至 10/90 或 25/75"
+      },
+      {
+        "title": "關注背離訊號",
+        "description": "「比率低 + 白銀高」的組合更有參考價值"
+      },
+      {
+        "title": "結合基本面驗證",
+        "description": "比率訊號應搭配礦業股成本、股權稀釋、ETF 流量等交叉驗證"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "將比率訊號視為價格預測",
+        "description": "比率反映「相對估值」，不是單邊價格保證",
+        "consequence": "可能在礦業股持續落後時錯誤加碼"
+      },
+      {
+        "title": "忽略礦業股的結構性問題",
+        "description": "礦業股可能因成本上升、地緣風險、股權稀釋而合理偏低",
+        "consequence": "相對便宜不等於買入機會"
+      },
+      {
+        "title": "過度依賴歷史類比",
+        "description": "過往 3 次底部事件的樣本量不足以做統計推論",
+        "consequence": "對勝率過度自信"
+      },
+      {
+        "title": "忽略 ETF 結構差異",
+        "description": "SIL vs SILJ 成分股差異大，需注意代理選擇",
+        "consequence": "結論可能因代理不同而不一致"
+      }
+    ],
+    "faq": [
+      {
+        "question": "SIL 和 SILJ 有什麼差別？",
+        "answer": "- **SIL (Global X Silver Miners ETF)**：追蹤大型銀礦股，成分股較穩定\n- **SILJ (ETFMG Prime Junior Silver Miners ETF)**：追蹤小型/初級礦業股，波動更大\n\n建議使用 SIL 作為主要代理，SILJ 作為槓桿/投機參考。\n"
+      },
+      {
+        "question": "為何用 SI=F 而非 SLV 作為白銀代理？",
+        "answer": "- **SI=F (COMEX 白銀期貨)**：直接反映白銀現貨價格\n- **SLV (iShares Silver Trust)**：含 ETF 溢價/折價，可能有偏差\n\n若交易日對齊有困難，SLV 是可接受的替代方案。\n"
+      },
+      {
+        "question": "底部區間事件後一定會漲嗎？",
+        "answer": "**不一定。** 歷史上的 3 次底部事件確實對應了白銀的中長期底部，但：\n- 樣本量僅 3 次，統計意義有限\n- 未來可能出現結構性破壞（如礦業股成本永久上升）\n- 需結合其他因子（COT 持倉、ETF 流量、美元/實質利率）\n"
+      },
+      {
+        "question": "如何解讀情境推演？",
+        "answer": "情境推演提供「極端參考」：\n- 「礦業股需漲 2.15x」意味著若白銀不變，礦業股需翻倍以上才回到頂部估值\n- 「白銀需跌 54%」意味著若礦業股不變，白銀需腰斬才回到頂部估值\n\n這些是量化邊界，非預測。實際可能是兩者同時調整。\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 使用場景\n\n1. **驗證推文說法**：當看到「礦業股/金屬比率在底部」的說法時，可用本 skill 驗證\n2. **歷史事件研究**：底部區間後的前瞻報酬統計\n3. **情境推演**：量化「回到頂部」需要的條件\n4. **背離偵測**：識別「比率低 + 白銀高」的潛在機會\n\n## 預設代理\n\n**礦業股**：SIL (Global X Silver Miners ETF)\n**白銀**：SI=F (COMEX 白銀期貨)\n\n## 參考推文邏輯\n\n本 skill 系統化了以下類型的推文分析：\n> \"Silver miners / Silver ratio is near historic lows.\n> The previous 3 times this happened represented major multi-year bottoms.\"\n"
+    },
+    "methodology": "### 比率說明\r\n\r\n這個分析把 **銀礦股公司（或礦業股類指數、基金）** 和 **白銀價格** 放在同一個尺度上比較，做成一個比率：\r\n\r\n> **相對估值比率 = 銀礦股價格 ÷ 白銀價格**\r\n\r\n它不是在問 **白銀會不會漲** ，而是在問更關鍵的一句話：\r\n\r\n> **在同樣的白銀價格背景下，市場給礦業股的估值是偏貴、偏便宜，還是普通？**\r\n\r\n因為礦業股本質上是 **用白銀賺錢的公司** ，理論上白銀上漲會改善礦業股收入與利潤，但市場不一定會立刻用同樣幅度去調整礦業股價。\r\n\r\n所以礦業股相對白銀常常會出現 **落後** 或 **超前** 的波動，這就是比率有用的地方。\r\n\r\n把礦業股價格除以白銀價格後，等於把 **白銀這個共同因素** 先扣掉，留下更接近 **市場給礦業股的相對評價** 。\r\n\r\n直覺上可以這樣理解：\r\n\r\n- **比率偏高**：礦業股相對白銀 **更貴**   \r\n  可能代表市場對礦業股的樂觀情緒更強、估值更熱，或礦業股的利潤被預期會大幅改善。\r\n\r\n- **比率偏低**：礦業股相對白銀 **更便宜**   \r\n  可能代表市場對礦業股比較保守、礦業股價跟不上白銀，或礦業股有成本、政策、經營等風險被放大解讀。\r\n\r\n### 怎麼用它判斷 **接近頂部或底部** ？\r\n\r\n這個方法通常會把長期歷史的比率分成三種區域：\r\n\r\n1. **底部區（相對低估）**  \r\n   比率落到歷史偏低的位置，代表 **礦業股相對白銀很便宜** 。\r\n2. **中性區**  \r\n   比率在歷史正常範圍，代表相對估值不特別極端。\r\n3. **頂部區（相對高估）**  \r\n   比率落到歷史偏高位置，代表 **礦業股相對白銀很貴** 。\r\n\r\n重點不是某個固定數字，而是 **在長期分布裡的位置** ：  \r\n比率越接近歷史低點，越像相對低估；越接近歷史高點，越像相對高估。\r\n\r\n### 使用這個方法時，應該注意什麼？\r\n\r\n1. **這是相對估值，不是保證獲利的買賣訊號**  \r\n   比率偏低只表示 **相對便宜** ，不代表立刻上漲。\r\n2. **礦業股不是白銀的完美影子**  \r\n   礦業股還受很多因素影響，例如：開採成本、能源價格、匯率、政策與稅制、礦區風險、公司是否增發稀釋、管理品質等。\r\n3. **最好搭配其他指標交叉驗證**  \r\n   例如：礦業股利潤狀況、成本曲線、資金流、整體風險偏好等，避免只靠單一比率下結論。",
+    "downloadUrl": "downloads/analyze-silver-miner-metal-ratio-0.1.0.zip"
   },
   {
     "id": "analyze-japan-debt-service-tax-burden",

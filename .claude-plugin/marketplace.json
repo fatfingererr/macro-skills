@@ -28,24 +28,6 @@
       ]
     },
     {
-      "name": "detect-atr-squeeze-regime",
-      "description": "以 14 日指數平滑 ATR 偵測市場是否從秩序型趨勢轉為波動主導的擠壓（squeeze）行情，並輸出對技術位、停損、交易持有期的可行性評估。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/detect-atr-squeeze-regime",
-      "category": "indicator-monitoring",
-      "tags": [
-        "ATR",
-        "波動率",
-        "擠壓行情",
-        "停損管理",
-        "風險控制",
-        "技術分析"
-      ]
-    },
-    {
       "name": "evaluate-exponential-trend-deviation-regimes",
       "description": "計算資產價格相對長期指數成長趨勢線的偏離度，衡量當前是否處於歷史極端區間，並可選擇性地進行宏觀因子分析以判斷行情體質。",
       "version": "0.1.0",
@@ -61,6 +43,24 @@
         "指數成長",
         "技術分析",
         "宏觀分析"
+      ]
+    },
+    {
+      "name": "detect-atr-squeeze-regime",
+      "description": "以 14 日指數平滑 ATR 偵測市場是否從秩序型趨勢轉為波動主導的擠壓（squeeze）行情，並輸出對技術位、停損、交易持有期的可行性評估。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-atr-squeeze-regime",
+      "category": "indicator-monitoring",
+      "tags": [
+        "ATR",
+        "波動率",
+        "擠壓行情",
+        "停損管理",
+        "風險控制",
+        "技術分析"
       ]
     },
     {
@@ -248,24 +248,6 @@
       "tags": []
     },
     {
-      "name": "analyze-silver-miner-metal-ratio",
-      "description": "以「白銀礦業價格 / 白銀價格」的相對比率衡量礦業板塊相對於金屬本體的估值區間（偏貴/偏便宜），並用歷史分位數與類比區間推導「底部/頂部」訊號與情境推演。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/analyze-silver-miner-metal-ratio",
-      "category": "commodity-sd",
-      "tags": [
-        "白銀",
-        "礦業",
-        "SIL",
-        "SILJ",
-        "相對估值",
-        "分位數"
-      ]
-    },
-    {
       "name": "compute-precious-miner-gross-margin",
       "description": "以公開金屬價格 + 礦業成本指標（AISC/All-in cost/現金成本）計算「黃金/白銀礦業毛利率代理值」，並判斷當前是否處於歷史高/低檔區間。",
       "version": "0.1.0",
@@ -281,6 +263,24 @@
         "礦業",
         "AISC",
         "毛利率"
+      ]
+    },
+    {
+      "name": "analyze-silver-miner-metal-ratio",
+      "description": "以「銀礦股價格 / 白銀價格」的相對比率衡量礦業股板塊相對於金屬本體的估值區間（偏貴/偏便宜），並用歷史分位數與類比區間推導「底部/頂部」訊號與情境推演。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-silver-miner-metal-ratio",
+      "category": "commodity-sd",
+      "tags": [
+        "白銀",
+        "礦業股",
+        "SIL",
+        "SILJ",
+        "相對估值",
+        "分位數"
       ]
     },
     {
