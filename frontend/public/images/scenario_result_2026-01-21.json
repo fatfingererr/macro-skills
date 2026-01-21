@@ -1,0 +1,94 @@
+{
+  "skill": "scenario_path_simulator",
+  "generated_at": "2026-01-21T14:52:56.994585",
+  "inputs": {
+    "S0": 30.17,
+    "P0": 33.28,
+    "R0": 1.103,
+    "silver_monthly_return": 0.05,
+    "ratio_start": 1.1,
+    "ratio_end": 1.2,
+    "months": 6
+  },
+  "path_table": [
+    {
+      "month": "M0",
+      "silver": 30.17,
+      "ratio": 1.103,
+      "miner": 33.28,
+      "silver_mom": 0.0,
+      "miner_mom": 0.0,
+      "silver_cum": 0.0,
+      "miner_cum": 0.0
+    },
+    {
+      "month": "M1",
+      "silver": 31.68,
+      "ratio": 1.1,
+      "miner": 34.85,
+      "silver_mom": 5.0,
+      "miner_mom": 4.7,
+      "silver_cum": 5.0,
+      "miner_cum": 4.7
+    },
+    {
+      "month": "M2",
+      "silver": 33.26,
+      "ratio": 1.12,
+      "miner": 37.25,
+      "silver_mom": 5.0,
+      "miner_mom": 6.9,
+      "silver_cum": 10.3,
+      "miner_cum": 11.9
+    },
+    {
+      "month": "M3",
+      "silver": 34.93,
+      "ratio": 1.14,
+      "miner": 39.82,
+      "silver_mom": 5.0,
+      "miner_mom": 6.9,
+      "silver_cum": 15.8,
+      "miner_cum": 19.6
+    },
+    {
+      "month": "M4",
+      "silver": 36.67,
+      "ratio": 1.16,
+      "miner": 42.54,
+      "silver_mom": 5.0,
+      "miner_mom": 6.8,
+      "silver_cum": 21.6,
+      "miner_cum": 27.8
+    },
+    {
+      "month": "M5",
+      "silver": 38.51,
+      "ratio": 1.18,
+      "miner": 45.44,
+      "silver_mom": 5.0,
+      "miner_mom": 6.8,
+      "silver_cum": 27.6,
+      "miner_cum": 36.5
+    },
+    {
+      "month": "M6",
+      "silver": 40.43,
+      "ratio": 1.2,
+      "miner": 48.52,
+      "silver_mom": 5.0,
+      "miner_mom": 6.8,
+      "silver_cum": 34.0,
+      "miner_cum": 45.8
+    }
+  ],
+  "summary": {
+    "silver_cumulative": 34.0,
+    "miner_cumulative": 45.8,
+    "excess_return": 11.799999999999997
+  },
+  "formula": {
+    "miner_return": "(1 + silver_return) * (R1/R0) - 1",
+    "approx": "miner_return ≈ silver_return + ratio_change"
+  }
+}
