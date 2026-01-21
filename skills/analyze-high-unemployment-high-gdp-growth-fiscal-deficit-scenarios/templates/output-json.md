@@ -147,62 +147,62 @@
 <field name="diagnostics">
 **diagnostics** (object): 診斷資訊
 
-| 子欄位 | 類型 | 說明 |
-|--------|------|------|
-| data_coverage | object | 數據覆蓋範圍 |
-| current_indicators | object | 當前指標數值 |
-| current_slack_percentile | float | 當前勞動鬆緊分位數 (0-1) |
-| high_gdp_condition | bool | 是否滿足高 GDP 條件 |
-| triggered_labor_softening | bool | 是否觸發勞動轉弱 |
-| trigger_reasons | array | 觸發原因清單 |
+| 子欄位                    | 類型   | 說明                     |
+|---------------------------|--------|--------------------------|
+| data_coverage             | object | 數據覆蓋範圍             |
+| current_indicators        | object | 當前指標數值             |
+| current_slack_percentile  | float  | 當前勞動鬆緊分位數 (0-1) |
+| high_gdp_condition        | bool   | 是否滿足高 GDP 條件      |
+| triggered_labor_softening | bool   | 是否觸發勞動轉弱         |
+| trigger_reasons           | array  | 觸發原因清單             |
 </field>
 
 <field name="deficit_gdp_projection">
 **deficit_gdp_projection** (object): 赤字/GDP 投影結果
 
-| 子欄位 | 類型 | 說明 |
-|--------|------|------|
-| baseline_deficit_gdp | float | 當前基線赤字/GDP |
+| 子欄位                    | 類型   | 說明                               |
+|---------------------------|--------|------------------------------------|
+| baseline_deficit_gdp      | float  | 當前基線赤字/GDP                   |
 | conditional_range_next_8q | object | 條件分布區間 (p25/p50/p75/min/max) |
-| n_episodes | int | 歷史樣本數量 |
-| episode_years | array | 歷史事件年份清單 |
+| n_episodes                | int    | 歷史樣本數量                       |
+| episode_years             | array  | 歷史事件年份清單                   |
 </field>
 
 <field name="historical_episodes">
 **historical_episodes** (array): 歷史事件詳細資料
 
 每個事件包含：
-| 欄位 | 類型 | 說明 |
-|------|------|------|
-| start_date | string | 事件起始日期 |
-| end_date | string | 事件結束日期 |
-| duration_quarters | int | 持續季數 |
-| ujo_at_start | float | 起始時 UJO |
-| sahm_at_start | float | 起始時 Sahm Rule |
-| gdp_percentile_at_start | float | 起始時 GDP 分位數 |
-| deficit_gdp_peak | float | 期間赤字/GDP 峰值 |
-| context | string | 事件背景說明 |
+| 欄位                    | 類型   | 說明              |
+|-------------------------|--------|-------------------|
+| start_date              | string | 事件起始日期      |
+| end_date                | string | 事件結束日期      |
+| duration_quarters       | int    | 持續季數          |
+| ujo_at_start            | float  | 起始時 UJO        |
+| sahm_at_start           | float  | 起始時 薩姆規則   |
+| gdp_percentile_at_start | float  | 起始時 GDP 分位數 |
+| deficit_gdp_peak        | float  | 期間赤字/GDP 峰值 |
+| context                 | string | 事件背景說明      |
 </field>
 
 <field name="interpretation">
 **interpretation** (object): 情境解讀
 
-| 子欄位 | 類型 | 說明 |
-|--------|------|------|
-| macro_story | string | 宏觀敘事摘要 |
-| ust_duration_implications | array | UST 風險通道分析 |
-| dominant_force | string | 當前主導力量判斷 |
-| watchlist_switch_indicators | array | 監控指標清單 |
+| 子欄位                      | 類型   | 說明             |
+|-----------------------------|--------|------------------|
+| macro_story                 | string | 宏觀敘事摘要     |
+| ust_duration_implications   | array  | UST 風險通道分析 |
+| dominant_force              | string | 當前主導力量判斷 |
+| watchlist_switch_indicators | array  | 監控指標清單     |
 </field>
 
 <field name="metadata">
 **metadata** (object): 元資料
 
-| 子欄位 | 類型 | 說明 |
-|--------|------|------|
-| generated_at | string | 報告生成時間 (ISO 8601) |
-| model_used | string | 使用的分析模型 |
-| data_freshness | object | 各數據系列的最新日期 |
+| 子欄位         | 類型   | 說明                    |
+|----------------|--------|-------------------------|
+| generated_at   | string | 報告生成時間 (ISO 8601) |
+| model_used     | string | 使用的分析模型          |
+| data_freshness | object | 各數據系列的最新日期    |
 </field>
 
 </field_descriptions>

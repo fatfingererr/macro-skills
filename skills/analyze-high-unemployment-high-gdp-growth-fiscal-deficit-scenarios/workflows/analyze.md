@@ -7,7 +7,7 @@
 <objective>
 執行完整的「高失業 + 高 GDP」情境下財政赤字推估分析，包含：
 - 抓取所有必要的 FRED 數據
-- 計算勞動鬆緊指標（UJO、Sahm Rule、ΔUR）
+- 計算勞動鬆緊指標（UJO、薩姆規則、ΔUR）
 - 識別歷史上符合條件的事件樣本
 - 使用選定模型推估赤字/GDP 區間
 - 生成完整的分析報告與 UST 風險解讀
@@ -70,7 +70,7 @@ fiscal_data = fetch_fred_series(['FYFSGDA188S'], years=30)
 ujo = unemploy / jtsjol  # 越高表示越鬆
 ```
 
-3.2 **Sahm Rule**：
+3.2 **薩姆規則**：
 ```python
 ur_3m_ma = unrate.rolling(3).mean()
 ur_12m_min = unrate.rolling(12).min()
@@ -93,7 +93,7 @@ ujo_pctl = ujo.rank(pct=True)
 
 4.1 **勞動轉弱條件**（滿足任一）：
 - UJO 進入歷史 80% 分位以上
-- Sahm Rule ≥ 0.5
+- 薩姆規則 ≥ 0.5
 - ΔUR（6M）≥ +1.0 百分點
 
 4.2 **高 GDP 條件**（同時滿足）：
@@ -167,15 +167,43 @@ python scripts/analyzer.py \
 6. **監控指標**：建議追蹤的切換指標
 </step>
 
-<step name="7_validate">
-**Step 7: 驗證輸出**
+<step name="7_visualize">
+**Step 7: 生成視覺化圖表（可選）**
+
+若需要視覺化輸出，使用 `--visualize` 參數：
+```bash
+python scripts/analyzer.py \
+    --lookback 30 \
+    --horizon 8 \
+    --model event_study_banding \
+    --visualize \
+    --scenario-type moderate \
+    --output result.json \
+    --chart-output chart.png
+```
+
+或單獨執行視覺化腳本：
+```bash
+python scripts/visualizer.py --scenario moderate --years 25
+```
+
+圖表包含：
+- 三軸歷史數據（職缺/失業/赤字GDP）
+- 歷史 crossover 事件標註
+- 情境投影虛線
+- 衰退期灰色陰影
+</step>
+
+<step name="8_validate">
+**Step 8: 驗證輸出**
 
 確認輸出完整性：
 - [ ] 所有診斷指標都有數值
 - [ ] 赤字區間在合理範圍（0% - 25%）
-- [ ] 歷史樣本數量 ≥ 3
+- [ ] 歷史樣本數量 ≥ 1
 - [ ] UST 解讀包含兩股力量
 - [ ] 監控指標清單不為空
+- [ ] （若啟用視覺化）圖表檔案已生成
 </step>
 
 </process>
@@ -183,9 +211,10 @@ python scripts/analyzer.py \
 <success_criteria>
 工作流程完成時：
 - [ ] 成功抓取所有 FRED 數據
-- [ ] 計算出 UJO、Sahm Rule、ΔUR 指標
+- [ ] 計算出 UJO、薩姆規則、ΔUR 指標
 - [ ] 識別出歷史事件樣本
 - [ ] 產出赤字/GDP 的條件分布區間
 - [ ] 生成 UST 風險解讀
 - [ ] 輸出符合模板格式（JSON 或 Markdown）
+- [ ] （若啟用視覺化）生成 Luke Gromen 風格圖表
 </success_criteria>

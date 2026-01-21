@@ -57,11 +57,11 @@
 - **有效值**: `["event_study_banding", "quantile_mapping", "robust_regression"]`
 - **說明**: 分析模型選擇。
 
-| 模型                 | 輸出形式         | 適用情境                 |
-|----------------------|------------------|--------------------------|
-| event_study_banding  | 區間 + 事件清單  | 預設，最直觀             |
-| quantile_mapping     | 條件分布         | 連續型分析               |
-| robust_regression    | 預測路徑 + 係數  | 多變數情境推演           |
+| 模型                | 輸出形式        | 適用情境       |
+|---------------------|-----------------|----------------|
+| event_study_banding | 區間 + 事件清單 | 預設，最直觀   |
+| quantile_mapping    | 條件分布        | 連續型分析     |
+| robust_regression   | 預測路徑 + 係數 | 多變數情境推演 |
 </parameter>
 
 <parameter name="output_format">
@@ -88,7 +88,7 @@
 **labor_indicator_set.use_unemployment_rate**
 - **類型**: bool
 - **預設值**: `true`
-- **說明**: 是否使用失業率（UNRATE）計算 Sahm Rule 和 ΔUR。
+- **說明**: 是否使用失業率（UNRATE）計算 薩姆規則 和 ΔUR。
 </parameter>
 
 <parameter name="use_unemployed_level">
@@ -102,7 +102,7 @@
 **labor_indicator_set.use_sahm_rule**
 - **類型**: bool
 - **預設值**: `true`
-- **說明**: 是否計算 Sahm Rule（失業率 3M MA 相對近 12M 低點的上升）。
+- **說明**: 是否計算 薩姆規則（失業率 3M MA 相對近 12M 低點的上升）。
 </parameter>
 
 <parameter name="slack_metric">
@@ -112,15 +112,15 @@
 - **有效值**:
   - `"unemployed_to_job_openings_ratio"` - UJO 比率
   - `"unemployment_rate_change"` - ΔUR 半年變化
-  - `"sahm_rule"` - Sahm Rule 數值
+  - `"sahm_rule"` - 薩姆規則 數值
   - `"composite"` - 加權複合指標
 - **說明**: 定義「勞動轉弱」的核心度量方式。
 
-| 指標 | 轉弱門檻 | 特性 |
-|------|----------|------|
+| 指標 | 轉弱門檻  | 特性                 |
+|------|-----------|----------------------|
 | UJO  | > 80 分位 | 早期預警，對職缺敏感 |
-| ΔUR  | > +1.0%  | 中等延遲，直觀 |
-| Sahm | ≥ 0.5    | 確認型，準確度高 |
+| ΔUR  | > +1.0%   | 中等延遲，直觀       |
+| Sahm | ≥ 0.5     | 確認型，準確度高     |
 </parameter>
 
 </labor_indicator_set>
@@ -134,11 +134,11 @@
 - **有效值**: `["high_gdp_sticky", "soft_gdp", "recession_gdp"]`
 - **說明**: GDP 路徑假設。
 
-| 路徑           | GDP 分位數 | GDP 成長   | 說明                 |
-|----------------|------------|------------|----------------------|
-| high_gdp_sticky| > 70%      | > 0%       | GDP 維持高位         |
-| soft_gdp       | 50-70%     | -1% ~ +2%  | GDP 溫和趨緩         |
-| recession_gdp  | < 50%      | < 0%       | GDP 進入負成長       |
+| 路徑            | GDP 分位數 | GDP 成長  | 說明           |
+|-----------------|------------|-----------|----------------|
+| high_gdp_sticky | > 70%      | > 0%      | GDP 維持高位   |
+| soft_gdp        | 50-70%     | -1% ~ +2% | GDP 溫和趨緩   |
+| recession_gdp   | < 50%      | < 0%      | GDP 進入負成長 |
 </parameter>
 
 <parameter name="unemployment_shock">
@@ -149,11 +149,11 @@
 
 **子參數**：
 
-| 參數  | 類型   | 有效值 | 說明 |
-|-------|--------|--------|------|
+| 參數  | 類型   | 有效值                        | 說明     |
+|-------|--------|-------------------------------|----------|
 | type  | string | `"rate_jump"`, `"level_jump"` | 衝擊類型 |
-| size  | float  | 0.5-5.0 | 衝擊幅度 |
-| speed | string | `"fast"`, `"gradual"` | 衝擊速度 |
+| size  | float  | 0.5-5.0                       | 衝擊幅度 |
+| speed | string | `"fast"`, `"gradual"`         | 衝擊速度 |
 
 **衝擊幅度解讀**：
 - `type: "rate_jump"` + `size: 1.5` → 失業率上升 1.5 百分點
@@ -189,7 +189,7 @@
 - **類型**: float
 - **預設值**: `0.5`
 - **有效範圍**: `0.3-1.0`
-- **說明**: Sahm Rule 觸發門檻。經典門檻為 0.5，可調低以更早預警。
+- **說明**: 薩姆規則 觸發門檻。經典門檻為 0.5，可調低以更早預警。
 </parameter>
 
 <parameter name="delta_ur_threshold">

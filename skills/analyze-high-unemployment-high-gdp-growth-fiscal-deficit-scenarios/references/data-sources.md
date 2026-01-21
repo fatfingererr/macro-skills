@@ -7,31 +7,31 @@
 <category name="labor_market">
 **勞動市場指標**
 
-| Series ID | 名稱 | 頻率 | 單位 | 轉換 | 說明 |
-|-----------|------|------|------|------|------|
-| UNRATE | Unemployment Rate | 月 | % | level | 失業率（U-3） |
-| UNEMPLOY | Unemployed Level | 月 | 千人 | level | 失業人數 |
-| JTSJOL | Job Openings: Total Nonfarm | 月 | 千人 | level | JOLTS 職缺數 |
-| ICSA | Initial Claims | 週 | 人 | 4w_ma | 初領失業救濟 |
-| PAYEMS | All Employees: Total Nonfarm | 月 | 千人 | yoy | 非農就業 |
-| U6RATE | U-6 Unemployment Rate | 月 | % | level | 廣義失業率 |
+| Series ID | 名稱                         | 頻率 | 單位 | 轉換  | 說明          |
+|-----------|------------------------------|------|------|-------|---------------|
+| UNRATE    | Unemployment Rate            | 月   | %    | level | 失業率（U-3） |
+| UNEMPLOY  | Unemployed Level             | 月   | 千人 | level | 失業人數      |
+| JTSJOL    | Job Openings: Total Nonfarm  | 月   | 千人 | level | JOLTS 職缺數  |
+| ICSA      | Initial Claims               | 週   | 人   | 4w_ma | 初領失業救濟  |
+| PAYEMS    | All Employees: Total Nonfarm | 月   | 千人 | yoy   | 非農就業      |
+| U6RATE    | U-6 Unemployment Rate        | 月   | %    | level | 廣義失業率    |
 
 **關鍵衍生指標**：
 - **UJO** = UNEMPLOY / JTSJOL（失業/職缺比）
-- **Sahm Rule** = 3M_MA(UNRATE) - 12M_MIN(UNRATE)
+- **薩姆規則** = 3M_MA(UNRATE) - 12M_MIN(UNRATE)
 - **ΔUR** = UNRATE(t) - UNRATE(t-6M)
 </category>
 
 <category name="gdp_macro">
 **GDP 與宏觀指標**
 
-| Series ID | 名稱 | 頻率 | 單位 | 轉換 | 說明 |
-|-----------|------|------|------|------|------|
-| GDP | Gross Domestic Product | 季 | 十億美元 | level | 名目 GDP |
-| GDPC1 | Real GDP | 季 | 十億美元（2017 鏈價） | level | 實質 GDP |
-| A191RL1Q225SBEA | Real GDP Growth | 季 | % SAAR | level | 實質 GDP 成長率 |
-| CPIAUCSL | CPI: All Items | 月 | 指數 | yoy | 消費者物價指數 |
-| GDPDEF | GDP Deflator | 季 | 指數 | yoy | GDP 平減指數 |
+| Series ID       | 名稱                   | 頻率 | 單位                  | 轉換  | 說明            |
+|-----------------|------------------------|------|-----------------------|-------|-----------------|
+| GDP             | Gross Domestic Product | 季   | 十億美元              | level | 名目 GDP        |
+| GDPC1           | Real GDP               | 季   | 十億美元（2017 鏈價） | level | 實質 GDP        |
+| A191RL1Q225SBEA | Real GDP Growth        | 季   | % SAAR                | level | 實質 GDP 成長率 |
+| CPIAUCSL        | CPI: All Items         | 月   | 指數                  | yoy   | 消費者物價指數  |
+| GDPDEF          | GDP Deflator           | 季   | 指數                  | yoy   | GDP 平減指數    |
 
 **高 GDP 條件判定**：
 - GDP_pctl > 70%（GDP 水平在 30 年歷史的 70 分位以上）
@@ -41,13 +41,13 @@
 <category name="fiscal">
 **財政指標**
 
-| Series ID | 名稱 | 頻率 | 單位 | 轉換 | 說明 |
-|-----------|------|------|------|------|------|
-| FYFSGDA188S | Federal Surplus/Deficit as % of GDP | 年 | % | level | 聯邦盈餘/赤字占 GDP |
-| FGEXPND | Federal Government Expenditures | 季 | 十億美元 | level | 聯邦支出 |
-| FGRECPT | Federal Government Receipts | 季 | 十億美元 | level | 聯邦收入 |
-| GFDEBTN | Federal Debt: Total Public Debt | 季 | 百萬美元 | level | 聯邦總債務 |
-| GFDEGDQ188S | Federal Debt as % of GDP | 季 | % | level | 債務/GDP |
+| Series ID   | 名稱                                | 頻率 | 單位     | 轉換  | 說明                |
+|-------------|-------------------------------------|------|----------|-------|---------------------|
+| FYFSGDA188S | Federal Surplus/Deficit as % of GDP | 年   | %        | level | 聯邦盈餘/赤字占 GDP |
+| FGEXPND     | Federal Government Expenditures     | 季   | 十億美元 | level | 聯邦支出            |
+| FGRECPT     | Federal Government Receipts         | 季   | 十億美元 | level | 聯邦收入            |
+| GFDEBTN     | Federal Debt: Total Public Debt     | 季   | 百萬美元 | level | 聯邦總債務          |
+| GFDEGDQ188S | Federal Debt as % of GDP            | 季   | %        | level | 債務/GDP            |
 
 **注意**：FYFSGDA188S 為負值時表示赤字（例如 -6.5 表示赤字占 GDP 6.5%）。
 在分析中，我們通常取絕對值或乘以 -1 使赤字為正數。
@@ -56,14 +56,14 @@
 <category name="financial_stress">
 **金融壓力指標（用於 UST 風險分析）**
 
-| Series ID | 名稱 | 頻率 | 說明 |
-|-----------|------|------|------|
-| BAMLC0A0CM | ICE BofA US Corporate Master OAS | 日 | 投資級信用利差 |
-| BAMLH0A0HYM2 | ICE BofA US High Yield OAS | 日 | 高收益債利差 |
-| T10Y2Y | 10Y-2Y Treasury Spread | 日 | 殖利率曲線 |
-| DGS10 | 10-Year Treasury Rate | 日 | 10 年期殖利率 |
-| VIXCLS | VIX | 日 | 波動率指數 |
-| NFCI | Chicago Fed National Financial Conditions | 週 | 金融壓力指數 |
+| Series ID    | 名稱                                      | 頻率 | 說明           |
+|--------------|-------------------------------------------|------|----------------|
+| BAMLC0A0CM   | ICE BofA US Corporate Master OAS          | 日   | 投資級信用利差 |
+| BAMLH0A0HYM2 | ICE BofA US High Yield OAS                | 日   | 高收益債利差   |
+| T10Y2Y       | 10Y-2Y Treasury Spread                    | 日   | 殖利率曲線     |
+| DGS10        | 10-Year Treasury Rate                     | 日   | 10 年期殖利率  |
+| VIXCLS       | VIX                                       | 日   | 波動率指數     |
+| NFCI         | Chicago Fed National Financial Conditions | 週   | 金融壓力指數   |
 </category>
 
 </fred_series>
@@ -224,11 +224,11 @@ def save_to_cache(series_id: str, data: pd.Series):
 <known_issues>
 **已知問題**
 
-| 系列 | 問題 | 處理方式 |
-|------|------|----------|
-| JTSJOL | 2000 年以前無數據 | UJO 分析從 2001 年開始 |
-| FYFSGDA188S | 年頻數據 | 需轉換或使用季頻替代 |
-| ICSA | 週頻高頻噪音 | 使用 4 週移動平均 |
+| 系列        | 問題              | 處理方式               |
+|-------------|-------------------|------------------------|
+| JTSJOL      | 2000 年以前無數據 | UJO 分析從 2001 年開始 |
+| FYFSGDA188S | 年頻數據          | 需轉換或使用季頻替代   |
+| ICSA        | 週頻高頻噪音      | 使用 4 週移動平均      |
 </known_issues>
 
 </data_quality>
@@ -236,12 +236,12 @@ def save_to_cache(series_id: str, data: pd.Series):
 <update_frequency>
 **數據更新時間表**
 
-| 數據類型 | 發布頻率 | 發布延遲 | 最佳抓取時機 |
-|----------|----------|----------|--------------|
-| 失業率 (UNRATE) | 月 | ~5 天 | 每月第一個週五後 |
-| JOLTS (JTSJOL) | 月 | ~2 個月 | 每月中旬 |
-| GDP | 季 | ~1 個月 | 季末月底 |
-| 財政 (FYFSGDA188S) | 年 | ~3 個月 | 年初更新 |
+| 數據類型           | 發布頻率 | 發布延遲 | 最佳抓取時機     |
+|--------------------|----------|----------|------------------|
+| 失業率 (UNRATE)    | 月       | ~5 天    | 每月第一個週五後 |
+| JOLTS (JTSJOL)     | 月       | ~2 個月  | 每月中旬         |
+| GDP                | 季       | ~1 個月  | 季末月底         |
+| 財政 (FYFSGDA188S) | 年       | ~3 個月  | 年初更新         |
 
 **建議**：每天最多抓取一次，快取有效期設為 12 小時。
 </update_frequency>
