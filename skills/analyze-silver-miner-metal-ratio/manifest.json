@@ -1,0 +1,101 @@
+{
+  "name": "analyze-silver-miner-metal-ratio",
+  "version": "0.1.0",
+  "displayName": "評估銀礦業對銀價比率",
+  "description": "以「白銀礦業價格 / 白銀價格」的相對比率衡量礦業板塊相對於金屬本體的估值區間（偏貴/偏便宜），並用歷史分位數與類比區間推導「底部/頂部」訊號與情境推演。",
+  "author": "Ricky Wang",
+  "license": "MIT",
+  "category": "commodity-sd",
+  "tags": [
+    "白銀",
+    "礦業",
+    "SIL",
+    "SILJ",
+    "相對估值",
+    "分位數",
+    "歷史類比",
+    "情境推演",
+    "底部訊號"
+  ],
+  "dataLevel": "free-nolimit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "yfinance>=0.2.0"
+    ],
+    "optional": [
+      "scipy>=1.9.0",
+      "matplotlib>=3.5.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/ratio_analyzer.py"
+  },
+  "workflows": [
+    {
+      "id": "analyze",
+      "name": "完整情境分析",
+      "description": "自訂參數計算礦業/金屬比率與情境推演",
+      "file": "workflows/analyze.md"
+    },
+    {
+      "id": "data-research",
+      "name": "數據源研究",
+      "description": "了解礦業/金屬代理的替代方案",
+      "file": "workflows/data-research.md"
+    }
+  ],
+  "references": [
+    "references/methodology.md",
+    "references/input-schema.md",
+    "references/data-sources.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md"
+  ],
+  "examples": [
+    "examples/sample-output.json"
+  ],
+  "dataSources": [
+    {
+      "name": "Yahoo Finance",
+      "type": "primary",
+      "url": "https://finance.yahoo.com",
+      "api": "yfinance 套件取得 SIL、SILJ、SI=F 等價格"
+    },
+    {
+      "name": "COMEX 白銀期貨",
+      "type": "primary",
+      "url": "https://www.cmegroup.com/markets/metals/precious/silver.html",
+      "api": "SI=F 近月期貨報價"
+    },
+    {
+      "name": "iShares Silver ETF (SLV)",
+      "type": "alternative",
+      "url": "https://www.ishares.com/us/products/239855/",
+      "api": "白銀價格的 ETF 替代"
+    }
+  ],
+  "defaultProxies": {
+    "miner": {
+      "primary": "SIL",
+      "alternatives": [
+        "SILJ",
+        "GDXJ"
+      ],
+      "description": "Global X Silver Miners ETF 作為主要礦業代理"
+    },
+    "metal": {
+      "primary": "SI=F",
+      "alternatives": [
+        "XAGUSD=X",
+        "SLV"
+      ],
+      "description": "COMEX 白銀期貨作為主要金屬代理"
+    }
+  }
+}

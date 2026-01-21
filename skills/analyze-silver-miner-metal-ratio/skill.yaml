@@ -1,0 +1,143 @@
+# 前端展示專用（元資料從 manifest.json 讀取）
+displayName: 評估銀礦業對銀價比率
+emoji: "⛏️"
+authorUrl: https://github.com/fatfingererr/macro-skills
+
+tools:
+  - claude-code
+
+featured: false
+installCount: 0
+
+testQuestions:
+  - question: '分析目前 SIL/白銀 比率是否處於歷史底部區間'
+    expectedResult: |
+      輸出當前比率狀態：
+      - 當前比率值（如 1.14）
+      - 歷史分位數（如 18.7 百分位）
+      - 區間標記（bottom）
+      - 底部/頂部門檻值
+  - question: '歷史上礦業/白銀比率落入底部區間後，白銀價格的前瞻表現如何？'
+    expectedResult: |
+      輸出歷史類比分析：
+      - 底部事件日期列表
+      - 1/2/3 年前瞻報酬的中位數、平均、勝率
+      - 最差情境說明
+  - question: '如果礦業/白銀比率要回到歷史頂部，礦業需要漲多少？白銀需要跌多少？'
+    expectedResult: |
+      輸出情境推演：
+      - 目標比率（頂部門檻）
+      - 礦業需要的倍數（如 2.15x）
+      - 白銀需要下跌的幅度（如 54%）
+
+qualityScore:
+  overall: 70
+  badge: 白銀
+  metrics:
+    architecture: 80
+    maintainability: 75
+    content: 85
+    community: 20
+    security: 90
+    compliance: 80
+  details: |
+    **架構（80/100）**
+    - 清晰的路由器模式
+    - 分層的 workflows/references
+    - 可擴展的腳本設計
+
+    **可維護性（75/100）**
+    - 使用 yfinance 公開數據
+    - 需關注 ETF 代號變動
+
+    **內容（85/100）**
+    - 完整的方法論說明
+    - 清晰的輸入/輸出定義
+    - 含情境推演與風險提示
+
+    **社群（20/100）**
+    - 新建技能，尚無社群反饋
+
+    **安全（90/100）**
+    - 純公開市場數據
+    - 無爬蟲/API 金鑰需求
+
+    **合規（80/100）**
+    - 數據來源透明
+    - 明確標註風險提示
+
+bestPractices:
+  - title: 使用週頻或月頻數據
+    description: 長週期訊號應避免日頻雜訊，建議使用週頻或月頻
+  - title: 設定合理的分位門檻
+    description: 預設 20/80 分位，可依市場特性調整至 10/90 或 25/75
+  - title: 關注背離訊號
+    description: 「比率低 + 白銀高」的組合更有參考價值
+  - title: 結合基本面驗證
+    description: 比率訊號應搭配礦業成本、股權稀釋、ETF 流量等交叉驗證
+
+pitfalls:
+  - title: 將比率訊號視為價格預測
+    description: 比率反映「相對估值」，不是單邊價格保證
+    consequence: 可能在礦業持續落後時錯誤加碼
+  - title: 忽略礦業的結構性問題
+    description: 礦業可能因成本上升、地緣風險、股權稀釋而合理偏低
+    consequence: 相對便宜不等於買入機會
+  - title: 過度依賴歷史類比
+    description: 過往 3 次底部事件的樣本量不足以做統計推論
+    consequence: 對勝率過度自信
+  - title: 忽略 ETF 結構差異
+    description: SIL vs SILJ 成分股差異大，需注意代理選擇
+    consequence: 結論可能因代理不同而不一致
+
+faq:
+  - question: SIL 和 SILJ 有什麼差別？
+    answer: |
+      - **SIL (Global X Silver Miners ETF)**：追蹤大型白銀礦業，成分股較穩定
+      - **SILJ (ETFMG Prime Junior Silver Miners ETF)**：追蹤小型/初級礦業，波動更大
+
+      建議使用 SIL 作為主要代理，SILJ 作為槓桿/投機參考。
+
+  - question: 為何用 SI=F 而非 SLV 作為白銀代理？
+    answer: |
+      - **SI=F (COMEX 白銀期貨)**：直接反映白銀現貨價格
+      - **SLV (iShares Silver Trust)**：含 ETF 溢價/折價，可能有偏差
+
+      若交易日對齊有困難，SLV 是可接受的替代方案。
+
+  - question: 底部區間事件後一定會漲嗎？
+    answer: |
+      **不一定。** 歷史上的 3 次底部事件確實對應了白銀的中長期底部，但：
+      - 樣本量僅 3 次，統計意義有限
+      - 未來可能出現結構性破壞（如礦業成本永久上升）
+      - 需結合其他因子（COT 持倉、ETF 流量、美元/實質利率）
+
+  - question: 如何解讀情境推演？
+    answer: |
+      情境推演提供「極端參考」：
+      - 「礦業需漲 2.15x」意味著若白銀不變，礦業需翻倍以上才回到頂部估值
+      - 「白銀需跌 54%」意味著若礦業不變，白銀需腰斬才回到頂部估值
+
+      這些是量化邊界，非預測。實際可能是兩者同時調整。
+
+about:
+  repository: https://github.com/fatfingererr/macro-skills
+  branch: main
+  additionalInfo: |
+    ## 使用場景
+
+    1. **驗證推文說法**：當看到「礦業/金屬比率在底部」的說法時，可用本 skill 驗證
+    2. **歷史事件研究**：底部區間後的前瞻報酬統計
+    3. **情境推演**：量化「回到頂部」需要的條件
+    4. **背離偵測**：識別「比率低 + 白銀高」的潛在機會
+
+    ## 預設代理
+
+    **礦業**：SIL (Global X Silver Miners ETF)
+    **白銀**：SI=F (COMEX 白銀期貨)
+
+    ## 參考推文邏輯
+
+    本 skill 系統化了以下類型的推文分析：
+    > "Silver miners / Silver ratio is near historic lows.
+    > The previous 3 times this happened represented major multi-year bottoms."
