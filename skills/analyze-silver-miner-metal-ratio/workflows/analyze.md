@@ -70,7 +70,7 @@ python scripts/ratio_analyzer.py --quick
 ```
 
 **解讀邏輯：**
-- `ratio_percentile` < 20 → 礦業相對白銀處於歷史低檔
+- `ratio_percentile` < 20 → 礦業股相對白銀處於歷史低檔
 - `zone` = "bottom" → 確認處於底部估值區
 - 對照 `bottom_threshold` 和當前 `ratio` 驗證
 
@@ -109,11 +109,35 @@ python scripts/ratio_analyzer.py --quick
 ```
 
 **解讀邏輯：**
-- 若白銀不變，礦業需漲 `2.15x`（115%）才回到頂部估值
-- 若礦業不變，白銀需跌 `54%` 才回到頂部估值
+- 若白銀不變，礦業股需漲 `2.15x`（115%）才回到頂部估值
+- 若礦業股不變，白銀需跌 `54%` 才回到頂部估值
 - 這是極端情境邊界，實際可能是兩者同時調整
 
-## Step 4: 生成報告
+## Step 4: 生成視覺化圖表（可選）
+
+若需要視覺化，執行畫圖腳本：
+
+**基本版（比率走勢 + 價格）：**
+```bash
+python scripts/ratio_plotter.py --quick --output-dir ../../output
+```
+
+**完整版（含底部事件標記 + 前瞻報酬統計）：**
+```bash
+python scripts/ratio_plotter.py --comprehensive --start-date 2010-01-01 --output-dir ../../output
+```
+
+**完整版圖表包含：**
+1. 比率走勢圖 + 底部/頂部區間填充 + 底部事件垂直線標記
+2. 當前位置標記（含分位數百分比）
+3. 底部事件後白銀前瞻報酬柱狀圖（中位數報酬 + 勝率）
+4. 價格走勢對比（正規化）+ 情境推演標題
+
+圖表輸出路徑：
+- 基本版：`output/sil_silver_ratio_YYYY-MM-DD.png`
+- 完整版：`output/sil_silver_ratio_comprehensive_YYYY-MM-DD.png`
+
+## Step 5: 生成報告
 
 根據分析結果生成報告，使用 `templates/output-markdown.md` 或 `templates/output-json.md` 格式。
 
@@ -122,21 +146,22 @@ python scripts/ratio_analyzer.py --quick
 2. 當前比率與分位數
 3. 類比證據（歷史事件與前瞻報酬）
 4. 情境推演（回到頂部需要的條件）
-5. 風險提示（比率訊號的限制）
-6. 後續研究建議
+5. 視覺化圖表（若生成）
+6. 風險提示（比率訊號的限制）
+7. 後續研究建議
 
-## Step 5: 後續研究建議
+## Step 6: 後續研究建議
 
 根據分析結果提供交叉驗證建議：
 
 **若處於底部區間：**
-- 檢查礦業成本曲線（AISC 是否上升）
+- 檢查礦業股成本曲線（AISC 是否上升）
 - 檢查 ETF 流量（SLV、SIL 的資金流向）
 - 檢查 COT 持倉（投機部位是否極端）
 - 檢查白銀實質利率與美元指數
 
 **若處於頂部區間：**
-- 檢查礦業是否有增產/併購動作
+- 檢查礦業股是否有增產/併購動作
 - 檢查成本通膨（柴油、工資、試劑）
 - 評估均值回歸風險
 
@@ -149,7 +174,8 @@ python scripts/ratio_analyzer.py --quick
 - [ ] 腳本執行成功
 - [ ] 當前狀態解讀（比率、分位數、區間）
 - [ ] 歷史類比分析（事件日期、前瞻報酬）
-- [ ] 情境推演（礦業倍數、白銀跌幅）
+- [ ] 情境推演（礦業股倍數、白銀跌幅）
+- [ ] 視覺化圖表輸出（若需要）
 - [ ] 報告生成（含風險提示）
 - [ ] 後續研究建議
 </success_criteria>

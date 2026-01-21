@@ -1,14 +1,14 @@
 # 數據來源
 
-## 1. 礦業代理
+## 1. 礦業股代理
 
 ### 1.1 ETF（建議）
 
-| 代號 | 名稱                                 | 成立日期   | 特點                  |
-|------|--------------------------------------|------------|-----------------------|
-| SIL  | Global X Silver Miners ETF           | 2010-04-19 | 大型礦業，較穩定      |
-| SILJ | ETFMG Prime Junior Silver Miners ETF | 2012-11-28 | 小型/初級礦業，高波動 |
-| GDXJ | VanEck Junior Gold Miners ETF        | 2009-11-10 | 含部分白銀礦業        |
+| 代號 | 名稱                                 | 成立日期   | 特點                    |
+|------|--------------------------------------|------------|-------------------------|
+| SIL  | Global X Silver Miners ETF           | 2010-04-19 | 大型礦業股，較穩定      |
+| SILJ | ETFMG Prime Junior Silver Miners ETF | 2012-11-28 | 小型/初級礦業股，高波動 |
+| GDXJ | VanEck Junior Gold Miners ETF        | 2009-11-10 | 含部分銀礦股            |
 
 **SIL 主要成分股（2025 年）：**
 - Wheaton Precious Metals (WPM)
@@ -90,7 +90,7 @@ SI=F 代表 COMEX 白銀期貨「近月合約」：
 
 ### 3.1 交易日對齊
 
-礦業 ETF 與白銀期貨的交易日應相同：
+礦業股 ETF 與白銀期貨的交易日應相同：
 
 ```python
 # 合併數據

@@ -88,8 +88,8 @@
     "metal_multiplier_if_miner_flat": 0.6769,
     "metal_drop_pct_if_miner_flat": 0.3231,
     "interpretation": {
-      "miner_scenario": "若白銀不變，礦業需漲 47.7% 才回到頂部估值",
-      "metal_scenario": "若礦業不變，白銀需跌 32.3% 才回到頂部估值"
+      "miner_scenario": "若白銀不變，礦業股需漲 47.7% 才回到頂部估值",
+      "metal_scenario": "若礦業股不變，白銀需跌 32.3% 才回到頂部估值"
     }
   },
 
@@ -100,13 +100,13 @@
     "interpretation": "比率處於底部區間，但白銀價格處於相對高位，形成背離訊號"
   },
 
-  "summary": "白銀礦業/白銀比率目前處於歷史 12.5 百分位（底部區間），顯示礦業相對白銀偏便宜。歷史上類似情境後，白銀 1 年報酬中位數為 42%，勝率 80%。若白銀不變，礦業需漲 47.7% 才回到頂部估值。",
+  "summary": "銀礦股價/銀價比率目前處於歷史 12.5 百分位（底部區間），顯示礦業股相對白銀偏便宜。歷史上類似情境後，白銀 1 年報酬中位數為 42%，勝率 80%。若白銀不變，礦業股需漲 47.7% 才回到頂部估值。",
 
   "notes": [
     "比率訊號衡量的是『相對估值』，不是單邊價格保證。",
     "歷史類比樣本量僅 5 次，統計推論能力有限。",
-    "礦業可能因成本上升、地緣/政策風險、增發稀釋而合理落後。",
-    "建議搭配：礦業成本曲線、COT 持倉、ETF 流量、美元/實質利率做交叉驗證。"
+    "礦業股可能因成本上升、地緣/政策風險、增發稀釋而合理落後。",
+    "建議搭配：礦業股成本曲線、COT 持倉、ETF 流量、美元/實質利率做交叉驗證。"
   ],
 
   "recommended_next_checks": [
@@ -124,7 +124,7 @@
 
 | 欄位                | 類型   | 說明             |
 |---------------------|--------|------------------|
-| miner_proxy         | string | 礦業代理代號     |
+| miner_proxy         | string | 礦業股代理代號   |
 | metal_proxy         | string | 金屬代理代號     |
 | start_date          | string | 分析起點         |
 | end_date            | string | 分析終點         |
@@ -141,7 +141,7 @@
 | 欄位             | 類型   | 說明                           |
 |------------------|--------|--------------------------------|
 | date             | string | 最新數據日期                   |
-| miner_price      | float  | 礦業代理價格                   |
+| miner_price      | float  | 礦業股代理價格                 |
 | metal_price      | float  | 金屬價格                       |
 | ratio            | float  | 原始比率                       |
 | ratio_smoothed   | float  | 平滑後比率                     |
@@ -166,15 +166,15 @@
 
 ### scenarios
 
-| 欄位                           | 類型   | 說明                         |
-|--------------------------------|--------|------------------------------|
-| target                         | string | 情境目標                     |
-| target_ratio                   | float  | 目標比率                     |
-| current_ratio                  | float  | 當前比率                     |
-| miner_multiplier_if_metal_flat | float  | 礦業需要的倍數（白銀不變時） |
-| miner_gain_pct_if_metal_flat   | float  | 礦業需要的漲幅百分比         |
-| metal_multiplier_if_miner_flat | float  | 白銀的倍數（礦業不變時）     |
-| metal_drop_pct_if_miner_flat   | float  | 白銀需要下跌的百分比         |
+| 欄位                           | 類型   | 說明                           |
+|--------------------------------|--------|--------------------------------|
+| target                         | string | 情境目標                       |
+| target_ratio                   | float  | 目標比率                       |
+| current_ratio                  | float  | 當前比率                       |
+| miner_multiplier_if_metal_flat | float  | 礦業股需要的倍數（白銀不變時） |
+| miner_gain_pct_if_metal_flat   | float  | 礦業股需要的漲幅百分比         |
+| metal_multiplier_if_miner_flat | float  | 白銀的倍數（礦業股不變時）     |
+| metal_drop_pct_if_miner_flat   | float  | 白銀需要下跌的百分比           |
 
 ### divergence_check
 

@@ -4,17 +4,17 @@
 
 ### miner_proxy
 
-| 屬性   | 值                                    |
-|--------|---------------------------------------|
-| 類型   | string                                |
-| 必要性 | Required                              |
-| 預設值 | SIL                                   |
-| 說明   | 白銀礦業代表（ETF/指數/股票籃子代號） |
+| 屬性   | 值                                  |
+|--------|-------------------------------------|
+| 類型   | string                              |
+| 必要性 | Required                            |
+| 預設值 | SIL                                 |
+| 說明   | 銀礦股代表（ETF/指數/股票籃子代號） |
 
 **可用選項：**
 - `SIL` - Global X Silver Miners ETF（建議）
 - `SILJ` - ETFMG Prime Junior Silver Miners ETF
-- `GDXJ` - VanEck Junior Gold Miners ETF（含部分白銀礦業）
+- `GDXJ` - VanEck Junior Gold Miners ETF（含部分銀礦股）
 
 **自建指數範例：**
 ```

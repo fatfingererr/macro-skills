@@ -3,7 +3,7 @@
 ## 報告結構
 
 ```markdown
-# 白銀礦業/金屬比率分析報告
+# 銀礦股價/銀價比率分析報告
 
 **生成時間：** {generated_at}
 **數據區間：** {start_date} 至 {end_date}
@@ -20,7 +20,7 @@
 
 | 指標       | 數值                          |
 |------------|-------------------------------|
-| 礦業代理   | {miner_proxy} ({miner_price}) |
+| 礦業股代理 | {miner_proxy} ({miner_price}) |
 | 白銀代理   | {metal_proxy} ({metal_price}) |
 | 當前比率   | {ratio:.4f}                   |
 | 平滑比率   | {ratio_smoothed:.4f}          |
@@ -68,12 +68,12 @@
 ### 情境 A：白銀不變
 
 若白銀價格維持 {metal_price}：
-- 礦業需漲至 {target_miner_price}
+- 礦業股需漲至 {target_miner_price}
 - **漲幅：{miner_gain_pct:.1f}%**
 
-### 情境 B：礦業不變
+### 情境 B：礦業股不變
 
-若礦業價格維持 {miner_price}：
+若礦業股價格維持 {miner_price}：
 - 白銀需跌至 {target_metal_price}
 - **跌幅：{metal_drop_pct:.1f}%**
 
@@ -99,7 +99,7 @@
 
 2. **樣本量有限**：歷史底部事件僅 {event_count} 次，統計推論能力有限。
 
-3. **結構性風險**：礦業可能因以下原因合理落後：
+3. **結構性風險**：礦業股可能因以下原因合理落後：
    - 成本上升（AISC 走高）
    - 股權稀釋（增發融資）
    - 地緣/政策風險
@@ -122,7 +122,7 @@
 
 | 參數         | 值                       |
 |--------------|--------------------------|
-| 礦業代理     | {miner_proxy}            |
+| 礦業股代理   | {miner_proxy}            |
 | 金屬代理     | {metal_proxy}            |
 | 分析起點     | {start_date}             |
 | 分析終點     | {end_date}               |
@@ -171,9 +171,9 @@ report = generate_markdown_report(data)
 
 ```python
 if data['current']['zone'] == 'bottom':
-    conclusion = "礦業相對白銀處於歷史低估區間"
+    conclusion = "礦業股相對白銀處於歷史低估區間"
 elif data['current']['zone'] == 'top':
-    conclusion = "礦業相對白銀處於歷史高估區間"
+    conclusion = "礦業股相對白銀處於歷史高估區間"
 else:
-    conclusion = "礦業相對白銀處於中性區間"
+    conclusion = "礦業股相對白銀處於中性區間"
 ```
