@@ -93,24 +93,6 @@
       ]
     },
     {
-      "name": "us-cpi-pce-comparator",
-      "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/us-cpi-pce-comparator",
-      "category": "inflation-analytics",
-      "tags": [
-        "CPI",
-        "PCE",
-        "通膨",
-        "Fed",
-        "權重差異",
-        "FRED"
-      ]
-    },
-    {
       "name": "nickel-concentration-risk-analyzer",
       "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
       "version": "0.1.1",
@@ -126,6 +108,24 @@
         "採礦",
         "地緣政治",
         "情境分析"
+      ]
+    },
+    {
+      "name": "us-cpi-pce-comparator",
+      "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/us-cpi-pce-comparator",
+      "category": "inflation-analytics",
+      "tags": [
+        "CPI",
+        "PCE",
+        "通膨",
+        "Fed",
+        "權重差異",
+        "FRED"
       ]
     },
     {

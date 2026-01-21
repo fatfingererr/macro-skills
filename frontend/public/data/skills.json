@@ -590,118 +590,6 @@
     "downloadUrl": "downloads/usd-reserve-loss-gold-revaluation-0.1.0.zip"
   },
   {
-    "id": "us-cpi-pce-comparator",
-    "name": "us-cpi-pce-comparator",
-    "displayName": "美國 CPI/PCE 通膨比較",
-    "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
-    "emoji": "📊",
-    "version": "0.1.0",
-    "license": "MIT",
-    "author": "Ricky Wang",
-    "authorUrl": "https://github.com/fatfingererr/macro-skills",
-    "tags": [
-      "CPI",
-      "PCE",
-      "通膨",
-      "Fed",
-      "權重差異",
-      "FRED",
-      "BLS",
-      "風險訊號",
-      "宏觀經濟"
-    ],
-    "category": "inflation-analytics",
-    "dataLevel": "free-nolimit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": false,
-    "installCount": 0,
-    "content": "<essential_principles>\r\n\r\n<principle name=\"weight_difference\">\r\n**CPI vs PCE 權重差異是核心**\r\n\r\n- **CPI（固定權重）**: BLS Relative Importance，每年或每兩年更新，反映「固定籃子」\r\n- **PCE（動態/鏈結權重）**: BEA 名目支出占比，每月隨實際消費行為調整\r\n\r\n關鍵洞見：當消費者把錢花在「價格較不波動」的品項時，若這些品項的通膨走高，PCE 會比 CPI 更敏感地反映這個上行壓力。\r\n</principle>\r\n\r\n<principle name=\"volatility_matters\">\r\n**低波動 + 高權重 = PCE 上行風險訊號**\r\n\r\n識別邏輯：\r\n1. 找出 PCE 權重較高的消費桶（consumer spending buckets）\r\n2. 在這些桶中，篩選價格波動度較低者\r\n3. 若這些桶的通膨近期轉正或加速，標記為 PCE upside risk\r\n</principle>\r\n\r\n<principle name=\"scope_difference\">\r\n**CPI 與 PCE 的範圍差異**\r\n\r\nPCE 涵蓋項目比 CPI 更廣：\r\n- 第三方支付的醫療費用（employer-paid healthcare）\r\n- 非營利機構對家庭的服務\r\n- 某些金融服務的隱含費用\r\n\r\n這些 scope 差異也會造成 CPI/PCE 分歧。詳見 `references/cpi-pce-methodology.md`。\r\n</principle>\r\n\r\n<principle name=\"data_access\">\r\n**資料取得方式**\r\n\r\n本 skill 使用**無需 API key** 的資料來源：\r\n- **FRED CSV**: `https://fred.stlouisfed.org/graph/fredgraph.csv?id={SERIES_ID}`\r\n- **BLS Public API**: `https://api.bls.gov/publicAPI/v2/timeseries/data/`\r\n\r\n腳本位於 `scripts/` 目錄，可直接執行。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n比較 CPI 與 PCE 通膨訊號的分歧，並識別「低波動、高 PCE 權重」的消費桶是否正在推升 Fed 關注的 PCE 通膨路徑。\r\n\r\n輸出三層訊號：\r\n1. **Headline level**: CPI vs PCE divergence（bps）\r\n2. **Attribution**: 哪些 buckets 在推升 PCE（weighted contribution）\r\n3. **Risk framing**: 觀察點與延續性風險評估\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：執行快速檢查**\r\n\r\n```bash\r\ncd skills/us-cpi-pce-comparator\r\npip install pandas numpy requests  # 首次使用\r\npython scripts/cpi_pce_analyzer.py --quick\r\n```\r\n\r\n輸出範例：\r\n```json\r\n{\r\n  \"headline\": {\"cpi_yoy\": 2.65, \"pce_yoy\": 2.79, \"gap_bps\": 14},\r\n  \"core\": {\"cpi_core_yoy\": 2.65, \"pce_core_yoy\": 2.83, \"gap_bps\": 18},\r\n  \"momentum\": {\"cpi_3m_saar\": 2.07, \"pce_3m_saar\": 2.82}\r\n}\r\n```\r\n\r\n**完整分析**：\r\n```bash\r\npython scripts/cpi_pce_analyzer.py --start 2020-01-01 --measure yoy\r\n```\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼分析？\r\n\r\n1. **快速檢查** - 查看最新的 CPI/PCE 分歧數據\r\n2. **完整分析** - 執行完整的三步驟分析工作流\r\n3. **方法論學習** - 了解 CPI/PCE 差異的深層原因\r\n\r\n**請選擇或直接提供分析參數。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                     | Action                                            |\r\n|------------------------------|---------------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"check\"  | 執行 `python scripts/cpi_pce_analyzer.py --quick` |\r\n| 2, \"完整\", \"full\", \"analyze\" | 閱讀 `workflows/analyze.md` 並執行                |\r\n| 3, \"學習\", \"方法論\", \"why\"   | 閱讀 `references/cpi-pce-methodology.md`          |\r\n| 提供參數 (如日期範圍)        | 閱讀 `workflows/analyze.md` 並使用參數執行        |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\nus-cpi-pce-comparator/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── workflows/\r\n│   ├── analyze.md                     # 完整分析工作流\r\n│   └── quick-check.md                 # 快速檢查工作流\r\n├── references/\r\n│   ├── data-sources.md                # FRED/BLS 系列代碼與資料來源\r\n│   ├── cpi-pce-methodology.md         # CPI/PCE 方法論深度解析\r\n│   └── implementation.md              # 計算公式與程式碼範例\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n└── scripts/\r\n    ├── fetch_fred_data.py             # FRED 資料抓取（無需 API key）\r\n    ├── fetch_bls_data.py              # BLS 資料抓取\r\n    └── cpi_pce_analyzer.py            # 主分析腳本\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**方法論**: references/cpi-pce-methodology.md\r\n- CPI vs PCE 的五大差異（權重、範圍、公式、住房、人口）\r\n- 分歧模式與交易含義\r\n- Fed 如何解讀兩指標\r\n\r\n**資料來源**: references/data-sources.md\r\n- FRED CSV endpoint（無需 API key）\r\n- FRED 系列代碼對照表\r\n- 桶位定義與近似計算\r\n\r\n**實作指南**: references/implementation.md\r\n- 通膨計算公式（YoY, MoM SAAR, QoQ SAAR）\r\n- 權重效應計算\r\n- 波動度分析\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow       | Purpose        | 使用時機           |\r\n|----------------|----------------|--------------------|\r\n| analyze.md     | 完整三步驟分析 | 需要深度分析時     |\r\n| quick-check.md | 快速檢查分歧   | 日常監控或快速回答 |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構定義 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script              | Command                      | Purpose           |\r\n|---------------------|------------------------------|-------------------|\r\n| cpi_pce_analyzer.py | `--quick`                    | 快速檢查最新分歧  |\r\n| cpi_pce_analyzer.py | `--start DATE --measure yoy` | 完整分析          |\r\n| fetch_fred_data.py  | `--series CPIAUCSL,PCEPI`    | 抓取 FRED 資料    |\r\n| fetch_bls_data.py   | `--full`                     | 抓取 BLS CPI 資料 |\r\n</scripts_index>\r\n\r\n<input_schema>\r\n\r\n<parameter name=\"start_date\" required=\"true\">\r\n**Type**: string (ISO YYYY-MM-DD)\r\n**Description**: 分析起始日\r\n</parameter>\r\n\r\n<parameter name=\"end_date\" required=\"false\" default=\"today\">\r\n**Type**: string (ISO YYYY-MM-DD)\r\n**Description**: 分析結束日\r\n</parameter>\r\n\r\n<parameter name=\"measure\" required=\"false\" default=\"yoy\">\r\n**Type**: string\r\n**Options**: `yoy` | `mom_saar` | `qoq_saar`\r\n</parameter>\r\n\r\n<parameter name=\"baseline\" required=\"false\">\r\n**Type**: string\r\n**Format**: `YYYY-MM-DD:YYYY-MM-DD`\r\n**Description**: 基準期範圍，用於計算偏離度\r\n</parameter>\r\n\r\n</input_schema>\r\n\r\n<output_schema>\r\n參見 `templates/output-json.md` 的完整結構定義。\r\n\r\n**摘要**：\r\n```json\r\n{\r\n  \"headline\": {\"cpi_yoy\": 2.65, \"pce_yoy\": 2.79, \"gap_bps\": 14},\r\n  \"low_vol_high_weight_buckets\": [{\"bucket\": \"...\", \"signal\": \"upside\"}],\r\n  \"attribution\": {\"top_contributors\": [...], \"weight_effect_bps\": 12},\r\n  \"interpretation\": [\"...\"],\r\n  \"caveats\": [\"...\"]\r\n}\r\n```\r\n</output_schema>\r\n\r\n<success_criteria>\r\n分析成功時應產出：\r\n\r\n- [ ] Headline level 的 CPI/PCE 分歧數值（bps）\r\n- [ ] 識別出低波動、高 PCE 權重的桶位\r\n- [ ] 各桶位的加權通膨貢獻（attribution）\r\n- [ ] 若有 baseline，產出「less baseline」偏離度\r\n- [ ] 可操作的解讀與風險提示\r\n- [ ] 明確標註資料限制與近似處理\r\n</success_criteria>",
-    "path": "skills/us-cpi-pce-comparator/SKILL.md",
-    "directoryStructure": "us-cpi-pce-comparator/\n├── manifest.json\n├── references\n│   ├── cpi-pce-methodology.md\n│   ├── data-sources.md\n│   └── implementation.md\n├── scripts\n│   ├── cpi_pce_analyzer.py\n│   ├── fetch_bls_data.py\n│   ├── fetch_fred_data.py\n│   └── __pycache__\n│       ├── fetch_bls_data.cpython-312.pyc\n│       └── fetch_fred_data.cpython-312.pyc\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    └── quick-check.md",
-    "lastUpdated": "2026-01-15",
-    "rating": 3,
-    "testQuestions": [
-      {
-        "question": "分析當前 CPI 與 PCE 的分歧情況",
-        "expectedResult": "此分析器會：\n1. 從 FRED 抓取最新 CPI 和 PCE 數據\n2. 計算 headline 層級的 YoY 分歧（bps）\n3. 識別低波動高權重桶位的風險訊號\n4. 輸出結構化 JSON 結果\n"
-      },
-      {
-        "question": "為什麼 PCE 比 CPI 更高？Fed 關注哪個指標？",
-        "expectedResult": "解釋 CPI/PCE 五大差異：\n- 權重方法（固定 vs 動態）\n- 涵蓋範圍（PCE 更廣）\n- 公式差異\n- 住房計算\n- 人口覆蓋\n"
-      }
-    ],
-    "qualityScore": {
-      "overall": 75,
-      "badge": "白銀",
-      "metrics": {
-        "architecture": 80,
-        "maintainability": 80,
-        "content": 85,
-        "community": 20,
-        "security": 95,
-        "compliance": 85
-      },
-      "details": "**架構（80/100）**\n- 清晰的三層訊號架構\n- 模組化腳本設計\n- 無需 API key 的數據獲取\n\n**可維護性（80/100）**\n- 工作流程分離清晰\n- 參數定義完整\n- 多數據源支援\n\n**內容（85/100）**\n- 完整的方法論文檔\n- CPI/PCE 差異深度解析\n- 實用的 CLI 工具\n\n**社區（20/100）**\n- 新技能，尚無社區貢獻\n\n**安全（95/100）**\n- 僅讀取公開經濟數據\n- 無需 API key\n\n**規範符合性（85/100）**\n- 遵循 Claude Code 規範\n- 完整的文件結構\n"
-    },
-    "bestPractices": [
-      {
-        "title": "關注 Core 而非 Headline",
-        "description": "Core CPI/PCE 排除食品與能源，更能反映趨勢性通膨"
-      },
-      {
-        "title": "使用 3M SAAR 觀察動量",
-        "description": "YoY 有滯後性，3 個月 SAAR 更能捕捉拐點"
-      },
-      {
-        "title": "理解權重效應",
-        "description": "PCE 動態權重會自動降低高通膨項目的權重（替代效應）"
-      },
-      {
-        "title": "結合兩個指標",
-        "description": "CPI 反映消費者體感，PCE 是 Fed 目標，兩者都重要"
-      }
-    ],
-    "pitfalls": [
-      {
-        "title": "只看 Headline",
-        "description": "Headline 受能源價格波動影響大",
-        "consequence": "錯過核心通膨趨勢"
-      },
-      {
-        "title": "忽略權重差異",
-        "description": "CPI/PCE 在醫療、住房等項目權重差異顯著",
-        "consequence": "無法解釋分歧來源"
-      },
-      {
-        "title": "過度解讀單月數據",
-        "description": "月度數據波動大，容易被噪音誤導",
-        "consequence": "錯誤判斷通膨趨勢"
-      }
-    ],
-    "faq": [
-      {
-        "question": "Fed 主要看哪個通膨指標？",
-        "answer": "Fed 的 2% 目標是針對 **Core PCE YoY**。\n但 Fed 也關注 CPI，因為它是市場預期的錨定點。\n"
-      },
-      {
-        "question": "為什麼 PCE 通常比 CPI 低？",
-        "answer": "主要原因：\n1. PCE 動態權重會因替代效應自動降低高通膨項目權重\n2. PCE 包含第三方支付的醫療，這部分通膨通常較溫和\n3. PCE 住房權重較低（約 15% vs CPI 約 33%）\n"
-      },
-      {
-        "question": "如何判斷 PCE 是否在 re-accelerate？",
-        "answer": "觀察指標：\n1. 3M SAAR 是否高於 YoY\n2. 低波動高權重桶位是否出現加速\n3. Core Services ex-Housing 是否持續偏高\n"
-      }
-    ],
-    "about": {
-      "repository": "https://github.com/fatfingererr/macro-skills",
-      "branch": "main",
-      "additionalInfo": "## 數據來源\n\n**FRED（免費，無需 API key）**\n- CPI: CPIAUCSL, CPILFESL\n- PCE: PCEPI, PCEPILFE\n- 使用 CSV endpoint 直接下載\n\n**BLS Public API**\n- 詳細 CPI 分項數據\n- 權重與相對重要性\n"
-    },
-    "downloadUrl": "downloads/us-cpi-pce-comparator-0.1.0.zip"
-  },
-  {
     "id": "nickel-concentration-risk-analyzer",
     "name": "nickel-concentration-risk-analyzer",
     "displayName": "分析鎳供給集中度風險",
@@ -814,6 +702,118 @@
     },
     "methodology": "### 1. 供給集中度（Concentration）= 控制力的上限\r\n當某國家佔全球供給 **X%**，任何「對該國供給的變化」都能近似映射到全球供給衝擊：\r\n\r\n- **全球供給衝擊比例 ≈ X% × 該國供給變動比例**\r\n\r\n換句話說，若印尼佔全球鎳供給約 **60%**，印尼國內供給只要變動 **10%**，全球供給理論衝擊就可能達到 **~6%**（同口徑下）。\r\n\r\n> 這是「供給槓桿」的第一層：**國家份額越大，政策/供應變動的全球傳導越直接**。\r\n\r\n### 2. 「少數資產」可控性（Top mines / Industrial parks）= 槓桿的開關\r\n即使一國份額很高，真正能快速施力的常常不是「全國每個礦」，而是：\r\n\r\n- 產量極大、集中於少數礦山/園區\r\n- 許可與配額制度能鎖住上游（礦）或下游（冶煉/轉化）的擴張\r\n- 物流、環評、用電、港口等基礎設施形成瓶頸\r\n\r\n因此，分析上要做第二層拆解：\r\n\r\n- **Top N mines / Top N industrial parks 佔全球供給多少？**\r\n- 如果只「拴緊」這些關鍵節點，就可能快速造成可觀的供給缺口\r\n\r\n> 這是「供給槓桿」的第二層：**槓桿不只來自份額，也來自供給是否集中在少數可被管理的節點**。\r\n\r\n### 3. 市場定價（Consensus / Positioning）= 非對稱的來源\r\n供給槓桿不一定立刻導致行情，真正會引爆「非對稱」的是：\r\n\r\n- 市場長期看空、共識極度悲觀\r\n- 價格把「最壞情境」當成常態\r\n- 此時只要供給端出現「比預期少一點的利空」或「半成功的減產」，就可能造成**向上急拉**（short covering + re-pricing）\r\n\r\n> 這是「供給槓桿」的第三層：**供給衝擊 × 市場已定價程度 = 非對稱走勢的觸發條件**。\r\n\r\n用同一套工具，你也可以把它平移到其他商品（如鈀金、油、鋰、銅）去比較「誰才是真的單點槓桿」。",
     "downloadUrl": "downloads/nickel-concentration-risk-analyzer-0.1.1.zip"
+  },
+  {
+    "id": "us-cpi-pce-comparator",
+    "name": "us-cpi-pce-comparator",
+    "displayName": "美國 CPI/PCE 通膨比較",
+    "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
+    "emoji": "📊",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "CPI",
+      "PCE",
+      "通膨",
+      "Fed",
+      "權重差異",
+      "FRED",
+      "BLS",
+      "風險訊號",
+      "宏觀經濟"
+    ],
+    "category": "inflation-analytics",
+    "dataLevel": "free-nolimit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\r\n\r\n<principle name=\"weight_difference\">\r\n**CPI vs PCE 權重差異是核心**\r\n\r\n- **CPI（固定權重）**: BLS Relative Importance，每年或每兩年更新，反映「固定籃子」\r\n- **PCE（動態/鏈結權重）**: BEA 名目支出占比，每月隨實際消費行為調整\r\n\r\n關鍵洞見：當消費者把錢花在「價格較不波動」的品項時，若這些品項的通膨走高，PCE 會比 CPI 更敏感地反映這個上行壓力。\r\n</principle>\r\n\r\n<principle name=\"volatility_matters\">\r\n**低波動 + 高權重 = PCE 上行風險訊號**\r\n\r\n識別邏輯：\r\n1. 找出 PCE 權重較高的消費桶（consumer spending buckets）\r\n2. 在這些桶中，篩選價格波動度較低者\r\n3. 若這些桶的通膨近期轉正或加速，標記為 PCE upside risk\r\n</principle>\r\n\r\n<principle name=\"scope_difference\">\r\n**CPI 與 PCE 的範圍差異**\r\n\r\nPCE 涵蓋項目比 CPI 更廣：\r\n- 第三方支付的醫療費用（employer-paid healthcare）\r\n- 非營利機構對家庭的服務\r\n- 某些金融服務的隱含費用\r\n\r\n這些 scope 差異也會造成 CPI/PCE 分歧。詳見 `references/cpi-pce-methodology.md`。\r\n</principle>\r\n\r\n<principle name=\"data_access\">\r\n**資料取得方式**\r\n\r\n本 skill 使用**無需 API key** 的資料來源：\r\n- **FRED CSV**: `https://fred.stlouisfed.org/graph/fredgraph.csv?id={SERIES_ID}`\r\n- **BLS Public API**: `https://api.bls.gov/publicAPI/v2/timeseries/data/`\r\n\r\n腳本位於 `scripts/` 目錄，可直接執行。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n比較 CPI 與 PCE 通膨訊號的分歧，並識別「低波動、高 PCE 權重」的消費桶是否正在推升 Fed 關注的 PCE 通膨路徑。\r\n\r\n輸出三層訊號：\r\n1. **Headline level**: CPI vs PCE divergence（bps）\r\n2. **Attribution**: 哪些 buckets 在推升 PCE（weighted contribution）\r\n3. **Risk framing**: 觀察點與延續性風險評估\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：執行快速檢查**\r\n\r\n```bash\r\ncd skills/us-cpi-pce-comparator\r\npip install pandas numpy requests  # 首次使用\r\npython scripts/cpi_pce_analyzer.py --quick\r\n```\r\n\r\n輸出範例：\r\n```json\r\n{\r\n  \"headline\": {\"cpi_yoy\": 2.65, \"pce_yoy\": 2.79, \"gap_bps\": 14},\r\n  \"core\": {\"cpi_core_yoy\": 2.65, \"pce_core_yoy\": 2.83, \"gap_bps\": 18},\r\n  \"momentum\": {\"cpi_3m_saar\": 2.07, \"pce_3m_saar\": 2.82}\r\n}\r\n```\r\n\r\n**完整分析**：\r\n```bash\r\npython scripts/cpi_pce_analyzer.py --start 2020-01-01 --measure yoy\r\n```\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼分析？\r\n\r\n1. **快速檢查** - 查看最新的 CPI/PCE 分歧數據\r\n2. **完整分析** - 執行完整的三步驟分析工作流\r\n3. **方法論學習** - 了解 CPI/PCE 差異的深層原因\r\n\r\n**請選擇或直接提供分析參數。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                     | Action                                            |\r\n|------------------------------|---------------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"check\"  | 執行 `python scripts/cpi_pce_analyzer.py --quick` |\r\n| 2, \"完整\", \"full\", \"analyze\" | 閱讀 `workflows/analyze.md` 並執行                |\r\n| 3, \"學習\", \"方法論\", \"why\"   | 閱讀 `references/cpi-pce-methodology.md`          |\r\n| 提供參數 (如日期範圍)        | 閱讀 `workflows/analyze.md` 並使用參數執行        |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\nus-cpi-pce-comparator/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── workflows/\r\n│   ├── analyze.md                     # 完整分析工作流\r\n│   └── quick-check.md                 # 快速檢查工作流\r\n├── references/\r\n│   ├── data-sources.md                # FRED/BLS 系列代碼與資料來源\r\n│   ├── cpi-pce-methodology.md         # CPI/PCE 方法論深度解析\r\n│   └── implementation.md              # 計算公式與程式碼範例\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n└── scripts/\r\n    ├── fetch_fred_data.py             # FRED 資料抓取（無需 API key）\r\n    ├── fetch_bls_data.py              # BLS 資料抓取\r\n    └── cpi_pce_analyzer.py            # 主分析腳本\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**方法論**: references/cpi-pce-methodology.md\r\n- CPI vs PCE 的五大差異（權重、範圍、公式、住房、人口）\r\n- 分歧模式與交易含義\r\n- Fed 如何解讀兩指標\r\n\r\n**資料來源**: references/data-sources.md\r\n- FRED CSV endpoint（無需 API key）\r\n- FRED 系列代碼對照表\r\n- 桶位定義與近似計算\r\n\r\n**實作指南**: references/implementation.md\r\n- 通膨計算公式（YoY, MoM SAAR, QoQ SAAR）\r\n- 權重效應計算\r\n- 波動度分析\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow       | Purpose        | 使用時機           |\r\n|----------------|----------------|--------------------|\r\n| analyze.md     | 完整三步驟分析 | 需要深度分析時     |\r\n| quick-check.md | 快速檢查分歧   | 日常監控或快速回答 |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構定義 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script              | Command                      | Purpose           |\r\n|---------------------|------------------------------|-------------------|\r\n| cpi_pce_analyzer.py | `--quick`                    | 快速檢查最新分歧  |\r\n| cpi_pce_analyzer.py | `--start DATE --measure yoy` | 完整分析          |\r\n| fetch_fred_data.py  | `--series CPIAUCSL,PCEPI`    | 抓取 FRED 資料    |\r\n| fetch_bls_data.py   | `--full`                     | 抓取 BLS CPI 資料 |\r\n</scripts_index>\r\n\r\n<input_schema>\r\n\r\n<parameter name=\"start_date\" required=\"true\">\r\n**Type**: string (ISO YYYY-MM-DD)\r\n**Description**: 分析起始日\r\n</parameter>\r\n\r\n<parameter name=\"end_date\" required=\"false\" default=\"today\">\r\n**Type**: string (ISO YYYY-MM-DD)\r\n**Description**: 分析結束日\r\n</parameter>\r\n\r\n<parameter name=\"measure\" required=\"false\" default=\"yoy\">\r\n**Type**: string\r\n**Options**: `yoy` | `mom_saar` | `qoq_saar`\r\n</parameter>\r\n\r\n<parameter name=\"baseline\" required=\"false\">\r\n**Type**: string\r\n**Format**: `YYYY-MM-DD:YYYY-MM-DD`\r\n**Description**: 基準期範圍，用於計算偏離度\r\n</parameter>\r\n\r\n</input_schema>\r\n\r\n<output_schema>\r\n參見 `templates/output-json.md` 的完整結構定義。\r\n\r\n**摘要**：\r\n```json\r\n{\r\n  \"headline\": {\"cpi_yoy\": 2.65, \"pce_yoy\": 2.79, \"gap_bps\": 14},\r\n  \"low_vol_high_weight_buckets\": [{\"bucket\": \"...\", \"signal\": \"upside\"}],\r\n  \"attribution\": {\"top_contributors\": [...], \"weight_effect_bps\": 12},\r\n  \"interpretation\": [\"...\"],\r\n  \"caveats\": [\"...\"]\r\n}\r\n```\r\n</output_schema>\r\n\r\n<success_criteria>\r\n分析成功時應產出：\r\n\r\n- [ ] Headline level 的 CPI/PCE 分歧數值（bps）\r\n- [ ] 識別出低波動、高 PCE 權重的桶位\r\n- [ ] 各桶位的加權通膨貢獻（attribution）\r\n- [ ] 若有 baseline，產出「less baseline」偏離度\r\n- [ ] 可操作的解讀與風險提示\r\n- [ ] 明確標註資料限制與近似處理\r\n</success_criteria>",
+    "path": "skills/us-cpi-pce-comparator/SKILL.md",
+    "directoryStructure": "us-cpi-pce-comparator/\n├── manifest.json\n├── references\n│   ├── cpi-pce-methodology.md\n│   ├── data-sources.md\n│   └── implementation.md\n├── scripts\n│   ├── cpi_pce_analyzer.py\n│   ├── fetch_bls_data.py\n│   ├── fetch_fred_data.py\n│   └── __pycache__\n│       ├── fetch_bls_data.cpython-312.pyc\n│       └── fetch_fred_data.cpython-312.pyc\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    └── quick-check.md",
+    "lastUpdated": "2026-01-15",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "分析當前 CPI 與 PCE 的分歧情況",
+        "expectedResult": "此分析器會：\n1. 從 FRED 抓取最新 CPI 和 PCE 數據\n2. 計算 headline 層級的 YoY 分歧（bps）\n3. 識別低波動高權重桶位的風險訊號\n4. 輸出結構化 JSON 結果\n"
+      },
+      {
+        "question": "為什麼 PCE 比 CPI 更高？Fed 關注哪個指標？",
+        "expectedResult": "解釋 CPI/PCE 五大差異：\n- 權重方法（固定 vs 動態）\n- 涵蓋範圍（PCE 更廣）\n- 公式差異\n- 住房計算\n- 人口覆蓋\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 75,
+      "badge": "白銀",
+      "metrics": {
+        "architecture": 80,
+        "maintainability": 80,
+        "content": 85,
+        "community": 20,
+        "security": 95,
+        "compliance": 85
+      },
+      "details": "**架構（80/100）**\n- 清晰的三層訊號架構\n- 模組化腳本設計\n- 無需 API key 的數據獲取\n\n**可維護性（80/100）**\n- 工作流程分離清晰\n- 參數定義完整\n- 多數據源支援\n\n**內容（85/100）**\n- 完整的方法論文檔\n- CPI/PCE 差異深度解析\n- 實用的 CLI 工具\n\n**社區（20/100）**\n- 新技能，尚無社區貢獻\n\n**安全（95/100）**\n- 僅讀取公開經濟數據\n- 無需 API key\n\n**規範符合性（85/100）**\n- 遵循 Claude Code 規範\n- 完整的文件結構\n"
+    },
+    "bestPractices": [
+      {
+        "title": "關注 Core 而非 Headline",
+        "description": "Core CPI/PCE 排除食品與能源，更能反映趨勢性通膨"
+      },
+      {
+        "title": "使用 3M SAAR 觀察動量",
+        "description": "YoY 有滯後性，3 個月 SAAR 更能捕捉拐點"
+      },
+      {
+        "title": "理解權重效應",
+        "description": "PCE 動態權重會自動降低高通膨項目的權重（替代效應）"
+      },
+      {
+        "title": "結合兩個指標",
+        "description": "CPI 反映消費者體感，PCE 是 Fed 目標，兩者都重要"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "只看 Headline",
+        "description": "Headline 受能源價格波動影響大",
+        "consequence": "錯過核心通膨趨勢"
+      },
+      {
+        "title": "忽略權重差異",
+        "description": "CPI/PCE 在醫療、住房等項目權重差異顯著",
+        "consequence": "無法解釋分歧來源"
+      },
+      {
+        "title": "過度解讀單月數據",
+        "description": "月度數據波動大，容易被噪音誤導",
+        "consequence": "錯誤判斷通膨趨勢"
+      }
+    ],
+    "faq": [
+      {
+        "question": "Fed 主要看哪個通膨指標？",
+        "answer": "Fed 的 2% 目標是針對 **Core PCE YoY**。\n但 Fed 也關注 CPI，因為它是市場預期的錨定點。\n"
+      },
+      {
+        "question": "為什麼 PCE 通常比 CPI 低？",
+        "answer": "主要原因：\n1. PCE 動態權重會因替代效應自動降低高通膨項目權重\n2. PCE 包含第三方支付的醫療，這部分通膨通常較溫和\n3. PCE 住房權重較低（約 15% vs CPI 約 33%）\n"
+      },
+      {
+        "question": "如何判斷 PCE 是否在 re-accelerate？",
+        "answer": "觀察指標：\n1. 3M SAAR 是否高於 YoY\n2. 低波動高權重桶位是否出現加速\n3. Core Services ex-Housing 是否持續偏高\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 數據來源\n\n**FRED（免費，無需 API key）**\n- CPI: CPIAUCSL, CPILFESL\n- PCE: PCEPI, PCEPILFE\n- 使用 CSV endpoint 直接下載\n\n**BLS Public API**\n- 詳細 CPI 分項數據\n- 權重與相對重要性\n"
+    },
+    "downloadUrl": "downloads/us-cpi-pce-comparator-0.1.0.zip"
   },
   {
     "id": "monitor-etf-holdings-drawdown-risk",
@@ -1770,7 +1770,7 @@
   {
     "id": "backsolve-miner-vs-metal-ratio-with-fundamentals",
     "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
-    "displayName": "回推礦業股對金屬價格比率的基本面因子",
+    "displayName": "拆解礦業股對金屬價格比率的基本面",
     "description": "從網路自動抓取礦業公司財務報表與營運揭露（產量、成本、資本支出），回算「礦業股/金屬本體比率」的基本面解釋與區間門檻（如 1.2/1.7），並輸出可重現的估值拆解（成本因子 / 槓桿因子 / 倍數因子 / 稀釋因子）。",
     "emoji": "🔎",
     "version": "0.1.0",
@@ -1801,6 +1801,7 @@
     "content": "<essential_principles>\n\n<principle name=\"ratio_decomposition\">\n**比率拆解核心公式**\n\n礦業股/金屬價格比率可分解為四大基本面因子：\n\n```\nR_t ≈ K × M_t × (1-L_t) × C_t × D_t\n```\n\n其中：\n- **K**: 校準常數（由觀測值估計）\n- **M_t**: 倍數因子（EV/EBITDA）\n- **(1-L_t)**: 槓桿因子（1 - NetDebt/EV）\n- **C_t**: 成本因子（1 - AISC/S_t）\n- **D_t**: 稀釋因子（Shares_base / Shares_t）\n\n此拆解讓「比率變動」有可歸因的量化解釋。\n</principle>\n\n<principle name=\"aisc_extraction\">\n**AISC 抽取優先順序**\n\n全維持成本（AISC）是礦業股估值的核心驅動：\n\n| 優先級 | 來源            | 方法                                        |\n|--------|-----------------|---------------------------------------------|\n| 1      | MD&A / 財報附註 | 關鍵字抽取：「AISC」「all-in sustaining」   |\n| 2      | 年報簡報 PDF    | 解析表格：$/oz 或 $/ounce                   |\n| 3      | Proxy 回算      | (OpCost + SustCapex + G&A - Byproduct) / Oz |\n\n當直接揭露不可得時，以 proxy 回算補缺；記錄 `aisc_method` 以標註來源。\n</principle>\n\n<principle name=\"backsolve_logic\">\n**反推邏輯（Backsolve）**\n\n目標：給定目標比率 R*（如歷史頂部 1.7），反推需要哪些因子條件。\n\n**單因子反推**：假設其他因子不變，只調整單一因子\n\n```\nM* = M_now × (R*/R_now)         # 需要的倍數\n(1-L*) = (1-L_now) × (R*/R_now) # 需要的去槓桿\nC* = C_now × (R*/R_now)         # 需要的成本改善 → 反推 AISC*\nD* = D_now × (R*/R_now)         # 需要的稀釋折扣\n```\n\n**雙因子組合**：以網格列舉可行組合（如倍數 +20% + 白銀 -15%）。\n</principle>\n\n<principle name=\"event_study\">\n**事件研究方法**\n\n識別「比率落入底部分位」的歷史事件，回看事件當期的四大因子狀態：\n\n1. **AISC 是否上升**：成本壓力\n2. **NetDebt/EV 是否惡化**：槓桿壓力\n3. **EV/EBITDA 是否壓縮**：倍數壓力\n4. **Shares 是否上升**：稀釋壓力\n\n排名「哪個因子貢獻最大」，識別驅動底部的主因。\n</principle>\n\n<principle name=\"data_priority\">\n**數據來源優先順序**\n\n遵循「結構化優先」原則：\n\n1. **SEC XBRL (10-K/10-Q)**：直接取欄位（債務、現金、股數、CFO、Capex）\n2. **SEDAR+ (加拿大)**：銀礦公司常在加拿大上市\n3. **公司 IR 年報/MD&A**：補齊 AISC、產量等非標準欄位\n4. **ETF Holdings**：官方 CSV 或 SEC N-PORT\n\n抓取時使用 Selenium 模擬人類行為，避免被封鎖。\n</principle>\n\n</essential_principles>\n\n<objective>\n實作「礦業股/金屬價格比率」基本面回算系統：\n\n1. **數據整合**：抓取價格、ETF 持股、財務報表、營運揭露\n2. **因子計算**：計算 AISC、槓桿、倍數、稀釋四大因子\n3. **比率拆解**：建立 R_t ≈ K × M × (1-L) × C × D 近似式\n4. **門檻反推**：給定目標比率，反推需要的因子組合\n5. **事件研究**：歷史底部事件的因子驅動分析\n6. **輸出報告**：結構化 JSON 與可讀 Markdown\n\n目標用戶：看到 SIL/白銀比率極端時，想用「真實財報」驗證驅動因素。\n</objective>\n\n<quick_start>\n\n**最快的方式：使用預設參數分析**\n\n```bash\ncd skills/backsolve-miner-vs-metal-ratio-with-fundamentals\npip install pandas numpy yfinance httpx beautifulsoup4 lxml  # 首次使用\npython scripts/fundamental_analyzer.py --quick\n```\n\n**完整分析（含財報抓取）**\n\n```bash\npython scripts/fundamental_analyzer.py \\\n  --metal-symbol SI=F \\\n  --miner-universe etf:SIL \\\n  --region-profile us_sec \\\n  --start-date 2015-01-01 \\\n  --output result.json\n```\n\n**輸出範例**：\n\n```json\n{\n  \"now\": {\n    \"metal_price\": 94.4,\n    \"miner_price\": 103.4,\n    \"ratio\": 1.13,\n    \"ratio_percentile\": 0.111\n  },\n  \"thresholds\": {\n    \"bottom_ratio\": 1.20,\n    \"top_ratio\": 1.70,\n    \"median_ratio\": 1.51\n  },\n  \"fundamentals_weighted\": {\n    \"aisc_usd_per_oz\": 28.0,\n    \"net_debt_to_ev\": 0.25,\n    \"ev_to_ebitda\": 6.4,\n    \"shares_yoy_change\": 0.12\n  },\n  \"factors_now\": {\n    \"cost_factor_C\": 0.7034,\n    \"leverage_factor_1_minus_L\": 0.75,\n    \"multiple_M\": 6.4,\n    \"dilution_discount_D\": 0.89\n  },\n  \"backsolve_to_top\": {\n    \"multiple_only_need\": 9.1,\n    \"deleverage_only_need_1_minus_L\": 1.12,\n    \"cost_only_implied_aisc\": 15.6,\n    \"dilution_only_need_D\": 1.26\n  }\n}\n```\n\n</quick_start>\n\n<intake>\n需要進行什麼操作？\n\n1. **快速分析** - 使用預設參數（SIL / SI=F）計算當前因子狀態\n2. **完整分析** - 抓取財報、計算因子、反推門檻\n3. **因子拆解** - 深入了解四大因子的計算邏輯\n4. **門檻反推** - 給定目標比率，計算需要的因子組合\n5. **事件研究** - 歷史底部事件的因子驅動排名\n6. **方法論學習** - 了解回算邏輯與數據來源\n\n**請選擇或直接提供分析參數。**\n</intake>\n\n<routing>\n| Response                       | Action                                                         |\n|--------------------------------|----------------------------------------------------------------|\n| 1, \"快速\", \"quick\", \"分析\"     | 執行 `python scripts/fundamental_analyzer.py --quick`          |\n| 2, \"完整\", \"full\", \"財報\"      | 閱讀 `workflows/analyze.md` 並執行                             |\n| 3, \"因子\", \"factor\", \"拆解\"    | 閱讀 `references/fundamental-factors.md`                       |\n| 4, \"反推\", \"backsolve\", \"門檻\" | 閱讀 `references/backsolve-math.md` 並執行反推分析             |\n| 5, \"事件\", \"event\", \"底部\"     | 閱讀 `workflows/analyze.md` 並聚焦事件研究                     |\n| 6, \"學習\", \"方法論\", \"why\"     | 閱讀 `references/fundamental-factors.md` + `backsolve-math.md` |\n| 提供參數 (如 ETF/金屬代理)     | 閱讀 `workflows/analyze.md` 並使用參數執行                     |\n\n**路由後，閱讀對應文件並執行。**\n</routing>\n\n<directory_structure>\n```\nbacksolve-miner-vs-metal-ratio-with-fundamentals/\n├── SKILL.md                           # 本文件（路由器）\n├── skill.yaml                         # 前端展示元數據\n├── manifest.json                      # 技能元數據\n├── workflows/\n│   ├── analyze.md                     # 完整分析工作流\n│   └── data-fetch.md                  # 數據抓取工作流\n├── references/\n│   ├── input-schema.md                # 完整輸入參數定義\n│   ├── data-sources.md                # 數據來源說明\n│   ├── fundamental-factors.md         # 四大因子計算邏輯\n│   └── backsolve-math.md              # 反推數學公式\n├── templates/\n│   ├── output-json.md                 # JSON 輸出模板\n│   └── output-markdown.md             # Markdown 報告模板\n├── scripts/\n│   └── fundamental_analyzer.py        # 主計算腳本\n└── examples/\n    └── sample-output.json             # 範例輸出\n```\n</directory_structure>\n\n<reference_index>\n\n**輸入參數**: references/input-schema.md\n- 完整參數定義\n- 預設值與建議範圍\n- 各方法選項說明\n\n**數據來源**: references/data-sources.md\n- 價格數據（yfinance / stooq / alphavantage）\n- 財報數據（SEC EDGAR / SEDAR+ / 公司 IR）\n- ETF 持股（官方 CSV / N-PORT / 手動 URL）\n\n**因子計算**: references/fundamental-factors.md\n- AISC 成本因子\n- 槓桿因子\n- 倍數因子\n- 稀釋因子\n\n**反推數學**: references/backsolve-math.md\n- 單因子反推公式\n- 雙因子組合網格\n- 校準常數估計\n\n</reference_index>\n\n<workflows_index>\n| Workflow      | Purpose  | 使用時機                    |\n|---------------|----------|-----------------------------|\n| analyze.md    | 完整分析 | 需要抓取財報並計算因子      |\n| data-fetch.md | 數據抓取 | 了解如何抓取 ETF 持股與財報 |\n</workflows_index>\n\n<templates_index>\n| Template           | Purpose           |\n|--------------------|-------------------|\n| output-json.md     | JSON 輸出結構定義 |\n| output-markdown.md | Markdown 報告模板 |\n</templates_index>\n\n<scripts_index>\n| Script                  | Command                              | Purpose           |\n|-------------------------|--------------------------------------|-------------------|\n| fundamental_analyzer.py | `--quick`                            | 快速分析 SIL/SI=F |\n| fundamental_analyzer.py | `--miner-universe etf:SILJ`          | 自訂礦業股 ETF    |\n| fundamental_analyzer.py | `--backsolve-target 1.7`             | 指定反推目標比率  |\n| fundamental_analyzer.py | `--event-study --min-separation 180` | 執行事件研究      |\n</scripts_index>\n\n<input_schema_summary>\n\n**核心參數**\n\n| 參數                 | 類型   | 預設值  | 說明                                    |\n|----------------------|--------|---------|-----------------------------------------|\n| metal_symbol         | string | SI=F    | 金屬價格代碼（SI=F 白銀、GC=F 黃金）    |\n| miner_universe       | object | etf:SIL | 礦業股/ETF 定義                         |\n| region_profile       | string | us_sec  | 監管與揭露來源（us_sec / canada_sedar） |\n| time_range.start     | string | 5 年前  | 分析起點（YYYY-MM-DD）                  |\n| time_range.end       | string | today   | 分析終點                                |\n| time_range.frequency | string | weekly  | 取樣頻率（daily/weekly/monthly）        |\n\n**因子方法選擇**\n\n| 參數                         | 類型   | 預設值              | 說明          |\n|------------------------------|--------|---------------------|---------------|\n| fundamental_methods.aisc     | string | hybrid              | AISC 抽取方法 |\n| fundamental_methods.leverage | string | net_debt_to_ev      | 槓桿計算方法  |\n| fundamental_methods.multiple | string | ev_to_ebitda        | 倍數計算方法  |\n| fundamental_methods.dilution | string | weighted_avg_shares | 稀釋計算方法  |\n\n**分位門檻**\n\n| 參數                    | 類型  | 預設值 | 說明           |\n|-------------------------|-------|--------|----------------|\n| ratio_thresholds.bottom | float | 0.20   | 底部分位數門檻 |\n| ratio_thresholds.top    | float | 0.80   | 頂部分位數門檻 |\n\n完整參數定義見 `references/input-schema.md`。\n\n</input_schema_summary>\n\n<output_schema_summary>\n```json\n{\n  \"skill\": \"backsolve_miner_vs_metal_ratio_with_fundamentals\",\n  \"inputs\": {\n    \"metal_symbol\": \"SI=F\",\n    \"miner_universe\": {\"type\": \"etf_holdings\", \"etf_ticker\": \"SIL\"},\n    \"region_profile\": \"us_sec\"\n  },\n  \"now\": {\n    \"metal_price\": 94.4,\n    \"miner_price\": 103.4,\n    \"ratio\": 1.13,\n    \"ratio_percentile\": 0.111\n  },\n  \"thresholds\": {\n    \"bottom_ratio\": 1.20,\n    \"top_ratio\": 1.70,\n    \"median_ratio\": 1.51\n  },\n  \"fundamentals_weighted\": {\n    \"aisc_usd_per_oz\": 28.0,\n    \"net_debt_to_ev\": 0.25,\n    \"ev_to_ebitda\": 6.4,\n    \"shares_yoy_change\": 0.12\n  },\n  \"factors_now\": {\n    \"cost_factor_C\": 0.7034,\n    \"leverage_factor_1_minus_L\": 0.75,\n    \"multiple_M\": 6.4,\n    \"dilution_discount_D\": 0.89\n  },\n  \"backsolve_to_top\": {\n    \"multiple_only_need\": 9.1,\n    \"deleverage_only_need_1_minus_L\": 1.12,\n    \"cost_only_implied_aisc\": 15.6,\n    \"dilution_only_need_D\": 1.26,\n    \"two_factor_grid_examples\": [\n      {\"multiple_up\": 1.20, \"metal_down\": -0.15, \"hits_top\": true},\n      {\"deleverage\": -0.10, \"multiple_up\": 1.15, \"hits_top\": true}\n    ]\n  },\n  \"event_study\": {\n    \"bottom_events\": [\n      {\n        \"date\": \"2026-01-02\",\n        \"ratio\": 1.13,\n        \"aisc\": 29.1,\n        \"net_debt_to_ev\": 0.27,\n        \"ev_to_ebitda\": 5.8,\n        \"shares_yoy\": 0.14,\n        \"dominant_driver\": \"multiple_compression\"\n      }\n    ]\n  },\n  \"summary\": \"比率處於歷史底部，主要驅動為倍數壓縮...\",\n  \"notes\": [\n    \"AISC 使用 hybrid 方法回算，部分公司為 proxy 值\",\n    \"建議交叉驗證：COT 持倉、ETF 流量、美元/實質利率\"\n  ]\n}\n```\n\n完整輸出結構見 `templates/output-json.md`。\n</output_schema_summary>\n\n<success_criteria>\n執行成功時應產出：\n\n- [ ] 當前比率與歷史分位數\n- [ ] 四大基本面因子（AISC、槓桿、倍數、稀釋）\n- [ ] 權重加總後的組合因子\n- [ ] 門檻反推結果（單因子 + 雙因子組合）\n- [ ] 歷史底部事件的因子驅動排名\n- [ ] 結果輸出為指定格式（JSON 或 Markdown）\n- [ ] 數據來源與方法標註（aisc_method 等）\n- [ ] 風險提示與後續研究建議\n</success_criteria>",
     "path": "skills/backsolve-miner-vs-metal-ratio-with-fundamentals/SKILL.md",
     "directoryStructure": "backsolve-miner-vs-metal-ratio-with-fundamentals/\n├── examples\n│   └── sample-output.json\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── backsolve-math.md\n│   ├── data-sources.md\n│   ├── fundamental-factors.md\n│   └── input-schema.md\n├── scripts\n│   └── fundamental_analyzer.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    └── data-fetch.md",
+    "lastUpdated": "2026-01-21",
     "rating": 3,
     "testQuestions": [
       {
