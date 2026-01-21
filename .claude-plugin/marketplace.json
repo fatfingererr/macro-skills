@@ -93,21 +93,21 @@
       ]
     },
     {
-      "name": "us-cpi-pce-comparator",
-      "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
+      "name": "lithium-supply-demand-gap-radar",
+      "description": "將鋰產業鏈（礦端 → 精煉化學品 → 電池與終端需求），整合為一套可運算的替代指標；再把這些指標映射到鋰主題 ETF（如 LIT）的成分暴露與長期價格走勢，形成可供決策的依據。 ",
       "version": "0.1.0",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/us-cpi-pce-comparator",
-      "category": "inflation-analytics",
+      "source": "./skills/lithium-supply-demand-gap-radar",
+      "category": "commodity-sd",
       "tags": [
-        "CPI",
-        "PCE",
-        "通膨",
-        "Fed",
-        "權重差異",
-        "FRED"
+        "鋰",
+        "供需分析",
+        "ETF",
+        "LIT",
+        "原物料",
+        "電池"
       ]
     },
     {
@@ -129,42 +129,6 @@
       ]
     },
     {
-      "name": "nickel-concentration-risk-analyzer",
-      "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
-      "version": "0.1.1",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/nickel-concentration-risk-analyzer",
-      "category": "event-scenario",
-      "tags": [
-        "鎳",
-        "供給集中度",
-        "原物料",
-        "採礦",
-        "地緣政治",
-        "情境分析"
-      ]
-    },
-    {
-      "name": "lithium-supply-demand-gap-radar",
-      "description": "將鋰產業鏈（礦端 → 精煉化學品 → 電池與終端需求），整合為一套可運算的替代指標；再把這些指標映射到鋰主題 ETF（如 LIT）的成分暴露與長期價格走勢，形成可供決策的依據。 ",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/lithium-supply-demand-gap-radar",
-      "category": "commodity-sd",
-      "tags": [
-        "鋰",
-        "供需分析",
-        "ETF",
-        "LIT",
-        "原物料",
-        "電池"
-      ]
-    },
-    {
       "name": "list-china-today-macro-news",
       "description": "彙整今日中國宏觀經濟新聞消息，從華爾街日報、36氪等來源抓取並篩選宏觀相關新聞，輸出雜誌風格的新聞摘要。適用於交易/研究開盤前快速掌握中國宏觀動態。",
       "version": "0.3.0",
@@ -180,6 +144,42 @@
         "華爾街日報",
         "央行",
         "利率"
+      ]
+    },
+    {
+      "name": "us-cpi-pce-comparator",
+      "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/us-cpi-pce-comparator",
+      "category": "inflation-analytics",
+      "tags": [
+        "CPI",
+        "PCE",
+        "通膨",
+        "Fed",
+        "權重差異",
+        "FRED"
+      ]
+    },
+    {
+      "name": "nickel-concentration-risk-analyzer",
+      "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
+      "version": "0.1.1",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/nickel-concentration-risk-analyzer",
+      "category": "event-scenario",
+      "tags": [
+        "鎳",
+        "供給集中度",
+        "原物料",
+        "採礦",
+        "地緣政治",
+        "情境分析"
       ]
     },
     {
@@ -284,6 +284,24 @@
       ]
     },
     {
+      "name": "analyze-silver-miner-metal-ratio",
+      "description": "以「銀礦股價格 / 白銀價格」的相對比率衡量礦業股板塊相對於金屬本體的估值區間（偏貴/偏便宜），並用歷史分位數與類比區間推導「底部/頂部」訊號與情境推演。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-silver-miner-metal-ratio",
+      "category": "commodity-sd",
+      "tags": [
+        "白銀",
+        "礦業股",
+        "SIL",
+        "SILJ",
+        "相對估值",
+        "分位數"
+      ]
+    },
+    {
       "name": "analyze-japan-debt-service-tax-burden",
       "description": "以日本公債殖利率變化為觸發，量化「政府利息支出 / 稅收」負擔（含情境壓力測試），並判斷是否進入債務利息螺旋風險區。",
       "version": "0.1.1",
@@ -302,21 +320,21 @@
       ]
     },
     {
-      "name": "analyze-silver-miner-metal-ratio",
-      "description": "以「銀礦股價格 / 白銀價格」的相對比率衡量礦業股板塊相對於金屬本體的估值區間（偏貴/偏便宜），並用歷史分位數與類比區間推導「底部/頂部」訊號與情境推演。",
+      "name": "analyze-high-unemployment-high-gdp-growth-fiscal-deficit-scenarios",
+      "description": "在「失業率走高／勞動市場轉弱」但「名目或實質 GDP 仍維持高位（或仍在成長）」的情境下，依據歷史關聯估算美國財政赤字占 GDP（Deficit/GDP）可能擴張的區間，並生成對長天期美債（長久期 UST）供給/利率風險的情境解讀。",
       "version": "0.1.0",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/analyze-silver-miner-metal-ratio",
-      "category": "commodity-sd",
+      "source": "./skills/analyze-high-unemployment-high-gdp-growth-fiscal-deficit-scenarios",
+      "category": "macro-indicator",
       "tags": [
-        "白銀",
-        "礦業股",
-        "SIL",
-        "SILJ",
-        "相對估值",
-        "分位數"
+        "失業率",
+        "GDP",
+        "財政赤字",
+        "勞動市場",
+        "JOLTS",
+        "Sahm Rule"
       ]
     }
   ]
