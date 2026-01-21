@@ -1,14 +1,14 @@
 {
   "name": "analyze-silver-miner-metal-ratio",
   "version": "0.1.0",
-  "displayName": "評估銀礦業對銀價比率",
-  "description": "以「白銀礦業價格 / 白銀價格」的相對比率衡量礦業板塊相對於金屬本體的估值區間（偏貴/偏便宜），並用歷史分位數與類比區間推導「底部/頂部」訊號與情境推演。",
+  "displayName": "評估銀礦股對銀價比率",
+  "description": "以「銀礦股價格 / 白銀價格」的相對比率衡量礦業股板塊相對於金屬本體的估值區間（偏貴/偏便宜），並用歷史分位數與類比區間推導「底部/頂部」訊號與情境推演。",
   "author": "Ricky Wang",
   "license": "MIT",
   "category": "commodity-sd",
   "tags": [
     "白銀",
-    "礦業",
+    "礦業股",
     "SIL",
     "SILJ",
     "相對估值",
@@ -38,13 +38,13 @@
     {
       "id": "analyze",
       "name": "完整情境分析",
-      "description": "自訂參數計算礦業/金屬比率與情境推演",
+      "description": "自訂參數計算礦業股/金屬比率與情境推演",
       "file": "workflows/analyze.md"
     },
     {
       "id": "data-research",
       "name": "數據源研究",
-      "description": "了解礦業/金屬代理的替代方案",
+      "description": "了解礦業股/金屬代理的替代方案",
       "file": "workflows/data-research.md"
     }
   ],
@@ -87,7 +87,7 @@
         "SILJ",
         "GDXJ"
       ],
-      "description": "Global X Silver Miners ETF 作為主要礦業代理"
+      "description": "Global X Silver Miners ETF 作為主要礦業股代理"
     },
     "metal": {
       "primary": "SI=F",
