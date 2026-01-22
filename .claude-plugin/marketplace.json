@@ -64,22 +64,15 @@
       ]
     },
     {
-      "name": "usd-reserve-loss-gold-revaluation",
-      "description": "在「美元／某貨幣失去儲備地位、黃金成為唯一錨」的假設下，用央行貨幣負債 ÷ 黃金儲備，推演「資產負債表可承受的隱含金價」，並輸出各國/各貨幣的槓桿程度、缺口與排名",
-      "version": "0.1.0",
+      "name": "wasde-ingestor",
+      "description": "抓取並解析 USDA（美國農業部）每月發布的 WASDE（世界農產品供需估計）報告，擷取所有主要商品（穀物、油籽、棉花、畜產品、糖）的供需平衡表。產出經標準化、具版本控管的資料集，作為即時預測的基準錨點。",
+      "version": "0.2.0",
       "author": {
-        "name": "Ricky Wang"
+        "name": "macro-skills"
       },
-      "source": "./skills/usd-reserve-loss-gold-revaluation",
-      "category": "fx-factors",
-      "tags": [
-        "黃金",
-        "央行",
-        "儲備貨幣",
-        "美元",
-        "M0",
-        "M2"
-      ]
+      "source": "./skills/wasde-ingestor",
+      "category": "nowcasting",
+      "tags": []
     },
     {
       "name": "us-cpi-pce-comparator",
@@ -100,6 +93,24 @@
       ]
     },
     {
+      "name": "usd-reserve-loss-gold-revaluation",
+      "description": "在「美元／某貨幣失去儲備地位、黃金成為唯一錨」的假設下，用央行貨幣負債 ÷ 黃金儲備，推演「資產負債表可承受的隱含金價」，並輸出各國/各貨幣的槓桿程度、缺口與排名",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/usd-reserve-loss-gold-revaluation",
+      "category": "fx-factors",
+      "tags": [
+        "黃金",
+        "央行",
+        "儲備貨幣",
+        "美元",
+        "M0",
+        "M2"
+      ]
+    },
+    {
       "name": "nickel-concentration-risk-analyzer",
       "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
       "version": "0.1.1",
@@ -116,17 +127,6 @@
         "地緣政治",
         "情境分析"
       ]
-    },
-    {
-      "name": "wasde-ingestor",
-      "description": "抓取並解析 USDA（美國農業部）每月發布的 WASDE（世界農產品供需估計）報告，擷取所有主要商品（穀物、油籽、棉花、畜產品、糖）的供需平衡表。產出經標準化、具版本控管的資料集，作為即時預測的基準錨點。",
-      "version": "0.2.0",
-      "author": {
-        "name": "macro-skills"
-      },
-      "source": "./skills/wasde-ingestor",
-      "category": "nowcasting",
-      "tags": []
     },
     {
       "name": "monitor-etf-holdings-drawdown-risk",
@@ -201,21 +201,21 @@
       ]
     },
     {
-      "name": "detect-palladium-lead-silver-turns",
-      "description": "以鈀金的先行轉向作為確認條件，檢驗白銀短期漲跌是否獲得工業景氣與風險情緒的同步支持，並標記缺乏鈀金參與度的失敗走勢。",
+      "name": "detect-shanghai-silver-stock-drain",
+      "description": "以公開交易所庫存資料為核心，量化上海白銀庫存耗盡的方向、速度與加速度，並將其轉成可交易的供給緊縮訊號",
       "version": "0.1.0",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/detect-palladium-lead-silver-turns",
-      "category": "indicator-monitoring",
+      "source": "./skills/detect-shanghai-silver-stock-drain",
+      "category": "commodity-sd",
       "tags": [
-        "鈀金",
         "白銀",
-        "貴金屬",
-        "拐點偵測",
-        "領先指標",
-        "跨金屬確認"
+        "庫存監控",
+        "上海黃金交易所",
+        "上海期交所",
+        "供給緊縮",
+        "耗盡訊號"
       ]
     },
     {
@@ -234,6 +234,24 @@
         "本益比",
         "巴菲特指標",
         "GDP"
+      ]
+    },
+    {
+      "name": "detect-palladium-lead-silver-turns",
+      "description": "以鈀金的先行轉向作為確認條件，檢驗白銀短期漲跌是否獲得工業景氣與風險情緒的同步支持，並標記缺乏鈀金參與度的失敗走勢。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-palladium-lead-silver-turns",
+      "category": "indicator-monitoring",
+      "tags": [
+        "鈀金",
+        "白銀",
+        "貴金屬",
+        "拐點偵測",
+        "領先指標",
+        "跨金屬確認"
       ]
     },
     {
@@ -266,42 +284,6 @@
       "tags": []
     },
     {
-      "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
-      "description": "從網路自動抓取礦業公司財務報表與營運揭露（產量、成本、資本支出），回算「礦業股/金屬本體比率」的基本面解釋與區間門檻（如 1.2/1.7），並輸出可重現的估值拆解（成本因子 / 槓桿因子 / 倍數因子 / 稀釋因子）。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/backsolve-miner-vs-metal-ratio-with-fundamentals",
-      "category": "commodity-sd",
-      "tags": [
-        "礦業股",
-        "基本面",
-        "AISC",
-        "槓桿",
-        "倍數",
-        "稀釋"
-      ]
-    },
-    {
-      "name": "analyze-japan-debt-service-tax-burden",
-      "description": "以日本公債殖利率變化為觸發，量化「政府利息支出 / 稅收」負擔（含情境壓力測試），並判斷是否進入債務利息螺旋風險區。",
-      "version": "0.1.1",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/analyze-japan-debt-service-tax-burden",
-      "category": "interest-rates",
-      "tags": [
-        "日本",
-        "國債",
-        "債務",
-        "利息支出",
-        "稅收",
-        "壓力測試"
-      ]
-    },
-    {
       "name": "compute-precious-miner-gross-margin",
       "description": "以公開金屬價格 + 礦業成本指標（AISC/All-in cost/現金成本）計算「黃金/白銀礦業毛利率代理值」，並判斷當前是否處於歷史高/低檔區間。",
       "version": "0.1.0",
@@ -320,21 +302,21 @@
       ]
     },
     {
-      "name": "analyze-investment-clock-rotation",
-      "description": "把「獲利成長 × 財務狀況（金融環境）」映射成「投資時鐘」，判斷目前落在哪個象限、近期是順時針還是逆時針旋轉、以及相對於上一輪循環的位置差異",
+      "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
+      "description": "從網路自動抓取礦業公司財務報表與營運揭露（產量、成本、資本支出），回算「礦業股/金屬本體比率」的基本面解釋與區間門檻（如 1.2/1.7），並輸出可重現的估值拆解（成本因子 / 槓桿因子 / 倍數因子 / 稀釋因子）。",
       "version": "0.1.0",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/analyze-investment-clock-rotation",
-      "category": "business-cycles",
+      "source": "./skills/backsolve-miner-vs-metal-ratio-with-fundamentals",
+      "category": "commodity-sd",
       "tags": [
-        "投資時鐘",
-        "景氣循環",
-        "獲利成長",
-        "金融環境",
-        "資產配置",
-        "象限分析"
+        "礦業股",
+        "基本面",
+        "AISC",
+        "槓桿",
+        "倍數",
+        "稀釋"
       ]
     },
     {
@@ -356,6 +338,24 @@
       ]
     },
     {
+      "name": "analyze-japan-debt-service-tax-burden",
+      "description": "以日本公債殖利率變化為觸發，量化「政府利息支出 / 稅收」負擔（含情境壓力測試），並判斷是否進入債務利息螺旋風險區。",
+      "version": "0.1.1",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-japan-debt-service-tax-burden",
+      "category": "interest-rates",
+      "tags": [
+        "日本",
+        "國債",
+        "債務",
+        "利息支出",
+        "稅收",
+        "壓力測試"
+      ]
+    },
+    {
       "name": "analyze-high-unemployment-high-gdp-growth-fiscal-deficit-scenarios",
       "description": "在「失業率走高／勞動市場轉弱」但「名目或實質 GDP 仍維持高位（或仍在成長）」的情境下，依據歷史關聯估算美國財政赤字占 GDP（Deficit/GDP）可能擴張的區間，並生成對長天期美債（長久期 UST）供給/利率風險的情境解讀。",
       "version": "0.1.0",
@@ -371,6 +371,24 @@
         "勞動市場",
         "JOLTS",
         "薩姆規則"
+      ]
+    },
+    {
+      "name": "analyze-investment-clock-rotation",
+      "description": "把「獲利成長 × 財務狀況（金融環境）」映射成「投資時鐘」，判斷目前落在哪個象限、近期是順時針還是逆時針旋轉、以及相對於上一輪循環的位置差異",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-investment-clock-rotation",
+      "category": "business-cycles",
+      "tags": [
+        "投資時鐘",
+        "景氣循環",
+        "獲利成長",
+        "金融環境",
+        "資產配置",
+        "象限分析"
       ]
     },
     {
