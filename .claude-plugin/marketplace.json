@@ -75,24 +75,6 @@
       "tags": []
     },
     {
-      "name": "us-cpi-pce-comparator",
-      "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/us-cpi-pce-comparator",
-      "category": "inflation-analytics",
-      "tags": [
-        "CPI",
-        "PCE",
-        "通膨",
-        "Fed",
-        "權重差異",
-        "FRED"
-      ]
-    },
-    {
       "name": "usd-reserve-loss-gold-revaluation",
       "description": "在「美元／某貨幣失去儲備地位、黃金成為唯一錨」的假設下，用央行貨幣負債 ÷ 黃金儲備，推演「資產負債表可承受的隱含金價」，並輸出各國/各貨幣的槓桿程度、缺口與排名",
       "version": "0.1.0",
@@ -111,6 +93,24 @@
       ]
     },
     {
+      "name": "us-cpi-pce-comparator",
+      "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/us-cpi-pce-comparator",
+      "category": "inflation-analytics",
+      "tags": [
+        "CPI",
+        "PCE",
+        "通膨",
+        "Fed",
+        "權重差異",
+        "FRED"
+      ]
+    },
+    {
       "name": "nickel-concentration-risk-analyzer",
       "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
       "version": "0.1.1",
@@ -126,6 +126,24 @@
         "採礦",
         "地緣政治",
         "情境分析"
+      ]
+    },
+    {
+      "name": "list-china-today-macro-news",
+      "description": "彙整今日中國宏觀經濟新聞消息，從華爾街日報、36氪等來源抓取並篩選宏觀相關新聞，輸出雜誌風格的新聞摘要。適用於交易/研究開盤前快速掌握中國宏觀動態。",
+      "version": "0.3.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/list-china-today-macro-news",
+      "category": "nowcasting",
+      "tags": [
+        "中國",
+        "宏觀經濟",
+        "新聞",
+        "華爾街日報",
+        "央行",
+        "利率"
       ]
     },
     {
@@ -165,24 +183,6 @@
       ]
     },
     {
-      "name": "list-china-today-macro-news",
-      "description": "彙整今日中國宏觀經濟新聞消息，從華爾街日報、36氪等來源抓取並篩選宏觀相關新聞，輸出雜誌風格的新聞摘要。適用於交易/研究開盤前快速掌握中國宏觀動態。",
-      "version": "0.3.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/list-china-today-macro-news",
-      "category": "nowcasting",
-      "tags": [
-        "中國",
-        "宏觀經濟",
-        "新聞",
-        "華爾街日報",
-        "央行",
-        "利率"
-      ]
-    },
-    {
       "name": "google-trends-ath-detector",
       "description": "模擬真人操作瀏覽器抓取 Google Trends 數據，自動判定搜尋趨勢是否創下歷史新高（ATH）或出現異常飆升，並提供訊號分類。",
       "version": "0.1.1",
@@ -201,24 +201,6 @@
       ]
     },
     {
-      "name": "detect-shanghai-silver-stock-drain",
-      "description": "以公開交易所庫存資料為核心，量化上海白銀庫存耗盡的方向、速度與加速度，並將其轉成可交易的供給緊縮訊號",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/detect-shanghai-silver-stock-drain",
-      "category": "commodity-sd",
-      "tags": [
-        "白銀",
-        "庫存監控",
-        "上海黃金交易所",
-        "上海期交所",
-        "供給緊縮",
-        "耗盡訊號"
-      ]
-    },
-    {
       "name": "detect-us-equity-valuation-percentile-extreme",
       "description": "把多個股票估值指標統一轉成在過去百年歷史中的分位數，再合成一個總分，判斷目前是否處於歷史極端高估區間，並用歷史類比（如 1929、1965、1999）給出風險解讀",
       "version": "0.1.0",
@@ -234,6 +216,24 @@
         "本益比",
         "巴菲特指標",
         "GDP"
+      ]
+    },
+    {
+      "name": "detect-shanghai-silver-stock-drain",
+      "description": "以公開交易所庫存資料為核心，量化上海白銀庫存耗盡的方向、速度與加速度，並將其轉成可交易的供給緊縮訊號",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-shanghai-silver-stock-drain",
+      "category": "commodity-sd",
+      "tags": [
+        "白銀",
+        "庫存監控",
+        "上海黃金交易所",
+        "上海期交所",
+        "供給緊縮",
+        "耗盡訊號"
       ]
     },
     {
@@ -356,24 +356,6 @@
       ]
     },
     {
-      "name": "analyze-high-unemployment-high-gdp-growth-fiscal-deficit-scenarios",
-      "description": "在「失業率走高／勞動市場轉弱」但「名目或實質 GDP 仍維持高位（或仍在成長）」的情境下，依據歷史關聯估算美國財政赤字占 GDP（Deficit/GDP）可能擴張的區間，並生成對長天期美債（長久期 UST）供給/利率風險的情境解讀。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/analyze-high-unemployment-high-gdp-growth-fiscal-deficit-scenarios",
-      "category": "macro-indicator",
-      "tags": [
-        "失業率",
-        "GDP",
-        "財政赤字",
-        "勞動市場",
-        "JOLTS",
-        "薩姆規則"
-      ]
-    },
-    {
       "name": "analyze-investment-clock-rotation",
       "description": "把「獲利成長 × 財務狀況（金融環境）」映射成「投資時鐘」，判斷目前落在哪個象限、近期是順時針還是逆時針旋轉、以及相對於上一輪循環的位置差異",
       "version": "0.1.0",
@@ -389,6 +371,24 @@
         "金融環境",
         "資產配置",
         "象限分析"
+      ]
+    },
+    {
+      "name": "analyze-high-unemployment-high-gdp-growth-fiscal-deficit-scenarios",
+      "description": "在「失業率走高／勞動市場轉弱」但「名目或實質 GDP 仍維持高位（或仍在成長）」的情境下，依據歷史關聯估算美國財政赤字占 GDP（Deficit/GDP）可能擴張的區間，並生成對長天期美債（長久期 UST）供給/利率風險的情境解讀。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-high-unemployment-high-gdp-growth-fiscal-deficit-scenarios",
+      "category": "macro-indicator",
+      "tags": [
+        "失業率",
+        "GDP",
+        "財政赤字",
+        "勞動市場",
+        "JOLTS",
+        "薩姆規則"
       ]
     },
     {
