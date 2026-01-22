@@ -221,7 +221,9 @@
 | `APPROACHING_SUPPORT` | 接近支撐位 |
 | `HIGH_RESILIENCE` | 韌性 >= 70 |
 | `LOW_RESILIENCE` | 韌性 <= 30 |
-| `HIGH_BETA_REGIME` | β_equity 高分位 |
+| `HIGH_BETA_REGIME` | β_equity >= 75 分位 |
+| `NEGATIVE_BETA_REGIME` | β_equity < 0（銅與股市呈反向關係） |
+| `LOW_BETA_ANOMALY` | β_equity <= 10 分位（歷史極端低位） |
 | `WATCH_EQUITY_RESILIENCE` | 韌性 < 50 且接近關卡 |
 
 ### watch_conditions
