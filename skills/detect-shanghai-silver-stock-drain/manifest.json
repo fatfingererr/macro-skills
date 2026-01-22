@@ -1,0 +1,118 @@
+{
+  "name": "detect-shanghai-silver-stock-drain",
+  "version": "0.1.0",
+  "displayName": "判斷上海白銀庫存消耗趨勢",
+  "description": "以公開交易所庫存資料為核心，量化上海白銀庫存耗盡的方向、速度與加速度，並將其轉成可交易的供給緊縮訊號",
+  "author": "Ricky Wang",
+  "license": "MIT",
+  "category": "commodity-sd",
+  "tags": [
+    "白銀",
+    "庫存監控",
+    "上海黃金交易所",
+    "上海期交所",
+    "供給緊縮",
+    "耗盡訊號",
+    "宏觀經濟"
+  ],
+  "dataLevel": "free-nolimit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "selenium>=4.0.0",
+      "webdriver-manager>=4.0.0",
+      "beautifulsoup4>=4.12.0",
+      "pdfplumber>=0.10.0",
+      "requests>=2.28.0"
+    ],
+    "optional": [
+      "matplotlib>=3.5.0",
+      "yfinance>=0.2.0",
+      "lxml>=4.9.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/drain_detector.py"
+  },
+  "workflows": [
+    {
+      "id": "analyze",
+      "name": "完整庫存分析",
+      "description": "執行完整的歷史庫存分析與三維度量化",
+      "file": "workflows/analyze.md"
+    },
+    {
+      "id": "fetch-data",
+      "name": "數據抓取",
+      "description": "抓取 SGE/SHFE 最新庫存數據",
+      "file": "workflows/fetch-data.md"
+    },
+    {
+      "id": "cross-validate",
+      "name": "交叉驗證",
+      "description": "使用 COMEX、ETF 等指標交叉驗證訊號",
+      "file": "workflows/cross-validate.md"
+    }
+  ],
+  "references": [
+    "references/data-sources.md",
+    "references/methodology.md",
+    "references/input-schema.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md"
+  ],
+  "examples": [],
+  "dataSources": [
+    {
+      "name": "上海黃金交易所 (SGE)",
+      "type": "primary",
+      "url": "https://www.sge.com.cn",
+      "api": "Web scraping (Selenium + PDF parsing)",
+      "data": "行情周報 - 指定倉庫庫存周報"
+    },
+    {
+      "name": "上海期貨交易所 (SHFE)",
+      "type": "primary",
+      "url": "https://www.shfe.com.cn",
+      "api": "Web scraping (Selenium)",
+      "data": "倉單日報 / Weekly Inventory"
+    },
+    {
+      "name": "Yahoo Finance",
+      "type": "secondary",
+      "url": "https://finance.yahoo.com",
+      "api": "yfinance package",
+      "tickers": [
+        "SI=F",
+        "XAGUSD=X"
+      ]
+    },
+    {
+      "name": "COMEX",
+      "type": "secondary",
+      "url": "https://www.cmegroup.com",
+      "api": "Web scraping",
+      "data": "Registered/Eligible inventory"
+    }
+  ],
+  "modelConfig": {
+    "defaultParams": {
+      "smoothing_window_weeks": 4,
+      "z_score_window_weeks": 156,
+      "drain_threshold_z": -1.5,
+      "accel_threshold_z": 1.0,
+      "level_percentile_threshold": 0.20
+    },
+    "signalLevels": {
+      "HIGH_LATE_STAGE_SUPPLY_SIGNAL": "A+B+C 同時成立",
+      "MEDIUM_SUPPLY_TIGHTENING": "(B+C) 或 (A+B) 成立",
+      "WATCH": "任一條件成立",
+      "NO_SIGNAL": "無異常"
+    }
+  }
+}
