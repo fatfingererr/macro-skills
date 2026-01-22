@@ -1,0 +1,199 @@
+{
+  "name": "detect-us-equity-valuation-percentile-extreme",
+  "version": "0.1.0",
+  "displayName": "計算美股當前估值歷史分位數",
+  "description": "把多個股票估值指標統一轉成在過去百年歷史中的分位數，再合成一個總分，判斷目前是否處於歷史極端高估區間，並用歷史類比（如 1929、1965、1999）給出風險解讀",
+  "author": "Ricky Wang",
+  "license": "MIT",
+  "category": "indicator-monitoring",
+  "tags": [
+    "估值",
+    "分位數",
+    "CAPE",
+    "本益比",
+    "巴菲特指標",
+    "GDP",
+    "風險偵測",
+    "美股",
+    "股市",
+    "美國",
+    "極端值"
+  ],
+  "dataLevel": "free-nolimit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "requests>=2.28.0",
+      "openpyxl>=3.0.0"
+    ],
+    "optional": [
+      "yfinance>=0.2.0",
+      "matplotlib>=3.5.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/valuation_percentile.py"
+  },
+  "workflows": [
+    {
+      "id": "execute-analysis",
+      "name": "完整估值分析",
+      "description": "執行完整的歷史分位數分析與風險解讀",
+      "file": "workflows/execute-analysis.md"
+    },
+    {
+      "id": "historical-episodes",
+      "name": "歷史事件分析",
+      "description": "深入分析歷史極端高估事件與事後表現",
+      "file": "workflows/historical-episodes.md"
+    }
+  ],
+  "references": [
+    "references/methodology.md",
+    "references/data-sources.md",
+    "references/valuation-metrics.md",
+    "references/input-schema.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md"
+  ],
+  "examples": [],
+  "dataSources": [
+    {
+      "name": "Shiller Online Data",
+      "type": "primary",
+      "url": "http://www.econ.yale.edu/~shiller/data.htm",
+      "api": "Excel 下載（無需 API key）",
+      "metrics": [
+        "CAPE",
+        "Long Rate",
+        "Real Price",
+        "Earnings"
+      ]
+    },
+    {
+      "name": "FRED",
+      "type": "primary",
+      "url": "https://fred.stlouisfed.org",
+      "api": "CSV endpoint（無需 API key）",
+      "series": {
+        "marketCap": [
+          "WILL5000PRFC"
+        ],
+        "gdp": [
+          "GDP"
+        ],
+        "qRatio": [
+          "NCBEILQ027S",
+          "TNWMVBSNNCB"
+        ]
+      }
+    },
+    {
+      "name": "Yahoo Finance",
+      "type": "supplementary",
+      "url": "https://finance.yahoo.com",
+      "api": "yfinance package",
+      "metrics": [
+        "trailing_pe",
+        "forward_pe",
+        "pb",
+        "ps"
+      ]
+    }
+  ],
+  "modelConfig": {
+    "defaultParams": {
+      "universe": "^GSPC",
+      "history_start": "1900-01-01",
+      "aggregation": "mean",
+      "percentile_method": "rank",
+      "extreme_threshold": 95,
+      "episode_min_gap_days": 3650,
+      "forward_windows_days": [
+        180,
+        365,
+        1095
+      ]
+    },
+    "supportedMetrics": [
+      {
+        "id": "cape",
+        "name": "CAPE / Shiller PE",
+        "description": "景氣循環調整本益比（10年平均實質盈餘）",
+        "historyStart": "1871-01-01",
+        "source": "Shiller"
+      },
+      {
+        "id": "mktcap_to_gdp",
+        "name": "市值 / GDP",
+        "description": "巴菲特指標（總市值除以GDP）",
+        "historyStart": "1950-01-01",
+        "source": "FRED"
+      },
+      {
+        "id": "trailing_pe",
+        "name": "本益比（TTM）",
+        "description": "過去12個月盈餘計算的本益比",
+        "historyStart": "1980-01-01",
+        "source": "Yahoo Finance / Multpl"
+      },
+      {
+        "id": "forward_pe",
+        "name": "預估本益比",
+        "description": "未來12個月預估盈餘計算的本益比",
+        "historyStart": "2000-01-01",
+        "source": "Yahoo Finance"
+      },
+      {
+        "id": "pb",
+        "name": "股價淨值比",
+        "description": "價格除以每股淨值",
+        "historyStart": "1985-01-01",
+        "source": "Yahoo Finance / Multpl"
+      },
+      {
+        "id": "ps",
+        "name": "股價營收比",
+        "description": "市值除以營收",
+        "historyStart": "1990-01-01",
+        "source": "Yahoo Finance"
+      },
+      {
+        "id": "q_ratio",
+        "name": "托賓 Q 比率",
+        "description": "市值除以資產重置成本",
+        "historyStart": "1950-01-01",
+        "source": "FRED"
+      }
+    ],
+    "historicalEpisodes": [
+      {
+        "date": "1929-09-01",
+        "context": "大蕭條前夕",
+        "cape": 33.0
+      },
+      {
+        "date": "1965-01-01",
+        "context": "Nifty Fifty 時期",
+        "cape": 24.0
+      },
+      {
+        "date": "1999-12-01",
+        "context": "科技泡沫頂點",
+        "cape": 44.0,
+        "mktcap_to_gdp": 150.0
+      },
+      {
+        "date": "2021-12-01",
+        "context": "疫情後牛市頂點",
+        "cape": 40.0,
+        "mktcap_to_gdp": 200.0
+      }
+    ]
+  }
+}
