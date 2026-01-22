@@ -129,6 +129,24 @@
       ]
     },
     {
+      "name": "monitor-etf-holdings-drawdown-risk",
+      "description": "偵測「商品價格上漲、但對應實物 ETF/信託持倉卻下滑」的背離現象，並用多指標交叉驗證，評估是否存在實物供給緊張/交割壓力風險",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/monitor-etf-holdings-drawdown-risk",
+      "category": "indicator-monitoring",
+      "tags": [
+        "ETF",
+        "持倉監控",
+        "背離分析",
+        "實物短缺",
+        "白銀",
+        "黃金"
+      ]
+    },
+    {
       "name": "lithium-supply-demand-gap-radar",
       "description": "將鋰產業鏈（礦端 → 精煉化學品 → 電池與終端需求），整合為一套可運算的替代指標；再把這些指標映射到鋰主題 ETF（如 LIT）的成分暴露與長期價格走勢，形成可供決策的依據。 ",
       "version": "0.1.0",
@@ -144,24 +162,6 @@
         "LIT",
         "原物料",
         "電池"
-      ]
-    },
-    {
-      "name": "google-trends-ath-detector",
-      "description": "模擬真人操作瀏覽器抓取 Google Trends 數據，自動判定搜尋趨勢是否創下歷史新高（ATH）或出現異常飆升，並提供訊號分類。",
-      "version": "0.1.1",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/google-trends-ath-detector",
-      "category": "indicator-monitoring",
-      "tags": [
-        "Google Trends",
-        "ATH",
-        "歷史新高",
-        "情緒指標",
-        "異常偵測",
-        "搜尋趨勢"
       ]
     },
     {
@@ -183,21 +183,21 @@
       ]
     },
     {
-      "name": "monitor-etf-holdings-drawdown-risk",
-      "description": "偵測「商品價格上漲、但對應實物 ETF/信託持倉卻下滑」的背離現象，並用多指標交叉驗證，評估是否存在實物供給緊張/交割壓力風險",
-      "version": "0.1.0",
+      "name": "google-trends-ath-detector",
+      "description": "模擬真人操作瀏覽器抓取 Google Trends 數據，自動判定搜尋趨勢是否創下歷史新高（ATH）或出現異常飆升，並提供訊號分類。",
+      "version": "0.1.1",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/monitor-etf-holdings-drawdown-risk",
+      "source": "./skills/google-trends-ath-detector",
       "category": "indicator-monitoring",
       "tags": [
-        "ETF",
-        "持倉監控",
-        "背離分析",
-        "實物短缺",
-        "白銀",
-        "黃金"
+        "Google Trends",
+        "ATH",
+        "歷史新高",
+        "情緒指標",
+        "異常偵測",
+        "搜尋趨勢"
       ]
     },
     {
@@ -320,24 +320,6 @@
       ]
     },
     {
-      "name": "analyze-japan-debt-service-tax-burden",
-      "description": "以日本公債殖利率變化為觸發，量化「政府利息支出 / 稅收」負擔（含情境壓力測試），並判斷是否進入債務利息螺旋風險區。",
-      "version": "0.1.1",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/analyze-japan-debt-service-tax-burden",
-      "category": "interest-rates",
-      "tags": [
-        "日本",
-        "國債",
-        "債務",
-        "利息支出",
-        "稅收",
-        "壓力測試"
-      ]
-    },
-    {
       "name": "analyze-investment-clock-rotation",
       "description": "把「獲利成長 × 財務狀況（金融環境）」映射成「投資時鐘」，判斷目前落在哪個象限、近期是順時針還是逆時針旋轉、以及相對於上一輪循環的位置差異",
       "version": "0.1.0",
@@ -356,6 +338,24 @@
       ]
     },
     {
+      "name": "analyze-japan-debt-service-tax-burden",
+      "description": "以日本公債殖利率變化為觸發，量化「政府利息支出 / 稅收」負擔（含情境壓力測試），並判斷是否進入債務利息螺旋風險區。",
+      "version": "0.1.1",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-japan-debt-service-tax-burden",
+      "category": "interest-rates",
+      "tags": [
+        "日本",
+        "國債",
+        "債務",
+        "利息支出",
+        "稅收",
+        "壓力測試"
+      ]
+    },
+    {
       "name": "analyze-high-unemployment-high-gdp-growth-fiscal-deficit-scenarios",
       "description": "在「失業率走高／勞動市場轉弱」但「名目或實質 GDP 仍維持高位（或仍在成長）」的情境下，依據歷史關聯估算美國財政赤字占 GDP（Deficit/GDP）可能擴張的區間，並生成對長天期美債（長久期 UST）供給/利率風險的情境解讀。",
       "version": "0.1.0",
@@ -371,6 +371,24 @@
         "勞動市場",
         "JOLTS",
         "薩姆規則"
+      ]
+    },
+    {
+      "name": "analyze-copper-stock-resilience-dependency",
+      "description": "用跨資產訊號（全球股市韌性 + 中國利率環境）評估銅價能否突破關卡或進入「回補/回踩」到支撐的機率與路徑",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-copper-stock-resilience-dependency",
+      "category": "indicator-monitoring",
+      "tags": [
+        "銅價",
+        "股市韌性",
+        "跨資產分析",
+        "中國利率",
+        "關卡突破",
+        "回補分析"
       ]
     }
   ]
