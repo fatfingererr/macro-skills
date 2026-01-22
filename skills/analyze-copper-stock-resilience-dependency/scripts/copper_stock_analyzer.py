@@ -389,7 +389,11 @@ def generate_diagnosis(
 
     # 依賴狀態
     beta_pct = beta_percentiles.get("beta_equity_percentile", 50)
-    if beta_pct >= 75:
+    beta_equity = latest.get("rolling_beta_equity_24m", 0) or 0
+
+    if beta_equity < 0:
+        diagnosis["dependency_status"] = f"滾動 β 為負值 ({beta_equity:.2f})，銅與股市呈反向關係，脫離傳統風險資產模式"
+    elif beta_pct >= 75:
         diagnosis["dependency_status"] = "滾動 β 位於歷史高分位，銅正被當作風險資產交易"
     elif beta_pct <= 25:
         diagnosis["dependency_status"] = "滾動 β 位於歷史低分位，銅有自身獨立邏輯"
@@ -473,7 +477,26 @@ def generate_flags(latest: Dict[str, Any], beta_percentiles: Dict[str, float]) -
         })
 
     # 依賴旗標
-    if beta_percentiles.get("beta_equity_percentile", 50) >= 75:
+    beta_pct = beta_percentiles.get("beta_equity_percentile", 50)
+    beta_equity = latest.get("rolling_beta_equity_24m", 0) or 0
+
+    if beta_equity < 0:
+        flags.append({
+            "flag": "NEGATIVE_BETA_REGIME",
+            "level": "active",
+            "condition": f"beta_equity = {beta_equity:.2f} < 0",
+            "meaning": "銅與股市呈反向關係，脫離傳統風險資產模式，可能受避險/供給因素驅動"
+        })
+
+    if beta_pct is not None and beta_pct <= 10:
+        flags.append({
+            "flag": "LOW_BETA_ANOMALY",
+            "level": "warning",
+            "condition": f"beta_equity at {beta_pct}th percentile (historical extreme)",
+            "meaning": "β 處於歷史極端低位，銅正展現獨立於股市的上漲邏輯"
+        })
+
+    if beta_pct is not None and beta_pct >= 75:
         flags.append({
             "flag": "HIGH_BETA_REGIME",
             "level": "active",
