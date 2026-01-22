@@ -52,14 +52,17 @@ description: 以公開交易所庫存資料為核心，量化上海白銀庫存�
 <principle name="data_sources">
 **資料來源與口徑**
 
-上海庫存來源（公開可回溯）：
-- **SGE（上海黃金交易所）**：「行情周報」PDF 中「指定倉庫庫存周報」
-- **SHFE（上海期交所）**：「倉單日報/Weekly Inventory」中白銀庫存
+主要數據來源：
+- **CEIC Data**：上海期貨交易所白銀倉單數據
+  - URL: `https://www.ceicdata.com/zh-hans/china/shanghai-futures-exchange-commodity-futures-stock/cn-warehouse-stock-shanghai-future-exchange-silver`
+  - 數據範圍：2012-07-02 至今（約 3,300+ 觀測值）
+  - 更新頻率：每日
+  - 歷史最高：3,091 噸 (2021-01-12)
 
 **重要提醒**：
 - 這是「交易所可交割/倉單」口徑，不等於全中國社會庫存
 - 單週跳動可能反映倉儲規則變動或搬倉，需平滑處理
-- 使用 Selenium 模擬人類瀏覽器抓取，遵循反偵測策略
+- 使用 Selenium 模擬人類瀏覽器抓取 SVG 圖表，遵循反偵測策略
 </principle>
 
 </essential_principles>
@@ -82,7 +85,14 @@ description: 以公開交易所庫存資料為核心，量化上海白銀庫存�
 
 ```bash
 cd skills/detect-shanghai-silver-stock-drain
-pip install pandas numpy selenium webdriver-manager beautifulsoup4 pdfplumber matplotlib  # 首次使用
+
+# 首次使用：安裝依賴
+pip install pandas numpy selenium webdriver-manager matplotlib
+
+# 1. 抓取最新數據（5 年歷史，約 200+ 週）
+python scripts/fetch_shfe_stock.py --force-update
+
+# 2. 執行快速檢查
 python scripts/drain_detector.py --quick
 ```
 
