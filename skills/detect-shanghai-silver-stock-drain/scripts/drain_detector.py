@@ -76,14 +76,16 @@ class DrainResult:
     caveats: List[str] = None
 
 
-def load_stock_data(sources: List[str]) -> pd.DataFrame:
+def load_stock_data(sources: List[str], auto_fetch: bool = True) -> pd.DataFrame:
     """
     載入庫存數據
 
     Parameters
     ----------
     sources : list
-        庫存來源 ["SGE", "SHFE"]
+        庫存來源 ["SGE", "SHFE"]（目前主要使用 SHFE/CEIC 數據）
+    auto_fetch : bool
+        如果數據不存在是否自動抓取
 
     Returns
     -------
@@ -92,85 +94,45 @@ def load_stock_data(sources: List[str]) -> pd.DataFrame:
     """
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    dfs = []
+    # 主要使用 SHFE 數據（來自 CEIC）
+    shfe_path = DATA_DIR / "shfe_stock.csv"
 
-    if "SGE" in sources:
-        sge_path = DATA_DIR / "sge_stock.csv"
-        if sge_path.exists():
-            df_sge = pd.read_csv(sge_path, parse_dates=["date"])
-            df_sge = df_sge.rename(columns={"stock_kg": "sge_kg"})
-            dfs.append(df_sge)
+    if not shfe_path.exists():
+        if auto_fetch:
+            print("數據檔案不存在，正在從 CEIC 抓取...")
+            try:
+                from fetch_shfe_stock import fetch_ceic_shfe_data, extract_weekly_data
+
+                df = fetch_ceic_shfe_data()
+                if df is not None:
+                    df_output = df.copy()
+                    df_output['stock_kg'] = df_output['stock_tonnes'] * 1000
+                    df_output[['date', 'stock_kg']].to_csv(shfe_path, index=False)
+                    print(f"數據已保存至: {shfe_path}")
+            except Exception as e:
+                print(f"自動抓取失敗: {e}")
+                print("請手動執行: python fetch_shfe_stock.py --force-update")
+                raise FileNotFoundError(f"數據檔案不存在: {shfe_path}")
         else:
-            print(f"警告: SGE 數據檔案不存在 ({sge_path})")
-            print("請先執行: python fetch_sge_stock.py")
+            raise FileNotFoundError(f"數據檔案不存在: {shfe_path}")
 
-    if "SHFE" in sources:
-        shfe_path = DATA_DIR / "shfe_stock.csv"
-        if shfe_path.exists():
-            df_shfe = pd.read_csv(shfe_path, parse_dates=["date"])
-            df_shfe = df_shfe.rename(columns={"stock_kg": "shfe_kg"})
-            dfs.append(df_shfe)
-        else:
-            print(f"警告: SHFE 數據檔案不存在 ({shfe_path})")
-            print("請先執行: python fetch_shfe_stock.py")
+    # 載入 SHFE 數據
+    df = pd.read_csv(shfe_path, parse_dates=["date"])
 
-    if not dfs:
-        # 如果沒有真實數據，生成模擬數據（開發/測試用）
-        print("未找到真實數據，使用模擬數據...")
-        return generate_mock_data()
+    # 重命名欄位以兼容後續處理
+    if "stock_kg" in df.columns:
+        df = df.rename(columns={"stock_kg": "shfe_kg"})
 
-    # 合併數據
-    if len(dfs) == 1:
-        df = dfs[0]
-    else:
-        df = pd.merge(dfs[0], dfs[1], on="date", how="outer")
+    # 如果有 SGE 數據也載入（可選）
+    sge_path = DATA_DIR / "sge_stock.csv"
+    if sge_path.exists() and "SGE" in sources:
+        df_sge = pd.read_csv(sge_path, parse_dates=["date"])
+        df_sge = df_sge.rename(columns={"stock_kg": "sge_kg"})
+        df = pd.merge(df, df_sge, on="date", how="outer")
 
     return df.sort_values("date").reset_index(drop=True)
 
 
-def generate_mock_data() -> pd.DataFrame:
-    """
-    生成模擬數據（開發/測試用）
-
-    Returns
-    -------
-    pd.DataFrame
-        模擬的庫存時間序列
-    """
-    # 生成 3 年週度數據
-    dates = pd.date_range(
-        start=datetime.now() - timedelta(days=3*365),
-        end=datetime.now(),
-        freq="W"
-    )
-
-    # 模擬庫存走勢：基線 + 趨勢 + 噪音
-    np.random.seed(42)
-    n = len(dates)
-
-    # 基線：2000 噸
-    baseline = 2000
-
-    # 下降趨勢：每週減少 5-15 噸
-    trend = np.linspace(0, -800, n)
-
-    # 週期性波動
-    seasonal = 100 * np.sin(np.linspace(0, 6*np.pi, n))
-
-    # 隨機噪音
-    noise = np.random.normal(0, 30, n)
-
-    # 合成庫存（kg）
-    sge_kg = (baseline + trend + seasonal + noise) * 1000
-    shfe_kg = sge_kg * 0.3 + np.random.normal(0, 10000, n)  # SHFE 約為 SGE 的 30%
-
-    df = pd.DataFrame({
-        "date": dates,
-        "sge_kg": np.maximum(sge_kg, 500000),  # 最低 500 噸
-        "shfe_kg": np.maximum(shfe_kg, 100000)  # 最低 100 噸
-    })
-
-    return df
 
 
 def build_combined_stock(df: pd.DataFrame, unit: str = "tonnes") -> pd.DataFrame:
