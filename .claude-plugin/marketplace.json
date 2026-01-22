@@ -165,24 +165,6 @@
       ]
     },
     {
-      "name": "list-china-today-macro-news",
-      "description": "彙整今日中國宏觀經濟新聞消息，從華爾街日報、36氪等來源抓取並篩選宏觀相關新聞，輸出雜誌風格的新聞摘要。適用於交易/研究開盤前快速掌握中國宏觀動態。",
-      "version": "0.3.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/list-china-today-macro-news",
-      "category": "nowcasting",
-      "tags": [
-        "中國",
-        "宏觀經濟",
-        "新聞",
-        "華爾街日報",
-        "央行",
-        "利率"
-      ]
-    },
-    {
       "name": "google-trends-ath-detector",
       "description": "模擬真人操作瀏覽器抓取 Google Trends 數據，自動判定搜尋趨勢是否創下歷史新高（ATH）或出現異常飆升，並提供訊號分類。",
       "version": "0.1.1",
@@ -216,6 +198,24 @@
         "拐點偵測",
         "領先指標",
         "跨金屬確認"
+      ]
+    },
+    {
+      "name": "detect-us-equity-valuation-percentile-extreme",
+      "description": "把多個股票估值指標統一轉成在過去百年歷史中的分位數，再合成一個總分，判斷目前是否處於歷史極端高估區間，並用歷史類比（如 1929、1965、1999）給出風險解讀",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-us-equity-valuation-percentile-extreme",
+      "category": "indicator-monitoring",
+      "tags": [
+        "估值",
+        "分位數",
+        "CAPE",
+        "本益比",
+        "巴菲特指標",
+        "GDP"
       ]
     },
     {
@@ -266,6 +266,24 @@
       ]
     },
     {
+      "name": "analyze-japan-debt-service-tax-burden",
+      "description": "以日本公債殖利率變化為觸發，量化「政府利息支出 / 稅收」負擔（含情境壓力測試），並判斷是否進入債務利息螺旋風險區。",
+      "version": "0.1.1",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-japan-debt-service-tax-burden",
+      "category": "interest-rates",
+      "tags": [
+        "日本",
+        "國債",
+        "債務",
+        "利息支出",
+        "稅收",
+        "壓力測試"
+      ]
+    },
+    {
       "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
       "description": "從網路自動抓取礦業公司財務報表與營運揭露（產量、成本、資本支出），回算「礦業股/金屬本體比率」的基本面解釋與區間門檻（如 1.2/1.7），並輸出可重現的估值拆解（成本因子 / 槓桿因子 / 倍數因子 / 稀釋因子）。",
       "version": "0.1.0",
@@ -302,24 +320,6 @@
       ]
     },
     {
-      "name": "analyze-japan-debt-service-tax-burden",
-      "description": "以日本公債殖利率變化為觸發，量化「政府利息支出 / 稅收」負擔（含情境壓力測試），並判斷是否進入債務利息螺旋風險區。",
-      "version": "0.1.1",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/analyze-japan-debt-service-tax-burden",
-      "category": "interest-rates",
-      "tags": [
-        "日本",
-        "國債",
-        "債務",
-        "利息支出",
-        "稅收",
-        "壓力測試"
-      ]
-    },
-    {
       "name": "analyze-high-unemployment-high-gdp-growth-fiscal-deficit-scenarios",
       "description": "在「失業率走高／勞動市場轉弱」但「名目或實質 GDP 仍維持高位（或仍在成長）」的情境下，依據歷史關聯估算美國財政赤字占 GDP（Deficit/GDP）可能擴張的區間，並生成對長天期美債（長久期 UST）供給/利率風險的情境解讀。",
       "version": "0.1.0",
@@ -335,6 +335,24 @@
         "勞動市場",
         "JOLTS",
         "薩姆規則"
+      ]
+    },
+    {
+      "name": "list-china-today-macro-news",
+      "description": "彙整今日中國宏觀經濟新聞消息，從華爾街日報、36氪等來源抓取並篩選宏觀相關新聞，輸出雜誌風格的新聞摘要。適用於交易/研究開盤前快速掌握中國宏觀動態。",
+      "version": "0.3.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/list-china-today-macro-news",
+      "category": "nowcasting",
+      "tags": [
+        "中國",
+        "宏觀經濟",
+        "新聞",
+        "華爾街日報",
+        "央行",
+        "利率"
       ]
     }
   ]
