@@ -64,17 +64,6 @@
       ]
     },
     {
-      "name": "wasde-ingestor",
-      "description": "抓取並解析 USDA（美國農業部）每月發布的 WASDE（世界農產品供需估計）報告，擷取所有主要商品（穀物、油籽、棉花、畜產品、糖）的供需平衡表。產出經標準化、具版本控管的資料集，作為即時預測的基準錨點。",
-      "version": "0.2.0",
-      "author": {
-        "name": "macro-skills"
-      },
-      "source": "./skills/wasde-ingestor",
-      "category": "nowcasting",
-      "tags": []
-    },
-    {
       "name": "usd-reserve-loss-gold-revaluation",
       "description": "在「美元／某貨幣失去儲備地位、黃金成為唯一錨」的假設下，用央行貨幣負債 ÷ 黃金儲備，推演「資產負債表可承受的隱含金價」，並輸出各國/各貨幣的槓桿程度、缺口與排名",
       "version": "0.1.0",
@@ -127,6 +116,17 @@
         "地緣政治",
         "情境分析"
       ]
+    },
+    {
+      "name": "wasde-ingestor",
+      "description": "抓取並解析 USDA（美國農業部）每月發布的 WASDE（世界農產品供需估計）報告，擷取所有主要商品（穀物、油籽、棉花、畜產品、糖）的供需平衡表。產出經標準化、具版本控管的資料集，作為即時預測的基準錨點。",
+      "version": "0.2.0",
+      "author": {
+        "name": "macro-skills"
+      },
+      "source": "./skills/wasde-ingestor",
+      "category": "nowcasting",
+      "tags": []
     },
     {
       "name": "monitor-etf-holdings-drawdown-risk",
@@ -201,24 +201,6 @@
       ]
     },
     {
-      "name": "detect-us-equity-valuation-percentile-extreme",
-      "description": "把多個股票估值指標統一轉成在過去百年歷史中的分位數，再合成一個總分，判斷目前是否處於歷史極端高估區間，並用歷史類比（如 1929、1965、1999）給出風險解讀",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/detect-us-equity-valuation-percentile-extreme",
-      "category": "indicator-monitoring",
-      "tags": [
-        "估值",
-        "分位數",
-        "CAPE",
-        "本益比",
-        "巴菲特指標",
-        "GDP"
-      ]
-    },
-    {
       "name": "detect-palladium-lead-silver-turns",
       "description": "以鈀金的先行轉向作為確認條件，檢驗白銀短期漲跌是否獲得工業景氣與風險情緒的同步支持，並標記缺乏鈀金參與度的失敗走勢。",
       "version": "0.1.0",
@@ -234,6 +216,24 @@
         "拐點偵測",
         "領先指標",
         "跨金屬確認"
+      ]
+    },
+    {
+      "name": "detect-us-equity-valuation-percentile-extreme",
+      "description": "把多個股票估值指標統一轉成在過去百年歷史中的分位數，再合成一個總分，判斷目前是否處於歷史極端高估區間，並用歷史類比（如 1929、1965、1999）給出風險解讀",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-us-equity-valuation-percentile-extreme",
+      "category": "indicator-monitoring",
+      "tags": [
+        "估值",
+        "分位數",
+        "CAPE",
+        "本益比",
+        "巴菲特指標",
+        "GDP"
       ]
     },
     {
@@ -266,24 +266,6 @@
       "tags": []
     },
     {
-      "name": "compute-precious-miner-gross-margin",
-      "description": "以公開金屬價格 + 礦業成本指標（AISC/All-in cost/現金成本）計算「黃金/白銀礦業毛利率代理值」，並判斷當前是否處於歷史高/低檔區間。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/compute-precious-miner-gross-margin",
-      "category": "commodity-sd",
-      "tags": [
-        "貴金屬",
-        "黃金",
-        "白銀",
-        "礦業",
-        "AISC",
-        "毛利率"
-      ]
-    },
-    {
       "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
       "description": "從網路自動抓取礦業公司財務報表與營運揭露（產量、成本、資本支出），回算「礦業股/金屬本體比率」的基本面解釋與區間門檻（如 1.2/1.7），並輸出可重現的估值拆解（成本因子 / 槓桿因子 / 倍數因子 / 稀釋因子）。",
       "version": "0.1.0",
@@ -302,21 +284,39 @@
       ]
     },
     {
-      "name": "analyze-silver-miner-metal-ratio",
-      "description": "以「銀礦股價格 / 白銀價格」的相對比率衡量礦業股板塊相對於金屬本體的估值區間（偏貴/偏便宜），並用歷史分位數與類比區間推導「底部/頂部」訊號與情境推演。",
+      "name": "analyze-japan-debt-service-tax-burden",
+      "description": "以日本公債殖利率變化為觸發，量化「政府利息支出 / 稅收」負擔（含情境壓力測試），並判斷是否進入債務利息螺旋風險區。",
+      "version": "0.1.1",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-japan-debt-service-tax-burden",
+      "category": "interest-rates",
+      "tags": [
+        "日本",
+        "國債",
+        "債務",
+        "利息支出",
+        "稅收",
+        "壓力測試"
+      ]
+    },
+    {
+      "name": "compute-precious-miner-gross-margin",
+      "description": "以公開金屬價格 + 礦業成本指標（AISC/All-in cost/現金成本）計算「黃金/白銀礦業毛利率代理值」，並判斷當前是否處於歷史高/低檔區間。",
       "version": "0.1.0",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/analyze-silver-miner-metal-ratio",
+      "source": "./skills/compute-precious-miner-gross-margin",
       "category": "commodity-sd",
       "tags": [
+        "貴金屬",
+        "黃金",
         "白銀",
-        "礦業股",
-        "SIL",
-        "SILJ",
-        "相對估值",
-        "分位數"
+        "礦業",
+        "AISC",
+        "毛利率"
       ]
     },
     {
@@ -338,21 +338,21 @@
       ]
     },
     {
-      "name": "analyze-japan-debt-service-tax-burden",
-      "description": "以日本公債殖利率變化為觸發，量化「政府利息支出 / 稅收」負擔（含情境壓力測試），並判斷是否進入債務利息螺旋風險區。",
-      "version": "0.1.1",
+      "name": "analyze-silver-miner-metal-ratio",
+      "description": "以「銀礦股價格 / 白銀價格」的相對比率衡量礦業股板塊相對於金屬本體的估值區間（偏貴/偏便宜），並用歷史分位數與類比區間推導「底部/頂部」訊號與情境推演。",
+      "version": "0.1.0",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/analyze-japan-debt-service-tax-burden",
-      "category": "interest-rates",
+      "source": "./skills/analyze-silver-miner-metal-ratio",
+      "category": "commodity-sd",
       "tags": [
-        "日本",
-        "國債",
-        "債務",
-        "利息支出",
-        "稅收",
-        "壓力測試"
+        "白銀",
+        "礦業股",
+        "SIL",
+        "SILJ",
+        "相對估值",
+        "分位數"
       ]
     },
     {
