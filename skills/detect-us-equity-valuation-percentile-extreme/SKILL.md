@@ -88,31 +88,28 @@ if composite_percentile >= extreme_threshold (預設 95):
 
 <quick_start>
 
-**最快的方式：執行預設分析**
+**最快的方式：執行視覺化分析**
 
 ```bash
 cd skills/detect-us-equity-valuation-percentile-extreme
-pip install pandas numpy yfinance requests  # 首次使用
-python scripts/valuation_percentile.py --quick
+pip install pandas numpy yfinance requests matplotlib openpyxl xlrd  # 首次使用
+python scripts/visualize_valuation.py -o output
 ```
 
-輸出範例：
-```json
-{
-  "as_of_date": "2026-01-21",
-  "composite_percentile": 97.3,
-  "is_extreme": true,
-  "metric_percentiles": {
-    "cape": 98.2,
-    "mktcap_to_gdp": 96.5,
-    "trailing_pe": 94.1
-  },
-  "historical_episodes": [
-    {"date": "1929-09-01", "composite_percentile": 97.8},
-    {"date": "1999-12-01", "composite_percentile": 98.5},
-    {"date": "2021-12-01", "composite_percentile": 97.1}
-  ]
-}
+輸出：
+- `output/us_valuation_percentile_YYYY-MM-DD.png` - 歷史走勢圖（類似 @ekwufinance 風格）
+- `output/us_valuation_breakdown_YYYY-MM-DD.png` - 各指標分位數分解圖
+- `output/us_valuation_analysis_YYYY-MM-DD.json` - JSON 結果
+
+**圖表特色**：
+- 多指標合成分位數的**歷史走勢**（非單一時間點）
+- **歷史峰值標記**：1929、1965、1999、2021
+- S&P 500 指數疊加（對數刻度）
+- 當前「新高」標註
+
+**快速檢查（純 JSON）**：
+```bash
+python scripts/valuation_percentile.py --quick
 ```
 
 **完整分析**：
@@ -129,11 +126,12 @@ python scripts/valuation_percentile.py \
 <intake>
 需要進行什麼操作？
 
-1. **快速檢查** - 查看目前的估值分位數與極端狀態
-2. **完整分析** - 執行完整的歷史分位數分析與風險解讀
-3. **歷史類比** - 深入分析歷史極端高估事件與事後表現
-4. **方法論學習** - 了解估值分位數模型的邏輯
-5. **自訂參數** - 指定估值指標、門檻、合成方式等
+1. **視覺化分析（推薦）** - 生成歷史走勢圖表，標記歷史峰值
+2. **快速檢查** - 查看目前的估值分位數與極端狀態
+3. **完整分析** - 執行完整的歷史分位數分析與風險解讀
+4. **歷史類比** - 深入分析歷史極端高估事件與事後表現
+5. **方法論學習** - 了解估值分位數模型的邏輯
+6. **自訂參數** - 指定估值指標、門檻、合成方式等
 
 **請選擇或直接提供分析參數。**
 </intake>
@@ -141,11 +139,12 @@ python scripts/valuation_percentile.py \
 <routing>
 | Response                         | Action                                       |
 |----------------------------------|----------------------------------------------|
-| 1, "快速", "quick", "check"      | 執行 `python scripts/valuation_percentile.py --quick` |
-| 2, "完整", "full", "analysis"    | 閱讀 `workflows/execute-analysis.md` 並執行 |
-| 3, "歷史", "類比", "episodes"    | 閱讀 `workflows/historical-episodes.md` 並執行 |
-| 4, "學習", "方法論", "why"       | 閱讀 `references/methodology.md`             |
-| 5, "自訂", "custom", 提供參數    | 閱讀 `workflows/execute-analysis.md` 並使用參數執行 |
+| 1, "視覺化", "圖表", "chart"     | 執行 `python scripts/visualize_valuation.py -o output` |
+| 2, "快速", "quick", "check"      | 執行 `python scripts/valuation_percentile.py --quick` |
+| 3, "完整", "full", "analysis"    | 閱讀 `workflows/execute-analysis.md` 並執行 |
+| 4, "歷史", "類比", "episodes"    | 閱讀 `workflows/historical-episodes.md` 並執行 |
+| 5, "學習", "方法論", "why"       | 閱讀 `references/methodology.md`             |
+| 6, "自訂", "custom", 提供參數    | 閱讀 `workflows/execute-analysis.md` 並使用參數執行 |
 
 **路由後，閱讀對應文件並執行。**
 </routing>
@@ -158,6 +157,7 @@ detect-us-equity-valuation-percentile-extreme/
 ├── manifest.json                      # 技能元數據
 ├── workflows/
 │   ├── execute-analysis.md            # 完整分析工作流
+│   ├── visualize-analysis.md          # 視覺化分析工作流
 │   └── historical-episodes.md         # 歷史類比分析工作流
 ├── references/
 │   ├── methodology.md                 # 估值分位數方法論
@@ -169,6 +169,7 @@ detect-us-equity-valuation-percentile-extreme/
 │   └── output-markdown.md             # Markdown 報告模板
 ├── scripts/
 │   ├── valuation_percentile.py        # 主分析腳本
+│   ├── visualize_valuation.py         # 視覺化腳本（歷史走勢圖）
 │   └── fetch_valuation_data.py        # 資料抓取工具
 └── examples/
     └── sample_output.json             # 範例輸出
@@ -215,6 +216,7 @@ detect-us-equity-valuation-percentile-extreme/
 <scripts_index>
 | Script                    | Command                           | Purpose              |
 |---------------------------|-----------------------------------|----------------------|
+| visualize_valuation.py    | `-o output`                       | **視覺化分析（推薦）** |
 | valuation_percentile.py   | `--quick`                         | 快速檢查當前狀態     |
 | valuation_percentile.py   | `--as_of_date DATE --output FILE` | 完整分析             |
 | fetch_valuation_data.py   | `--metrics cape,pe`               | 抓取估值資料         |
@@ -287,4 +289,16 @@ detect-us-equity-valuation-percentile-extreme/
 - [ ] 事後統計（報酬、回撤、波動）
 - [ ] 資料品質說明（各指標可得期間）
 - [ ] 風險解讀框架（可選，輸出至 Markdown）
+
+**視覺化輸出**（使用 visualize_valuation.py）：
+
+- [ ] 歷史走勢圖（`us_valuation_percentile_YYYY-MM-DD.png`）
+  - 多指標合成分位數時間序列
+  - 歷史峰值標記（1929、1965、1999、2021）
+  - S&P 500 指數疊加（對數刻度）
+  - 當前位置標註
+- [ ] 指標分解圖（`us_valuation_breakdown_YYYY-MM-DD.png`）
+  - 各指標分位數橫向條形圖
+  - 極端門檻參考線
+- [ ] JSON 結果檔（`us_valuation_analysis_YYYY-MM-DD.json`）
 </success_criteria>
