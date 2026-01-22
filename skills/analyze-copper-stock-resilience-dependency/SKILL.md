@@ -64,6 +64,7 @@ description: 用跨資產訊號（全球股市韌性 + 中國利率環境）評�
 
 - **β1（股市貝塔）越大越正**：銅越像風險資產，越依賴股市
 - **β1 高分位**：市場正在把銅當風險資產一起交易
+- **β1 < 0（負相關）**：銅與股市脫鉤，展現獨立邏輯（避險/供給/能源轉型敘事）
 - **β2（殖利率貝塔）**：正 = 殖利率上升利好銅（通膨敘事），負 = 反之
 </principle>
 
@@ -72,13 +73,16 @@ description: 用跨資產訊號（全球股市韌性 + 中國利率環境）評�
 
 本 skill 使用以下公開數據來源：
 
-| 數據          | 公開替代              | 來源                     |
-|---------------|-----------------------|--------------------------|
-| 銅期貨價格    | COMEX Copper (HG=F)   | Yahoo Finance (yfinance) |
-| 全球股市韌性  | ACWI / VT             | Yahoo Finance (yfinance) |
-| 中國10Y殖利率 | 爬取 TradingEconomics | Selenium + BeautifulSoup |
+| 數據          | 代碼/來源                                                                         | 取得方式              |
+|---------------|-----------------------------------------------------------------------------------|----------------------|
+| 銅期貨價格    | COMEX Copper (HG=F)                                                               | Yahoo Finance        |
+| 全球股市市值  | VT (Vanguard Total World Stock ETF)                                               | Yahoo Finance        |
+| 中國10Y殖利率 | [MacroMicro](https://en.macromicro.me/charts/133362/China-10Year-Government-Bond-Yield) | Selenium + Highcharts |
 
-**單位換算**：HG=F 為 $/lb，需乘以 2204.62262 轉換為 $/ton。
+**單位換算**：
+- HG=F 為 $/lb，自動乘以 2204.62262 轉換為 $/ton
+- VT ETF 價格乘以係數轉換為全球市值估計（兆美元）
+- 中國10Y 為百分比（%）
 </principle>
 
 </essential_principles>
@@ -102,31 +106,56 @@ description: 用跨資產訊號（全球股市韌性 + 中國利率環境）評�
 
 ```bash
 cd skills/analyze-copper-stock-resilience-dependency
-pip install pandas numpy yfinance scipy statsmodels  # 首次使用
+pip install pandas numpy yfinance scipy statsmodels matplotlib  # 首次使用
 python scripts/copper_stock_analyzer.py --quick
 ```
 
 輸出範例：
 ```json
 {
-  "as_of": "2026-01-20",
+  "as_of": "2026-01-22",
   "latest_state": {
-    "copper_price_usd_per_ton": 12700,
+    "copper_price_usd_per_ton": 12727,
     "copper_trend": "up",
-    "equity_resilience_score": 78,
-    "rolling_beta_equity_24m": 0.62
+    "equity_resilience_score": 83,
+    "rolling_beta_equity_24m": -0.80
   },
   "diagnosis": {
-    "narrative": "銅價接近 13,000 關卡，趨勢偏上行，股市韌性高檔支持續航"
+    "narrative": "銅價上升趨勢中，接近 13,000 關卡，股市韌性高檔。"
   }
 }
 ```
 
+**生成 Bloomberg 風格圖表**：
+```bash
+python scripts/visualize.py \
+  --start 2015-01-01 \
+  -o output/copper_resilience_2026-01-22.png
+```
+
+圖表包含：
+- 銅價月線 + SMA60（右軸，橙紅/黃色）
+- 全球股市市值（左軸，橙色面積圖）
+- 中國 10Y 殖利率（左軸，黃線）
+- 關卡線（10,000 / 13,000）
+
+**生成依賴度分析圖表**（三面板綜合圖）：
+```bash
+python scripts/plot_dependency_analysis.py \
+  --start 2015-01-01 \
+  -o ../../output/copper-dependency-analysis-2026-01-22.png
+```
+
+圖表包含三個面板：
+1. **銅價面板**：銅價 + SMA60 + 趨勢背景色（綠=上升，紅=下降）+ 關卡線
+2. **β係數面板**：滾動 β 時間序列 + ±1σ 區間 + 當前分位數 + 負值警示
+3. **韌性面板**：股市韌性評分 + 高/低閾值線
+
 **完整分析**：
 ```bash
 python scripts/copper_stock_analyzer.py \
-  --start 2020-01-01 \
-  --end 2026-01-20 \
+  --start 2015-01-01 \
+  --end 2026-01-22 \
   --copper HG=F \
   --equity ACWI \
   --output result.json
@@ -140,7 +169,8 @@ python scripts/copper_stock_analyzer.py \
 1. **快速檢查** - 查看目前銅價、股市韌性、關卡狀態
 2. **完整分析** - 分析時間區間內的依賴關係與回補機率
 3. **視覺化圖表** - 生成銅價與依賴因子的視覺化圖表
-4. **方法論學習** - 了解跨資產依賴模型的邏輯
+4. **依賴度分析圖** - 生成三面板依賴度分析圖表（銅價+β係數+韌性）
+5. **方法論學習** - 了解跨資產依賴模型的邏輯
 
 **請選擇或直接提供分析參數。**
 </intake>
@@ -151,7 +181,8 @@ python scripts/copper_stock_analyzer.py \
 | 1, "快速", "quick", "check"  | 執行 `python scripts/copper_stock_analyzer.py --quick` |
 | 2, "完整", "分析", "full"    | 閱讀 `workflows/analyze.md` 並執行                     |
 | 3, "視覺化", "chart", "plot" | 閱讀 `workflows/visualize.md` 並執行                   |
-| 4, "學習", "方法論", "why"   | 閱讀 `references/methodology.md`                       |
+| 4, "依賴度", "dependency"    | 執行 `python scripts/plot_dependency_analysis.py`      |
+| 5, "學習", "方法論", "why"   | 閱讀 `references/methodology.md`                       |
 | 提供參數 (如日期範圍)        | 閱讀 `workflows/analyze.md` 並使用參數執行             |
 
 **路由後，閱讀對應文件並執行。**
@@ -177,7 +208,8 @@ analyze-copper-stock-resilience-dependency/
 ├── scripts/
 │   ├── copper_stock_analyzer.py       # 主分析腳本
 │   ├── fetch_data.py                  # 數據抓取工具
-│   └── visualize.py                   # 視覺化繪圖工具
+│   ├── visualize.py                   # Bloomberg 風格圖表
+│   └── plot_dependency_analysis.py    # 三面板依賴度分析圖表
 ├── data/
 │   └── cache/                         # 數據快取目錄
 └── examples/
@@ -220,12 +252,13 @@ analyze-copper-stock-resilience-dependency/
 </templates_index>
 
 <scripts_index>
-| Script                   | Command                       | Purpose          |
-|--------------------------|-------------------------------|------------------|
-| copper_stock_analyzer.py | `--quick`                     | 快速檢查當前狀態 |
-| copper_stock_analyzer.py | `--start DATE --end DATE`     | 完整分析         |
-| fetch_data.py            | `--series HG=F,ACWI`          | 抓取市場數據     |
-| visualize.py             | `-i result.json -o chart.png` | 生成視覺化圖表   |
+| Script                      | Command                                    | Purpose                      |
+|-----------------------------|--------------------------------------------|------------------------------|
+| copper_stock_analyzer.py    | `--quick`                                  | 快速檢查當前狀態             |
+| copper_stock_analyzer.py    | `--start DATE --end DATE`                  | 完整分析                     |
+| fetch_data.py               | `--series HG=F,ACWI`                       | 抓取市場數據                 |
+| visualize.py                | `--start 2015-01-01 -o output/chart.png`   | 生成 Bloomberg 風格圖表      |
+| plot_dependency_analysis.py | `--start 2015-01-01 -o output/chart.png`   | 生成三面板依賴度分析圖表     |
 </scripts_index>
 
 <input_schema_summary>
@@ -258,35 +291,40 @@ analyze-copper-stock-resilience-dependency/
 ```json
 {
   "skill": "analyze-copper-stock-resilience-dependency",
-  "as_of": "2026-01-20",
+  "as_of": "2026-01-22",
   "inputs": {
     "copper_series": "HG=F (converted to USD/ton)",
     "equity_proxy_series": "ACWI",
-    "china_10y_yield_series": "TradingEconomics: China 10Y"
+    "ma_window": 60,
+    "rolling_window": 24
   },
   "latest_state": {
-    "copper_price_usd_per_ton": 12700,
-    "copper_sma_60": 9261,
+    "copper_price_usd_per_ton": 12727,
+    "copper_sma_60": 9355,
     "copper_trend": "up",
     "near_resistance_levels": [13000],
-    "near_support_levels": [10000],
-    "equity_resilience_score": 78,
-    "rolling_beta_equity_24m": 0.62,
-    "rolling_beta_yield_24m": -0.18
+    "near_support_levels": [],
+    "equity_resilience_score": 91,
+    "rolling_beta_equity_24m": -0.80,
+    "rolling_beta_yield_24m": -0.05
   },
   "diagnosis": {
-    "narrative": "銅價接近 13,000 關卡，趨勢仍偏上行，但是否能續航高度依賴股市韌性。若股市韌性轉弱，歷史上更容易出現見頂後回補（back-and-fill）至 10,000 附近。",
-    "backfill_probability_12m": {
-      "overall": 0.32,
-      "equity_resilience_high": 0.18,
-      "equity_resilience_low": 0.47
-    }
+    "narrative": "銅價上升趨勢中，接近 13,000 關卡，股市韌性高檔。",
+    "scenario": "續航機率較高",
+    "dependency_status": "滾動 β 為負值 (-0.80)，銅與股市呈反向關係，脫離傳統風險資產模式"
   },
   "actionable_flags": [
     {
-      "flag": "WATCH_EQUITY_RESILIENCE",
-      "condition": "equity_resilience_score drops below 50 while copper near 13000",
-      "meaning": "回補風險顯著上升，需警惕向 10,000 支撐回踩"
+      "flag": "APPROACHING_RESISTANCE",
+      "meaning": "接近重要阻力位，關注能否突破"
+    },
+    {
+      "flag": "NEGATIVE_BETA_REGIME",
+      "meaning": "銅與股市呈反向關係，脫離傳統風險資產模式"
+    },
+    {
+      "flag": "LOW_BETA_ANOMALY",
+      "meaning": "β 處於歷史極端低位，銅正展現獨立於股市的上漲邏輯"
     }
   ]
 }
