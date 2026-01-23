@@ -96,6 +96,79 @@ export default function DocsPage() {
           </div>
         </section>
 
+        {/* Quality Badge */}
+        <section className="bg-white border border-gray-200 rounded-xl p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="text-2xl">✨</span>
+            技能品質等級 (Quality Badge)
+          </h2>
+          <p className="text-gray-600 mb-4">每個技能根據六項維度評分（任務適配度、正確性、資料治理、穩健性、可維護性、輸出可用性）的平均分數，分為五個品質等級：</p>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50 border-b-2 border-gray-200">
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700">等級</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700">分數範圍</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700">說明</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                <tr className="hover:bg-gray-50">
+                  <td className="px-4 py-3">
+                    <span className="px-2.5 py-1 bg-purple-100 text-purple-800 border border-purple-300 rounded-full text-sm font-medium">
+                      💎 頂級
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-gray-700 font-mono text-sm">90-100</td>
+                  <td className="px-4 py-3 text-gray-600">最高品質，完整文檔與測試，可直接用於生產環境</td>
+                </tr>
+                <tr className="hover:bg-gray-50">
+                  <td className="px-4 py-3">
+                    <span className="px-2.5 py-1 bg-amber-100 text-amber-800 border border-amber-300 rounded-full text-sm font-medium">
+                      🏆 高級
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-gray-700 font-mono text-sm">80-89</td>
+                  <td className="px-4 py-3 text-gray-600">高品質，具備完整工作流程與參考文檔</td>
+                </tr>
+                <tr className="hover:bg-gray-50">
+                  <td className="px-4 py-3">
+                    <span className="px-2.5 py-1 bg-blue-100 text-blue-700 border border-blue-300 rounded-full text-sm font-medium">
+                      🥈 中高級
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-gray-700 font-mono text-sm">60-79</td>
+                  <td className="px-4 py-3 text-gray-600">標準品質，功能完整但可能缺少部分文檔</td>
+                </tr>
+                <tr className="hover:bg-gray-50">
+                  <td className="px-4 py-3">
+                    <span className="px-2.5 py-1 bg-orange-100 text-orange-800 border border-orange-300 rounded-full text-sm font-medium">
+                      🥉 中級
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-gray-700 font-mono text-sm">40-59</td>
+                  <td className="px-4 py-3 text-gray-600">基本可用，但穩定性或文檔有待加強</td>
+                </tr>
+                <tr className="hover:bg-gray-50">
+                  <td className="px-4 py-3">
+                    <span className="px-2.5 py-1 bg-gray-50 text-gray-600 border border-gray-200 rounded-full text-sm font-medium">
+                      🌱 初級
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-gray-700 font-mono text-sm">0-39</td>
+                  <td className="px-4 py-3 text-gray-600">早期開發階段，功能可能不完整</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <span className="font-semibold">💡 提示：</span>
+              技能詳情頁面可查看各維度的詳細評分與改進建議。
+            </p>
+          </div>
+        </section>
+
         {/* Categories */}
         <section className="bg-white border border-gray-200 rounded-xl p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
