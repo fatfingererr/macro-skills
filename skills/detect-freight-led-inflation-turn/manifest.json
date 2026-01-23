@@ -1,0 +1,87 @@
+{
+  "name": "detect-freight-led-inflation-turn",
+  "version": "0.1.0",
+  "displayName": "美國貨運概況判斷通膨趨勢",
+  "description": "透過美國卡斯貨運指數 (CASS Freight Index) 的週期轉折，偵測美國通膨壓力是否進入放緩或反轉階段。用於判斷「通膨是否正在降溫」，並驗證市場對降息、通膨回落的宏觀敘事是否有實體經濟數據支撐。",
+  "author": "Ricky Wang",
+  "license": "MIT",
+  "category": "inflation-analytics",
+  "tags": [
+    "卡斯貨運指數",
+    "貨運",
+    "企業運費",
+    "通貨膨脹",
+    "領先指標",
+    "CPI",
+    "週期轉折",
+    "滯脹"
+  ],
+  "dataLevel": "free-nolimit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "requests>=2.28.0",
+      "selenium>=4.0.0",
+      "webdriver-manager>=4.0.0"
+    ],
+    "optional": [
+      "matplotlib>=3.5.0",
+      "plotly>=5.0.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/freight_inflation_detector.py"
+  },
+  "workflows": [
+    {
+      "id": "analyze",
+      "name": "完整分析",
+      "description": "完整週期轉折分析：CASS Status → Lead Alignment → Signal Assessment",
+      "file": "workflows/analyze.md"
+    },
+    {
+      "id": "quick-check",
+      "name": "快速檢查",
+      "description": "快速查看最新的 CASS Freight Index 與通膨先行訊號",
+      "file": "workflows/quick-check.md"
+    }
+  ],
+  "references": [
+    "references/data-sources.md",
+    "references/methodology.md",
+    "references/historical-episodes.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md"
+  ],
+  "examples": [
+    "examples/sample_output.json"
+  ],
+  "dataSources": [
+    {
+      "name": "MacroMicro",
+      "type": "primary",
+      "url": "https://en.macromicro.me/charts/46877/cass-freight-index",
+      "api": "Highcharts scraping (Selenium)",
+      "series": [
+        "shipments_index",
+        "expenditures_index",
+        "shipments_yoy",
+        "expenditures_yoy"
+      ]
+    },
+    {
+      "name": "FRED",
+      "type": "secondary",
+      "url": "https://fred.stlouisfed.org",
+      "api": "CSV endpoint (no API key required)",
+      "series": [
+        "CPIAUCSL"
+      ]
+    }
+  ]
+}

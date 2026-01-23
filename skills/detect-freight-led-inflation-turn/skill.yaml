@@ -1,0 +1,231 @@
+displayName: 美國貨運概況判斷通膨趨勢
+emoji: "\U0001F69A"
+authorUrl: https://github.com/fatfingererr/macro-skills
+
+tools:
+  - claude-code
+
+featured: false
+installCount: 0
+
+testQuestions:
+  - question: '目前貨運量是否顯示通膨放緩訊號？'
+    expectedResult: |
+      此分析器會：
+      1. 從 MacroMicro 抓取 CASS Freight Index 四個指標
+      2. 分析 Shipments YoY（主要指標）的週期狀態
+      3. 偵測是否為週期新低或年增率轉負
+      4. 與 CPI YoY 進行領先對齊分析
+      5. 輸出通膨緩解訊號與信心水準
+
+      輸出範例：
+      - signal: inflation_easing
+      - confidence: high
+      - freight_yoy: -2.9%
+      - cycle_status: new_cycle_low
+      - macro_implication: 通膨壓力正在放緩
+      - all_indicators: 四個 CASS 指標概覽
+
+  - question: '貨運量為什麼能預測通膨走勢？'
+    expectedResult: |
+      解釋 CASS Freight Index 與通膨的領先關係：
+
+      1. **需求傳導鏈**：
+         - CASS 追蹤北美地區的卡車和鐵路貨運
+         - 出貨量下降 → 終端需求減弱 → 定價能力下降
+
+      2. **領先性來源**：
+         - 貨運是經濟活動的「先行者」
+         - 通常領先 CPI 約 4-6 個月
+
+      3. **訊號判讀**：
+         - Shipments YoY 轉負 + 創週期新低 = 通膨緩解訊號
+         - Expenditures YoY 可交叉驗證
+         - 這是 disinflation 而非 deflation
+
+qualityScore:
+  overall: 60
+  badge: 白銀
+  evaluatedAt: "2026-01-23"
+
+  metrics:
+    problemFit: 70
+    correctness: 65
+    dataGovernance: 60
+    robustness: 55
+    maintainability: 55
+    usability: 60
+
+  metricDetails:
+    problemFit:
+      score: 70
+      strengths:
+        - 清晰的問題定義：貨運量領先通膨
+        - 三層訊號架構設計完整
+        - 輸入參數定義明確
+      improvements:
+        - 可增加更多替代數據源
+        - 可增加不同地區的適用說明
+
+    correctness:
+      score: 65
+      strengths:
+        - 方法論有學術依據
+        - 週期偵測邏輯清晰
+        - 有 YoY 計算公式
+      improvements:
+        - 缺少回測驗證結果
+        - 可增加更多 golden case
+
+    dataGovernance:
+      score: 60
+      strengths:
+        - 使用 FRED 免費數據
+        - 有完整的 Series ID 對照表
+        - 無需 API key
+      improvements:
+        - 需增加 fallback 來源
+        - 數據更新延遲需說明
+
+    robustness:
+      score: 55
+      strengths:
+        - 有多個貨運指標可選
+        - 參數可配置
+      improvements:
+        - 需增加錯誤處理機制
+        - 缺少 failure-modes.md
+
+    maintainability:
+      score: 55
+      strengths:
+        - 參數定義完整
+        - 模組化腳本設計
+      improvements:
+        - 可增加版本控制說明
+        - 需實作完整腳本
+
+    usability:
+      score: 60
+      strengths:
+        - FAQ 解答核心問題
+        - 有歷史案例對照
+        - 輸出格式清晰
+      improvements:
+        - 可增加視覺化輸出
+        - testQuestions 可更豐富
+
+  details: |
+    **任務適配度（70/100）**
+    - 問題定義清晰：貨運量領先通膨
+    - 待改進：增加更多數據源選項
+
+    **正確性（65/100）**
+    - 方法論有依據
+    - 待改進：增加回測驗證
+
+    **資料治理（60/100）**
+    - 使用 FRED 免費數據
+    - 待改進：增加 fallback 來源
+
+    **穩健性（55/100）**
+    - 參數可配置
+    - 待改進：增加錯誤處理
+
+    **可維護性（55/100）**
+    - 參數定義完整
+    - 待改進：完善腳本實作
+
+    **輸出可用性（60/100）**
+    - 輸出格式清晰
+    - 待改進：增加視覺化
+
+  upgradeNotes:
+    targetBadge: 黃金
+    requirements:
+      - metric: correctness
+        currentScore: 65
+        targetScore: 75
+        suggestion: 增加回測驗證與更多 golden case
+      - metric: robustness
+        currentScore: 55
+        targetScore: 70
+        suggestion: 增加 failure-modes.md 與錯誤處理
+      - metric: dataGovernance
+        currentScore: 60
+        targetScore: 70
+        suggestion: 增加 fallback 數據源
+
+bestPractices:
+  - title: 使用多個貨運指標交叉驗證
+    description: TSI、卡車運量、鐵路貨運可能有不同走勢，多指標一致性更可靠
+  - title: 關注週期轉折而非單月波動
+    description: 單月數據可能受季節或短期因素干擾，應關注 12-18 個月的週期低點
+  - title: 結合 CPI 數據驗證領先性
+    description: 確認貨運量的轉折確實領先 CPI 轉折，歷史上約 4-6 個月
+  - title: 區分 disinflation 與 deflation
+    description: 貨運量下降預示通膨「放緩」，不等於進入通縮
+
+pitfalls:
+  - title: 過度依賴單一指標
+    description: 僅看 TSI 可能錯過卡車或鐵路的差異訊號
+    consequence: 錯誤判斷整體貨運趨勢
+  - title: 忽略結構性變化
+    description: 電商興起改變貨運結構，疫情後供應鏈重組
+    consequence: 歷史領先性可能失真
+  - title: 將週期訊號當作趨勢
+    description: 短期波動不代表通膨趨勢反轉
+    consequence: 過早判斷通膨見頂或見底
+  - title: 忽略供給側因素
+    description: 貨運量下降可能是供給受限而非需求減弱
+    consequence: 錯誤解讀為需求降溫
+
+faq:
+  - question: 貨運量真的能預測通膨嗎？
+    answer: |
+      是的，CASS Freight Index 是經濟活動的「先行者」。學術研究和實證顯示：
+
+      1. **傳導機制**：貨運量下降 → 終端需求減弱 → 企業定價能力下降 → CPI 放緩
+      2. **歷史驗證**：2008 金融危機、2015 製造業衰退、2020 疫情初期，CASS 均領先 CPI 轉折
+      3. **領先時間**：通常約 4-6 個月，但可能因經濟週期而異
+
+  - question: CASS Freight Index 有哪些指標？
+    answer: |
+      CASS Freight Index 包含四個指標：
+
+      1. **Shipments Index**：出貨量指數，衡量實體經濟需求強度
+      2. **Expenditures Index**：運費支出指數，衡量物流成本壓力
+      3. **Shipments YoY**：出貨量年增率，**主要分析指標**
+      4. **Expenditures YoY**：支出年增率，交叉驗證用
+
+      本 skill 從 MacroMicro 抓取這四個指標進行分析。
+
+  - question: 什麼情況下訊號可能失真？
+    answer: |
+      訊號可能失真的情況：
+
+      1. **供給側衝擊**：如疫情初期的供應鏈中斷，貨運量下降是供給受限而非需求減弱
+      2. **結構性變化**：電商增長改變貨運結構，傳統指標可能低估實際運量
+      3. **政策干預**：大規模財政刺激可能延長通膨週期，削弱貨運的領先性
+      4. **全球因素**：進口通膨可能獨立於北美貨運量
+
+about:
+  repository: https://github.com/fatfingererr/macro-skills
+  branch: main
+  additionalInfo: |
+    ## 數據來源
+
+    **MacroMicro（主要）**
+    - CASS Freight Index 四個指標
+    - URL: https://en.macromicro.me/charts/46877/cass-freight-index
+    - 使用 Selenium + Highcharts 爬取
+
+    **FRED（輔助）**
+    - CPIAUCSL: Consumer Price Index for All Urban Consumers
+    - 使用 CSV endpoint 直接下載（無需 API key）
+
+    ## 參考文獻
+
+    - Stock, J. H., & Watson, M. W. (1999). "Forecasting Inflation"
+    - Bernanke, B. S., & Blinder, A. S. (1992). "The Federal Funds Rate and the Channels of Monetary Transmission"
+    - Cass Transportation Index Reports (歷史分析)

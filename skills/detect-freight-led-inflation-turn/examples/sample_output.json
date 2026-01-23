@@ -1,0 +1,73 @@
+{
+  "metadata": {
+    "analysis_time": "2026-01-23T10:30:00.000Z",
+    "start_date": "2015-01-01",
+    "end_date": "2025-12-01",
+    "indicator": "shipments_yoy",
+    "lead_months": 6,
+    "as_of_date": "2025-12-01"
+  },
+  "freight_status": {
+    "indicator": "shipments_yoy",
+    "series_name": "CASS Shipments YoY",
+    "latest_value": -2.9,
+    "yoy": -2.9,
+    "yoy_3m_avg": -2.1,
+    "cycle_status": "new_cycle_low",
+    "is_new_cycle_low": true,
+    "cycle_low_window": 18,
+    "consecutive_negative_months": 4
+  },
+  "all_indicators": {
+    "shipments_index": {
+      "latest_value": 1.15,
+      "status": "stable"
+    },
+    "expenditures_index": {
+      "latest_value": 4.25,
+      "status": "declining"
+    },
+    "shipments_yoy": {
+      "latest_value": -2.9,
+      "status": "new_cycle_low"
+    },
+    "expenditures_yoy": {
+      "latest_value": -1.5,
+      "status": "negative"
+    }
+  },
+  "cpi_status": {
+    "latest_yoy": 2.8,
+    "yoy_3m_avg": 2.9,
+    "trend": "stable"
+  },
+  "lead_alignment": {
+    "correlation": 0.62,
+    "lead_months": 6,
+    "optimal_lead": 5,
+    "alignment_quality": "high"
+  },
+  "signal_assessment": {
+    "signal": "inflation_easing",
+    "confidence": "high",
+    "macro_implication": "通膨壓力正在放緩，未來 CPI 下行風險上升"
+  },
+  "historical_positioning": {
+    "current_percentile": 15.2,
+    "similar_periods": ["2015-11", "2019-08"],
+    "context": "偏低，通常對應經濟放緩期"
+  },
+  "interpretation": [
+    "CASS Shipments YoY 已轉為負值（-2.9%）",
+    "並創下本輪週期新低",
+    "Expenditures YoY 同樣轉負（-1.5%），交叉驗證支持",
+    "歷史上此類指標通常領先 CPI 約 5 個月",
+    "訊號強度高：連續 4 個月負增長 + 創週期新低"
+  ],
+  "caveats": [
+    "CASS 數據來自 MacroMicro，透過 Highcharts 爬取",
+    "數據約滯後 1 個月，最新值為 2025-12",
+    "若有供給側衝擊（如罷工、天災），訊號可能失真",
+    "領先相關性基於歷史數據，未來關係可能改變"
+  ]
+}
