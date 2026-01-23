@@ -3409,205 +3409,6 @@
     "downloadUrl": "downloads/detect-atr-squeeze-regime-0.1.0.zip"
   },
   {
-    "id": "cost-density-net-rr-calculator",
-    "name": "cost-density-net-rr-calculator",
-    "displayName": "計算成本密度淨風報比",
-    "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
-    "emoji": "🧮",
-    "version": "0.1.0",
-    "license": "MIT",
-    "author": "macro-skills",
-    "authorUrl": "https://github.com/fatfingererr/macro-skills",
-    "tags": [],
-    "category": "indicator-monitoring",
-    "dataLevel": "free-nolimit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": false,
-    "installCount": 0,
-    "content": "<essential_principles>\r\n**成本密度模型核心原則**\r\n\r\n**1. 核心公式**\r\n\r\n所有計算基於以下關係：\r\n\r\n```\r\nCost Density = (c/V + s)           # 成本密度（pips 等效）\r\nx = Cost Density / P               # 負載係數\r\nRR_net = (RR_g - x) / (1 + x)      # 淨風險報酬比\r\nWR_min = (1 + x) / (1 + RR_g)      # 最低勝率\r\nP_critical = CostDensity × (RR_g + 2) / RR_g  # 效率減半點\r\n```\r\n\r\n**2. 參數定義**\r\n\r\n| 參數 | 定義                      | 單位         |\r\n|------|---------------------------|--------------|\r\n| RR_g | 毛風險報酬比（目標/停損） | 無單位       |\r\n| P    | 停損大小                  | pips/points  |\r\n| c    | 來回佣金（每手）          | 帳戶貨幣     |\r\n| s    | 來回點差                  | pips/points  |\r\n| V    | 每 pip 價值（每手）       | 帳戶貨幣/pip |\r\n| R    | 固定風險（可選，會抵消）  | 帳戶貨幣     |\r\n\r\n**3. 關鍵洞察**\r\n\r\n- **雙曲線衰減**: P → 0 時，x → ∞，RR_net → -1\r\n- **R 無關性**: RR_net 不依賴固定風險 R\r\n- **剪刀效應**: 短時間框架同時增加成本負擔與降低訊號品質\r\n\r\n**4. 單位一致性規則**\r\n\r\n- P 和 s 必須使用相同基準（都是 pips 或都是 points）\r\n- c 必須是 round-turn（來回）佣金\r\n- V 必須是每 pip 每手的價值\r\n</essential_principles>\r\n\r\n<intake>\r\n**您想要執行什麼操作？**\r\n\r\n1. **Compute** - 計算單一參數組合的成本密度與效率指標\r\n2. **Sweep** - 掃描停損範圍，生成 RR_net/WR_min 曲線表\r\n3. **Analyze** - 解讀結果，提供策略建議\r\n\r\n**等待回應後再繼續。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                             | Workflow             | Description          |\r\n|--------------------------------------|----------------------|----------------------|\r\n| 1, \"compute\", \"calculate\", \"single\"  | workflows/compute.md | 單次計算成本密度指標 |\r\n| 2, \"sweep\", \"grid\", \"curve\", \"range\" | workflows/sweep.md   | 網格掃描與閾值搜尋   |\r\n| 3, \"analyze\", \"interpret\", \"explain\" | workflows/analyze.md | 結果解讀與策略建議   |\r\n\r\n**讀取工作流程後，請完全遵循其步驟。**\r\n</routing>\r\n\r\n<reference_index>\r\n**參考文件** (`references/`)\r\n\r\n| 文件        | 內容                     |\r\n|-------------|--------------------------|\r\n| formulas.md | 完整公式推導與數學證明   |\r\n| theory.md   | 市場微結構理論背景與文獻 |\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow   | Purpose                    |\r\n|------------|----------------------------|\r\n| compute.md | 單次計算成本密度與效率指標 |\r\n| sweep.md   | 網格掃描與閾值搜尋         |\r\n| analyze.md | 結果解讀與策略建議         |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose          |\r\n|--------------------|------------------|\r\n| output-schema.yaml | 輸出 JSON schema |\r\n| input-schema.yaml  | 輸入參數 schema  |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script          | Purpose             |\r\n|-----------------|---------------------|\r\n| cost_density.py | Python 計算實作     |\r\n| cost_density.ts | TypeScript 計算實作 |\r\n</scripts_index>\r\n\r\n<quick_start>\r\n**快速計算（XAU/USD 範例）：**\r\n\r\n輸入：\r\n```json\r\n{\r\n  \"RR_g\": 3.0,\r\n  \"c\": 7.0,\r\n  \"s\": 1.5,\r\n  \"V\": 10.0,\r\n  \"P\": 20\r\n}\r\n```\r\n\r\n計算：\r\n```python\r\ncost_density = 7.0/10.0 + 1.5  # = 2.2 pips\r\nx = 2.2 / 20                    # = 0.11\r\nRR_net = (3.0 - 0.11) / (1 + 0.11)  # = 2.60\r\nWR_min = (1 + 0.11) / (1 + 3.0)     # = 27.7%\r\nP_critical = 2.2 * (3.0 + 2) / 3.0  # = 3.67 pips\r\n```\r\n\r\n輸出：\r\n```json\r\n{\r\n  \"cost_density\": 2.2,\r\n  \"x\": 0.11,\r\n  \"RR_net\": 2.60,\r\n  \"WR_min\": 0.277,\r\n  \"P_critical\": 3.67,\r\n  \"Loss_RR\": 0.133\r\n}\r\n```\r\n</quick_start>\r\n\r\n<success_criteria>\r\nSkill 成功執行時：\r\n- [ ] 輸入參數通過驗證（單位一致性）\r\n- [ ] 正確計算 cost_density、x、RR_net、WR_min\r\n- [ ] 識別是否處於高摩擦區（P < P_critical）\r\n- [ ] 輸出符合 outputs_schema\r\n- [ ] 提供 zh-TW 解釋說明\r\n</success_criteria>",
-    "path": "skills/cost-density-net-rr-calculator/SKILL.md",
-    "directoryStructure": "cost-density-net-rr-calculator/\n├── examples\n│   ├── eurusd_low_cost.json\n│   ├── high_frequency_warning.json\n│   └── xauusd_default.json\n├── manifest.json\n├── references\n│   ├── formulas.md\n│   └── theory.md\n├── scripts\n│   ├── cost_density.py\n│   └── cost_density.ts\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── input-schema.yaml\n│   └── output-schema.yaml\n└── workflows\n    ├── analyze.md\n    ├── compute.md\n    └── sweep.md",
-    "lastUpdated": "2026-01-15",
-    "rating": 3,
-    "testQuestions": [
-      {
-        "question": "計算 XAU/USD 在停損 20 pips 時的淨風險報酬比（佣金 $7，點差 1.5 pips）",
-        "expectedResult": "此技能會：\n1. 計算成本密度 = (7/10 + 1.5) = 2.2 pips\n2. 計算負載係數 x = 2.2/20 = 0.11\n3. 計算 RR_net = (3.0 - 0.11)/(1 + 0.11) = 2.60\n4. 計算 WR_min = (1 + 0.11)/(1 + 3.0) = 27.7%\n"
-      },
-      {
-        "question": "掃描停損從 5 到 50 pips，找出 RR_net 下降 20% 的臨界點",
-        "expectedResult": "此技能會產生 P vs RR_net 表格，標記：\n- RR_net > 0 的最小 P\n- Loss_RR 達到 20%、40% 的 P 值\n- P_critical（效率減半點）\n"
-      },
-      {
-        "question": "分析為何微型時間框架策略難以獲利",
-        "expectedResult": "此技能會解釋：\n- 縮小停損導致成本雙曲線增長\n- 精確度需求與訊號品質的「剪刀效應」\n- 建議在回測中用 RR_net 替代 RR_g\n"
-      }
-    ],
-    "qualityScore": {
-      "overall": 37,
-      "badge": "初級",
-      "evaluatedAt": "2026-01-23",
-      "metrics": {
-        "problemFit": 50,
-        "correctness": 40,
-        "dataGovernance": 30,
-        "robustness": 32,
-        "maintainability": 38,
-        "usability": 32
-      },
-      "metricDetails": {
-        "problemFit": {
-          "score": 50,
-          "strengths": [
-            "數學公式推導完整",
-            "理論來源有學術文獻"
-          ],
-          "improvements": [
-            "Alpha 階段，功能未完善",
-            "testQuestions 的 expectedResult 過於簡略"
-          ]
-        },
-        "correctness": {
-          "score": 40,
-          "strengths": [
-            "有完整數學推導",
-            "包含實際案例（XAU/USD）"
-          ],
-          "improvements": [
-            "expectedResult 缺少實際計算輸出",
-            "公式驗證不足"
-          ]
-        },
-        "dataGovernance": {
-          "score": 30,
-          "strengths": [
-            "純計算無外部數據依賴",
-            "參數定義清楚"
-          ],
-          "improvements": [
-            "缺少 data-sources.md",
-            "實際交易成本數據來源不明"
-          ]
-        },
-        "robustness": {
-          "score": 32,
-          "strengths": [
-            "pitfalls 詳列單位混淆風險",
-            "bestPractices 有單位一致性建議"
-          ],
-          "improvements": [
-            "缺少 failure-modes.md",
-            "Alpha 階段未經測試",
-            "輸入驗證不完整"
-          ]
-        },
-        "maintainability": {
-          "score": 38,
-          "strengths": [
-            "工作流程分離設計",
-            "公式參考文件獨立"
-          ],
-          "improvements": [
-            "可增加 manifest.json 版本控制",
-            "Alpha 階段缺少腳本實作"
-          ]
-        },
-        "usability": {
-          "score": 32,
-          "strengths": [
-            "FAQ 解答核心概念",
-            "有理論來源說明"
-          ],
-          "improvements": [
-            "expectedResult 需完善",
-            "缺少實際使用範例"
-          ]
-        }
-      },
-      "details": "**任務適配度（50/100）**\n- 數學公式推導完整\n- 待改進：Alpha 階段未完善\n\n**正確性（40/100）**\n- 有數學推導\n- 待改進：缺少計算輸出\n\n**資料治理（30/100）**\n- 純計算無依賴\n- 待改進：成本數據來源\n\n**穩健性（32/100）**\n- pitfalls 詳列風險\n- 待改進：Alpha 未測試\n\n**可維護性（38/100）**\n- 工作流程分離\n- 待改進：缺少腳本\n\n**輸出可用性（32/100）**\n- FAQ 解答概念\n- 待改進：缺少範例\n",
-      "upgradeNotes": {
-        "targetBadge": "中級",
-        "requirements": [
-          {
-            "metric": "correctness",
-            "currentScore": 40,
-            "targetScore": 55,
-            "suggestion": "完善 expectedResult 與計算輸出"
-          },
-          {
-            "metric": "robustness",
-            "currentScore": 32,
-            "targetScore": 50,
-            "suggestion": "完成 Alpha 階段測試"
-          },
-          {
-            "metric": "usability",
-            "currentScore": 32,
-            "targetScore": 50,
-            "suggestion": "增加實際使用範例"
-          }
-        ]
-      }
-    },
-    "bestPractices": [
-      {
-        "title": "確保單位一致性",
-        "description": "P（停損）和 s（點差）必須使用相同的 pip/point 基準"
-      },
-      {
-        "title": "使用 RR_net 進行回測",
-        "description": "微型時間框架回測應使用 RR_net 而非 RR_g"
-      },
-      {
-        "title": "監控 P_critical 閾值",
-        "description": "停損低於 P_critical 時，策略進入高摩擦區"
-      },
-      {
-        "title": "考慮滑點影響",
-        "description": "此模型假設理想執行，實際交易需額外考慮滑點"
-      }
-    ],
-    "pitfalls": [
-      {
-        "title": "單位混淆",
-        "description": "P 使用 pips 但 s 使用 points，或 c 不是 round-turn",
-        "consequence": "計算結果完全錯誤"
-      },
-      {
-        "title": "忽略 R 的無關性",
-        "description": "誤以為改變固定風險 R 會影響 RR_net",
-        "consequence": "錯誤的部位規模決策"
-      },
-      {
-        "title": "線性外推",
-        "description": "假設縮小停損會線性降低效率",
-        "consequence": "低估微型時間框架的成本衝擊"
-      }
-    ],
-    "faq": [
-      {
-        "question": "為什麼 RR_net 與 R（固定風險）無關？",
-        "answer": "在固定風險框架中，部位規模 = R / (P × V)。\n當推導 RR_net 時，R 在分子分母同時出現並抵消，\n證明效率衰減與帳戶規模無關，僅取決於 RR_g、P 和成本密度。\n"
-      },
-      {
-        "question": "什麼是「獲利事件視界」？",
-        "answer": "當停損縮小到某個臨界值以下，無論預測準確度多高，\n正期望值都變得統計上不可能達成。這個閾值稱為「事件視界」，\n類似於黑洞的概念——一旦越過，就無法逃脫負期望值。\n"
-      },
-      {
-        "question": "P_critical 如何計算？",
-        "answer": "P_critical = CostDensity × (RR_g + 2) / RR_g\n\n這是策略效率減半（RR_net = 0.5 × RR_g）時的停損大小。\n低於此值進入高摩擦區，效率急劇下降。\n"
-      }
-    ],
-    "about": {
-      "repository": "https://github.com/fatfingererr/macro-skills",
-      "branch": "main",
-      "additionalInfo": "## 理論來源\n\n基於 Sergei Sukhov 的論文：\n\"Geometry of Advantage Decay: A Quantitative Model for Risk-Reward\nDegradation in High-Friction Trading Environments\"\n\n## 相關文獻\n\n- Kyle (1985): Continuous Auctions and Insider Trading\n- Glosten & Milgrom (1985): Bid-ask spread models\n- Easley & O'Hara (1987): Price, trade size, and information\n"
-    },
-    "downloadUrl": "downloads/cost-density-net-rr-calculator-0.1.0.zip"
-  },
-  {
     "id": "demographic-fiscal-trap-analyzer",
     "name": "demographic-fiscal-trap-analyzer",
     "displayName": "分析人口財政陷阱",
@@ -3828,6 +3629,205 @@
     },
     "methodology": "### 1. 財政陷阱理論\r\n「人口-財政陷阱」建立在以下經濟學原理之上：\r\n\r\n#### 1.1 債務動態方程式\r\n標準政府債務動態：\r\n\r\n```\r\nd(t) = d(t-1) × (1 + r) / (1 + g) + pb(t)\r\n```\r\n\r\n簡化為：\r\n```\r\nΔd ≈ (r - g) × d + pb\r\n```\r\n\r\n其中：\r\n- d = 債務/GDP 比率\r\n- r = 名義利率（債務成本）\r\n- g = 名義 GDP 成長率\r\n- pb = 基本財政餘額/GDP（= 支出 - 收入 - 利息）\r\n\r\n**核心洞察**：當 r > g 且 pb ≥ 0 時，債務比率將自動膨脹，形成「雪球效應」。\r\n\r\n#### 1.2 老化的財政影響\r\n人口老化透過兩個管道影響財政：\r\n\r\n**支出端**：\r\n- 養老金支出：與老年人口規模正相關\r\n- 健康支出：老年人均醫療支出為年輕人的 3-5 倍\r\n- 長照支出：隨 80+ 人口增加而急升\r\n\r\n**收入端**：\r\n- 勞動人口縮減 → 所得稅基萎縮\r\n- 消費結構改變 → 消費稅稅基變化\r\n- 企業投資下降 → 企業稅收減少\r\n\r\n#### 1.3 金融抑制理論\r\nReinhart & Sbrancia (2015) 定義金融抑制為：\r\n> 政府透過人為壓低利率、強制銀行持有國債、資本管制等手段，將債務成本轉嫁給儲蓄者。\r\n\r\n當財政改革政治成本過高，金融抑制成為「最小阻力路徑」：\r\n- 負實質利率侵蝕債務實質價值\r\n- 對儲蓄者的隱性課稅\r\n- 避免名義違約的政治代價\r\n\r\n---\r\n\r\n## 分析框架\r\n\r\n### 2. 四支柱評分系統\r\n\r\n本技能採用四維度評分架構，各支柱設計如下：\r\n\r\n#### 2.1 老化壓力 (Aging Pressure)\r\n\r\n**定義**：衡量人口老化對財政的壓力程度\r\n\r\n**計算公式**：\r\n```python\r\naging_level = old_age_dependency_ratio[end_year]  # 65+/15-64\r\naging_slope = linear_regression_slope(old_age_dependency[end_year-10:end_year])\r\n\r\naging_pressure = 0.5 × zscore(aging_level) + 0.5 × zscore(aging_slope)\r\n```\r\n\r\n**權重配置邏輯**：\r\n- 水準 (50%)：當前老化程度決定即期財政壓力\r\n- 斜率 (50%)：趨勢決定未來壓力演化速度\r\n\r\n**資料來源**：\r\n- 首選：World Bank WDI (SP.POP.DPND.OL)\r\n- 次選：UN World Population Prospects\r\n\r\n#### 2.2 債務動態 (Debt Dynamics)\r\n\r\n**定義**：衡量政府債務的可持續性與演化趨勢\r\n\r\n**計算公式**：\r\n```python\r\ndebt_level = debt_to_gdp[end_year]\r\ndebt_slope = linear_regression_slope(debt_to_gdp[end_year-5:end_year])\r\nr_minus_g = nominal_yield_10y[end_year] - nominal_gdp_growth[end_year]\r\n\r\ndebt_dynamics = (\r\n    0.50 × zscore(debt_level) +\r\n    0.30 × zscore(debt_slope) +\r\n    0.20 × zscore(r_minus_g)\r\n)\r\n```\r\n\r\n**權重配置邏輯**：\r\n- 水準 (50%)：高債務水準本身即為風險\r\n- 斜率 (30%)：上升趨勢顯示問題惡化中\r\n- r-g (20%)：決定債務自動演化方向\r\n\r\n**資料來源**：\r\n- 債務：IMF WEO (GGXWDG_NGDP) 或 World Bank (GC.DOD.TOTL.GD.ZS)\r\n- 利率：OECD (IRLT) 或各國央行\r\n- 成長：World Bank (NY.GDP.MKTP.KD.ZG) + CPI 推算名義成長\r\n\r\n#### 2.3 官僚膨脹 (Bloat Index)\r\n\r\n**定義**：衡量政府支出的規模與效率\r\n\r\n**計算公式**：\r\n```python\r\ngov_consumption = government_consumption_to_gdp[end_year]\r\ngov_expenditure = government_expenditure_to_gdp[end_year]\r\n\r\nbloat_index = 0.6 × zscore(gov_consumption) + 0.4 × zscore(gov_expenditure)\r\n```\r\n\r\n**權重配置邏輯**：\r\n- 政府消費 (60%)：直接反映官僚體系規模\r\n- 總支出 (40%)：包含移轉性支出的整體規模\r\n\r\n**延伸指標**（若資料可用）：\r\n- 公部門薪資佔 GDP 比例\r\n- 公務員人數佔就業人口比例\r\n- 政府採購效率指數\r\n\r\n**資料來源**：\r\n- World Bank WDI (NE.CON.GOVT.ZS, GC.XPN.TOTL.GD.ZS)\r\n- IMF Government Finance Statistics\r\n\r\n#### 2.4 成長拖累 (Growth Drag)\r\n\r\n**定義**：低成長對財政可持續性的負面影響\r\n\r\n**計算公式**：\r\n```python\r\nnominal_growth = nominal_gdp_growth[end_year]\r\ngrowth_drag = zscore(-nominal_growth)  # 負向：低成長 = 高拖累\r\n```\r\n\r\n**邏輯**：\r\n- 低成長 → r-g 缺口擴大 → 債務自動膨脹\r\n- 低成長 → 稅基萎縮 → 財政收入下降\r\n- 低成長 → 政治壓力 → 更難削減支出\r\n\r\n---\r\n\r\n### 3. Z-Score 標準化\r\n\r\n#### 3.1 標準化公式\r\n```python\r\nzscore(x) = (x - μ) / σ\r\n```\r\n\r\n其中 μ 和 σ 為**跨國截面**統計量（非時間序列）。\r\n\r\n#### 3.2 截面選擇\r\n根據分析目的選擇截面群組：\r\n- 全球比較：使用全部可用國家\r\n- OECD 比較：僅使用 OECD 成員國\r\n- 區域比較：使用特定區域國家\r\n\r\n#### 3.3 解讀標準\r\n| Z-Score    | 解讀         | 風險等級 |\r\n|------------|--------------|----------|\r\n| > 2.0      | 極端高於平均 | 紅燈     |\r\n| 1.5 - 2.0  | 顯著高於平均 | 橙燈     |\r\n| 0.5 - 1.5  | 略高於平均   | 黃燈     |\r\n| -0.5 - 0.5 | 接近平均     | 綠燈     |\r\n| < -0.5     | 低於平均     | 優良     |\r\n\r\n---\r\n\r\n### 4. 象限分類\r\n\r\n#### 4.1 雙軸定義\r\n- **X 軸**：Aging Pressure (z-score)\r\n- **Y 軸**：Debt Dynamics (z-score)\r\n- **閾值**：z = 1.0 作為高/低分界\r\n\r\n#### 4.2 四象限意涵\r\n\r\n| 象限 | 老化 | 債務 | 特徵                   | 典型國家      |\r\n|------|------|------|------------------------|---------------|\r\n| Q1   | 高   | 高   | 雙重壓力，政策空間極窄 | JPN, ITA, GRC |\r\n| Q2   | 高   | 低   | 老化主導，債務尚有空間 | DEU, KOR      |\r\n| Q3   | 低   | 高   | 債務主導，人口紅利尚存 | USA, BRA      |\r\n| Q4   | 低   | 低   | 相對健康，政策空間寬廣 | IND, IDN      |\r\n\r\n---\r\n\r\n### 5. 通膨激勵指數\r\n\r\n#### 5.1 理論基礎\r\n當以下條件成立，政府有強烈動機選擇「通膨稀釋」路徑：\r\n1. 債務水準高 → 稀釋效益大\r\n2. r > g → 難以透過成長去槓桿\r\n3. 支出剛性高 → 難以削減開支\r\n4. 已有負實質利率歷史 → 路徑依賴\r\n\r\n#### 5.2 計算公式\r\n```python\r\ninflation_incentive = (\r\n    0.40 × zscore(debt_level) +\r\n    0.20 × zscore(r_minus_g) +\r\n    0.20 × zscore(neg_real_rate_share_5y) +\r\n    0.20 × zscore(bloat_index)\r\n)\r\n```\r\n\r\n#### 5.3 解讀\r\n| 分數      | 政策傾向     | 投資意涵           |\r\n|-----------|--------------|--------------------|\r\n| < 0.5     | 正統財政     | 名義債券相對安全   |\r\n| 0.5 - 1.5 | 溫和金融抑制 | 實質報酬承壓       |\r\n| > 1.5     | 強烈稀釋動機 | 應持有通膨保值資產 |\r\n\r\n---\r\n\r\n## 參考文獻\r\n\r\n1. Reinhart, C. M., & Sbrancia, M. B. (2015). \"The Liquidation of Government Debt.\" *Economic Policy*, 30(82), 291-333.\r\n\r\n2. Blanchard, O. (2019). \"Public Debt and Low Interest Rates.\" *American Economic Review*, 109(4), 1197-1229.\r\n\r\n3. IMF (2023). *Fiscal Monitor: Climate Crossroads*. International Monetary Fund.\r\n\r\n4. OECD (2021). *Pensions at a Glance 2021*. OECD Publishing.\r\n\r\n5. UN DESA (2022). *World Population Prospects 2022*. United Nations.\r\n",
     "downloadUrl": "downloads/demographic-fiscal-trap-analyzer-0.1.0.zip"
+  },
+  {
+    "id": "cost-density-net-rr-calculator",
+    "name": "cost-density-net-rr-calculator",
+    "displayName": "計算成本密度淨風報比",
+    "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
+    "emoji": "🧮",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "macro-skills",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [],
+    "category": "indicator-monitoring",
+    "dataLevel": "free-nolimit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\r\n**成本密度模型核心原則**\r\n\r\n**1. 核心公式**\r\n\r\n所有計算基於以下關係：\r\n\r\n```\r\nCost Density = (c/V + s)           # 成本密度（pips 等效）\r\nx = Cost Density / P               # 負載係數\r\nRR_net = (RR_g - x) / (1 + x)      # 淨風險報酬比\r\nWR_min = (1 + x) / (1 + RR_g)      # 最低勝率\r\nP_critical = CostDensity × (RR_g + 2) / RR_g  # 效率減半點\r\n```\r\n\r\n**2. 參數定義**\r\n\r\n| 參數 | 定義                      | 單位         |\r\n|------|---------------------------|--------------|\r\n| RR_g | 毛風險報酬比（目標/停損） | 無單位       |\r\n| P    | 停損大小                  | pips/points  |\r\n| c    | 來回佣金（每手）          | 帳戶貨幣     |\r\n| s    | 來回點差                  | pips/points  |\r\n| V    | 每 pip 價值（每手）       | 帳戶貨幣/pip |\r\n| R    | 固定風險（可選，會抵消）  | 帳戶貨幣     |\r\n\r\n**3. 關鍵洞察**\r\n\r\n- **雙曲線衰減**: P → 0 時，x → ∞，RR_net → -1\r\n- **R 無關性**: RR_net 不依賴固定風險 R\r\n- **剪刀效應**: 短時間框架同時增加成本負擔與降低訊號品質\r\n\r\n**4. 單位一致性規則**\r\n\r\n- P 和 s 必須使用相同基準（都是 pips 或都是 points）\r\n- c 必須是 round-turn（來回）佣金\r\n- V 必須是每 pip 每手的價值\r\n</essential_principles>\r\n\r\n<intake>\r\n**您想要執行什麼操作？**\r\n\r\n1. **Compute** - 計算單一參數組合的成本密度與效率指標\r\n2. **Sweep** - 掃描停損範圍，生成 RR_net/WR_min 曲線表\r\n3. **Analyze** - 解讀結果，提供策略建議\r\n\r\n**等待回應後再繼續。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                             | Workflow             | Description          |\r\n|--------------------------------------|----------------------|----------------------|\r\n| 1, \"compute\", \"calculate\", \"single\"  | workflows/compute.md | 單次計算成本密度指標 |\r\n| 2, \"sweep\", \"grid\", \"curve\", \"range\" | workflows/sweep.md   | 網格掃描與閾值搜尋   |\r\n| 3, \"analyze\", \"interpret\", \"explain\" | workflows/analyze.md | 結果解讀與策略建議   |\r\n\r\n**讀取工作流程後，請完全遵循其步驟。**\r\n</routing>\r\n\r\n<reference_index>\r\n**參考文件** (`references/`)\r\n\r\n| 文件        | 內容                     |\r\n|-------------|--------------------------|\r\n| formulas.md | 完整公式推導與數學證明   |\r\n| theory.md   | 市場微結構理論背景與文獻 |\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow   | Purpose                    |\r\n|------------|----------------------------|\r\n| compute.md | 單次計算成本密度與效率指標 |\r\n| sweep.md   | 網格掃描與閾值搜尋         |\r\n| analyze.md | 結果解讀與策略建議         |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose          |\r\n|--------------------|------------------|\r\n| output-schema.yaml | 輸出 JSON schema |\r\n| input-schema.yaml  | 輸入參數 schema  |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script          | Purpose             |\r\n|-----------------|---------------------|\r\n| cost_density.py | Python 計算實作     |\r\n| cost_density.ts | TypeScript 計算實作 |\r\n</scripts_index>\r\n\r\n<quick_start>\r\n**快速計算（XAU/USD 範例）：**\r\n\r\n輸入：\r\n```json\r\n{\r\n  \"RR_g\": 3.0,\r\n  \"c\": 7.0,\r\n  \"s\": 1.5,\r\n  \"V\": 10.0,\r\n  \"P\": 20\r\n}\r\n```\r\n\r\n計算：\r\n```python\r\ncost_density = 7.0/10.0 + 1.5  # = 2.2 pips\r\nx = 2.2 / 20                    # = 0.11\r\nRR_net = (3.0 - 0.11) / (1 + 0.11)  # = 2.60\r\nWR_min = (1 + 0.11) / (1 + 3.0)     # = 27.7%\r\nP_critical = 2.2 * (3.0 + 2) / 3.0  # = 3.67 pips\r\n```\r\n\r\n輸出：\r\n```json\r\n{\r\n  \"cost_density\": 2.2,\r\n  \"x\": 0.11,\r\n  \"RR_net\": 2.60,\r\n  \"WR_min\": 0.277,\r\n  \"P_critical\": 3.67,\r\n  \"Loss_RR\": 0.133\r\n}\r\n```\r\n</quick_start>\r\n\r\n<success_criteria>\r\nSkill 成功執行時：\r\n- [ ] 輸入參數通過驗證（單位一致性）\r\n- [ ] 正確計算 cost_density、x、RR_net、WR_min\r\n- [ ] 識別是否處於高摩擦區（P < P_critical）\r\n- [ ] 輸出符合 outputs_schema\r\n- [ ] 提供 zh-TW 解釋說明\r\n</success_criteria>",
+    "path": "skills/cost-density-net-rr-calculator/SKILL.md",
+    "directoryStructure": "cost-density-net-rr-calculator/\n├── examples\n│   ├── eurusd_low_cost.json\n│   ├── high_frequency_warning.json\n│   └── xauusd_default.json\n├── manifest.json\n├── references\n│   ├── formulas.md\n│   └── theory.md\n├── scripts\n│   ├── cost_density.py\n│   └── cost_density.ts\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── input-schema.yaml\n│   └── output-schema.yaml\n└── workflows\n    ├── analyze.md\n    ├── compute.md\n    └── sweep.md",
+    "lastUpdated": "2026-01-15",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "計算 XAU/USD 在停損 20 pips 時的淨風險報酬比（佣金 $7，點差 1.5 pips）",
+        "expectedResult": "此技能會：\n1. 計算成本密度 = (7/10 + 1.5) = 2.2 pips\n2. 計算負載係數 x = 2.2/20 = 0.11\n3. 計算 RR_net = (3.0 - 0.11)/(1 + 0.11) = 2.60\n4. 計算 WR_min = (1 + 0.11)/(1 + 3.0) = 27.7%\n"
+      },
+      {
+        "question": "掃描停損從 5 到 50 pips，找出 RR_net 下降 20% 的臨界點",
+        "expectedResult": "此技能會產生 P vs RR_net 表格，標記：\n- RR_net > 0 的最小 P\n- Loss_RR 達到 20%、40% 的 P 值\n- P_critical（效率減半點）\n"
+      },
+      {
+        "question": "分析為何微型時間框架策略難以獲利",
+        "expectedResult": "此技能會解釋：\n- 縮小停損導致成本雙曲線增長\n- 精確度需求與訊號品質的「剪刀效應」\n- 建議在回測中用 RR_net 替代 RR_g\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 37,
+      "badge": "初級",
+      "evaluatedAt": "2026-01-23",
+      "metrics": {
+        "problemFit": 50,
+        "correctness": 40,
+        "dataGovernance": 30,
+        "robustness": 32,
+        "maintainability": 38,
+        "usability": 32
+      },
+      "metricDetails": {
+        "problemFit": {
+          "score": 50,
+          "strengths": [
+            "數學公式推導完整",
+            "理論來源有學術文獻"
+          ],
+          "improvements": [
+            "Alpha 階段，功能未完善",
+            "testQuestions 的 expectedResult 過於簡略"
+          ]
+        },
+        "correctness": {
+          "score": 40,
+          "strengths": [
+            "有完整數學推導",
+            "包含實際案例（XAU/USD）"
+          ],
+          "improvements": [
+            "expectedResult 缺少實際計算輸出",
+            "公式驗證不足"
+          ]
+        },
+        "dataGovernance": {
+          "score": 30,
+          "strengths": [
+            "純計算無外部數據依賴",
+            "參數定義清楚"
+          ],
+          "improvements": [
+            "缺少 data-sources.md",
+            "實際交易成本數據來源不明"
+          ]
+        },
+        "robustness": {
+          "score": 32,
+          "strengths": [
+            "pitfalls 詳列單位混淆風險",
+            "bestPractices 有單位一致性建議"
+          ],
+          "improvements": [
+            "缺少 failure-modes.md",
+            "Alpha 階段未經測試",
+            "輸入驗證不完整"
+          ]
+        },
+        "maintainability": {
+          "score": 38,
+          "strengths": [
+            "工作流程分離設計",
+            "公式參考文件獨立"
+          ],
+          "improvements": [
+            "可增加 manifest.json 版本控制",
+            "Alpha 階段缺少腳本實作"
+          ]
+        },
+        "usability": {
+          "score": 32,
+          "strengths": [
+            "FAQ 解答核心概念",
+            "有理論來源說明"
+          ],
+          "improvements": [
+            "expectedResult 需完善",
+            "缺少實際使用範例"
+          ]
+        }
+      },
+      "details": "**任務適配度（50/100）**\n- 數學公式推導完整\n- 待改進：Alpha 階段未完善\n\n**正確性（40/100）**\n- 有數學推導\n- 待改進：缺少計算輸出\n\n**資料治理（30/100）**\n- 純計算無依賴\n- 待改進：成本數據來源\n\n**穩健性（32/100）**\n- pitfalls 詳列風險\n- 待改進：Alpha 未測試\n\n**可維護性（38/100）**\n- 工作流程分離\n- 待改進：缺少腳本\n\n**輸出可用性（32/100）**\n- FAQ 解答概念\n- 待改進：缺少範例\n",
+      "upgradeNotes": {
+        "targetBadge": "中級",
+        "requirements": [
+          {
+            "metric": "correctness",
+            "currentScore": 40,
+            "targetScore": 55,
+            "suggestion": "完善 expectedResult 與計算輸出"
+          },
+          {
+            "metric": "robustness",
+            "currentScore": 32,
+            "targetScore": 50,
+            "suggestion": "完成 Alpha 階段測試"
+          },
+          {
+            "metric": "usability",
+            "currentScore": 32,
+            "targetScore": 50,
+            "suggestion": "增加實際使用範例"
+          }
+        ]
+      }
+    },
+    "bestPractices": [
+      {
+        "title": "確保單位一致性",
+        "description": "P（停損）和 s（點差）必須使用相同的 pip/point 基準"
+      },
+      {
+        "title": "使用 RR_net 進行回測",
+        "description": "微型時間框架回測應使用 RR_net 而非 RR_g"
+      },
+      {
+        "title": "監控 P_critical 閾值",
+        "description": "停損低於 P_critical 時，策略進入高摩擦區"
+      },
+      {
+        "title": "考慮滑點影響",
+        "description": "此模型假設理想執行，實際交易需額外考慮滑點"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "單位混淆",
+        "description": "P 使用 pips 但 s 使用 points，或 c 不是 round-turn",
+        "consequence": "計算結果完全錯誤"
+      },
+      {
+        "title": "忽略 R 的無關性",
+        "description": "誤以為改變固定風險 R 會影響 RR_net",
+        "consequence": "錯誤的部位規模決策"
+      },
+      {
+        "title": "線性外推",
+        "description": "假設縮小停損會線性降低效率",
+        "consequence": "低估微型時間框架的成本衝擊"
+      }
+    ],
+    "faq": [
+      {
+        "question": "為什麼 RR_net 與 R（固定風險）無關？",
+        "answer": "在固定風險框架中，部位規模 = R / (P × V)。\n當推導 RR_net 時，R 在分子分母同時出現並抵消，\n證明效率衰減與帳戶規模無關，僅取決於 RR_g、P 和成本密度。\n"
+      },
+      {
+        "question": "什麼是「獲利事件視界」？",
+        "answer": "當停損縮小到某個臨界值以下，無論預測準確度多高，\n正期望值都變得統計上不可能達成。這個閾值稱為「事件視界」，\n類似於黑洞的概念——一旦越過，就無法逃脫負期望值。\n"
+      },
+      {
+        "question": "P_critical 如何計算？",
+        "answer": "P_critical = CostDensity × (RR_g + 2) / RR_g\n\n這是策略效率減半（RR_net = 0.5 × RR_g）時的停損大小。\n低於此值進入高摩擦區，效率急劇下降。\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 理論來源\n\n基於 Sergei Sukhov 的論文：\n\"Geometry of Advantage Decay: A Quantitative Model for Risk-Reward\nDegradation in High-Friction Trading Environments\"\n\n## 相關文獻\n\n- Kyle (1985): Continuous Auctions and Insider Trading\n- Glosten & Milgrom (1985): Bid-ask spread models\n- Easley & O'Hara (1987): Price, trade size, and information\n"
+    },
+    "downloadUrl": "downloads/cost-density-net-rr-calculator-0.1.0.zip"
   },
   {
     "id": "backsolve-miner-vs-metal-ratio-with-fundamentals",
@@ -4072,7 +4072,7 @@
     "displayName": "美國銀行信貸存款脫鉤分析",
     "description": "分析銀行貸款與存款之間的「信貸創造脫鉤」現象，用以辨識聯準會緊縮政策在銀行體系內部的真實傳導效果。",
     "emoji": "🪝",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "license": "MIT",
     "author": "Ricky Wang",
     "authorUrl": "https://github.com/fatfingererr/macro-skills",
@@ -4092,22 +4092,24 @@
     ],
     "featured": false,
     "installCount": 0,
-    "content": "<essential_principles>\n\n<principle name=\"credit_deposit_accounting\">\n**信貸創造的基本會計邏輯**\n\n傳統銀行體系下，貸款創造存款：\n- 銀行發放貸款 → 借款人帳戶增加存款\n- 理論上：新增貸款 ≈ 新增存款\n\n當這個關係「脫鉤」時：\n- 貸款持續擴張，但存款沒有等比例增加\n- 代表有「力量」在抽走體系內的存款\n- QT 環境下，這個力量通常來自 RRP（逆回購工具）\n</principle>\n\n<principle name=\"decoupling_gap_definition\">\n**信貸存款落差（Decoupling Gap）定義**\n\n核心公式：\n```\ndecoupling_gap = 累積新增貸款 − 累積新增存款\n```\n\n解讀：\n- **Gap > 0**：貸款創造的存款「消失」了，被某處吸走\n- **Gap ≈ RRP 累積吸收量**：證明 Fed 透過 RRP 抽走流動性\n- **Gap 持續擴大**：銀行負債端壓力增加，需要「搶存款」\n</principle>\n\n<principle name=\"rrp_neutralization\">\n**RRP 的中和效果**\n\n聯準會隔夜逆回購（RRP）是「資金被吸出銀行體系」的 proxy：\n- 貨幣市場基金將資金存入 Fed RRP → 資金離開商業銀行\n- RRP 規模增加 → 銀行存款減少\n- 這是 QT 的「隱性管道」，不直接縮貸但壓縮銀行負債端\n\n關鍵驗證：\n```\ndecoupling_gap ≈ 累積 RRP 吸收量\n```\n若高度相關，代表「QT 並非透過縮貸，而是透過存款被抽走來實現緊縮」\n</principle>\n\n<principle name=\"hidden_tightening\">\n**隱性緊縮（Hidden Tightening）判定**\n\n當觀察到以下條件：\n1. 貸款持續上升（銀行仍在放貸）\n2. 存款成長顯著落後貸款\n3. decoupling_gap 與 RRP 累積量高度相關\n\n→ 判定為「非典型 QT」或「隱性緊縮」（Hidden Balance Sheet Tightening）\n\n這意味著：\n- 緊縮並非來自銀行不放貸\n- 而是來自負債端（存款）被政策工具抽乾\n- 市場需要額外搶存款來支撐既有負債結構\n</principle>\n\n<principle name=\"data_sources\">\n**數據來源（全部使用 FRED）**\n\n| 指標         | FRED Series ID | 說明                                                  |\n|--------------|----------------|-------------------------------------------------------|\n| 銀行貸款總量 | TOTLL          | Loans and Leases in Bank Credit, All Commercial Banks |\n| 銀行存款總量 | DPSACBW027SBOG | Deposits, All Commercial Banks                        |\n| 隔夜逆回購   | RRPONTSYD      | Overnight Reverse Repurchase Agreements               |\n\n資料頻率：Weekly（週頻）\n對齊方式：以最新共同日期為準\n</principle>\n\n</essential_principles>\n\n<objective>\n分析銀行信貸與存款的脫鉤現象，判斷金融環境的隱性緊縮狀態。\n\n輸出三層訊號：\n1. **Decoupling Status**: 信貸-存款落差狀態與趨勢\n2. **RRP Correlation**: 與 RRP 吸收量的相關性驗證\n3. **Tightening Assessment**: 隱性緊縮訊號判斷與壓力指標\n</objective>\n\n<quick_start>\n\n**最快的方式：使用 FRED API 抓取數據**\n\n**Step 1：安裝依賴**\n```bash\npip install pandas numpy fredapi matplotlib\n```\n\n**Step 2：設定 FRED API Key**\n```bash\n# 從 https://fred.stlouisfed.org/docs/api/api_key.html 取得 API Key\nexport FRED_API_KEY=\"your_api_key_here\"\n```\n\n**Step 3：執行快速分析**\n```bash\ncd scripts\npython decoupling_analyzer.py --quick\n```\n\n**Step 4：執行完整分析（含視覺化）**\n```bash\npython decoupling_analyzer.py \\\n  --start 2022-06-01 \\\n  --end 2026-01-23 \\\n  --output ../../output/decoupling_$(date +%Y-%m-%d).json\n```\n\n**Step 5：生成視覺化圖表**\n```bash\npython visualize_decoupling.py \\\n  --start 2022-06-01 \\\n  --output ../../output/decoupling_chart_$(date +%Y-%m-%d).png\n```\n\n**輸出範例**：\n- JSON 分析結果：\n```json\n{\n  \"period\": \"2022-06 to 2026-01\",\n  \"new_loans_trillion_usd\": 2.1,\n  \"new_deposits_trillion_usd\": 0.5,\n  \"decoupling_gap_trillion_usd\": 1.6,\n  \"deposit_stress_ratio\": 0.76,\n  \"rrp_correlation\": 0.89,\n  \"tightening_type\": \"hidden_balance_sheet_tightening\",\n  \"primary_driver\": \"RRP_liquidity_absorption\"\n}\n```\n- 視覺化圖表：`output/decoupling_chart_2026-01-23.png`\n\n</quick_start>\n\n<intake>\n需要進行什麼分析？\n\n1. **快速檢查** - 查看最新的信貸-存款脫鉤狀態與壓力指標\n2. **完整分析** - 執行完整的脫鉤偵測與 RRP 相關性分析\n3. **方法論學習** - 了解信貸創造脫鉤的會計邏輯與宏觀意義\n\n**請選擇或直接提供分析參數。**\n</intake>\n\n<routing>\n| Response                     | Action                                               |\n|------------------------------|------------------------------------------------------|\n| 1, \"快速\", \"quick\", \"check\"  | 執行 `python scripts/decoupling_analyzer.py --quick` |\n| 2, \"完整\", \"full\", \"analyze\" | 閱讀 `workflows/analyze.md` 並執行                   |\n| 3, \"學習\", \"方法論\", \"why\"   | 閱讀 `references/methodology.md`                     |\n| 提供參數 (如日期範圍)        | 閱讀 `workflows/analyze.md` 並使用參數執行           |\n\n**路由後，閱讀對應文件並執行。**\n</routing>\n\n<directory_structure>\n```\nanalyze-us-bank-credit-deposit-decoupling/\n├── SKILL.md                           # 本文件（路由器）\n├── skill.yaml                         # 前端展示元數據\n├── manifest.json                      # 技能元資料\n├── workflows/\n│   ├── analyze.md                     # 完整分析工作流\n│   └── quick-check.md                 # 快速檢查工作流\n├── references/\n│   ├── data-sources.md                # FRED 數據來源說明\n│   ├── methodology.md                 # 信貸脫鉤方法論解析\n│   └── historical-episodes.md         # 歷史案例對照\n├── templates/\n│   ├── output-json.md                 # JSON 輸出模板\n│   └── output-markdown.md             # Markdown 報告模板\n├── scripts/\n│   ├── decoupling_analyzer.py         # 主分析腳本\n│   └── visualize_decoupling.py        # 脫鉤狀態視覺化\n└── examples/\n    └── sample_output.json             # 範例輸出\n```\n</directory_structure>\n\n<reference_index>\n\n**方法論**: references/methodology.md\n- 信貸創造的會計邏輯\n- Decoupling Gap 計算與解讀\n- RRP 中和效果驗證\n- 隱性緊縮判定標準\n\n**資料來源**: references/data-sources.md\n- FRED API 使用說明\n- 三個核心指標定義\n- 數據頻率與對齊方式\n- 快取策略與更新頻率\n\n**歷史案例**: references/historical-episodes.md\n- 2017-2019 首次 QT 週期\n- 2022-2026 當前 QT 週期\n- RRP 高峰與銀行壓力事件\n\n</reference_index>\n\n<workflows_index>\n| Workflow       | Purpose      | 使用時機           |\n|----------------|--------------|--------------------|\n| analyze.md     | 完整脫鉤分析 | 需要深度分析時     |\n| quick-check.md | 快速檢查訊號 | 日常監控或快速回答 |\n</workflows_index>\n\n<templates_index>\n| Template           | Purpose           |\n|--------------------|-------------------|\n| output-json.md     | JSON 輸出結構定義 |\n| output-markdown.md | Markdown 報告模板 |\n</templates_index>\n\n<scripts_index>\n| Script                  | Command                   | Purpose          |\n|-------------------------|---------------------------|------------------|\n| decoupling_analyzer.py  | `--quick`                 | 快速檢查最新訊號 |\n| decoupling_analyzer.py  | `--start DATE --end DATE` | 完整分析         |\n| visualize_decoupling.py | `--start DATE`            | 繪製脫鉤狀態圖   |\n</scripts_index>\n\n<visualization>\n\n**視覺化輸出：信貸-存款脫鉤分析圖**\n\n核心特徵（參考 Bloomberg/Refinitiv 風格）：\n1. **累積變化量對比**：貸款 vs 存款 vs RRP 累積變化\n2. **Decoupling Gap**：落差區域以陰影標示\n3. **壓力指標**：deposit_stress_ratio 時序圖\n4. **深色風格**：深藍背景、高對比度配色\n\n**快速繪圖**：\n```bash\ncd scripts\npython visualize_decoupling.py \\\n  --start 2022-06-01 \\\n  --output ../../output/decoupling_chart_YYYY-MM-DD.png\n```\n\n**輸出路徑**：`output/decoupling_chart_YYYY-MM-DD.png`（根目錄）\n\n**圖表解讀**：\n- 當 Gap 與 RRP 走勢高度相關 → 證明 RRP 是主要抽水來源\n- 當 deposit_stress_ratio 超過 0.5 → 銀行負債端壓力顯著\n- 當 Gap 持續擴大但 RRP 下降 → 需注意其他流動性吸收來源\n\n</visualization>\n\n<input_schema>\n\n<parameter name=\"start_date\" required=\"true\">\n**Type**: string (ISO YYYY-MM-DD)\n**Description**: 分析起始日期\n**Example**: \"2022-06-01\"\n</parameter>\n\n<parameter name=\"end_date\" required=\"true\">\n**Type**: string (ISO YYYY-MM-DD)\n**Description**: 分析結束日期\n**Example**: \"2026-01-23\"\n</parameter>\n\n<parameter name=\"frequency\" required=\"false\" default=\"weekly\">\n**Type**: string\n**Options**: `weekly` | `monthly`\n**Description**: 資料頻率\n</parameter>\n\n<parameter name=\"loan_series_id\" required=\"false\" default=\"TOTLL\">\n**Type**: string\n**Description**: 銀行貸款資料的 FRED Series ID\n</parameter>\n\n<parameter name=\"deposit_series_id\" required=\"false\" default=\"DPSACBW027SBOG\">\n**Type**: string\n**Description**: 銀行存款資料的 FRED Series ID\n</parameter>\n\n<parameter name=\"rrp_series_id\" required=\"false\" default=\"RRPONTSYD\">\n**Type**: string\n**Description**: 逆回購工具（RRP）使用量的 FRED Series ID\n</parameter>\n\n</input_schema>\n\n<output_schema>\n參見 `templates/output-json.md` 的完整結構定義。\n\n**摘要**：\n```json\n{\n  \"status\": \"success\",\n  \"analysis_period\": {\n    \"start\": \"2022-06-01\",\n    \"end\": \"2026-01-23\"\n  },\n  \"cumulative_changes\": {\n    \"new_loans_trillion_usd\": 2.1,\n    \"new_deposits_trillion_usd\": 0.5,\n    \"rrp_change_trillion_usd\": 1.5\n  },\n  \"decoupling_metrics\": {\n    \"decoupling_gap_trillion_usd\": 1.6,\n    \"deposit_stress_ratio\": 0.76,\n    \"rrp_gap_correlation\": 0.89\n  },\n  \"assessment\": {\n    \"tightening_type\": \"hidden_balance_sheet_tightening\",\n    \"primary_driver\": \"RRP_liquidity_absorption\",\n    \"confidence\": \"high\"\n  },\n  \"macro_implication\": \"本次緊縮並非來自銀行縮手放貸，而是聯準會透過 RRP 抽走體系存款，導致市場必須爭奪有限的存款來支撐既有負債結構，屬於「隱性金融緊縮」狀態。\"\n}\n```\n</output_schema>\n\n<success_criteria>\n分析成功時應產出：\n\n- [ ] 銀行貸款、存款、RRP 三個指標的時序數據\n- [ ] 累積變化量計算\n- [ ] Decoupling Gap 與 deposit_stress_ratio\n- [ ] RRP 與 Gap 的相關性驗證\n- [ ] 隱性緊縮訊號判定與信心水準\n- [ ] **脫鉤狀態分析圖**（output/decoupling_chart_YYYY-MM-DD.png）\n- [ ] 可操作的宏觀解讀\n- [ ] 明確標註資料限制與假設\n</success_criteria>",
+    "content": "<essential_principles>\r\n\r\n<principle name=\"credit_deposit_accounting\">\r\n**信貸創造的基本會計邏輯**\r\n\r\n傳統銀行體系下，貸款創造存款：\r\n- 銀行發放貸款 → 借款人帳戶增加存款\r\n- 理論上：新增貸款 ≈ 新增存款\r\n\r\n當這個關係「脫鉤」時：\r\n- 貸款持續擴張，但存款沒有等比例增加\r\n- 代表有「力量」在抽走體系內的存款\r\n- QT 環境下，資金流向貨幣市場基金、國債等\r\n</principle>\r\n\r\n<principle name=\"deposit_dynamics\">\r\n**存款動態的關鍵觀察**\r\n\r\n2022-2023 年 QT 週期的關鍵特徵：\r\n\r\n1. **存款絕對收縮期**（2022 Q2 - 2023 Q1）\r\n   - 存款累積變化一度下探至 **-1.2 兆美元**\r\n   - 代表存款總量比基期（2022年6月）還少 1.2 兆\r\n\r\n2. **存款回升期**（2023 Q2 至今）\r\n   - 存款逐步回升，但仍遠落後貸款增量\r\n   - 當前存款累積變化約 +0.5 兆美元\r\n\r\n3. **持續脫鉤**\r\n   - 貸款累積增加約 +2.1 兆美元\r\n   - 落差（Gap）約 1.6 兆美元\r\n</principle>\r\n\r\n<principle name=\"key_metrics\">\r\n**核心分析指標**\r\n\r\n| 指標                   | 定義                                   | 意義                       |\r\n|------------------------|----------------------------------------|----------------------------|\r\n| 貸款累積變化           | loans(t) - loans(t0)                   | 銀行資產端擴張             |\r\n| 存款累積變化           | deposits(t) - deposits(t0)             | 銀行負債端變化             |\r\n| Decoupling Gap         | 貸款累積變化 - 存款累積變化            | 脫鉤程度                   |\r\n| 存款最大回撤           | min(存款累積變化)                      | 存款收縮最嚴重的程度       |\r\n| 存款回撤恢復比率       | (當前存款變化 - 最低點) / |最低點|     | 存款從低谷回升的程度       |\r\n| Deposit Stress Ratio   | Gap / 貸款累積變化                     | 每單位新增貸款的存款缺口比 |\r\n</principle>\r\n\r\n<principle name=\"data_sources\">\r\n**數據來源（FRED 公開 CSV，無需 API Key）**\r\n\r\n| 指標         | FRED Series ID   | 說明                                                  | 公開 URL                                              |\r\n|--------------|------------------|-------------------------------------------------------|-------------------------------------------------------|\r\n| 銀行貸款總量 | TOTLL            | Loans and Leases in Bank Credit, All Commercial Banks | https://fred.stlouisfed.org/graph/fredgraph.csv?id=TOTLL |\r\n| 銀行存款總量 | DPSACBW027SBOG   | Deposits, All Commercial Banks                        | https://fred.stlouisfed.org/graph/fredgraph.csv?id=DPSACBW027SBOG |\r\n\r\n資料頻率：Weekly（週頻）\r\n對齊方式：以最新共同日期為準\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n分析銀行信貸與存款的脫鉤現象，追蹤存款的收縮與回升動態。\r\n\r\n輸出三層訊號：\r\n1. **Cumulative Changes**: 貸款與存款的累積變化量\r\n2. **Deposit Dynamics**: 存款的最大回撤、回升程度、當前狀態\r\n3. **Decoupling Assessment**: 脫鉤程度評估與宏觀解讀\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：使用 FRED 公開 CSV（無需 API Key）**\r\n\r\n**Step 1：安裝依賴**\r\n```bash\r\npip install pandas numpy requests matplotlib\r\n```\r\n\r\n**Step 2：執行快速分析**\r\n```bash\r\ncd scripts\r\npython decoupling_analyzer.py --quick\r\n```\r\n\r\n**Step 3：執行完整分析（含視覺化）**\r\n```bash\r\npython decoupling_analyzer.py \\\r\n  --start 2022-06-01 \\\r\n  --output ../../output/decoupling_$(date +%Y-%m-%d).json\r\n```\r\n\r\n**Step 4：生成視覺化圖表（Bloomberg 風格面積圖）**\r\n```bash\r\npython visualize_decoupling.py \\\r\n  --start 2022-06-01 \\\r\n  --output ../../output/credit_deposit_decoupling_$(date +%Y-%m-%d).png\r\n```\r\n\r\n**輸出範例**：\r\n```json\r\n{\r\n  \"period\": \"2022-06 to 2026-01\",\r\n  \"cumulative_changes\": {\r\n    \"loans_billion_usd\": 2070.5,\r\n    \"deposits_billion_usd\": 506.8,\r\n    \"gap_billion_usd\": 1563.7\r\n  },\r\n  \"deposit_dynamics\": {\r\n    \"max_drawdown_billion_usd\": -1200.0,\r\n    \"max_drawdown_date\": \"2023-04-12\",\r\n    \"recovery_from_trough_billion_usd\": 1706.8,\r\n    \"recovery_ratio\": 1.42\r\n  },\r\n  \"assessment\": {\r\n    \"decoupling_status\": \"severe\",\r\n    \"deposit_stress_ratio\": 0.755,\r\n    \"phase\": \"recovery_but_lagging\"\r\n  }\r\n}\r\n```\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼分析？\r\n\r\n1. **快速檢查** - 查看最新的信貸-存款脫鉤狀態\r\n2. **完整分析** - 執行完整分析並生成視覺化圖表\r\n3. **方法論學習** - 了解信貸創造脫鉤的會計邏輯與宏觀意義\r\n\r\n**請選擇或直接提供分析參數。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                     | Action                                               |\r\n|------------------------------|------------------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"check\"  | 執行 `python scripts/decoupling_analyzer.py --quick` |\r\n| 2, \"完整\", \"full\", \"analyze\" | 執行完整分析並生成圖表                               |\r\n| 3, \"學習\", \"方法論\", \"why\"   | 閱讀 `references/methodology.md`                     |\r\n| 提供參數 (如日期範圍)        | 使用指定參數執行分析                                 |\r\n\r\n**路由後，執行對應腳本並生成視覺化圖表。**\r\n</routing>\r\n\r\n<visualization>\r\n\r\n**視覺化輸出：信貸-存款脫鉤面積圖**\r\n\r\n採用 **Bloomberg Intelligence 風格**，參考 FRED 原生圖表設計：\r\n\r\n**圖表特徵**：\r\n1. **面積圖（Area Chart）**：清楚顯示累積變化的體量\r\n2. **藍色面積**：貸款累積變化（Loans & Leases）\r\n3. **紅色面積**：存款累積變化（Deposits）\r\n4. **0 軸線**：清楚標示基準線\r\n5. **數值標註**：最新數值標示在圖表右側\r\n\r\n**配色方案（遵循 Bloomberg 規範）**：\r\n- 背景：`#1a1a2e`（深藍黑）\r\n- 貸款面積：`#4a90d9`（藍色）\r\n- 存款面積：`#d94a4a`（紅色）\r\n- 文字：`#ffffff`（白色）\r\n- 網格：`#2d2d44`（暗灰）\r\n\r\n**快速繪圖**：\r\n```bash\r\ncd scripts\r\npython visualize_decoupling.py \\\r\n  --start 2022-06-01 \\\r\n  --output ../../output/credit_deposit_decoupling_YYYY-MM-DD.png\r\n```\r\n\r\n**輸出路徑**：`output/credit_deposit_decoupling_YYYY-MM-DD.png`\r\n\r\n**圖表解讀**：\r\n- 藍色面積持續擴大 → 銀行持續放貸\r\n- 紅色面積一度為負 → 存款絕對收縮（2022-2023）\r\n- 紅色面積回升但落後藍色 → 脫鉤持續\r\n\r\n</visualization>\r\n\r\n<input_schema>\r\n\r\n<parameter name=\"start_date\" required=\"true\">\r\n**Type**: string (ISO YYYY-MM-DD)\r\n**Description**: 分析起始日期\r\n**Default**: \"2022-06-01\"\r\n**Example**: \"2022-06-01\"\r\n</parameter>\r\n\r\n<parameter name=\"end_date\" required=\"false\">\r\n**Type**: string (ISO YYYY-MM-DD)\r\n**Description**: 分析結束日期\r\n**Default**: 今天\r\n</parameter>\r\n\r\n</input_schema>\r\n\r\n<output_schema>\r\n**完整輸出結構**：\r\n```json\r\n{\r\n  \"skill\": \"analyze_bank_credit_deposit_decoupling\",\r\n  \"version\": \"2.0.0\",\r\n  \"status\": \"success\",\r\n  \"analysis_period\": {\r\n    \"start\": \"2022-06-01\",\r\n    \"end\": \"2026-01-07\"\r\n  },\r\n  \"data_sources\": {\r\n    \"loans\": {\r\n      \"series_id\": \"TOTLL\",\r\n      \"url\": \"https://fred.stlouisfed.org/graph/fredgraph.csv?id=TOTLL\"\r\n    },\r\n    \"deposits\": {\r\n      \"series_id\": \"DPSACBW027SBOG\",\r\n      \"url\": \"https://fred.stlouisfed.org/graph/fredgraph.csv?id=DPSACBW027SBOG\"\r\n    }\r\n  },\r\n  \"cumulative_changes\": {\r\n    \"loans_billion_usd\": 2070.5,\r\n    \"deposits_billion_usd\": 506.8,\r\n    \"gap_billion_usd\": 1563.7,\r\n    \"gap_trillion_usd\": 1.56\r\n  },\r\n  \"deposit_dynamics\": {\r\n    \"max_drawdown_billion_usd\": -1200.0,\r\n    \"max_drawdown_date\": \"2023-04-12\",\r\n    \"current_vs_trough_billion_usd\": 1706.8,\r\n    \"recovery_ratio\": 1.42,\r\n    \"phase\": \"recovery_but_lagging\"\r\n  },\r\n  \"assessment\": {\r\n    \"decoupling_status\": \"severe\",\r\n    \"deposit_stress_ratio\": 0.755,\r\n    \"interpretation\": \"每新增 $1 貸款，僅有 $0.24 形成存款\"\r\n  },\r\n  \"macro_implication\": \"銀行信貸與存款出現嚴重脫鉤...\"\r\n}\r\n```\r\n</output_schema>\r\n\r\n<success_criteria>\r\n分析成功時應產出：\r\n\r\n- [ ] 銀行貸款、存款兩個指標的時序數據\r\n- [ ] 累積變化量計算（從基期開始）\r\n- [ ] 存款最大回撤（Maximum Drawdown）及日期\r\n- [ ] 存款回升程度（Recovery Ratio）\r\n- [ ] Decoupling Gap 與 Deposit Stress Ratio\r\n- [ ] **Bloomberg 風格面積圖**（output/credit_deposit_decoupling_YYYY-MM-DD.png）\r\n- [ ] 可操作的宏觀解讀\r\n</success_criteria>\r\n\r\n<scripts_index>\r\n| Script                  | Command                   | Purpose                    |\r\n|-------------------------|---------------------------|----------------------------|\r\n| decoupling_analyzer.py  | `--quick`                 | 快速檢查最新訊號           |\r\n| decoupling_analyzer.py  | `--start DATE`            | 完整分析                   |\r\n| visualize_decoupling.py | `--start DATE --output`   | 生成 Bloomberg 風格面積圖  |\r\n</scripts_index>",
     "path": "skills/analyze-us-bank-credit-deposit-decoupling/SKILL.md",
-    "directoryStructure": "analyze-us-bank-credit-deposit-decoupling/\n├── examples\n│   └── sample_output.json\n├── manifest.json\n├── references\n│   ├── data-sources.md\n│   ├── historical-episodes.md\n│   └── methodology.md\n├── scripts\n│   ├── decoupling_analyzer.py\n│   └── visualize_decoupling.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    └── quick-check.md",
+    "directoryStructure": "analyze-us-bank-credit-deposit-decoupling/\n├── examples\n│   └── sample_output.json\n├── manifest.json\n├── references\n│   ├── data-sources.md\n│   ├── historical-episodes.md\n│   └── methodology.md\n├── scripts\n│   ├── data\n│   │   ├── DPSACBW027SBOG.json\n│   │   └── TOTLL.json\n│   ├── decoupling_analyzer.py\n│   └── visualize_decoupling.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    └── quick-check.md",
+    "lastUpdated": "2026-01-23",
     "rating": 3,
     "testQuestions": [
       {
         "question": "分析 2022 年 6 月至今的美國銀行信貸與存款脫鉤狀況",
-        "expectedResult": "輸出包含：\n- 累積新增貸款、累積新增存款、Decoupling Gap\n- deposit_stress_ratio（存款壓力比率）\n- RRP 與 Gap 的相關性分析\n- 隱性緊縮判定（hidden_balance_sheet_tightening）\n- 宏觀解讀與政策意涵\n"
+        "imagePath": "images/credit-deposit-decoupling-2026-01-23.png",
+        "expectedResult": "美國銀行信貸-存款脫鉤分析結果\n\n關鍵數據摘要（2022-06-01 至 2026-01-07）\n┌─────────────────┬─────────────────────────┐                                                                                                                                               \n│      指標       │          數值           │                                                                                                                                                 \n├─────────────────┼─────────────────────────┤\n│ 貸款累積變化    │ +2,070 億美元           │\n├─────────────────┼─────────────────────────┤\n│ 存款累積變化    │ +507 億美元             │\n├─────────────────┼─────────────────────────┤\n│ 脫鉤落差（Gap） │ 1,564 億美元（1.56 兆） │\n├─────────────────┼─────────────────────────┤\n│ 存款壓力比率    │ 75.5%                   │\n├─────────────────┼─────────────────────────┤\n│ 判定結果        │ 嚴重脫鉤                │\n└─────────────────┴─────────────────────────┘\n\n---\n存款動態分析\n┌────────────┬───────────────────────────┐\n│    指標    │           數值            │\n├────────────┼───────────────────────────┤\n│ 最大回撤   │ -891 億美元（2023-04-26） │\n├────────────┼───────────────────────────┤\n│ 從低谷回升 │ +1,398 億美元             │\n├────────────┼───────────────────────────┤\n│ 回復比率   │ 1.57x（已超越低谷）       │\n├────────────┼───────────────────────────┤\n│ 當前階段   │ 強勁回升，但仍落後貸款    │\n└────────────┴───────────────────────────┘\n\n---\n圖表解讀\n\n從圖表可清楚看到：\n1. 藍色面積（貸款）：自 2022 年 6 月以來持續穩定擴張，累積增加超過 2 兆美元\n2. 紅色面積（存款）：經歷三個階段\n  - 2022 Q2 - 2023 Q2：存款絕對收縮，最低點達 -891B（SVB 危機前後）\n  - 2023 Q2 - 2025 Q3：緩慢爬升，但長期處於負值區間\n  - 2025 Q4 至今：終於回到正值區間\n3. 核心訊號：每新增 $1 貸款，僅有 $0.24 形成存款，顯示 Fed 緊縮政策有效傳導\n\n---\n宏觀含義\n\n- 存款外流至貨幣市場基金、國債等高收益資產\n- 銀行需競爭存款（提高存款利率），壓縮淨息差\n- 脫鉤持續代表流動性緊縮仍在進行中\n\n建議追蹤項目\n- 銀行存款利率是否持續上升（搶存款跡象）\n- SOFR-Fed Funds 利差變化\n- 貨幣市場基金流入量\n"
       },
       {
         "question": "為什麼 QT 環境下美國銀行貸款持續擴張但存款沒有等比例增加？",
-        "expectedResult": "解釋信貸創造脫鉤的機制：\n- 傳統上：貸款創造存款（新增貸款 ≈ 新增存款）\n- QT 環境：RRP 工具吸收存款，導致存款流失\n- 結論：緊縮並非來自銀行縮貸，而是負債端被抽乾\n"
+        "expectedResult": "這是理解 Fed 緊縮政策傳導機制的核心問題。讓我拆解底層邏輯。\n\n---\n傳統理論：貸款創造存款\n⏵銀行發放 $100 貸款 → 借款人帳戶增加 $100 存款\n在封閉系統中，新增貸款 ≈ 新增存款。但 QT 環境下，這個恆等式被打破。\n\n---\nQT 如何「抽走」存款\n\n---\n機制一：Fed 縮表的傳導路徑\n┌─────────────────────────────────────────────────────────┐\n│Fed 持有國債到期 → 不再續購（QT）                         │\n│                    ↓                                    │\n│財政部發新債償還舊債                                      │\n│                    ↓                                    │\n│私人部門（銀行/基金/散戶）用「存款」購買新債               │\n│                    ↓                                    │\n│存款從銀行體系流向財政部（TGA）→ 再流向 Fed 消滅          │\n└─────────────────────────────────────────────────────────┘\n結果：貸款創造的存款，被 QT「吸收」掉了。\n\n---\n機制二：存款搬家到貨幣市場基金（MMF）\n┌──────────────────────┬──────────────┬────────────┬────────────────────┐\n│         環境         │ 銀行存款利率 │ MMF 收益率 │      存款行為      │\n├──────────────────────┼──────────────┼────────────┼────────────────────┤\n│QE 時期（2020-2022）  │ ~0.01%       │ ~0.02%     │ 無差異，存款留銀行 │\n├──────────────────────┼──────────────┼────────────┼────────────────────┤\n│QT 時期（2022 至今）  │ ~0.5%        │ ~5.0%      │ 大規模搬家到 MMF   │\n└──────────────────────┴──────────────┴────────────┴────────────────────┘\n存戶提領銀行存款 → 購買 MMF 份額 → MMF 購買國債/Repo\n                                            ↓\n                              存款離開銀行體系\n2022 年至今，約 1.5 兆美元從銀行存款流入 MMF。\n\n---\n機制三：逆回購（RRP）的「存款黑洞」\nMMF 拿到的錢 → 放入 Fed 逆回購工具（RRP）\n                          ↓\n              這些錢「停泊」在 Fed，不在銀行體系內\nRRP 高峰期餘額超過 2.5 兆美元，這些原本可能是銀行存款的資金。\n\n---\n為什麼貸款仍能擴張？\n銀行貸款（資產端）和存款（負債端）可以脫鉤，因為銀行有其他籌資管道：\n┌────────────────┬──────────────────────────────┐\n│    籌資方式    │             說明             │\n├────────────────┼──────────────────────────────┤\n│FHLB 借款       │ 聯邦住房貸款銀行提供批發融資 │\n├────────────────┼──────────────────────────────┤\n│發行債券        │ 銀行發行中長期債券           │\n├────────────────┼──────────────────────────────┤\n│同業拆借        │ Fed Funds 市場借款           │\n├────────────────┼──────────────────────────────┤\n│減少超額準備金  │ 動用存放在 Fed 的準備金      │\n└────────────────┴──────────────────────────────┘\n結論：銀行可以「不靠存款」繼續放貸，只是成本更高。\n\n---\n圖解：存款流失的完整路徑\n                    ┌──────────────────┐\n                    │   銀行發放貸款    │\n                    │   +$2,070B       │\n                    └────────┬─────────┘\n                              │ 創造存款\n                              ▼\n                    ┌──────────────────┐\n                    │   存款帳戶       │\n                    │   （理論上應有）  │\n                    └────────┬─────────┘\n                              │\n        ┌────────────────────┼────────────────────┐\n        │                    │                    │\n        ▼                    ▼                    ▼\n┌───────────────┐   ┌───────────────┐   ┌───────────────┐\n│  QT 吸收      │   │  MMF 搬家     │   │  國債直購     │\n│  (~$1.0T)     │   │  (~$1.5T)     │   │  (~$0.2T)     │\n└───────────────┘   └───────────────┘   └───────────────┘\n        │                    │                    │\n        └────────────────────┼────────────────────┘\n                              ▼\n                    ┌──────────────────┐\n                    │   實際存款變化    │\n                    │   +$507B        │\n                    │  （落差 $1.56T） │\n                    └──────────────────┘\n---\n核心結論\n┌────────────────────┬──────────────────────────────────────────────┐\n│        問題        │                     答案                     │\n├────────────────────┼──────────────────────────────────────────────┤\n│為什麼貸款能擴張？  │ 銀行有其他籌資管道（FHLB、發債、準備金）     │\n├────────────────────┼──────────────────────────────────────────────┤\n│為什麼存款不跟？    │ QT + 高利率環境導致存款外流到 MMF、國債      │\n├────────────────────┼──────────────────────────────────────────────┤\n│脫鉤代表什麼？      │ Fed 緊縮政策正在有效傳導，銀行體系流動性收緊 │\n├────────────────────┼──────────────────────────────────────────────┤\n│對銀行的影響？      │ 籌資成本上升、淨息差壓縮、需要「搶存款」     │\n└────────────────────┴──────────────────────────────────────────────┘\n這就是為什麼圖表上藍色（貸款）持續擴張，紅色（存款）卻一度收縮近 9,000 億美元的根本原因。\n"
       },
       {
         "question": "當前美國金融環境是否正在發生隱性緊縮？",
-        "expectedResult": "基於 FRED 數據的判定結果：\n- 計算 Decoupling Gap 與 deposit_stress_ratio\n- 驗證 Gap 與 RRP 累積量的相關性\n- 給出隱性緊縮判定（是/否）與信心水準\n"
+        "expectedResult": "這是一個關鍵問題。讓我從多個維度評估「隱性緊縮」的證據。\n\n---\n什麼是「隱性緊縮」\n⏵顯性緊縮：Fed 升息、公開宣布 QT  \n⏵隱性緊縮：政策利率不變甚至降息，但金融條件實際收緊  \n\n核心特徵：  \n市場感受到的緊縮程度 ＞ 政策利率暗示的緊縮程度\n\n---\n五個維度的證據評估\n\n---\n1. 銀行體系：信貸-存款脫鉤 ⚠️ 緊縮中\n┌──────────────┬───────┬─────────────────────────────┐\n│     指標     │ 數據  │            訊號             │\n├──────────────┼───────┼─────────────────────────────┤\n│存款壓力比率  │75.5%  │每 $1 貸款僅 $0.24 形成存款 │\n├──────────────┼───────┼─────────────────────────────┤\n│存款回升      │+507B  │回升但遠落後貸款增量        │\n├──────────────┼───────┼─────────────────────────────┤\n│銀行籌資成本  │↑      │被迫提高存款利率搶存款      │\n└──────────────┴───────┴─────────────────────────────┘\n判定：銀行體系流動性緊縮持續\n\n---\n2. Fed 資產負債表：QT 仍在進行 ⚠️ 緊縮中\nFed 資產負債表變化（2022 高峰至今）：\n2022-04 高峰：$8.96 兆  \n2026-01 當前：~$6.8 兆  \n累積縮減：    ~$2.1 兆\n┌────────────┬────────────────────────────────┐\n│    階段    │              狀態              │\n├────────────┼────────────────────────────────┤\n│QT 速度     │放緩至 $25B/月（原 $95B/月）    │\n├────────────┼────────────────────────────────┤\n│仍在縮表    │流動性持續被抽離                │\n└────────────┴────────────────────────────────┘\n\n---\n3. 流動性緩衝：RRP 耗盡 ⚠️ 緩衝消失\nRRP（逆回購）餘額變化：\n2022-12 高峰：$2.55 兆（流動性「停車場」）  \n2026-01 當前：~$0.1 兆（幾乎耗盡）\n含義：\n- RRP 曾是 QT 的「緩衝墊」\n- 緩衝耗盡後，QT 直接衝擊銀行準備金\n- 這是「隱性緊縮」加速的信號\n\n---\n4. 銀行貸款標準：持續收緊 ⚠️ 緊縮中\n根據 Fed 高級貸款官調查（SLOOS）：\n┌─────────────────┬──────────┬──────────┐\n│    貸款類型     │標準變化  │需求變化  │\n├─────────────────┼──────────┼──────────┤\n│商業貸款（C&I）  │收緊      │疲軟      │\n├─────────────────┼──────────┼──────────┤\n│商業地產（CRE）  │顯著收緊  │大幅下降  │\n├─────────────────┼──────────┼──────────┤\n│消費貸款         │小幅收緊  │持平      │\n└─────────────────┴──────────┴──────────┘\n銀行自主收緊貸款標準  \n= 即使 Fed 不升息，信貸也在緊縮\n\n---\n5. 實質利率：歷史高位 ⚠️ 緊縮中\n名目利率（Fed Funds）： ~4.25–4.50%  \n核心 PCE 通膨：          ~2.8%  \n────────────────────────\n實質利率：               ~1.5–1.7%\n┌────────────────┬────────────────┐\n│    歷史對比    │    實質利率    │\n├────────────────┼────────────────┤\n│2010–2019 平均  │-0.5%           │\n├────────────────┼────────────────┤\n│2020–2021       │-4% 至 -6%      │\n├────────────────┼────────────────┤\n│2024–2026       │+1.5% 至 +2.0%  │\n└────────────────┴────────────────┘\n這是 2007 年以來最緊縮的實質利率環境\n\n---\n隱性緊縮的傳導路徑\n┌─────────────────────────────────────────────────────────────┐\n│                     Fed 政策利率                            │\n│                  （看似穩定 / 降息）                         │\n└─────────────────────────┬───────────────────────────────────┘\n                          │\n    ┌────────────────────┼─────────────────────┐\n    │                    │                     │\n    ▼                    ▼                     ▼\n┌─────────┐        ┌─────────┐           ┌─────────┐\n│QT 持續  │        │存款外流 │           │銀行惜貸 │\n└────┬────┘        └────┬────┘           └────┬────┘\n    │                  │                     │\n    └──────────────────┼─────────────────────┘\n                        ▼\n              ┌─────────────────────┐\n              │   實際金融條件      │\n              │   比政策利率暗示    │\n              │   的更緊縮          │\n              └─────────────────────┘\n                        │\n                        ▼\n    ┌────────────────────┼────────────────────┐\n    │                    │                    │\n    ▼                    ▼                    ▼\n┌─────────┐        ┌─────────┐        ┌─────────┐\n│企業融資 │        │商業地產 │        │中小企業 │\n│成本上升 │        │再融資難 │        │貸款難   │\n└─────────┘        └─────────┘        └─────────┘\n---\n綜合評估\n┌───────────────┬────────────┬────────┐\n│     維度      │    狀態    │ 嚴重度 │\n├───────────────┼────────────┼────────┤\n│信貸-存款脫鉤  │嚴重脫鉤    │🔴      │\n├───────────────┼────────────┼────────┤\n│QT 進度        │放緩但持續  │🟡      │\n├───────────────┼────────────┼────────┤\n│RRP 緩衝       │幾乎耗盡    │🔴      │\n├───────────────┼────────────┼────────┤\n│銀行貸款標準   │持續收緊    │🔴      │\n├───────────────┼────────────┼────────┤\n│實質利率       │歷史高位    │🔴      │\n└───────────────┴────────────┴────────┘\n\n結論：是的，隱性緊縮正在發生\n┌─────────────────────────────────────────────────────────────┐\n│表面現象：Fed 已停止升息，甚至開始降息                       │\n│實際狀況：金融條件仍處於 2007 年以來最緊縮水平               │\n│核心矛盾：政策利率 vs 實際信貸可得性的「落差」擴大中        │\n└─────────────────────────────────────────────────────────────┘\n\n---\n需要警惕的風險\n┌────────────────┬───────────────────────────┬────────────────────────┐\n│      風險      │           機制            │        觀察指標        │\n├────────────────┼───────────────────────────┼────────────────────────┤\n│商業地產違約潮  │再融資成本過高 + 空置率高 │CRE 貸款拖欠率         │\n├────────────────┼───────────────────────────┼────────────────────────┤\n│中小銀行壓力    │存款流失 + 資產減值       │區域銀行股價、存款數據 │\n├────────────────┼───────────────────────────┼────────────────────────┤\n│信用利差擴大    │風險重新定價              │HY 利差、IG 利差       │\n├────────────────┼───────────────────────────┼────────────────────────┤\n│流動性意外      │RRP 緩衝消失後的脆弱性    │SOFR 波動、Repo 利率   │\n└────────────────┴───────────────────────────┴────────────────────────┘\n\n當前環境的核心特徵：  \nFed 已轉向寬鬆敘事，但緊縮效應仍在累積傳導。  \n這種「滯後效應」是最危險的階段。\n"
       }
     ],
     "qualityScore": {
@@ -4160,10 +4162,6 @@
         "answer": "FRED 是聯準會官方數據庫，具有以下優勢：\n- 完全公開、免費使用\n- 數據品質經過官方驗證\n- API 穩定、文檔完整\n- 歷史數據完整（可追溯至 1970 年代）\n"
       },
       {
-        "question": "deposit_stress_ratio 的警戒水準是多少？",
-        "answer": "- < 0.3：正常範圍\n- 0.3-0.5：輕度壓力\n- 0.5-0.7：中度壓力\n- > 0.7：高度壓力（銀行需要積極搶存款）\n"
-      },
-      {
         "question": "這個分析對投資有什麼啟示？",
         "answer": "當偵測到隱性緊縮時：\n- 銀行股可能面臨 NIM（淨利差）壓力\n- 高收益債券利差可能擴大\n- 可能預示信貸條件收緊、經濟放緩\n"
       }
@@ -4173,8 +4171,8 @@
       "branch": "main",
       "additionalInfo": "## 背景\n\n這個 Skill 的核心洞察是：QT 的傳導機制並非傳統認知的「縮貸」，\n而是透過 RRP 等工具直接抽走銀行體系的存款，\n在銀行負債端製造壓力。\n\n## 參考資料\n\n- FRED 官方文檔：https://fred.stlouisfed.org/docs/api/\n- 銀行信貸統計說明：H.8 Statistical Release\n- RRP 操作說明：NY Fed Open Market Operations\n"
     },
-    "methodology": "### 1.1 傳統銀行信貸創造\n\n在傳統銀行體系中，貸款創造存款（Loans Create Deposits）：\n\n```\n銀行發放 $100 貸款\n    ↓\n借款人帳戶增加 $100 存款\n    ↓\n銀行資產端：貸款 +$100\n銀行負債端：存款 +$100\n```\n\n**關鍵假設**：在封閉系統內，新增貸款 ≈ 新增存款\n\n### 1.2 脫鉤發生的條件\n\n當以下情況發生時，信貸-存款關係會脫鉤：\n\n| 情況         | 機制                       | 效果               |\n|--------------|----------------------------|--------------------|\n| **QT 縮表**  | Fed 減少資產負債表規模     | 系統性存款減少     |\n| **RRP 吸收** | 貨幣市場基金將資金存入 Fed | 存款流出銀行體系   |\n| **TGA 增加** | 財政部帳戶餘額增加         | 存款從銀行流向 Fed |\n\n---\n\n## 2. Decoupling Gap 計算\n\n### 2.1 核心公式\n\n以分析起始日 t₀ 為基準：\n\n```\nloan_change(t) = loans(t) - loans(t₀)      # 累積新增貸款\ndeposit_change(t) = deposits(t) - deposits(t₀)  # 累積新增存款\n\ndecoupling_gap(t) = loan_change(t) - deposit_change(t)\n```\n\n### 2.2 解讀\n\n| Gap 狀態       | 意義                                       |\n|----------------|--------------------------------------------|\n| Gap > 0 且擴大 | 貸款創造的存款「消失」了，被某處吸走       |\n| Gap ≈ 0        | 傳統信貸創造機制正常運作                   |\n| Gap < 0        | 存款增加超過貸款（可能來自 QE 或財政注入） |\n\n---\n\n## 3. Deposit Stress Ratio\n\n### 3.1 定義\n\n```\ndeposit_stress_ratio = decoupling_gap / loan_change\n```\n\n### 3.2 解讀\n\n| Ratio     | 壓力等級 | 意義                         |\n|-----------|----------|------------------------------|\n| < 0.3     | 低       | 正常信貸創造，存款跟上貸款   |\n| 0.3 - 0.5 | 中       | 輕度脫鉤，部分存款流失       |\n| 0.5 - 0.7 | 高       | 顯著脫鉤，銀行需搶存款       |\n| > 0.7     | 極高     | 嚴重負債端壓力，融資成本上升 |\n\n### 3.3 示例\n\n若在分析期間：\n- 累積新增貸款：2.1 兆美元\n- 累積新增存款：0.5 兆美元\n- Decoupling Gap：1.6 兆美元\n\n則：\n```\ndeposit_stress_ratio = 1.6 / 2.1 = 0.76\n```\n\n**解讀**：76% 的新增貸款沒有對應的存款創造，銀行面臨嚴重的負債端壓力。\n\n---\n\n## 4. RRP 中和效果驗證\n\n### 4.1 假設\n\n若 Gap 主要由 RRP 吸收解釋，則：\n\n```\ndecoupling_gap ≈ rrp_change\n```\n\n### 4.2 驗證方法\n\n計算相關係數：\n\n```python\ncorrelation = np.corrcoef(decoupling_gap, rrp_change)[0, 1]\n```\n\n### 4.3 解讀\n\n| 相關係數    | 解讀                                       |\n|-------------|--------------------------------------------|\n| r > 0.8     | 高度相關，RRP 是主要驅動因素               |\n| r = 0.5-0.8 | 中度相關，RRP 部分解釋                     |\n| r < 0.5     | 低相關，需考慮其他因素（TGA、QT 直接效果） |\n\n---\n\n## 5. 隱性緊縮判定邏輯\n\n### 5.1 判定標準\n\n| 條件組合                                          | 判定                                |\n|---------------------------------------------------|-------------------------------------|\n| 貸款持續上升 + 存款顯著落後 + Gap 與 RRP 高度相關 | **Hidden Balance Sheet Tightening** |\n| 貸款下降 + 存款下降                               | Traditional Credit Tightening       |\n| 貸款上升 + 存款同步上升                           | Neutral / Expansionary              |\n\n### 5.2 信心水準\n\n| 信心   | 條件                                                    |\n|--------|---------------------------------------------------------|\n| High   | deposit_stress_ratio > 0.5 且 RRP correlation > 0.8     |\n| Medium | deposit_stress_ratio 0.3-0.5 或 RRP correlation 0.5-0.8 |\n| Low    | 條件不明確或數據不完整                                  |\n\n---\n\n## 6. 宏觀意涵\n\n### 6.1 核心洞察\n\n當偵測到隱性緊縮時：\n- 緊縮並非來自銀行不放貸（傳統敘事）\n- 而是來自負債端（存款）被政策工具抽乾\n- 市場需要「額外搶存款」來支撐既有負債結構\n\n### 6.2 市場影響\n\n| 層面         | 影響                               |\n|--------------|------------------------------------|\n| **銀行**     | NIM（淨利差）壓力，存款成本上升    |\n| **信貸市場** | 信貸條件可能收緊（即使貸款量未縮） |\n| **利率**     | 短端利率可能上升，曲線可能反轉     |\n| **流動性**   | 系統性流動性收緊                   |\n\n---\n\n## 7. 限制與假設\n\n### 7.1 資料限制\n\n- FRED 數據為週頻，可能錯過日內波動\n- RRP 為日頻，需對齊至週頻\n- 部分數據有修正（revisions）\n\n### 7.2 模型假設\n\n- 假設封閉系統（忽略跨境資金流動）\n- 假設 RRP 是主要的存款吸收來源\n- 假設銀行資產負債表調整即時反映\n\n### 7.3 不適用情境\n\n- 金融危機期間（非常規政策干擾）\n- QE 環境（存款創造超過貸款）\n- 重大法規變更期間\n\n---\n\n## 8. 參考資料\n\n- Pozsar, Z. (2022). \"Money, Credit and Velocity\", Credit Suisse\n- Singh, M. (2016). \"Collateral and Monetary Policy\", IMF\n- Federal Reserve Statistical Release H.8\n- NY Fed Open Market Operations Data\n",
-    "downloadUrl": "downloads/analyze-us-bank-credit-deposit-decoupling-0.1.0.zip"
+    "methodology": "### 1.1 傳統銀行信貸創造\r\n\r\n在傳統銀行體系中，貸款創造存款（Loans Create Deposits）：\r\n\r\n```\r\n銀行發放 $100 貸款\r\n    ↓\r\n借款人帳戶增加 $100 存款\r\n    ↓\r\n銀行資產端：貸款 +$100\r\n銀行負債端：存款 +$100\r\n```\r\n\r\n**關鍵假設**：在封閉系統內，新增貸款 ≈ 新增存款\r\n\r\n### 1.2 脫鉤發生的條件\r\n\r\n當以下情況發生時，信貸-存款關係會脫鉤：\r\n\r\n| 情況         | 機制                       | 效果               |\r\n|--------------|----------------------------|--------------------|\r\n| **QT 縮表**  | Fed 減少資產負債表規模     | 系統性存款減少     |\r\n| **RRP 吸收** | 貨幣市場基金將資金存入 Fed | 存款流出銀行體系   |\r\n| **TGA 增加** | 財政部帳戶餘額增加         | 存款從銀行流向 Fed |\r\n\r\n---\r\n\r\n## 2. Decoupling Gap 計算\r\n\r\n### 2.1 核心公式\r\n\r\n以分析起始日 t₀ 為基準：\r\n\r\n```\r\nloan_change(t) = loans(t) - loans(t₀)      # 累積新增貸款\r\ndeposit_change(t) = deposits(t) - deposits(t₀)  # 累積新增存款\r\n\r\ndecoupling_gap(t) = loan_change(t) - deposit_change(t)\r\n```\r\n\r\n### 2.2 解讀\r\n\r\n| Gap 狀態       | 意義                                       |\r\n|----------------|--------------------------------------------|\r\n| Gap > 0 且擴大 | 貸款創造的存款「消失」了，被某處吸走       |\r\n| Gap ≈ 0        | 傳統信貸創造機制正常運作                   |\r\n| Gap < 0        | 存款增加超過貸款（可能來自 QE 或財政注入） |\r\n\r\n---\r\n\r\n## 3. Deposit Stress Ratio\r\n\r\n### 3.1 定義\r\n\r\n```\r\ndeposit_stress_ratio = decoupling_gap / loan_change\r\n```\r\n\r\n### 3.2 解讀\r\n\r\n| Ratio     | 壓力等級 | 意義                         |\r\n|-----------|----------|------------------------------|\r\n| < 0.3     | 低       | 正常信貸創造，存款跟上貸款   |\r\n| 0.3 - 0.5 | 中       | 輕度脫鉤，部分存款流失       |\r\n| 0.5 - 0.7 | 高       | 顯著脫鉤，銀行需搶存款       |\r\n| > 0.7     | 極高     | 嚴重負債端壓力，融資成本上升 |\r\n\r\n### 3.3 示例\r\n\r\n若在分析期間：\r\n- 累積新增貸款：2.1 兆美元\r\n- 累積新增存款：0.5 兆美元\r\n- Decoupling Gap：1.6 兆美元\r\n\r\n則：\r\n```\r\ndeposit_stress_ratio = 1.6 / 2.1 = 0.76\r\n```\r\n\r\n**解讀**：76% 的新增貸款沒有對應的存款創造，銀行面臨嚴重的負債端壓力。\r\n\r\n---\r\n\r\n## 4. RRP 中和效果驗證\r\n\r\n### 4.1 假設\r\n\r\n若 Gap 主要由 RRP 吸收解釋，則：\r\n\r\n```\r\ndecoupling_gap ≈ rrp_change\r\n```\r\n\r\n### 4.2 驗證方法\r\n\r\n計算相關係數：\r\n\r\n```python\r\ncorrelation = np.corrcoef(decoupling_gap, rrp_change)[0, 1]\r\n```\r\n\r\n### 4.3 解讀\r\n\r\n| 相關係數    | 解讀                                       |\r\n|-------------|--------------------------------------------|\r\n| r > 0.8     | 高度相關，RRP 是主要驅動因素               |\r\n| r = 0.5-0.8 | 中度相關，RRP 部分解釋                     |\r\n| r < 0.5     | 低相關，需考慮其他因素（TGA、QT 直接效果） |\r\n\r\n---\r\n\r\n## 5. 隱性緊縮判定邏輯\r\n\r\n### 5.1 判定標準\r\n\r\n| 條件組合                                          | 判定                                |\r\n|---------------------------------------------------|-------------------------------------|\r\n| 貸款持續上升 + 存款顯著落後 + Gap 與 RRP 高度相關 | **Hidden Balance Sheet Tightening** |\r\n| 貸款下降 + 存款下降                               | Traditional Credit Tightening       |\r\n| 貸款上升 + 存款同步上升                           | Neutral / Expansionary              |\r\n\r\n### 5.2 信心水準\r\n\r\n| 信心   | 條件                                                    |\r\n|--------|---------------------------------------------------------|\r\n| High   | deposit_stress_ratio > 0.5 且 RRP correlation > 0.8     |\r\n| Medium | deposit_stress_ratio 0.3-0.5 或 RRP correlation 0.5-0.8 |\r\n| Low    | 條件不明確或數據不完整                                  |\r\n\r\n---\r\n\r\n## 6. 宏觀意涵\r\n\r\n### 6.1 核心洞察\r\n\r\n當偵測到隱性緊縮時：\r\n- 緊縮並非來自銀行不放貸（傳統敘事）\r\n- 而是來自負債端（存款）被政策工具抽乾\r\n- 市場需要「額外搶存款」來支撐既有負債結構\r\n\r\n### 6.2 市場影響\r\n\r\n| 層面         | 影響                               |\r\n|--------------|------------------------------------|\r\n| **銀行**     | NIM（淨利差）壓力，存款成本上升    |\r\n| **信貸市場** | 信貸條件可能收緊（即使貸款量未縮） |\r\n| **利率**     | 短端利率可能上升，曲線可能反轉     |\r\n| **流動性**   | 系統性流動性收緊                   |\r\n\r\n---\r\n\r\n## 7. 限制與假設\r\n\r\n### 7.1 資料限制\r\n\r\n- FRED 數據為週頻，可能錯過日內波動\r\n- RRP 為日頻，需對齊至週頻\r\n- 部分數據有修正（revisions）\r\n\r\n### 7.2 模型假設\r\n\r\n- 假設封閉系統（忽略跨境資金流動）\r\n- 假設 RRP 是主要的存款吸收來源\r\n- 假設銀行資產負債表調整即時反映\r\n\r\n### 7.3 不適用情境\r\n\r\n- 金融危機期間（非常規政策干擾）\r\n- QE 環境（存款創造超過貸款）\r\n- 重大法規變更期間\r\n\r\n---\r\n\r\n## 8. 參考資料\r\n\r\n- Pozsar, Z. (2022). \"Money, Credit and Velocity\", Credit Suisse\r\n- Singh, M. (2016). \"Collateral and Monetary Policy\", IMF\r\n- Federal Reserve Statistical Release H.8\r\n- NY Fed Open Market Operations Data\r\n",
+    "downloadUrl": "downloads/analyze-us-bank-credit-deposit-decoupling-0.1.1.zip"
   },
   {
     "id": "analyze-silver-miner-metal-ratio",
@@ -4399,202 +4397,6 @@
     "downloadUrl": "downloads/analyze-silver-miner-metal-ratio-0.1.0.zip"
   },
   {
-    "id": "analyze-investment-clock-rotation",
-    "name": "analyze-investment-clock-rotation",
-    "displayName": "投資時鐘輪動分析",
-    "description": "把「獲利成長 × 財務狀況（金融環境）」映射成「投資時鐘」，判斷目前落在哪個象限、近期是順時針還是逆時針旋轉、以及相對於上一輪循環的位置差異",
-    "emoji": "🕐",
-    "version": "0.1.0",
-    "license": "MIT",
-    "author": "Ricky Wang",
-    "authorUrl": "https://github.com/fatfingererr/macro-skills",
-    "tags": [
-      "投資時鐘",
-      "景氣循環",
-      "獲利成長",
-      "金融環境",
-      "資產配置",
-      "象限分析",
-      "FRED",
-      "宏觀經濟"
-    ],
-    "category": "business-cycles",
-    "dataLevel": "free-nolimit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": false,
-    "installCount": 0,
-    "content": "<essential_principles>\n\n<principle name=\"quadrant_model\">\n**四象限模型核心**\n\n投資時鐘將市場狀態簡化為四個象限：\n\n```\n          金融環境支持（寬鬆）\n                ↑\n       Q3      │      Q1\n     修復過渡   │   理想象限\n  ────────────┼────────────→ 獲利成長\n       Q4      │      Q2\n     最差象限   │   好壞混合\n                │\n          金融環境不支持（緊縮）\n```\n\n| 象限 | 獲利 | 金融環境 | 含義 | 配置建議 |\n|------|------|----------|------|----------|\n| Q1 理想象限 | ↑ | 支持↑ | 風險資產友善 | 偏多、順風配置 |\n| Q2 好壞混合 | ↑ | 不支持↓ | 估值壓力、波動 | 波動管理、估值敏感 |\n| Q3 修復過渡 | ↓ | 支持↑ | 寬鬆救市、基本面未回 | 勿誤判為全面牛市 |\n| Q4 最差象限 | ↓ | 不支持↓ | 風險資產易受傷 | 風險控管、降槓桿 |\n</principle>\n\n<principle name=\"axis_convention\">\n**軸向約定（重要！）**\n\n不同來源的投資時鐘圖可能有不同的軸向定義。本 skill 預設：\n\n- **X 軸**：金融環境（Financial Conditions）\n  - 左側 = 寬鬆（支持性高）\n  - 右側 = 緊縮（支持性低）\n\n- **Y 軸**：獲利成長（Earnings Growth）\n  - 上方 = 正成長\n  - 下方 = 負成長\n\n**若你的圖表定義不同**，請在輸入參數中調整 `axis_mapping` 和 `clock_convention`。\n</principle>\n\n<principle name=\"clock_hour\">\n**時鐘點位計算**\n\n透過 `atan2(y, x)` 計算角度，再轉換成 12 小時制：\n\n- 12 點：正上方（獲利最高、金融環境中性）\n- 3 點：右側（金融環境最緊）\n- 6 點：正下方（獲利最低）\n- 9 點：左側（金融環境最寬鬆）\n\n**旋轉方向**：\n- 順時針：典型景氣循環路徑（Q1 → Q2 → Q4 → Q3 → Q1）\n- 逆時針：政策干預或非典型事件\n</principle>\n\n<principle name=\"data_access\">\n**資料取得方式**\n\n本 skill 使用**無需 API key** 的資料來源：\n\n- **FRED CSV**: `https://fred.stlouisfed.org/graph/fredgraph.csv?id={SERIES_ID}`\n  - 金融環境：NFCI（Chicago Fed）、STLFSI4（St. Louis Fed）\n  - 獲利代理：CP（企業利潤）、GDP 相關指標\n\n腳本位於 `scripts/` 目錄，可直接執行。\n</principle>\n\n</essential_principles>\n\n<objective>\n實作投資時鐘分析：\n\n1. **建構座標**：從 FRED 數據計算獲利成長與金融環境 Z-score\n2. **判定象限**：識別當前落在哪個象限\n3. **計算點位**：轉換為 12 小時制時鐘點位\n4. **分析旋轉**：判斷旋轉方向與幅度\n5. **循環比較**：與前一輪循環比較（可選）\n\n輸出：當前象限、時鐘點位、旋轉摘要、配置建議。\n</objective>\n\n<quick_start>\n\n**最快的方式：執行預設分析**\n\n```bash\ncd skills/analyze-investment-clock-rotation\npip install pandas numpy requests  # 首次使用\npython scripts/investment_clock.py --quick\n```\n\n輸出範例：\n```json\n{\n  \"as_of\": \"2026-01-15\",\n  \"current_position\": {\n    \"clock_hour\": 10,\n    \"quadrant\": \"Q1_ideal\",\n    \"earnings_growth\": 0.052,\n    \"financial_conditions_zscore\": -0.35\n  },\n  \"interpretation\": \"理想象限，風險資產相對順風\"\n}\n```\n\n**完整分析**：\n```bash\npython scripts/investment_clock.py \\\n  --start 2022-01-01 \\\n  --end 2026-01-19 \\\n  --compare-cycle 2020-01-01 2022-12-31 \\\n  --output result.json\n```\n\n</quick_start>\n\n<intake>\n需要進行什麼操作？\n\n1. **快速檢查** - 查看目前的投資時鐘位置與象限\n2. **完整分析** - 分析時間區間內的旋轉路徑與方向\n3. **循環比較** - 與前一輪循環比較旋轉特徵\n4. **視覺化圖表** - 生成投資時鐘視覺化圖表\n5. **方法論學習** - 了解投資時鐘模型的邏輯\n\n**請選擇或直接提供分析參數。**\n</intake>\n\n<routing>\n| Response                       | Action                                             |\n|--------------------------------|----------------------------------------------------|\n| 1, \"快速\", \"quick\", \"check\"    | 執行 `python scripts/investment_clock.py --quick`  |\n| 2, \"完整\", \"分析\", \"full\"      | 閱讀 `workflows/analyze.md` 並執行                 |\n| 3, \"比較\", \"循環\", \"compare\"   | 閱讀 `workflows/compare-cycle.md` 並執行           |\n| 4, \"視覺化\", \"chart\", \"plot\"   | 閱讀 `workflows/visualize.md` 並執行               |\n| 5, \"學習\", \"方法論\", \"why\"     | 閱讀 `references/methodology.md`                   |\n| 提供參數 (如日期範圍)          | 閱讀 `workflows/analyze.md` 並使用參數執行         |\n\n**路由後，閱讀對應文件並執行。**\n</routing>\n\n<directory_structure>\n```\nanalyze-investment-clock-rotation/\n├── SKILL.md                           # 本文件（路由器）\n├── skill.yaml                         # 前端展示元數據\n├── manifest.json                      # 技能元數據\n├── workflows/\n│   ├── analyze.md                     # 完整分析工作流\n│   ├── compare-cycle.md               # 循環比較工作流\n│   └── visualize.md                   # 視覺化工作流\n├── references/\n│   ├── methodology.md                 # 投資時鐘方法論\n│   ├── data-sources.md                # FRED 系列代碼與資料來源\n│   └── input-schema.md                # 完整輸入參數定義\n├── templates/\n│   ├── output-json.md                 # JSON 輸出模板\n│   └── output-markdown.md             # Markdown 報告模板\n└── scripts/\n    ├── investment_clock.py            # 主分析腳本\n    ├── fetch_data.py                  # 數據抓取工具\n    └── visualize.py                   # 視覺化繪圖工具\n```\n</directory_structure>\n\n<reference_index>\n\n**方法論**: references/methodology.md\n- 投資時鐘概念與歷史\n- 四象限定義與配置含義\n- 旋轉方向解讀\n\n**資料來源**: references/data-sources.md\n- FRED 系列代碼（金融環境/獲利代理）\n- 數據頻率與對齊方法\n\n**輸入參數**: references/input-schema.md\n- 完整參數定義\n- 預設值與建議範圍\n\n</reference_index>\n\n<workflows_index>\n| Workflow          | Purpose              | 使用時機               |\n|-------------------|----------------------|------------------------|\n| analyze.md        | 完整分析             | 需要詳細象限與旋轉分析 |\n| compare-cycle.md  | 循環比較             | 比較不同循環的特徵     |\n| visualize.md      | 生成視覺化圖表       | 需要圖表展示           |\n</workflows_index>\n\n<templates_index>\n| Template           | Purpose           |\n|--------------------|-------------------|\n| output-json.md     | JSON 輸出結構定義 |\n| output-markdown.md | Markdown 報告模板 |\n</templates_index>\n\n<scripts_index>\n| Script               | Command                          | Purpose              |\n|----------------------|----------------------------------|----------------------|\n| investment_clock.py  | `--quick`                        | 快速檢查當前位置     |\n| investment_clock.py  | `--start DATE --end DATE`        | 完整分析             |\n| investment_clock.py  | `--compare-cycle START END`      | 循環比較             |\n| fetch_data.py        | `--series NFCI,CP`               | 抓取 FRED 資料       |\n| visualize.py         | `-i result.json -o chart.png`    | 生成視覺化圖表       |\n</scripts_index>\n\n<input_schema_summary>\n\n**核心參數**\n\n| 參數                    | 類型   | 預設值           | 說明               |\n|-------------------------|--------|------------------|--------------------|\n| market                  | string | US_EQUITY        | 分析標的           |\n| start_date              | string | 2022-01-01       | 分析起點           |\n| end_date                | string | today            | 分析終點           |\n| freq                    | string | weekly           | 頻率（weekly/monthly） |\n\n**資料來源參數**\n\n| 參數                    | 類型   | 說明                      |\n|-------------------------|--------|---------------------------|\n| earnings_series.source  | string | fred / api / csv / manual |\n| earnings_series.series_id | string | FRED 序列 ID（如 CP）     |\n| earnings_series.growth_method | string | yoy / qoq_annualized  |\n| financial_conditions_series.source | string | fred / api / csv |\n| financial_conditions_series.series_id | string | NFCI / STLFSI4 |\n| financial_conditions_series.transform | string | level / zscore / inverse |\n\n**軸向參數**\n\n| 參數                       | 類型   | 預設值              | 說明                 |\n|----------------------------|--------|---------------------|----------------------|\n| axis_mapping.x             | string | financial_conditions | X 軸定義            |\n| axis_mapping.y             | string | earnings_growth      | Y 軸定義            |\n| clock_convention.financial_loose_is_left | bool | true | 寬鬆在左側 |\n\n完整參數定義見 `references/input-schema.md`。\n\n</input_schema_summary>\n\n<output_schema_summary>\n```json\n{\n  \"skill\": \"analyze-investment-clock-rotation\",\n  \"as_of\": \"2026-01-19\",\n  \"market\": \"US_EQUITY\",\n  \"current_state\": {\n    \"clock_hour\": 10,\n    \"quadrant\": \"Q1_ideal\",\n    \"quadrant_name\": \"理想象限\",\n    \"x_value\": -0.35,\n    \"y_value\": 0.052\n  },\n  \"rotation_summary\": {\n    \"from_hour\": 2,\n    \"to_hour\": 10,\n    \"direction\": \"clockwise\",\n    \"magnitude_degrees\": 240\n  },\n  \"interpretation\": \"獲利成長為正，金融環境偏支持，屬於風險資產相對順風的象限\"\n}\n```\n\n完整輸出結構見 `templates/output-json.md`。\n</output_schema_summary>\n\n<success_criteria>\n執行成功時應產出：\n\n- [ ] 當前象限（Q1/Q2/Q3/Q4）\n- [ ] 時鐘點位（1-12 點）\n- [ ] 獲利成長值與金融環境 Z-score\n- [ ] 旋轉方向（順時針/逆時針）\n- [ ] 旋轉幅度（度數）\n- [ ] 配置建議（依象限）\n- [ ] 循環比較摘要（若有啟用）\n- [ ] 視覺化圖表（可選，輸出至 `output/` 目錄）\n</success_criteria>",
-    "path": "skills/analyze-investment-clock-rotation/SKILL.md",
-    "directoryStructure": "analyze-investment-clock-rotation/\n├── manifest.json\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   └── methodology.md\n├── scripts\n│   ├── fetch_data.py\n│   ├── investment_clock.py\n│   └── visualize.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    ├── compare-cycle.md\n    └── visualize.md",
-    "lastUpdated": "2026-01-22",
-    "rating": 3,
-    "testQuestions": [
-      {
-        "question": "基於投資時鐘模型，分析目前美股市場處於哪個象限？",
-        "expectedResult": "投資時鐘分析結果（數據截至 2026-01-XX）\n\n┌────────────────────────────┬────────┬──────────────────────────┐\n│            指標            │  數值  │           狀態           │\n├────────────────────────────┼────────┼──────────────────────────┤\n│ 獲利成長 (Earnings Growth) │  5.2%  │ 正成長                   │\n├────────────────────────────┼────────┼──────────────────────────┤\n│ 金融環境 (NFCI Z-score)    │ -0.35  │ 偏寬鬆（支持性）         │\n└────────────────────────────┴────────┴──────────────────────────┘\n\n當前象限：理想象限（Q1）\n時鐘點位：約 10 點鐘方向\n\n解讀：\n- 獲利成長為正，企業基本面健康\n- 金融環境偏寬鬆，流動性充裕\n- 屬於風險資產相對順風的配置環境\n- 需監控是否開始往金融環境轉緊的方向漂移\n"
-      },
-      {
-        "question": "比較目前投資時鐘與 2020-2022 循環的差異",
-        "expectedResult": "投資時鐘循環比較\n\n當前循環 vs 2020-2022 循環\n\n┌──────────────┬─────────────────┬─────────────────────────┐\n│     項目     │   當前循環      │   2020-2022 循環        │\n├──────────────┼─────────────────┼─────────────────────────┤\n│ 起始點位     │ 2 點鐘          │ 6 點鐘（疫情衝擊）      │\n├──────────────┼─────────────────┼─────────────────────────┤\n│ 目前點位     │ 10 點鐘         │ 終點 12 點鐘            │\n├──────────────┼─────────────────┼─────────────────────────┤\n│ 旋轉方向     │ 順時針          │ 順時針（大幅旋轉）      │\n├──────────────┼─────────────────┼─────────────────────────┤\n│ 旋轉幅度     │ 中等（~240°）   │ 極端（>540°）           │\n└──────────────┴─────────────────┴─────────────────────────┘\n\n關鍵觀察：\n1. 2020-2022 循環屬於「先大幅衰退、再劇烈修復」的路徑\n2. 當前循環相對平緩，符合一般景氣循環的漂移特徵\n3. 兩者不完全同質，不宜直接套用上一輪的經驗\n"
-      }
-    ],
-    "qualityScore": {
-      "overall": 71,
-      "badge": "中高級",
-      "evaluatedAt": "2026-01-23",
-      "metrics": {
-        "problemFit": 78,
-        "correctness": 75,
-        "dataGovernance": 68,
-        "robustness": 65,
-        "maintainability": 72,
-        "usability": 68
-      },
-      "metricDetails": {
-        "problemFit": {
-          "score": 78,
-          "strengths": [
-            "清晰的四象限模型框架",
-            "靈活的 X/Y 軸向定義",
-            "支持循環歷史比較"
-          ],
-          "improvements": [
-            "可增加不適用情境說明",
-            "可增加模型限制描述"
-          ]
-        },
-        "correctness": {
-          "score": 75,
-          "strengths": [
-            "方法論有完整說明",
-            "testQuestions 有 expectedResult",
-            "投資時鐘邏輯清楚"
-          ],
-          "improvements": [
-            "可增加更多驗證案例",
-            "可增加邊界條件測試"
-          ]
-        },
-        "dataGovernance": {
-          "score": 68,
-          "strengths": [
-            "使用 FRED 免費公開數據",
-            "無需 API key"
-          ],
-          "improvements": [
-            "缺少 data-sources.md 完整文檔",
-            "可增加數據更新頻率說明"
-          ]
-        },
-        "robustness": {
-          "score": 65,
-          "strengths": [
-            "pitfalls 詳列軸向錯誤風險",
-            "bestPractices 有視窗選擇建議"
-          ],
-          "improvements": [
-            "缺少 failure-modes.md",
-            "可增加數據缺失時的處理策略"
-          ]
-        },
-        "maintainability": {
-          "score": 72,
-          "strengths": [
-            "參數定義完整",
-            "多資料來源支援"
-          ],
-          "improvements": [
-            "可增加 manifest.json 版本控制",
-            "可增加資料頻率對齊說明"
-          ]
-        },
-        "usability": {
-          "score": 68,
-          "strengths": [
-            "FAQ 解答時鐘概念",
-            "輸出有象限與時鐘點位"
-          ],
-          "improvements": [
-            "可增加 historical-episodes.md",
-            "可增加視覺化圖表輸出"
-          ]
-        }
-      },
-      "details": "**任務適配度（78/100）**\n- 四象限模型與軸向定義清晰\n- 待改進：增加不適用情境\n\n**正確性（75/100）**\n- 方法論完整\n- 待改進：增加驗證案例\n\n**資料治理（68/100）**\n- 使用 FRED 免費數據\n- 待改進：增加 data-sources.md\n\n**穩健性（65/100）**\n- pitfalls 詳列風險\n- 待改進：增加 failure-modes.md\n\n**可維護性（72/100）**\n- 參數定義完整\n- 待改進：增加版本控制\n\n**輸出可用性（68/100）**\n- FAQ 解答核心概念\n- 待改進：增加歷史對照\n",
-      "upgradeNotes": {
-        "targetBadge": "高級",
-        "requirements": [
-          {
-            "metric": "dataGovernance",
-            "currentScore": 68,
-            "targetScore": 80,
-            "suggestion": "增加 data-sources.md 與數據頻率說明"
-          },
-          {
-            "metric": "robustness",
-            "currentScore": 65,
-            "targetScore": 80,
-            "suggestion": "增加 failure-modes.md 與降級處理"
-          }
-        ]
-      }
-    },
-    "bestPractices": [
-      {
-        "title": "確認軸向定義",
-        "description": "不同來源的投資時鐘圖可能有不同的軸向定義，使用前務必確認 X/Y 軸代表什麼"
-      },
-      {
-        "title": "Z-score 視窗選擇",
-        "description": "52 週（1年）視窗適合週頻數據，若用月頻可考慮 36-60 個月"
-      },
-      {
-        "title": "方向統一",
-        "description": "金融環境指標有「越高越緊」和「越高越寬鬆」兩種定義，需在 transform 中統一方向"
-      }
-    ],
-    "pitfalls": [
-      {
-        "title": "軸向看錯",
-        "description": "X/Y 軸定義錯誤會導致象限判讀完全相反",
-        "consequence": "完全錯誤的配置建議"
-      },
-      {
-        "title": "忽略資料頻率",
-        "description": "獲利成長（季頻）與金融環境（週頻）需對齊",
-        "consequence": "時間點不一致導致錯誤判讀"
-      },
-      {
-        "title": "過度依賴單一循環",
-        "description": "每輪循環特徵不同，不宜機械套用",
-        "consequence": "錯誤的預期管理"
-      }
-    ],
-    "faq": [
-      {
-        "question": "什麼是「投資時鐘」？",
-        "answer": "投資時鐘是將「獲利成長」與「金融環境」兩個維度映射到二維平面，\n形成四個象限的分析框架。透過判斷當前落點和旋轉方向，\n可以評估不同資產類別的相對吸引力。\n"
-      },
-      {
-        "question": "時鐘的「順時針/逆時針」旋轉代表什麼？",
-        "answer": "順時針旋轉通常代表典型的景氣循環路徑：\n理想象限 → 好壞混合 → 最差象限 → 修復過渡 → 回到理想象限\n\n逆時針旋轉則可能代表政策干預或非典型事件導致的路徑偏離。\n"
-      },
-      {
-        "question": "NFCI 是什麼？",
-        "answer": "Chicago Fed National Financial Conditions Index（芝加哥聯儲國家金融狀況指數）\n是衡量美國金融環境寬鬆/緊縮程度的綜合指標。\n\n- 負值：金融環境比歷史平均寬鬆\n- 正值：金融環境比歷史平均緊縮\n- 接近 0：接近歷史平均\n"
-      }
-    ],
-    "about": {
-      "repository": "https://github.com/fatfingererr/macro-skills",
-      "branch": "main",
-      "additionalInfo": "## 參考來源\n\n- Investment Clock 概念源自 Merrill Lynch\n- 本技能使用公開 FRED 數據近似實作\n\n## 數據來源\n\n**FRED（免費，無需 API key）**\n- 金融環境：NFCI, STLFSI4, ANFCI\n- 獲利代理：CP (Corporate Profits), GDP\n- 使用 CSV endpoint 直接下載\n\n## 四象限定義\n\n```\n          金融環境支持\n              ↑\n     Q3      │      Q1\n   修復過渡   │   理想象限\n─────────────┼─────────────→ 獲利成長\n     Q4      │      Q2\n   最差象限   │   好壞混合\n              │\n          金融環境不支持\n```\n"
-    },
-    "methodology": "投資時鐘（Investment Clock）概念源自美林證券（Merrill Lynch），後被廣泛應用於資產配置與景氣循環分析。核心理念是將經濟環境映射到二維平面，透過位置與旋轉方向判斷最有利的資產類別。\n\n## 四象限模型\n\n### 座標系定義\n\n```\n              金融環境支持（寬鬆）\n                    ↑\n                    │\n           Q3      │      Q1\n         修復過渡   │   理想象限\n                    │\n    ←───────────────┼───────────────→ 獲利成長\n    負成長          │          正成長\n           Q4      │      Q2\n         最差象限   │   好壞混合\n                    │\n                    ↓\n              金融環境不支持（緊縮）\n```\n\n### 各象限定義\n\n| 象限   | 名稱     | 獲利成長 | 金融環境 | 經濟特徵                   |\n|--------|----------|----------|----------|----------------------------|\n| **Q1** | 理想象限 | 正成長 ↑ | 支持性 ↑ | 景氣擴張、流動性充裕       |\n| **Q2** | 好壞混合 | 正成長 ↑ | 不支持 ↓ | 獲利好但估值壓力、波動上升 |\n| **Q3** | 修復過渡 | 負成長 ↓ | 支持性 ↑ | 政策寬鬆救市、基本面未回   |\n| **Q4** | 最差象限 | 負成長 ↓ | 不支持 ↓ | 衰退、緊縮、風險資產承壓   |\n\n### 配置含義\n\n| 象限   | 有利資產         | 不利資產     | 配置建議           |\n|--------|------------------|--------------|--------------------|\n| **Q1** | 股票、高收債     | 現金、防禦股 | 風險偏好、順勢配置 |\n| **Q2** | 價值股、商品     | 長債、成長股 | 波動管理、估值敏感 |\n| **Q3** | 長債、防禦股     | 週期股、商品 | 謹慎、勿追高       |\n| **Q4** | 現金、短債、黃金 | 股票、高收債 | 風險控管、保守配置 |\n\n## 時鐘旋轉邏輯\n\n### 典型景氣循環路徑（順時針）\n\n```\n12 點：獲利高峰、金融中性\n ↓\n 3 點：獲利下滑、金融開始緊縮\n ↓\n 6 點：獲利谷底、金融最緊\n ↓\n 9 點：獲利復甦、金融轉寬鬆\n ↓\n12 點：回到高峰\n```\n\n### 旋轉方向解讀\n\n| 方向       | 含義         | 典型情境               |\n|------------|--------------|------------------------|\n| **順時針** | 典型景氣循環 | 正常經濟週期           |\n| **逆時針** | 非典型路徑   | 政策干預、外部衝擊     |\n| **停滯**   | 僵局         | 停滯性通膨、結構性問題 |\n\n### 旋轉幅度分類\n\n| 幅度     | 度數範圍    | 解讀                                 |\n|----------|-------------|--------------------------------------|\n| 微幅漂移 | < 90°       | 短期波動，趨勢不明確                 |\n| 中等旋轉 | 90° - 270°  | 正常景氣週期轉換                     |\n| 大幅旋轉 | 270° - 360° | 完整景氣循環                         |\n| 極端旋轉 | > 360°      | 劇烈衝擊後的極端復甦（如 2020 疫情） |\n\n## 數據輸入\n\n### 獲利成長 (Earnings Growth)\n\n**推薦指標**：\n\n| 指標         | FRED ID | 頻率 | 說明                        |\n|--------------|---------|------|-----------------------------|\n| 企業利潤     | CP      | 季度 | Corporate Profits After Tax |\n| 國內生產總值 | GDPC1   | 季度 | Real GDP（作為獲利代理）    |\n| 工業生產     | INDPRO  | 月度 | 製造業獲利代理              |\n\n**計算方法**：\n\n```python\n# 同比成長率 (YoY)\nearnings_growth = (E[t] / E[t-4]) - 1  # 季度數據用 4 期\n\n# 季對季年化\nearnings_growth = ((E[t] / E[t-1]) ** 4) - 1\n```\n\n### 金融環境 (Financial Conditions)\n\n**推薦指標**：\n\n| 指標              | FRED ID | 頻率 | 原始定義    |\n|-------------------|---------|------|-------------|\n| Chicago Fed NFCI  | NFCI    | 週度 | 正值=緊縮   |\n| St. Louis Fed FSI | STLFSI4 | 週度 | 正值=壓力高 |\n| Adjusted NFCI     | ANFCI   | 週度 | 正值=緊縮   |\n\n**標準化方法**：\n\n```python\n# 滾動 Z-score\ndef zscore(s, window):\n    mu = s.rolling(window).mean()\n    sig = s.rolling(window).std()\n    return (s - mu) / sig\n\n# 若原始定義「正=緊縮」，需反轉讓「正=支持性」\nfci_support = -zscore(NFCI, window=52)\n```\n\n## 軸向注意事項\n\n### 常見軸向定義差異\n\n| 來源          | X 軸     | Y 軸     | 注意     |\n|---------------|----------|----------|----------|\n| 本 Skill      | 金融環境 | 獲利成長 | 預設     |\n| 某些機構      | 獲利成長 | 金融環境 | X/Y 互換 |\n| Merrill Lynch | 產出缺口 | 通膨     | 不同變數 |\n\n### 方向定義差異\n\n| 來源     | 「左側」代表 | 「上方」代表 |\n|----------|--------------|--------------|\n| 本 Skill | 金融寬鬆     | 獲利正成長   |\n| 某些圖表 | 金融緊縮     | 獲利正成長   |\n\n**使用前務必確認來源的軸向定義！**\n\n## 模型限制\n\n### 1. 資料延遲\n\n| 指標類型         | 典型延遲 |\n|------------------|----------|\n| 金融環境（週頻） | 1-2 週   |\n| 企業利潤（季頻） | 2-3 個月 |\n| GDP（季頻）      | 1-2 個月 |\n\n### 2. 非線性事件\n\n投資時鐘假設平滑的景氣循環，但以下事件可能導致跳躍：\n- 突發性危機（如 2008 金融危機、2020 疫情）\n- 政策劇變（如大規模 QE）\n- 地緣政治衝擊\n\n### 3. 頻率不匹配\n\n獲利通常是季度數據，金融環境是週度數據，需要對齊處理。\n\n## 歷史循環參考\n\n| 循環     | 期間      | 特徵               | 旋轉幅度  |\n|----------|-----------|--------------------|-----------|\n| 網路泡沫 | 1998-2003 | 先極端樂觀後崩潰   | ~450°     |\n| 金融危機 | 2006-2009 | 信用緊縮主導       | ~360°     |\n| 疫情復甦 | 2020-2022 | 極端衝擊後劇烈反彈 | ~540°     |\n| 典型週期 | 一般      | 平滑漂移           | 180°-270° |\n\n## 進階應用\n\n### 1. 多市場比較\n\n可同時繪製美股、歐股、新興市場的投資時鐘，比較相對位置。\n\n### 2. 情境分析\n\n根據當前位置和旋轉方向，預測未來可能的路徑：\n\n```\n若目前在 Q1（10 點），順時針旋轉\n→ 下一步可能進入 Q2（好壞混合）\n→ 配置上開始關注估值壓力\n```\n\n### 3. 結合其他指標\n\n- 配合 VIX 波動率判斷市場情緒\n- 配合利差曲線判斷信用週期\n- 配合通膨數據完善景氣判讀\n",
-    "downloadUrl": "downloads/analyze-investment-clock-rotation-0.1.0.zip"
-  },
-  {
     "id": "analyze-japan-debt-service-tax-burden",
     "name": "analyze-japan-debt-service-tax-burden",
     "displayName": "分析日本債務利息負擔",
@@ -4803,6 +4605,202 @@
     },
     "methodology": "### 1. 計算 Interest/Tax Ratio\r\n\r\n**定義**：\r\n```\r\ninterest_tax_ratio = interest_payments / tax_revenue\r\n```\r\n\r\n**解讀**：\r\n- 0.25 = 利息吃掉 1/4 稅收\r\n- 0.333 = 利息吃掉 1/3 稅收\r\n- 0.50 = 利息吃掉 1/2 稅收\r\n\r\n### 1.1 國債費/稅收比（Debt Service Ratio）\r\n\r\n**定義**：\r\n```\r\ndebt_service_tax_ratio = debt_service / tax_revenue\r\n```\r\n\r\n其中 `debt_service` = 利息支出 + 本金償還（國債費總額）\r\n\r\n**重要**：媒體敘事「利息吃掉 1/3 稅收」通常**誤用此口徑**，將國債費（含本金）誤稱為「interest payments alone」。\r\n\r\n**FY2025 對照**：\r\n| 口徑 | 分子 | 分母 | 比例 |\r\n|------|------|------|------|\r\n| 純利息/稅收 | 10.5 兆 | 70 兆 | **15.0%** |\r\n| 國債費/稅收 | 28.2 兆 | 70 兆 | **40.3%** |\r\n\r\n### 1.2 隱含平均利率（Implied Average Rate）\r\n\r\n**定義**：\r\n```\r\nimplied_avg_rate = interest_payments / debt_stock\r\n```\r\n\r\n**用途**：衡量存量債務的平均融資成本，對比當前市場利率可評估再融資壓力。\r\n\r\n**FY2025 計算**：\r\n```\r\nimplied_avg_rate = 10.5 兆 / 1,324 兆 = 0.79% ≈ 0.8%\r\n```\r\n\r\n**解讀**：\r\n- 隱含利率 **0.8%** vs 當前 10Y 殖利率 **2.0%+**\r\n- 差距說明大量存量債務在低利率時期（YCC/零利率）發行\r\n- 隨著再融資，利息負擔將逐年攀升\r\n\r\n### 1.3 「in US terms」換算邏輯\r\n\r\n**背景**：媒體常將日本債務以「美國等效規模」表達以增強震撼效果。\r\n\r\n**換算公式**（動態計算）：\r\n```\r\ndebt_to_gdp = japan_debt_stock / japan_gdp\r\ndebt_in_us_terms = us_gdp × debt_to_gdp\r\n```\r\n\r\n**數據來源**：\r\n- `us_gdp`：從 FRED 系列 `GDP` 實時抓取\r\n- `japan_gdp`：從 FRED 系列 `JPNNGDP` 實時抓取，或使用配置中的 `japan_gdp_jpy`\r\n- `japan_debt_stock`：從 `fiscal_data.json` 配置讀取\r\n\r\n**計算範例**（數值會隨實時數據變動）：\r\n```python\r\n# 假設抓取到的數據\r\nus_gdp = $30.6T（FRED 最新）\r\njapan_gdp_jpy = ¥530 兆（配置）\r\njapan_debt_stock = ¥1,324 兆（配置）\r\n\r\n# 計算\r\ndebt_to_gdp = 1324 / 530 = 2.50 (250%)\r\ndebt_in_us_terms = $30.6T × 2.50 = $76.5T\r\n```\r\n\r\n**解讀**：\r\n- 這是「若美國有相同債務/GDP比例，債務規模會是多少」\r\n- 媒體稱「$70T」即來自此換算邏輯（口語化）\r\n- 用於跨國比較時統一規模感知\r\n\r\n### 2. 風險分級\r\n\r\n| 區間      | 分級      | 含義                |\r\n|-----------|-----------|---------------------|\r\n| < 0.25    | 🟢 GREEN  | 財政彈性充足        |\r\n| 0.25–0.40 | 🟡 YELLOW | 彈性開始下降        |\r\n| 0.40–0.55 | 🟠 ORANGE | 政策空間明顯受限    |\r\n| > 0.55    | 🔴 RED    | 接近敘事「2/3」區域 |\r\n\r\n**閾值依據**：\r\n- 0.25：一般財政健康標準\r\n- 0.40：OECD 多數國家不超過此水平\r\n- 0.55：接近歷史極端情況\r\n\r\n## 壓力測試公式\r\n\r\n### 利率衝擊映射\r\n\r\n**核心公式**：\r\n```\r\nadditional_interest = debt_stock × pass_through × delta_yield\r\n```\r\n\r\n其中：\r\n- `debt_stock`：債務存量（日圓）\r\n- `pass_through`：年度再定價/再融資比例\r\n- `delta_yield`：殖利率上升幅度（小數，200bp = 0.02）\r\n\r\n**範例**：\r\n```\r\ndebt_stock = ¥1,200 兆\r\npass_through = 0.15（15%）\r\ndelta_yield = 0.02（200bp）\r\n\r\nadditional_interest = 1,200 × 0.15 × 0.02 = ¥3.6 兆\r\n```\r\n\r\n### 壓測後比率\r\n\r\n```\r\nstressed_ratio = (interest_payments + additional_interest) / (tax_revenue × (1 + tax_shock))\r\n```\r\n\r\n其中 `tax_shock` 為稅收衝擊（負數=下降）。\r\n\r\n### 多年累積效應\r\n\r\nYear 2 使用累積 pass_through：\r\n```\r\ncumulative_pass_through = pass_through_year1 + pass_through_year2\r\n```\r\n\r\n假設每年 15%，兩年累積 30% 存量債務被再定價。\r\n\r\n## 殖利率統計分析\r\n\r\n### Z-Score\r\n\r\n```python\r\nzscore = (latest - mean) / std\r\n```\r\n\r\n**解讀**：\r\n- |Z| > 2.0：處於極端區域\r\n- |Z| > 1.5：處於偏離區域\r\n\r\n### 百分位數\r\n\r\n```python\r\npercentile = (series <= latest).mean()\r\n```\r\n\r\n**解讀**：\r\n- > 0.95：近乎歷史最高\r\n- > 0.80：處於高位區\r\n- 0.20–0.80：中性區\r\n\r\n## Pass-Through 估算\r\n\r\n### 方法 1：平均到期年限\r\n\r\n```\r\npass_through ≈ 1 / average_maturity\r\n```\r\n\r\n日本政府債務平均到期 ~8-9 年 → pass_through ~11-12%\r\n\r\n### 方法 2：年度發債/到期數據\r\n\r\n```\r\npass_through = (redemptions + new_issuance_at_new_rate) / debt_stock\r\n```\r\n\r\n若有實際發債計劃數據，此方法更精確。\r\n\r\n### 預設假設\r\n\r\n本 Skill 使用 15% 作為保守估計，涵蓋：\r\n- 到期再融資 ~11%\r\n- 新增發債 ~4%\r\n\r\n## 敘事核對邏輯\r\n\r\n### 「殖利率創 40 年新高」\r\n\r\n核對方法：\r\n1. 取 40 年歷史數據\r\n2. 計算 percentile_rank\r\n3. 若 > 0.99 且 latest > max(history[-40Y:]) → 敘事成立\r\n\r\n### 「利息吃掉 1/3 稅收」\r\n\r\n核對方法：\r\n1. 確認口徑（哪種稅收？純利息還是國債費？）\r\n2. 計算 interest_tax_ratio\r\n3. 若 ≈ 0.333 且口徑對齊 → 敘事成立\r\n\r\n### 「日本會拋售美債」\r\n\r\n核對方法：\r\n1. 確認日本持有美債規模（TIC）\r\n2. 標示潛在通道與量級\r\n3. **不做行為預測**：持有 ≠ 會拋售\r\n\r\n## 局限性\r\n\r\n1. **資料滯後**：財政數據通常有 1-2 年滯後\r\n2. **口徑差異**：不同來源定義不同\r\n3. **結構假設**：pass_through 是假設，非實際數據\r\n4. **單一國家**：當前僅支援日本，跨國比較需調整\r\n5. **非線性效應**：極端情況可能有非線性反應\r\n",
     "downloadUrl": "downloads/analyze-japan-debt-service-tax-burden-0.1.1.zip"
+  },
+  {
+    "id": "analyze-investment-clock-rotation",
+    "name": "analyze-investment-clock-rotation",
+    "displayName": "投資時鐘輪動分析",
+    "description": "把「獲利成長 × 財務狀況（金融環境）」映射成「投資時鐘」，判斷目前落在哪個象限、近期是順時針還是逆時針旋轉、以及相對於上一輪循環的位置差異",
+    "emoji": "🕐",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "投資時鐘",
+      "景氣循環",
+      "獲利成長",
+      "金融環境",
+      "資產配置",
+      "象限分析",
+      "FRED",
+      "宏觀經濟"
+    ],
+    "category": "business-cycles",
+    "dataLevel": "free-nolimit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\n\n<principle name=\"quadrant_model\">\n**四象限模型核心**\n\n投資時鐘將市場狀態簡化為四個象限：\n\n```\n          金融環境支持（寬鬆）\n                ↑\n       Q3      │      Q1\n     修復過渡   │   理想象限\n  ────────────┼────────────→ 獲利成長\n       Q4      │      Q2\n     最差象限   │   好壞混合\n                │\n          金融環境不支持（緊縮）\n```\n\n| 象限 | 獲利 | 金融環境 | 含義 | 配置建議 |\n|------|------|----------|------|----------|\n| Q1 理想象限 | ↑ | 支持↑ | 風險資產友善 | 偏多、順風配置 |\n| Q2 好壞混合 | ↑ | 不支持↓ | 估值壓力、波動 | 波動管理、估值敏感 |\n| Q3 修復過渡 | ↓ | 支持↑ | 寬鬆救市、基本面未回 | 勿誤判為全面牛市 |\n| Q4 最差象限 | ↓ | 不支持↓ | 風險資產易受傷 | 風險控管、降槓桿 |\n</principle>\n\n<principle name=\"axis_convention\">\n**軸向約定（重要！）**\n\n不同來源的投資時鐘圖可能有不同的軸向定義。本 skill 預設：\n\n- **X 軸**：金融環境（Financial Conditions）\n  - 左側 = 寬鬆（支持性高）\n  - 右側 = 緊縮（支持性低）\n\n- **Y 軸**：獲利成長（Earnings Growth）\n  - 上方 = 正成長\n  - 下方 = 負成長\n\n**若你的圖表定義不同**，請在輸入參數中調整 `axis_mapping` 和 `clock_convention`。\n</principle>\n\n<principle name=\"clock_hour\">\n**時鐘點位計算**\n\n透過 `atan2(y, x)` 計算角度，再轉換成 12 小時制：\n\n- 12 點：正上方（獲利最高、金融環境中性）\n- 3 點：右側（金融環境最緊）\n- 6 點：正下方（獲利最低）\n- 9 點：左側（金融環境最寬鬆）\n\n**旋轉方向**：\n- 順時針：典型景氣循環路徑（Q1 → Q2 → Q4 → Q3 → Q1）\n- 逆時針：政策干預或非典型事件\n</principle>\n\n<principle name=\"data_access\">\n**資料取得方式**\n\n本 skill 使用**無需 API key** 的資料來源：\n\n- **FRED CSV**: `https://fred.stlouisfed.org/graph/fredgraph.csv?id={SERIES_ID}`\n  - 金融環境：NFCI（Chicago Fed）、STLFSI4（St. Louis Fed）\n  - 獲利代理：CP（企業利潤）、GDP 相關指標\n\n腳本位於 `scripts/` 目錄，可直接執行。\n</principle>\n\n</essential_principles>\n\n<objective>\n實作投資時鐘分析：\n\n1. **建構座標**：從 FRED 數據計算獲利成長與金融環境 Z-score\n2. **判定象限**：識別當前落在哪個象限\n3. **計算點位**：轉換為 12 小時制時鐘點位\n4. **分析旋轉**：判斷旋轉方向與幅度\n5. **循環比較**：與前一輪循環比較（可選）\n\n輸出：當前象限、時鐘點位、旋轉摘要、配置建議。\n</objective>\n\n<quick_start>\n\n**最快的方式：執行預設分析**\n\n```bash\ncd skills/analyze-investment-clock-rotation\npip install pandas numpy requests  # 首次使用\npython scripts/investment_clock.py --quick\n```\n\n輸出範例：\n```json\n{\n  \"as_of\": \"2026-01-15\",\n  \"current_position\": {\n    \"clock_hour\": 10,\n    \"quadrant\": \"Q1_ideal\",\n    \"earnings_growth\": 0.052,\n    \"financial_conditions_zscore\": -0.35\n  },\n  \"interpretation\": \"理想象限，風險資產相對順風\"\n}\n```\n\n**完整分析**：\n```bash\npython scripts/investment_clock.py \\\n  --start 2022-01-01 \\\n  --end 2026-01-19 \\\n  --compare-cycle 2020-01-01 2022-12-31 \\\n  --output result.json\n```\n\n</quick_start>\n\n<intake>\n需要進行什麼操作？\n\n1. **快速檢查** - 查看目前的投資時鐘位置與象限\n2. **完整分析** - 分析時間區間內的旋轉路徑與方向\n3. **循環比較** - 與前一輪循環比較旋轉特徵\n4. **視覺化圖表** - 生成投資時鐘視覺化圖表\n5. **方法論學習** - 了解投資時鐘模型的邏輯\n\n**請選擇或直接提供分析參數。**\n</intake>\n\n<routing>\n| Response                       | Action                                             |\n|--------------------------------|----------------------------------------------------|\n| 1, \"快速\", \"quick\", \"check\"    | 執行 `python scripts/investment_clock.py --quick`  |\n| 2, \"完整\", \"分析\", \"full\"      | 閱讀 `workflows/analyze.md` 並執行                 |\n| 3, \"比較\", \"循環\", \"compare\"   | 閱讀 `workflows/compare-cycle.md` 並執行           |\n| 4, \"視覺化\", \"chart\", \"plot\"   | 閱讀 `workflows/visualize.md` 並執行               |\n| 5, \"學習\", \"方法論\", \"why\"     | 閱讀 `references/methodology.md`                   |\n| 提供參數 (如日期範圍)          | 閱讀 `workflows/analyze.md` 並使用參數執行         |\n\n**路由後，閱讀對應文件並執行。**\n</routing>\n\n<directory_structure>\n```\nanalyze-investment-clock-rotation/\n├── SKILL.md                           # 本文件（路由器）\n├── skill.yaml                         # 前端展示元數據\n├── manifest.json                      # 技能元數據\n├── workflows/\n│   ├── analyze.md                     # 完整分析工作流\n│   ├── compare-cycle.md               # 循環比較工作流\n│   └── visualize.md                   # 視覺化工作流\n├── references/\n│   ├── methodology.md                 # 投資時鐘方法論\n│   ├── data-sources.md                # FRED 系列代碼與資料來源\n│   └── input-schema.md                # 完整輸入參數定義\n├── templates/\n│   ├── output-json.md                 # JSON 輸出模板\n│   └── output-markdown.md             # Markdown 報告模板\n└── scripts/\n    ├── investment_clock.py            # 主分析腳本\n    ├── fetch_data.py                  # 數據抓取工具\n    └── visualize.py                   # 視覺化繪圖工具\n```\n</directory_structure>\n\n<reference_index>\n\n**方法論**: references/methodology.md\n- 投資時鐘概念與歷史\n- 四象限定義與配置含義\n- 旋轉方向解讀\n\n**資料來源**: references/data-sources.md\n- FRED 系列代碼（金融環境/獲利代理）\n- 數據頻率與對齊方法\n\n**輸入參數**: references/input-schema.md\n- 完整參數定義\n- 預設值與建議範圍\n\n</reference_index>\n\n<workflows_index>\n| Workflow          | Purpose              | 使用時機               |\n|-------------------|----------------------|------------------------|\n| analyze.md        | 完整分析             | 需要詳細象限與旋轉分析 |\n| compare-cycle.md  | 循環比較             | 比較不同循環的特徵     |\n| visualize.md      | 生成視覺化圖表       | 需要圖表展示           |\n</workflows_index>\n\n<templates_index>\n| Template           | Purpose           |\n|--------------------|-------------------|\n| output-json.md     | JSON 輸出結構定義 |\n| output-markdown.md | Markdown 報告模板 |\n</templates_index>\n\n<scripts_index>\n| Script               | Command                          | Purpose              |\n|----------------------|----------------------------------|----------------------|\n| investment_clock.py  | `--quick`                        | 快速檢查當前位置     |\n| investment_clock.py  | `--start DATE --end DATE`        | 完整分析             |\n| investment_clock.py  | `--compare-cycle START END`      | 循環比較             |\n| fetch_data.py        | `--series NFCI,CP`               | 抓取 FRED 資料       |\n| visualize.py         | `-i result.json -o chart.png`    | 生成視覺化圖表       |\n</scripts_index>\n\n<input_schema_summary>\n\n**核心參數**\n\n| 參數                    | 類型   | 預設值           | 說明               |\n|-------------------------|--------|------------------|--------------------|\n| market                  | string | US_EQUITY        | 分析標的           |\n| start_date              | string | 2022-01-01       | 分析起點           |\n| end_date                | string | today            | 分析終點           |\n| freq                    | string | weekly           | 頻率（weekly/monthly） |\n\n**資料來源參數**\n\n| 參數                    | 類型   | 說明                      |\n|-------------------------|--------|---------------------------|\n| earnings_series.source  | string | fred / api / csv / manual |\n| earnings_series.series_id | string | FRED 序列 ID（如 CP）     |\n| earnings_series.growth_method | string | yoy / qoq_annualized  |\n| financial_conditions_series.source | string | fred / api / csv |\n| financial_conditions_series.series_id | string | NFCI / STLFSI4 |\n| financial_conditions_series.transform | string | level / zscore / inverse |\n\n**軸向參數**\n\n| 參數                       | 類型   | 預設值              | 說明                 |\n|----------------------------|--------|---------------------|----------------------|\n| axis_mapping.x             | string | financial_conditions | X 軸定義            |\n| axis_mapping.y             | string | earnings_growth      | Y 軸定義            |\n| clock_convention.financial_loose_is_left | bool | true | 寬鬆在左側 |\n\n完整參數定義見 `references/input-schema.md`。\n\n</input_schema_summary>\n\n<output_schema_summary>\n```json\n{\n  \"skill\": \"analyze-investment-clock-rotation\",\n  \"as_of\": \"2026-01-19\",\n  \"market\": \"US_EQUITY\",\n  \"current_state\": {\n    \"clock_hour\": 10,\n    \"quadrant\": \"Q1_ideal\",\n    \"quadrant_name\": \"理想象限\",\n    \"x_value\": -0.35,\n    \"y_value\": 0.052\n  },\n  \"rotation_summary\": {\n    \"from_hour\": 2,\n    \"to_hour\": 10,\n    \"direction\": \"clockwise\",\n    \"magnitude_degrees\": 240\n  },\n  \"interpretation\": \"獲利成長為正，金融環境偏支持，屬於風險資產相對順風的象限\"\n}\n```\n\n完整輸出結構見 `templates/output-json.md`。\n</output_schema_summary>\n\n<success_criteria>\n執行成功時應產出：\n\n- [ ] 當前象限（Q1/Q2/Q3/Q4）\n- [ ] 時鐘點位（1-12 點）\n- [ ] 獲利成長值與金融環境 Z-score\n- [ ] 旋轉方向（順時針/逆時針）\n- [ ] 旋轉幅度（度數）\n- [ ] 配置建議（依象限）\n- [ ] 循環比較摘要（若有啟用）\n- [ ] 視覺化圖表（可選，輸出至 `output/` 目錄）\n</success_criteria>",
+    "path": "skills/analyze-investment-clock-rotation/SKILL.md",
+    "directoryStructure": "analyze-investment-clock-rotation/\n├── manifest.json\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   └── methodology.md\n├── scripts\n│   ├── fetch_data.py\n│   ├── investment_clock.py\n│   └── visualize.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    ├── compare-cycle.md\n    └── visualize.md",
+    "lastUpdated": "2026-01-22",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "基於投資時鐘模型，分析目前美股市場處於哪個象限？",
+        "expectedResult": "投資時鐘分析結果（數據截至 2026-01-XX）\n\n┌────────────────────────────┬────────┬──────────────────────────┐\n│            指標            │  數值  │           狀態           │\n├────────────────────────────┼────────┼──────────────────────────┤\n│ 獲利成長 (Earnings Growth) │  5.2%  │ 正成長                   │\n├────────────────────────────┼────────┼──────────────────────────┤\n│ 金融環境 (NFCI Z-score)    │ -0.35  │ 偏寬鬆（支持性）         │\n└────────────────────────────┴────────┴──────────────────────────┘\n\n當前象限：理想象限（Q1）\n時鐘點位：約 10 點鐘方向\n\n解讀：\n- 獲利成長為正，企業基本面健康\n- 金融環境偏寬鬆，流動性充裕\n- 屬於風險資產相對順風的配置環境\n- 需監控是否開始往金融環境轉緊的方向漂移\n"
+      },
+      {
+        "question": "比較目前投資時鐘與 2020-2022 循環的差異",
+        "expectedResult": "投資時鐘循環比較\n\n當前循環 vs 2020-2022 循環\n\n┌──────────────┬─────────────────┬─────────────────────────┐\n│     項目     │   當前循環      │   2020-2022 循環        │\n├──────────────┼─────────────────┼─────────────────────────┤\n│ 起始點位     │ 2 點鐘          │ 6 點鐘（疫情衝擊）      │\n├──────────────┼─────────────────┼─────────────────────────┤\n│ 目前點位     │ 10 點鐘         │ 終點 12 點鐘            │\n├──────────────┼─────────────────┼─────────────────────────┤\n│ 旋轉方向     │ 順時針          │ 順時針（大幅旋轉）      │\n├──────────────┼─────────────────┼─────────────────────────┤\n│ 旋轉幅度     │ 中等（~240°）   │ 極端（>540°）           │\n└──────────────┴─────────────────┴─────────────────────────┘\n\n關鍵觀察：\n1. 2020-2022 循環屬於「先大幅衰退、再劇烈修復」的路徑\n2. 當前循環相對平緩，符合一般景氣循環的漂移特徵\n3. 兩者不完全同質，不宜直接套用上一輪的經驗\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 71,
+      "badge": "中高級",
+      "evaluatedAt": "2026-01-23",
+      "metrics": {
+        "problemFit": 78,
+        "correctness": 75,
+        "dataGovernance": 68,
+        "robustness": 65,
+        "maintainability": 72,
+        "usability": 68
+      },
+      "metricDetails": {
+        "problemFit": {
+          "score": 78,
+          "strengths": [
+            "清晰的四象限模型框架",
+            "靈活的 X/Y 軸向定義",
+            "支持循環歷史比較"
+          ],
+          "improvements": [
+            "可增加不適用情境說明",
+            "可增加模型限制描述"
+          ]
+        },
+        "correctness": {
+          "score": 75,
+          "strengths": [
+            "方法論有完整說明",
+            "testQuestions 有 expectedResult",
+            "投資時鐘邏輯清楚"
+          ],
+          "improvements": [
+            "可增加更多驗證案例",
+            "可增加邊界條件測試"
+          ]
+        },
+        "dataGovernance": {
+          "score": 68,
+          "strengths": [
+            "使用 FRED 免費公開數據",
+            "無需 API key"
+          ],
+          "improvements": [
+            "缺少 data-sources.md 完整文檔",
+            "可增加數據更新頻率說明"
+          ]
+        },
+        "robustness": {
+          "score": 65,
+          "strengths": [
+            "pitfalls 詳列軸向錯誤風險",
+            "bestPractices 有視窗選擇建議"
+          ],
+          "improvements": [
+            "缺少 failure-modes.md",
+            "可增加數據缺失時的處理策略"
+          ]
+        },
+        "maintainability": {
+          "score": 72,
+          "strengths": [
+            "參數定義完整",
+            "多資料來源支援"
+          ],
+          "improvements": [
+            "可增加 manifest.json 版本控制",
+            "可增加資料頻率對齊說明"
+          ]
+        },
+        "usability": {
+          "score": 68,
+          "strengths": [
+            "FAQ 解答時鐘概念",
+            "輸出有象限與時鐘點位"
+          ],
+          "improvements": [
+            "可增加 historical-episodes.md",
+            "可增加視覺化圖表輸出"
+          ]
+        }
+      },
+      "details": "**任務適配度（78/100）**\n- 四象限模型與軸向定義清晰\n- 待改進：增加不適用情境\n\n**正確性（75/100）**\n- 方法論完整\n- 待改進：增加驗證案例\n\n**資料治理（68/100）**\n- 使用 FRED 免費數據\n- 待改進：增加 data-sources.md\n\n**穩健性（65/100）**\n- pitfalls 詳列風險\n- 待改進：增加 failure-modes.md\n\n**可維護性（72/100）**\n- 參數定義完整\n- 待改進：增加版本控制\n\n**輸出可用性（68/100）**\n- FAQ 解答核心概念\n- 待改進：增加歷史對照\n",
+      "upgradeNotes": {
+        "targetBadge": "高級",
+        "requirements": [
+          {
+            "metric": "dataGovernance",
+            "currentScore": 68,
+            "targetScore": 80,
+            "suggestion": "增加 data-sources.md 與數據頻率說明"
+          },
+          {
+            "metric": "robustness",
+            "currentScore": 65,
+            "targetScore": 80,
+            "suggestion": "增加 failure-modes.md 與降級處理"
+          }
+        ]
+      }
+    },
+    "bestPractices": [
+      {
+        "title": "確認軸向定義",
+        "description": "不同來源的投資時鐘圖可能有不同的軸向定義，使用前務必確認 X/Y 軸代表什麼"
+      },
+      {
+        "title": "Z-score 視窗選擇",
+        "description": "52 週（1年）視窗適合週頻數據，若用月頻可考慮 36-60 個月"
+      },
+      {
+        "title": "方向統一",
+        "description": "金融環境指標有「越高越緊」和「越高越寬鬆」兩種定義，需在 transform 中統一方向"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "軸向看錯",
+        "description": "X/Y 軸定義錯誤會導致象限判讀完全相反",
+        "consequence": "完全錯誤的配置建議"
+      },
+      {
+        "title": "忽略資料頻率",
+        "description": "獲利成長（季頻）與金融環境（週頻）需對齊",
+        "consequence": "時間點不一致導致錯誤判讀"
+      },
+      {
+        "title": "過度依賴單一循環",
+        "description": "每輪循環特徵不同，不宜機械套用",
+        "consequence": "錯誤的預期管理"
+      }
+    ],
+    "faq": [
+      {
+        "question": "什麼是「投資時鐘」？",
+        "answer": "投資時鐘是將「獲利成長」與「金融環境」兩個維度映射到二維平面，\n形成四個象限的分析框架。透過判斷當前落點和旋轉方向，\n可以評估不同資產類別的相對吸引力。\n"
+      },
+      {
+        "question": "時鐘的「順時針/逆時針」旋轉代表什麼？",
+        "answer": "順時針旋轉通常代表典型的景氣循環路徑：\n理想象限 → 好壞混合 → 最差象限 → 修復過渡 → 回到理想象限\n\n逆時針旋轉則可能代表政策干預或非典型事件導致的路徑偏離。\n"
+      },
+      {
+        "question": "NFCI 是什麼？",
+        "answer": "Chicago Fed National Financial Conditions Index（芝加哥聯儲國家金融狀況指數）\n是衡量美國金融環境寬鬆/緊縮程度的綜合指標。\n\n- 負值：金融環境比歷史平均寬鬆\n- 正值：金融環境比歷史平均緊縮\n- 接近 0：接近歷史平均\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 參考來源\n\n- Investment Clock 概念源自 Merrill Lynch\n- 本技能使用公開 FRED 數據近似實作\n\n## 數據來源\n\n**FRED（免費，無需 API key）**\n- 金融環境：NFCI, STLFSI4, ANFCI\n- 獲利代理：CP (Corporate Profits), GDP\n- 使用 CSV endpoint 直接下載\n\n## 四象限定義\n\n```\n          金融環境支持\n              ↑\n     Q3      │      Q1\n   修復過渡   │   理想象限\n─────────────┼─────────────→ 獲利成長\n     Q4      │      Q2\n   最差象限   │   好壞混合\n              │\n          金融環境不支持\n```\n"
+    },
+    "methodology": "投資時鐘（Investment Clock）概念源自美林證券（Merrill Lynch），後被廣泛應用於資產配置與景氣循環分析。核心理念是將經濟環境映射到二維平面，透過位置與旋轉方向判斷最有利的資產類別。\n\n## 四象限模型\n\n### 座標系定義\n\n```\n              金融環境支持（寬鬆）\n                    ↑\n                    │\n           Q3      │      Q1\n         修復過渡   │   理想象限\n                    │\n    ←───────────────┼───────────────→ 獲利成長\n    負成長          │          正成長\n           Q4      │      Q2\n         最差象限   │   好壞混合\n                    │\n                    ↓\n              金融環境不支持（緊縮）\n```\n\n### 各象限定義\n\n| 象限   | 名稱     | 獲利成長 | 金融環境 | 經濟特徵                   |\n|--------|----------|----------|----------|----------------------------|\n| **Q1** | 理想象限 | 正成長 ↑ | 支持性 ↑ | 景氣擴張、流動性充裕       |\n| **Q2** | 好壞混合 | 正成長 ↑ | 不支持 ↓ | 獲利好但估值壓力、波動上升 |\n| **Q3** | 修復過渡 | 負成長 ↓ | 支持性 ↑ | 政策寬鬆救市、基本面未回   |\n| **Q4** | 最差象限 | 負成長 ↓ | 不支持 ↓ | 衰退、緊縮、風險資產承壓   |\n\n### 配置含義\n\n| 象限   | 有利資產         | 不利資產     | 配置建議           |\n|--------|------------------|--------------|--------------------|\n| **Q1** | 股票、高收債     | 現金、防禦股 | 風險偏好、順勢配置 |\n| **Q2** | 價值股、商品     | 長債、成長股 | 波動管理、估值敏感 |\n| **Q3** | 長債、防禦股     | 週期股、商品 | 謹慎、勿追高       |\n| **Q4** | 現金、短債、黃金 | 股票、高收債 | 風險控管、保守配置 |\n\n## 時鐘旋轉邏輯\n\n### 典型景氣循環路徑（順時針）\n\n```\n12 點：獲利高峰、金融中性\n ↓\n 3 點：獲利下滑、金融開始緊縮\n ↓\n 6 點：獲利谷底、金融最緊\n ↓\n 9 點：獲利復甦、金融轉寬鬆\n ↓\n12 點：回到高峰\n```\n\n### 旋轉方向解讀\n\n| 方向       | 含義         | 典型情境               |\n|------------|--------------|------------------------|\n| **順時針** | 典型景氣循環 | 正常經濟週期           |\n| **逆時針** | 非典型路徑   | 政策干預、外部衝擊     |\n| **停滯**   | 僵局         | 停滯性通膨、結構性問題 |\n\n### 旋轉幅度分類\n\n| 幅度     | 度數範圍    | 解讀                                 |\n|----------|-------------|--------------------------------------|\n| 微幅漂移 | < 90°       | 短期波動，趨勢不明確                 |\n| 中等旋轉 | 90° - 270°  | 正常景氣週期轉換                     |\n| 大幅旋轉 | 270° - 360° | 完整景氣循環                         |\n| 極端旋轉 | > 360°      | 劇烈衝擊後的極端復甦（如 2020 疫情） |\n\n## 數據輸入\n\n### 獲利成長 (Earnings Growth)\n\n**推薦指標**：\n\n| 指標         | FRED ID | 頻率 | 說明                        |\n|--------------|---------|------|-----------------------------|\n| 企業利潤     | CP      | 季度 | Corporate Profits After Tax |\n| 國內生產總值 | GDPC1   | 季度 | Real GDP（作為獲利代理）    |\n| 工業生產     | INDPRO  | 月度 | 製造業獲利代理              |\n\n**計算方法**：\n\n```python\n# 同比成長率 (YoY)\nearnings_growth = (E[t] / E[t-4]) - 1  # 季度數據用 4 期\n\n# 季對季年化\nearnings_growth = ((E[t] / E[t-1]) ** 4) - 1\n```\n\n### 金融環境 (Financial Conditions)\n\n**推薦指標**：\n\n| 指標              | FRED ID | 頻率 | 原始定義    |\n|-------------------|---------|------|-------------|\n| Chicago Fed NFCI  | NFCI    | 週度 | 正值=緊縮   |\n| St. Louis Fed FSI | STLFSI4 | 週度 | 正值=壓力高 |\n| Adjusted NFCI     | ANFCI   | 週度 | 正值=緊縮   |\n\n**標準化方法**：\n\n```python\n# 滾動 Z-score\ndef zscore(s, window):\n    mu = s.rolling(window).mean()\n    sig = s.rolling(window).std()\n    return (s - mu) / sig\n\n# 若原始定義「正=緊縮」，需反轉讓「正=支持性」\nfci_support = -zscore(NFCI, window=52)\n```\n\n## 軸向注意事項\n\n### 常見軸向定義差異\n\n| 來源          | X 軸     | Y 軸     | 注意     |\n|---------------|----------|----------|----------|\n| 本 Skill      | 金融環境 | 獲利成長 | 預設     |\n| 某些機構      | 獲利成長 | 金融環境 | X/Y 互換 |\n| Merrill Lynch | 產出缺口 | 通膨     | 不同變數 |\n\n### 方向定義差異\n\n| 來源     | 「左側」代表 | 「上方」代表 |\n|----------|--------------|--------------|\n| 本 Skill | 金融寬鬆     | 獲利正成長   |\n| 某些圖表 | 金融緊縮     | 獲利正成長   |\n\n**使用前務必確認來源的軸向定義！**\n\n## 模型限制\n\n### 1. 資料延遲\n\n| 指標類型         | 典型延遲 |\n|------------------|----------|\n| 金融環境（週頻） | 1-2 週   |\n| 企業利潤（季頻） | 2-3 個月 |\n| GDP（季頻）      | 1-2 個月 |\n\n### 2. 非線性事件\n\n投資時鐘假設平滑的景氣循環，但以下事件可能導致跳躍：\n- 突發性危機（如 2008 金融危機、2020 疫情）\n- 政策劇變（如大規模 QE）\n- 地緣政治衝擊\n\n### 3. 頻率不匹配\n\n獲利通常是季度數據，金融環境是週度數據，需要對齊處理。\n\n## 歷史循環參考\n\n| 循環     | 期間      | 特徵               | 旋轉幅度  |\n|----------|-----------|--------------------|-----------|\n| 網路泡沫 | 1998-2003 | 先極端樂觀後崩潰   | ~450°     |\n| 金融危機 | 2006-2009 | 信用緊縮主導       | ~360°     |\n| 疫情復甦 | 2020-2022 | 極端衝擊後劇烈反彈 | ~540°     |\n| 典型週期 | 一般      | 平滑漂移           | 180°-270° |\n\n## 進階應用\n\n### 1. 多市場比較\n\n可同時繪製美股、歐股、新興市場的投資時鐘，比較相對位置。\n\n### 2. 情境分析\n\n根據當前位置和旋轉方向，預測未來可能的路徑：\n\n```\n若目前在 Q1（10 點），順時針旋轉\n→ 下一步可能進入 Q2（好壞混合）\n→ 配置上開始關注估值壓力\n```\n\n### 3. 結合其他指標\n\n- 配合 VIX 波動率判斷市場情緒\n- 配合利差曲線判斷信用週期\n- 配合通膨數據完善景氣判讀\n",
+    "downloadUrl": "downloads/analyze-investment-clock-rotation-0.1.0.zip"
   },
   {
     "id": "analyze-high-unemployment-high-gdp-growth-fiscal-deficit-scenarios",

@@ -291,17 +291,6 @@
       ]
     },
     {
-      "name": "cost-density-net-rr-calculator",
-      "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
-      "version": "0.1.0",
-      "author": {
-        "name": "macro-skills"
-      },
-      "source": "./skills/cost-density-net-rr-calculator",
-      "category": "indicator-monitoring",
-      "tags": []
-    },
-    {
       "name": "demographic-fiscal-trap-analyzer",
       "description": "分析人口老化、債務動態、官僚膨脹與通膨稀釋交互作用下的「財政陷阱」風險，量化各國/地區的財政脆弱度並識別潛在的貨幣稀釋路徑",
       "version": "0.1.0",
@@ -318,6 +307,17 @@
         "通貨膨脹",
         "人口老化"
       ]
+    },
+    {
+      "name": "cost-density-net-rr-calculator",
+      "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
+      "version": "0.1.0",
+      "author": {
+        "name": "macro-skills"
+      },
+      "source": "./skills/cost-density-net-rr-calculator",
+      "category": "indicator-monitoring",
+      "tags": []
     },
     {
       "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
@@ -340,7 +340,7 @@
     {
       "name": "analyze-us-bank-credit-deposit-decoupling",
       "description": "分析銀行貸款與存款之間的「信貸創造脫鉤」現象，用以辨識聯準會緊縮政策在銀行體系內部的真實傳導效果。",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": {
         "name": "Ricky Wang"
       },
@@ -374,24 +374,6 @@
       ]
     },
     {
-      "name": "analyze-investment-clock-rotation",
-      "description": "把「獲利成長 × 財務狀況（金融環境）」映射成「投資時鐘」，判斷目前落在哪個象限、近期是順時針還是逆時針旋轉、以及相對於上一輪循環的位置差異",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/analyze-investment-clock-rotation",
-      "category": "business-cycles",
-      "tags": [
-        "投資時鐘",
-        "景氣循環",
-        "獲利成長",
-        "金融環境",
-        "資產配置",
-        "象限分析"
-      ]
-    },
-    {
       "name": "analyze-japan-debt-service-tax-burden",
       "description": "以日本公債殖利率變化為觸發，量化「政府利息支出 / 稅收」負擔（含情境壓力測試），並判斷是否進入債務利息螺旋風險區。",
       "version": "0.1.1",
@@ -407,6 +389,24 @@
         "利息支出",
         "稅收",
         "壓力測試"
+      ]
+    },
+    {
+      "name": "analyze-investment-clock-rotation",
+      "description": "把「獲利成長 × 財務狀況（金融環境）」映射成「投資時鐘」，判斷目前落在哪個象限、近期是順時針還是逆時針旋轉、以及相對於上一輪循環的位置差異",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-investment-clock-rotation",
+      "category": "business-cycles",
+      "tags": [
+        "投資時鐘",
+        "景氣循環",
+        "獲利成長",
+        "金融環境",
+        "資產配置",
+        "象限分析"
       ]
     },
     {
