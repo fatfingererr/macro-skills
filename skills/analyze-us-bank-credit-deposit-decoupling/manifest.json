@@ -1,0 +1,81 @@
+{
+  "name": "analyze-us-bank-credit-deposit-decoupling",
+  "version": "0.1.0",
+  "displayName": "美國銀行信貸存款脫鉤分析",
+  "description": "分析銀行貸款與存款之間的「信貸創造脫鉤」現象，用以辨識聯準會緊縮政策在銀行體系內部的真實傳導效果。",
+  "author": "Ricky Wang",
+  "license": "MIT",
+  "category": "credit-risk",
+  "tags": [
+    "QT",
+    "聯準會",
+    "銀行信貸",
+    "存款",
+    "RRP",
+    "隱性緊縮",
+    "流動性"
+  ],
+  "dataLevel": "free-nolimit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "fredapi>=0.5.0"
+    ],
+    "optional": [
+      "matplotlib>=3.5.0",
+      "plotly>=5.0.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/decoupling_analyzer.py"
+  },
+  "workflows": [
+    {
+      "id": "analyze",
+      "name": "完整分析",
+      "description": "執行完整的信貸-存款脫鉤分析",
+      "file": "workflows/analyze.md"
+    },
+    {
+      "id": "quick-check",
+      "name": "快速檢查",
+      "description": "快速檢查最新脫鉤狀態",
+      "file": "workflows/quick-check.md"
+    }
+  ],
+  "references": [
+    "references/data-sources.md",
+    "references/methodology.md",
+    "references/historical-episodes.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md"
+  ],
+  "examples": [
+    "examples/sample_output.json"
+  ],
+  "dataSources": [
+    {
+      "name": "FRED - Bank Loans",
+      "type": "primary",
+      "url": "https://fred.stlouisfed.org/series/TOTLL",
+      "api": "FRED API"
+    },
+    {
+      "name": "FRED - Bank Deposits",
+      "type": "primary",
+      "url": "https://fred.stlouisfed.org/series/DPSACBW027SBOG",
+      "api": "FRED API"
+    },
+    {
+      "name": "FRED - Overnight RRP",
+      "type": "primary",
+      "url": "https://fred.stlouisfed.org/series/RRPONTSYD",
+      "api": "FRED API"
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+# 前端展示專用（元資料從 manifest.json 讀取）
+displayName: 美國銀行信貸存款脫鉤分析
+emoji: "🪝"
+authorUrl: https://github.com/fatfingererr/macro-skills
+
+tools:
+  - claude-code
+
+featured: false
+installCount: 0
+
+testQuestions:
+  - question: '分析 2022 年 6 月至今的美國銀行信貸與存款脫鉤狀況'
+    expectedResult: |
+      輸出包含：
+      - 累積新增貸款、累積新增存款、Decoupling Gap
+      - deposit_stress_ratio（存款壓力比率）
+      - RRP 與 Gap 的相關性分析
+      - 隱性緊縮判定（hidden_balance_sheet_tightening）
+      - 宏觀解讀與政策意涵
+
+  - question: '為什麼 QT 環境下美國銀行貸款持續擴張但存款沒有等比例增加？'
+    expectedResult: |
+      解釋信貸創造脫鉤的機制：
+      - 傳統上：貸款創造存款（新增貸款 ≈ 新增存款）
+      - QT 環境：RRP 工具吸收存款，導致存款流失
+      - 結論：緊縮並非來自銀行縮貸，而是負債端被抽乾
+
+  - question: '當前美國金融環境是否正在發生隱性緊縮？'
+    expectedResult: |
+      基於 FRED 數據的判定結果：
+      - 計算 Decoupling Gap 與 deposit_stress_ratio
+      - 驗證 Gap 與 RRP 累積量的相關性
+      - 給出隱性緊縮判定（是/否）與信心水準
+
+qualityScore:
+  overall: 65
+  badge: 白銀
+  metrics:
+    problemFit: 75
+    correctness: 70
+    dataGovernance: 80
+    robustness: 55
+    maintainability: 65
+    usability: 60
+  details: |
+    **任務適配度（75/100）**
+    - SKILL.md 有清晰的一句話目標與適用情境
+    - workflows/ 覆蓋完整主路徑
+    - 輸入參數定義清楚（FRED Series ID）
+    - 可增加更多邊界情境處理
+
+    **正確性（70/100）**
+    - methodology.md 有完整公式推導
+    - 核心邏輯清晰（Decoupling Gap = 貸款累積 - 存款累積）
+    - 需增加更多 golden case 驗證
+
+    **資料治理（80/100）**
+    - 數據來源全部使用 FRED（公開、穩定）
+    - 有明確的 Series ID 與 fallback 說明
+    - API 使用有文檔支持
+
+    **穩健性（55/100）**
+    - 需增加 API 錯誤處理
+    - 需處理數據缺失情境
+    - 需增加降級輸出機制
+
+    **可維護性（65/100）**
+    - manifest.json 有 semver 版本
+    - 參數集中定義
+    - 需避免 magic numbers
+
+    **輸出可用性（60/100）**
+    - 有 JSON 和 Markdown 輸出模板
+    - 需增加歷史對照（historical-episodes）
+    - 需補充「下一步建議」
+
+bestPractices:
+  - title: 使用 FRED API Key 環境變數
+    description: 將 API Key 存放在環境變數 FRED_API_KEY，避免硬編碼
+  - title: 選擇適當的分析起點
+    description: 建議從 QT 開始日期（如 2022-06-01）開始分析，以觀察完整週期
+  - title: 交叉驗證 RRP 相關性
+    description: 確認 Decoupling Gap 與 RRP 累積變化的相關係數 > 0.8 才判定為隱性緊縮
+
+pitfalls:
+  - title: 忽略數據頻率對齊
+    description: 貸款、存款、RRP 數據頻率可能不同
+    consequence: 計算錯誤的累積變化量
+
+  - title: 混淆存量與流量
+    description: FRED 數據是存量（level），需轉換為累積變化量（change from base）
+    consequence: 錯誤解讀脫鉤程度
+
+  - title: 過度簡化因果關係
+    description: RRP 與 Gap 相關不代表 RRP 是唯一原因
+    consequence: 忽略其他流動性吸收來源（如 TGA）
+
+faq:
+  - question: 為什麼使用 FRED 而不是其他數據源？
+    answer: |
+      FRED 是聯準會官方數據庫，具有以下優勢：
+      - 完全公開、免費使用
+      - 數據品質經過官方驗證
+      - API 穩定、文檔完整
+      - 歷史數據完整（可追溯至 1970 年代）
+
+  - question: deposit_stress_ratio 的警戒水準是多少？
+    answer: |
+      - < 0.3：正常範圍
+      - 0.3-0.5：輕度壓力
+      - 0.5-0.7：中度壓力
+      - > 0.7：高度壓力（銀行需要積極搶存款）
+
+  - question: 這個分析對投資有什麼啟示？
+    answer: |
+      當偵測到隱性緊縮時：
+      - 銀行股可能面臨 NIM（淨利差）壓力
+      - 高收益債券利差可能擴大
+      - 可能預示信貸條件收緊、經濟放緩
+
+about:
+  repository: https://github.com/fatfingererr/macro-skills
+  branch: main
+  additionalInfo: |
+    ## 背景
+
+    這個 Skill 的核心洞察是：QT 的傳導機制並非傳統認知的「縮貸」，
+    而是透過 RRP 等工具直接抽走銀行體系的存款，
+    在銀行負債端製造壓力。
+
+    ## 參考資料
+
+    - FRED 官方文檔：https://fred.stlouisfed.org/docs/api/
+    - 銀行信貸統計說明：H.8 Statistical Release
+    - RRP 操作說明：NY Fed Open Market Operations
