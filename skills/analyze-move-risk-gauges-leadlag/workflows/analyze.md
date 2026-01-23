@@ -2,10 +2,49 @@
 
 <required_reading>
 **執行前請閱讀：**
-1. references/data-sources.md - 了解數據來源與替代方案
+1. references/data-sources.md - 了解數據來源與 CDP 爬蟲設定
 2. references/methodology.md - 了解分析方法論
 3. references/input-schema.md - 了解可用參數
 </required_reading>
+
+<prerequisites>
+**重要：執行前必須完成以下步驟**
+
+## Chrome CDP 設定
+
+MOVE 和 JGB 數據需要透過 Chrome CDP 從 MacroMicro 抓取。
+
+### Step 1: 關閉所有 Chrome 視窗
+
+### Step 2: 用調試端口啟動 Chrome（Windows）
+
+```bash
+"C:\Program Files\Google\Chrome\Application\chrome.exe" ^
+  --remote-debugging-port=9222 ^
+  --remote-allow-origins=* ^
+  --user-data-dir="%USERPROFILE%\.chrome-debug-profile" ^
+  "https://en.macromicro.me/charts/35584/us-treasury-move-index"
+```
+
+### Step 3: 在瀏覽器中開啟第二個分頁
+
+開啟 JGB 頁面：
+```
+https://en.macromicro.me/charts/944/jp-10-year-goverment-bond-yield
+```
+
+### Step 4: 等待圖表載入
+
+兩個頁面的圖表都需要完全載入（約 30-40 秒）
+
+### Step 5: 驗證連線
+
+```bash
+curl -s http://127.0.0.1:9222/json
+```
+
+應該看到兩個 MacroMicro 頁面。
+</prerequisites>
 
 <process>
 
@@ -33,24 +72,29 @@ params = {
 
 ## Step 2: 抓取數據
 
-執行 `scripts/fetch_data.py` 抓取所需數據：
+執行 `scripts/analyze.py` 會自動抓取所需數據：
 
 ```bash
-cd skills/analyze-move-risk-gauges-leadlag
-python scripts/fetch_data.py \
+cd .claude/skills/analyze-move-risk-gauges-leadlag/scripts
+python analyze.py \
   --start {start_date} \
   --end {end_date} \
-  --symbols MOVE,VIX,CREDIT,JGB10Y \
-  --output cache/data.csv
+  --output-mode markdown
 ```
 
+數據來源：
+- **MOVE**: MacroMicro (CDP) https://en.macromicro.me/charts/35584/us-treasury-move-index
+- **JGB10Y**: MacroMicro (CDP) https://en.macromicro.me/charts/944/jp-10-year-goverment-bond-yield
+- **VIX**: Yahoo Finance (`^VIX`)
+- **CREDIT**: FRED (`BAMLC0A0CM`)
+
 **注意**：
-- MOVE 和 JGB10Y 需要爬蟲，確保 Chrome 已開啟調試模式
-- 若爬蟲失敗，腳本會自動使用代理數據
+- 確保 Chrome CDP 已啟動並載入 MOVE 和 JGB 頁面
+- 數據會自動快取 12 小時，使用 `--no-cache` 強制重新抓取
 
 ## Step 3: 數據預處理
 
-執行數據預處理：
+腳本自動執行數據預處理：
 
 1. **對齊到交易日**：使用 Business Day 索引
 2. **缺值處理**：前向填充，記錄缺值比例
@@ -60,7 +104,7 @@ python scripts/fetch_data.py \
 ```python
 # 內部執行
 df = load_data("cache/data.csv")
-df = df.sort_index().asfreq("B").ffill()
+df = df.sort_index().ffill()
 
 # 記錄數據品質
 missing_ratio = df.isna().mean()
@@ -174,11 +218,14 @@ alignment = {
 根據 `output_mode` 輸出結果：
 
 ```bash
-# Markdown
+# Markdown（預設）
 python scripts/analyze.py --start 2024-01-01 --end 2026-01-01 --output-mode markdown
 
 # JSON
 python scripts/analyze.py --start 2024-01-01 --end 2026-01-01 --output-mode json --output result.json
+
+# 快速檢查（最近 6 個月）
+python scripts/analyze.py --quick
 ```
 
 </process>
@@ -187,18 +234,39 @@ python scripts/analyze.py --start 2024-01-01 --end 2026-01-01 --output-mode json
 
 ## 常見錯誤處理
 
-### 數據抓取失敗
+### Chrome CDP 連接失敗
 
-```python
-if fetch_error:
-    # 使用代理數據
-    if symbol == "MOVE":
-        print("MOVE fetch failed, using rates volatility proxy")
-        move = compute_rates_vol_proxy(dgs10)
-    elif symbol == "JGB10Y":
-        print("JGB10Y fetch failed, using FRED monthly data")
-        jgb = fetch_fred_jgb_monthly()
 ```
+Error: Chrome CDP not available
+```
+
+**解決方案**：
+1. 確認已關閉所有 Chrome 視窗
+2. 用調試端口重新啟動 Chrome
+3. 確認兩個 MacroMicro 頁面都已開啟
+4. 等待圖表完全載入後再執行
+
+### 找不到 MOVE 或 JGB 頁面
+
+```
+Error: 無法找到 MOVE 頁面
+```
+
+**解決方案**：
+1. 確認 Chrome 中已開啟正確的 URL
+2. 等待圖表完全載入（約 30-40 秒）
+3. 使用 `curl -s http://127.0.0.1:9222/json` 確認頁面已載入
+
+### Highcharts not found
+
+```
+Error: 提取失敗: Highcharts not found
+```
+
+**解決方案**：
+1. 圖表尚未完全載入，請再等待 10-20 秒
+2. 嘗試捲動頁面觸發載入
+3. 重新整理頁面後再試
 
 ### 數據不足
 
@@ -223,7 +291,8 @@ if shock_events.sum() == 0:
 <success_criteria>
 完成此 workflow 時：
 
-- [ ] 成功抓取或代理所有數據
+- [ ] Chrome CDP 已連接並載入 MOVE 和 JGB 頁面
+- [ ] 成功抓取所有數據（MOVE, VIX, CREDIT, JGB10Y）
 - [ ] 記錄缺值比例（若 > 5% 需警告）
 - [ ] 計算 MOVE vs VIX / Credit 的 lead/lag
 - [ ] 識別 JGB 衝擊事件並計算 MOVE 反應

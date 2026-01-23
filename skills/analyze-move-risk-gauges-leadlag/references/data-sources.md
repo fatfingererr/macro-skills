@@ -1,67 +1,69 @@
 # 數據來源 (Data Sources)
 
-本技能需要四條主要時間序列。由於部分數據（MOVE、CDX IG）需要付費訂閱，本文檔說明公開替代方案。
+本技能需要四條主要時間序列，使用 Chrome CDP 連接到 MacroMicro 抓取真實數據。
 
 ## 數據需求概覽
 
-| 指標 | 原版數據 | 公開替代 | 來源 |
-|------|----------|----------|------|
-| MOVE | ICE BofA MOVE Index | 爬蟲取得 / 利率波動代理 | MacroMicro / Investing.com |
-| VIX | CBOE VIX | yfinance `^VIX` | Yahoo Finance |
-| CDX IG | Markit CDX IG Index | IG OAS (FRED) | FRED |
-| JGB 10Y | Bloomberg JGB 10Y | 爬蟲取得 | Investing.com / MOF Japan |
+| 指標 | 來源 | 方式 | 頻率 |
+|------|------|------|------|
+| **MOVE** | MacroMicro | Chrome CDP 爬蟲 | 日 |
+| **JGB 10Y** | MacroMicro | Chrome CDP 爬蟲 | 日 |
+| **VIX** | Yahoo Finance | yfinance API | 日 |
+| **Credit (IG OAS)** | FRED | HTTP CSV | 日 |
 
 ---
 
 ## MOVE Index（利率波動率）
 
-### 主要來源：爬蟲取得
+### 主要來源：MacroMicro (CDP)
 
-**MacroMicro（財經 M 平方）**
-```
-URL: https://www.macromicro.me/charts/913/us-move-bond-market-volatility
-方式: Chrome CDP 爬蟲（需登入）
-頻率: 日
-延遲: T+1
-```
+**URL**: https://en.macromicro.me/charts/35584/us-treasury-move-index
 
-**Investing.com**
-```
-URL: https://www.investing.com/indices/ice-bofa-move-index
-方式: Chrome CDP 爬蟲
-頻率: 日
-延遲: T+1
-```
+**技術細節**：
+- 使用 Chrome DevTools Protocol (CDP) 連接到已開啟的 Chrome
+- 透過 JavaScript 執行從 Highcharts 對象提取時間序列數據
+- 無需 API key，繞過 Cloudflare 防護
 
-### 替代方案：利率實現波動率代理
+**數據特性**：
+- 頻率：日
+- 延遲：T+1
+- 歷史深度：完整（視圖表顯示範圍）
 
-若無法取得 MOVE，可使用國債殖利率的實現波動率作為代理：
+### 程式碼範例
 
 ```python
-import pandas as pd
+from fetch_data import fetch_macromicro_via_cdp
 
-def compute_rates_vol_proxy(dgs10: pd.Series, window: int = 21) -> pd.Series:
-    """
-    使用 10 年期國債殖利率的 21 日實現波動率作為 MOVE 代理
-    """
-    # 殖利率變化（bps）
-    daily_change = dgs10.diff() * 100
-    # 21 日滾動標準差，年化
-    realized_vol = daily_change.rolling(window).std() * (252 ** 0.5)
-    return realized_vol
+# 確保 Chrome 已用 CDP 模式啟動並開啟 MOVE 頁面
+move = fetch_macromicro_via_cdp("MOVE", port=9222)
+print(f"MOVE: {len(move)} 筆, {move.index.min()} ~ {move.index.max()}")
 ```
 
-**注意**：實現波動率是後視（backward-looking），而 MOVE 是前瞻（forward-looking，隱含波動率）。
+---
 
-### FRED 數據（間接）
+## JGB 10Y（日本 10 年期國債殖利率）
 
-| 系列代碼 | 名稱 | 用途 |
-|----------|------|------|
-| DGS10 | 10-Year Treasury Constant Maturity Rate | 計算利率波動代理 |
-| DGS2 | 2-Year Treasury Constant Maturity Rate | 短端利率波動 |
+### 主要來源：MacroMicro (CDP)
 
-```
-https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10&cosd=2020-01-01&coed=2026-01-01
+**URL**: https://en.macromicro.me/charts/944/jp-10-year-goverment-bond-yield
+
+**技術細節**：
+- 同 MOVE，使用 Chrome CDP 爬蟲
+- 數據單位：%（殖利率）
+
+**數據特性**：
+- 頻率：日
+- 延遲：T+1
+- 歷史深度：完整
+
+### 程式碼範例
+
+```python
+from fetch_data import fetch_macromicro_via_cdp
+
+# 確保 Chrome 已開啟 JGB 頁面
+jgb = fetch_macromicro_via_cdp("JGB10Y", port=9222)
+print(f"JGB10Y: {len(jgb)} 筆, {jgb.index.min()} ~ {jgb.index.max()}")
 ```
 
 ---
@@ -76,6 +78,9 @@ import yfinance as yf
 def fetch_vix(start_date: str, end_date: str) -> pd.Series:
     """從 Yahoo Finance 取得 VIX"""
     data = yf.download("^VIX", start=start_date, end=end_date, progress=False)
+    # Handle MultiIndex columns
+    if isinstance(data.columns, pd.MultiIndex):
+        return data[("Close", "^VIX")]
     return data["Close"]
 ```
 
@@ -113,96 +118,56 @@ def fetch_ig_oas(start_date: str, end_date: str) -> pd.Series:
         "coed": end_date
     }
     response = requests.get(url, params=params)
-    df = pd.read_csv(io.StringIO(response.text), parse_dates=["DATE"], index_col="DATE")
+    df = pd.read_csv(io.StringIO(response.text))
+    df.columns = ["DATE", "BAMLC0A0CM"]
+    df["DATE"] = pd.to_datetime(df["DATE"])
+    df["BAMLC0A0CM"] = pd.to_numeric(df["BAMLC0A0CM"].replace(".", pd.NA), errors="coerce")
+    df = df.dropna().set_index("DATE")
     return df["BAMLC0A0CM"]
-```
-
-### LQD ETF 作為補充代理
-
-若 FRED 數據延遲，可用 iShares IG Corporate Bond ETF (LQD) 的波動或價格作為即時代理：
-
-```python
-lqd = yf.download("LQD", start=start_date, end=end_date)["Adj Close"]
-# 價格下跌 = 利差上升
-lqd_spread_proxy = -lqd.pct_change()
 ```
 
 ---
 
-## JGB 10Y（日本 10 年期國債殖利率）
+## Chrome CDP 啟動方式
 
-### 主要來源：爬蟲取得
+### Windows
 
-**Investing.com**
-```
-URL: https://www.investing.com/rates-bonds/japan-10-year-bond-yield-historical-data
-方式: Chrome CDP 爬蟲
-頻率: 日
-延遲: T+1
-```
-
-**日本財務省（MOF Japan）**
-```
-URL: https://www.mof.go.jp/english/jgbs/reference/interest_rate/index.htm
-方式: CSV 下載
-頻率: 日
-延遲: T+1
-格式: Excel/CSV
+```bash
+"C:\Program Files\Google\Chrome\Application\chrome.exe" ^
+  --remote-debugging-port=9222 ^
+  --remote-allow-origins=* ^
+  --user-data-dir="%USERPROFILE%\.chrome-debug-profile" ^
+  "https://en.macromicro.me/charts/35584/us-treasury-move-index"
 ```
 
-### FRED 替代（僅月頻）
+### macOS
 
-| 系列代碼 | 名稱 | 頻率 |
-|----------|------|------|
-| INTGSTJPM193N | Interest Rates: Long-Term Government Bond Yields: 10-Year: Main | 月 |
+```bash
+/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
+  --remote-debugging-port=9222 \
+  --remote-allow-origins=* \
+  --user-data-dir="$HOME/.chrome-debug-profile" \
+  "https://en.macromicro.me/charts/35584/us-treasury-move-index"
+```
 
-**注意**：月頻數據不適合做日頻的 lead/lag 分析。
+### 需要開啟的頁面
 
-### 程式碼範例：爬取 Investing.com
+1. **MOVE Index**: https://en.macromicro.me/charts/35584/us-treasury-move-index
+2. **JGB 10Y**: https://en.macromicro.me/charts/944/jp-10-year-goverment-bond-yield
 
-```python
-import json
-import requests
-import websocket
+### 驗證連線
 
-CDP_PORT = 9222
+```bash
+curl -s http://127.0.0.1:9222/json
+```
 
-def get_jgb_from_investing():
-    """透過 CDP 從 Investing.com 爬取 JGB 10Y 殖利率"""
-    # 1. 確保 Chrome 已開啟並導航到目標頁面
-    # 2. 取得 WebSocket URL
-    resp = requests.get(f"http://127.0.0.1:{CDP_PORT}/json")
-    pages = resp.json()
-    ws_url = None
-    for page in pages:
-        if "investing.com" in page.get("url", ""):
-            ws_url = page.get("webSocketDebuggerUrl")
-            break
-
-    if not ws_url:
-        raise Exception("請先在 Chrome 開啟 Investing.com JGB 頁面")
-
-    # 3. 執行 JavaScript 提取數據
-    ws = websocket.create_connection(ws_url)
-    js_code = '''
-    JSON.stringify([...document.querySelectorAll("table.datatable_table__D_jso tbody tr")].map(row => {
-        const cells = row.querySelectorAll("td");
-        return {
-            date: cells[0]?.textContent?.trim(),
-            price: cells[1]?.textContent?.trim(),
-            open: cells[2]?.textContent?.trim(),
-            high: cells[3]?.textContent?.trim(),
-            low: cells[4]?.textContent?.trim(),
-            change: cells[5]?.textContent?.trim()
-        };
-    }))
-    '''
-    cmd = {"id": 1, "method": "Runtime.evaluate", "params": {"expression": js_code, "returnByValue": True}}
-    ws.send(json.dumps(cmd))
-    result = json.loads(ws.recv())
-    ws.close()
-
-    return result["result"]["result"].get("value")
+成功回應範例：
+```json
+[{
+   "title": "US Treasury MOVE Index",
+   "url": "https://en.macromicro.me/charts/35584/us-treasury-move-index",
+   "webSocketDebuggerUrl": "ws://127.0.0.1:9222/devtools/page/XXXXXX"
+}]
 ```
 
 ---
@@ -217,7 +182,7 @@ def get_jgb_from_investing():
 def align_to_business_days(df: pd.DataFrame) -> pd.DataFrame:
     """將數據對齊到交易日，缺值前向填充"""
     df = df.sort_index()
-    df = df.asfreq("B")
+    df.index = pd.to_datetime(df.index)
     df = df.ffill()
     return df
 ```
@@ -226,6 +191,7 @@ def align_to_business_days(df: pd.DataFrame) -> pd.DataFrame:
 
 - FRED 數據：美東時間 (America/New_York)
 - Yahoo 數據：美東時間
+- MacroMicro 數據：UTC
 - JGB 數據：日本時間 (Asia/Tokyo)
 - 統一轉換為 **UTC** 或 **America/New_York**
 
@@ -234,9 +200,9 @@ def align_to_business_days(df: pd.DataFrame) -> pd.DataFrame:
 | 數據 | 典型延遲 | 說明 |
 |------|----------|------|
 | VIX | 即時 | 交易時間即時更新 |
-| MOVE | T+1 | 收盤後發布 |
+| MOVE | T+1 | MacroMicro 次日更新 |
 | IG OAS | T+1 | FRED 次日更新 |
-| JGB 10Y | T+1 | 日本收盤後 |
+| JGB 10Y | T+1 | MacroMicro 次日更新 |
 
 **實務建議**：分析時使用 T-1 日數據，模擬真實可得資訊。
 
@@ -244,14 +210,10 @@ def align_to_business_days(df: pd.DataFrame) -> pd.DataFrame:
 
 ## 快取機制
 
-為避免重複請求，建議使用本地快取：
+為避免重複請求，腳本內建 12 小時快取：
 
 ```python
-from pathlib import Path
-from datetime import datetime, timedelta
-import json
-
-CACHE_DIR = Path("cache")
+CACHE_DIR = Path(__file__).parent.parent / "cache"
 CACHE_MAX_AGE = timedelta(hours=12)
 
 def is_cache_valid(key: str) -> bool:
@@ -260,72 +222,56 @@ def is_cache_valid(key: str) -> bool:
         return False
     mtime = datetime.fromtimestamp(cache_file.stat().st_mtime)
     return (datetime.now() - mtime) < CACHE_MAX_AGE
+```
 
-def load_cache(key: str):
-    if is_cache_valid(key):
-        with open(CACHE_DIR / f"{key}.json", "r", encoding="utf-8") as f:
-            return json.load(f)
-    return None
+使用 `--no-cache` 參數可強制重新抓取：
 
-def save_cache(key: str, data):
-    CACHE_DIR.mkdir(exist_ok=True)
-    with open(CACHE_DIR / f"{key}.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2, default=str)
+```bash
+python fetch_data.py --start 2024-01-01 --end 2026-01-31 --no-cache
 ```
 
 ---
 
 ## Fallback 策略
 
-| 主要來源 | Fallback 1 | Fallback 2 |
-|----------|------------|------------|
-| MOVE (爬蟲) | 利率實現波動率 | 國債期貨隱含波動 |
-| VIX (Yahoo) | FRED VIXCLS | VIX 期貨 (/VX) |
-| IG OAS (FRED) | LQD 價格反向 | HYG/LQD 比率 |
-| JGB (爬蟲) | FRED 月頻數據 | 日銀公開數據 |
+| 主要來源 | Fallback |
+|----------|----------|
+| MOVE (MacroMicro CDP) | 利率實現波動率（DGS10 衍生） |
+| JGB (MacroMicro CDP) | FRED 月頻數據 / 日銀公開數據 |
+| VIX (Yahoo) | FRED VIXCLS |
+| IG OAS (FRED) | LQD 價格反向 |
+
+### 利率實現波動率代理（備選）
+
+若 MacroMicro 無法連接，可使用 10Y 國債殖利率的實現波動率作為 MOVE 代理：
+
+```python
+def compute_rates_vol_proxy(dgs10: pd.Series, window: int = 21) -> pd.Series:
+    """使用 10 年期國債殖利率的 21 日實現波動率作為 MOVE 代理"""
+    daily_change = dgs10.diff() * 100  # 殖利率變化（bps）
+    realized_vol = daily_change.rolling(window).std() * (252 ** 0.5)  # 年化
+    return realized_vol
+```
+
+**注意**：實現波動率是後視（backward-looking），而 MOVE 是前瞻（forward-looking，隱含波動率）。
 
 ---
 
-## 程式碼範例：完整數據抓取
+## 完整數據抓取流程
 
-```python
-import pandas as pd
-import yfinance as yf
-import requests
-from io import StringIO
-from pathlib import Path
+```bash
+# Step 1: 啟動 Chrome CDP
+"C:\Program Files\Google\Chrome\Application\chrome.exe" ^
+  --remote-debugging-port=9222 ^
+  --remote-allow-origins=* ^
+  --user-data-dir="%USERPROFILE%\.chrome-debug-profile" ^
+  "https://en.macromicro.me/charts/35584/us-treasury-move-index"
 
-def fetch_all_data(start_date: str, end_date: str) -> pd.DataFrame:
-    """抓取所有需要的數據"""
+# Step 2: 在 Chrome 中開啟 JGB 頁面
+# https://en.macromicro.me/charts/944/jp-10-year-goverment-bond-yield
 
-    # 1. VIX from Yahoo
-    vix = yf.download("^VIX", start=start_date, end=end_date, progress=False)["Close"]
-    vix.name = "VIX"
+# Step 3: 等待圖表載入（約 30-40 秒）
 
-    # 2. IG OAS from FRED
-    url = "https://fred.stlouisfed.org/graph/fredgraph.csv"
-    params = {"id": "BAMLC0A0CM", "cosd": start_date, "coed": end_date}
-    resp = requests.get(url, params=params)
-    ig_oas = pd.read_csv(StringIO(resp.text), parse_dates=["DATE"], index_col="DATE")
-    ig_oas = ig_oas["BAMLC0A0CM"]
-    ig_oas.name = "CREDIT"
-
-    # 3. DGS10 for rates vol proxy
-    params = {"id": "DGS10", "cosd": start_date, "coed": end_date}
-    resp = requests.get(url, params=params)
-    dgs10 = pd.read_csv(StringIO(resp.text), parse_dates=["DATE"], index_col="DATE")
-    dgs10 = dgs10["DGS10"]
-
-    # Compute rates vol proxy
-    move_proxy = (dgs10.diff() * 100).rolling(21).std() * (252 ** 0.5)
-    move_proxy.name = "MOVE"
-
-    # 4. JGB placeholder (需爬蟲或手動輸入)
-    # jgb = fetch_jgb_from_investing(start_date, end_date)
-
-    # Combine
-    df = pd.concat([move_proxy, vix, ig_oas], axis=1)
-    df = df.sort_index().asfreq("B").ffill()
-
-    return df
+# Step 4: 執行抓取
+python fetch_data.py --start 2024-01-01 --end 2026-01-31 --output data.csv
 ```
