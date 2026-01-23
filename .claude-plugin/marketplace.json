@@ -75,24 +75,6 @@
       "tags": []
     },
     {
-      "name": "us-cpi-pce-comparator",
-      "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/us-cpi-pce-comparator",
-      "category": "inflation-analytics",
-      "tags": [
-        "CPI",
-        "PCE",
-        "通膨",
-        "Fed",
-        "權重差異",
-        "FRED"
-      ]
-    },
-    {
       "name": "nickel-concentration-risk-analyzer",
       "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
       "version": "0.1.1",
@@ -108,6 +90,24 @@
         "採礦",
         "地緣政治",
         "情境分析"
+      ]
+    },
+    {
+      "name": "us-cpi-pce-comparator",
+      "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/us-cpi-pce-comparator",
+      "category": "inflation-analytics",
+      "tags": [
+        "CPI",
+        "PCE",
+        "通膨",
+        "Fed",
+        "權重差異",
+        "FRED"
       ]
     },
     {
@@ -392,24 +392,6 @@
       ]
     },
     {
-      "name": "analyze-japan-debt-service-tax-burden",
-      "description": "以日本公債殖利率變化為觸發，量化「政府利息支出 / 稅收」負擔（含情境壓力測試），並判斷是否進入債務利息螺旋風險區。",
-      "version": "0.1.1",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/analyze-japan-debt-service-tax-burden",
-      "category": "interest-rates",
-      "tags": [
-        "日本",
-        "國債",
-        "債務",
-        "利息支出",
-        "稅收",
-        "壓力測試"
-      ]
-    },
-    {
       "name": "analyze-investment-clock-rotation",
       "description": "把「獲利成長 × 財務狀況（金融環境）」映射成「投資時鐘」，判斷目前落在哪個象限、近期是順時針還是逆時針旋轉、以及相對於上一輪循環的位置差異",
       "version": "0.1.0",
@@ -443,6 +425,24 @@
         "勞動市場",
         "JOLTS",
         "薩姆規則"
+      ]
+    },
+    {
+      "name": "analyze-japan-debt-service-tax-burden",
+      "description": "以日本公債殖利率變化為觸發，量化「政府利息支出 / 稅收」負擔（含情境壓力測試），並判斷是否進入債務利息螺旋風險區。",
+      "version": "0.1.1",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-japan-debt-service-tax-burden",
+      "category": "interest-rates",
+      "tags": [
+        "日本",
+        "國債",
+        "債務",
+        "利息支出",
+        "稅收",
+        "壓力測試"
       ]
     },
     {
