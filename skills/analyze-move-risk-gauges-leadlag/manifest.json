@@ -1,0 +1,126 @@
+{
+  "name": "analyze-move-risk-gauges-leadlag",
+  "version": "0.1.0",
+  "displayName": "MOVE 風險指標領先落後分析",
+  "description": "用公開市場數據檢查「利率波動率（MOVE）是否對利率事件（如 JGB 殖利率變動）不恐慌，並且是否領先帶動 VIX / 信用利差走低」",
+  "author": "Ricky Wang",
+  "license": "MIT",
+  "category": "interest-rates",
+  "tags": [
+    "利率波動率",
+    "MOVE",
+    "VIX",
+    "信用利差",
+    "領先落後",
+    "事件分析",
+    "JGB",
+    "風險指標"
+  ],
+  "dataLevel": "free-limit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "yfinance>=0.2.0",
+      "requests>=2.28.0"
+    ],
+    "optional": [
+      "matplotlib>=3.5.0",
+      "scipy>=1.9.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/analyze.py"
+  },
+  "workflows": [
+    {
+      "id": "analyze",
+      "name": "完整分析",
+      "description": "執行完整的領先落後與事件窗分析",
+      "file": "workflows/analyze.md"
+    },
+    {
+      "id": "visualize",
+      "name": "視覺化圖表",
+      "description": "生成多面板分析結果圖表",
+      "file": "workflows/visualize.md"
+    }
+  ],
+  "references": [
+    "references/data-sources.md",
+    "references/methodology.md",
+    "references/input-schema.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md"
+  ],
+  "examples": [],
+  "dataSources": [
+    {
+      "name": "FRED",
+      "type": "primary",
+      "url": "https://fred.stlouisfed.org",
+      "api": "CSV endpoint (no API key required)",
+      "series": {
+        "credit_spread": [
+          "BAMLC0A4CBBB",
+          "BAMLC0A0CM"
+        ],
+        "treasury_yield": [
+          "DGS10"
+        ]
+      }
+    },
+    {
+      "name": "Yahoo Finance",
+      "type": "primary",
+      "url": "https://finance.yahoo.com",
+      "api": "yfinance package",
+      "tickers": [
+        "^VIX"
+      ]
+    },
+    {
+      "name": "Investing.com",
+      "type": "secondary",
+      "url": "https://www.investing.com",
+      "api": "Web scraping (CDP)",
+      "series": [
+        "MOVE Index",
+        "JGB 10Y Yield"
+      ]
+    }
+  ],
+  "modelConfig": {
+    "defaultParams": {
+      "freq": "D",
+      "smooth_window": 5,
+      "zscore_window": 60,
+      "lead_lag_max_days": 20,
+      "shock_window_days": 5,
+      "shock_threshold_bps": 15,
+      "output_mode": "markdown"
+    },
+    "indicators": {
+      "rates_vol": {
+        "primary": "MOVE",
+        "proxy": "realized_treasury_vol"
+      },
+      "equity_vol": {
+        "primary": "VIX",
+        "source": "Yahoo Finance"
+      },
+      "credit_spread": {
+        "primary": "CDX_IG",
+        "proxy": "BAMLC0A4CBBB (IG OAS)"
+      },
+      "jgb_yield": {
+        "primary": "JGB10Y",
+        "source": "Investing.com or MOF Japan"
+      }
+    }
+  }
+}

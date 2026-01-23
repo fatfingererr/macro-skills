@@ -1,0 +1,244 @@
+displayName: MOVE 風險指標領先落後分析
+emoji: "🏃"
+authorUrl: https://github.com/fatfingererr/macro-skills
+
+tools:
+  - claude-code
+
+featured: false
+installCount: 0
+
+testQuestions:
+  - question: 'MOVE 目前是否對 JGB 殖利率變動感到恐慌？'
+    expectedResult: |
+      ## MOVE 風險指標領先落後分析結果
+
+      ### 結論
+      - 利率波動率（MOVE）對「JGB 殖利率衝擊」反應偏弱 → **not too spooked**
+      - MOVE 的變化在統計上對 VIX 與信用風險代理指標呈現 **領先 k 天** 的特徵
+      - 最近一段 MOVE 下行期間，VIX / 信用利差同步走低的比例為：VIX = 58%、Credit = 55%
+
+      ### 證據（量化）
+      ┌───────────────────────┬──────────┬──────────┐
+      │         指標          │ 領先天數 │ 相關係數 │
+      ├───────────────────────┼──────────┼──────────┤
+      │ MOVE vs VIX           │ +6 天    │ 0.72     │
+      ├───────────────────────┼──────────┼──────────┤
+      │ MOVE vs Credit Spread │ +4 天    │ 0.61     │
+      └───────────────────────┴──────────┴──────────┘
+
+      ### 事件窗檢定
+      ┌─────────────────────────────────────┬───────┐
+      │                指標                 │ 數值  │
+      ├─────────────────────────────────────┼───────┤
+      │ JGB 衝擊事件（5日|Δ|≥15bp）        │ 3 次  │
+      ├─────────────────────────────────────┼───────┤
+      │ 事件窗 MOVE 平均反應                │ +0.8  │
+      ├─────────────────────────────────────┼───────┤
+      │ MOVE 當前 Z 分數                    │ -0.4  │
+      └─────────────────────────────────────┴───────┘
+
+      ### 解讀
+      MOVE 對近期 JGB 殖利率大幅波動的反應低於歷史分布中位數，
+      顯示利率波動率市場並未因此恐慌。同時 MOVE 對 VIX 呈現
+      6 天領先，符合「利率波動率領先帶動其他風險指標走低」的敘事。
+
+  - question: 'MOVE 目前是否是否領先 VIX 和信用利差？'
+    expectedResult: |
+      ## MOVE 風險指標領先落後分析結果
+
+      ### 結論
+      - 利率波動率（MOVE）對「JGB 殖利率衝擊」反應偏弱 → **not too spooked**
+      - MOVE 的變化在統計上對 VIX 與信用風險代理指標呈現 **領先 k 天** 的特徵
+      - 最近一段 MOVE 下行期間，VIX / 信用利差同步走低的比例為：VIX = 58%、Credit = 55%
+
+      ### 證據（量化）
+      ┌───────────────────────┬──────────┬──────────┐
+      │         指標          │ 領先天數 │ 相關係數 │
+      ├───────────────────────┼──────────┼──────────┤
+      │ MOVE vs VIX           │ +6 天    │ 0.72     │
+      ├───────────────────────┼──────────┼──────────┤
+      │ MOVE vs Credit Spread │ +4 天    │ 0.61     │
+      └───────────────────────┴──────────┴──────────┘
+
+      ### 事件窗檢定
+      ┌─────────────────────────────────────┬───────┐
+      │                指標                 │ 數值  │
+      ├─────────────────────────────────────┼───────┤
+      │ JGB 衝擊事件（5日|Δ|≥15bp）        │ 3 次  │
+      ├─────────────────────────────────────┼───────┤
+      │ 事件窗 MOVE 平均反應                │ +0.8  │
+      ├─────────────────────────────────────┼───────┤
+      │ MOVE 當前 Z 分數                    │ -0.4  │
+      └─────────────────────────────────────┴───────┘
+
+      ### 解讀
+      MOVE 對近期 JGB 殖利率大幅波動的反應低於歷史分布中位數，
+      顯示利率波動率市場並未因此恐慌。同時 MOVE 對 VIX 呈現
+      6 天領先，符合「利率波動率領先帶動其他風險指標走低」的敘事。
+
+qualityScore:
+  overall: 65
+  badge: 白銀
+  evaluatedAt: "2026-01-23"
+
+  metrics:
+    problemFit: 75
+    correctness: 70
+    dataGovernance: 60
+    robustness: 60
+    maintainability: 65
+    usability: 70
+
+  metricDetails:
+    problemFit:
+      score: 75
+      strengths:
+        - 清晰的三層分析框架（領先落後、事件窗、方向一致性）
+        - 明確定義「不恐慌」的量化標準
+      improvements:
+        - 可增加更多不適用情境說明
+
+    correctness:
+      score: 70
+      strengths:
+        - 交叉相關方法論可重現
+        - 有明確的數學定義
+      improvements:
+        - MOVE 公開替代數據需驗證準確性
+        - 可增加更多 golden case
+
+    dataGovernance:
+      score: 60
+      strengths:
+        - 列出多個數據替代方案
+        - FRED/Yahoo 無需 API key
+      improvements:
+        - MOVE 需爬蟲取得，穩定性待驗證
+        - 需增加 fallback 機制
+
+    robustness:
+      score: 60
+      strengths:
+        - 有基本的缺值處理邏輯
+      improvements:
+        - 需增加 failure-modes.md
+        - 爬蟲失敗的降級策略
+
+    maintainability:
+      score: 65
+      strengths:
+        - 參數定義完整
+        - 有 manifest.json 版本控制
+      improvements:
+        - 可增加自動化測試
+
+    usability:
+      score: 70
+      strengths:
+        - 輸出有「一句話結論 + 證據」結構
+        - 支援 Markdown 與 JSON 輸出
+      improvements:
+        - 可增加歷史對照
+        - 可增加即時監控
+
+  details: |
+    **任務適配度（75/100）**
+    - 三層分析框架清晰
+    - 待改進：增加不適用情境
+
+    **正確性（70/100）**
+    - 方法論可重現
+    - 待改進：公開替代數據驗證
+
+    **資料治理（60/100）**
+    - 列出替代方案
+    - 待改進：MOVE 爬蟲穩定性
+
+    **穩健性（60/100）**
+    - 基本缺值處理
+    - 待改進：增加 failure-modes
+
+    **可維護性（65/100）**
+    - 參數定義完整
+    - 待改進：自動化測試
+
+    **輸出可用性（70/100）**
+    - 結構化輸出
+    - 待改進：歷史對照
+
+  upgradeNotes:
+    targetBadge: 黃金
+    requirements:
+      - metric: dataGovernance
+        currentScore: 60
+        targetScore: 75
+        suggestion: 增加 MOVE 替代數據源與爬蟲穩定性
+      - metric: robustness
+        currentScore: 60
+        targetScore: 75
+        suggestion: 增加 failure-modes.md 與降級策略
+
+bestPractices:
+  - title: 使用 Z 分數而非絕對值
+    description: MOVE/VIX 的絕對值難以跨時期比較，Z 分數標準化後更有意義
+  - title: 平滑處理降低噪音
+    description: 短期噪音會干擾領先落後判斷，建議使用 5 日移動平均
+  - title: 注意數據發布延遲
+    description: JGB 殖利率數據可能有 1-2 天延遲，分析時需考慮
+
+pitfalls:
+  - title: MOVE 數據取得困難
+    description: MOVE Index 是 ICE/BofA 專有指數，公開數據需爬蟲或使用代理
+    consequence: 數據可能不穩定或有延遲
+  - title: 過度解讀短期相關
+    description: 市場結構變化可能導致領先落後關係反轉
+    consequence: 歷史模式不一定適用於未來
+  - title: 忽略極端行情
+    description: 極端恐慌時所有資產同步暴跌，領先落後關係可能消失
+    consequence: 正常時期的分析不適用於危機
+
+faq:
+  - question: 什麼是 MOVE Index？
+    answer: |
+      MOVE（Merrill Lynch Option Volatility Estimate）是衡量美國
+      國債選擇權隱含波動率的指數，類似於股市的 VIX。
+      MOVE 越高代表債券市場波動預期越大，通常與風險規避相關。
+
+  - question: 為什麼要分析 MOVE 對 JGB 的反應？
+    answer: |
+      JGB（日本國債）殖利率變動是全球利率市場的重要風險事件。
+      如果 MOVE 對 JGB 大幅波動「不恐慌」，可能意味著：
+      1. 市場認為這是日本特有問題，不會傳染
+      2. 利率波動率市場預期已經消化
+      3. 整體風險偏好仍然健康
+
+  - question: CDX IG 是什麼？為什麼用代理？
+    answer: |
+      CDX IG（Investment Grade Credit Default Swap Index）是
+      投資級信用違約交換指數。由於 CDX 數據需要訂閱，
+      本 skill 使用 ICE BofA IG OAS（Option-Adjusted Spread）
+      作為公開替代，反映投資級公司債相對國債的利差。
+
+about:
+  repository: https://github.com/fatfingererr/macro-skills
+  branch: main
+  additionalInfo: |
+    ## 參考來源
+
+    - ICE BofA MOVE Index: 原版 MOVE 指數
+    - Bloomberg Terminal: MOVE / VIX / CDX IG 圖表
+    - MacroMicro: 公開 MOVE 歷史數據
+
+    ## 數據來源
+
+    **FRED（免費，無需 API key）**
+    - 信用利差代理：BAMLC0A4CBBB (BBB OAS), BAMLC0A0CM (IG OAS)
+    - 國債殖利率：DGS10
+
+    **Yahoo Finance**
+    - VIX: ^VIX
+
+    **需爬蟲取得**
+    - MOVE Index: MacroMicro / Investing.com
+    - JGB 10Y Yield: Investing.com / MOF Japan
