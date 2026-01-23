@@ -144,13 +144,6 @@ export default function SkillDetailPage() {
         </div>
       )}
 
-      {/* Quality Score */}
-      {skill.qualityScore && (
-        <div className="mt-8">
-          <QualityScoreCard qualityScore={skill.qualityScore} />
-        </div>
-      )}
-
       {/* Best Practices & Pitfalls - 並排兩欄 */}
       {((skill.bestPractices && skill.bestPractices.length > 0) ||
         (skill.pitfalls && skill.pitfalls.length > 0)) && (
@@ -164,15 +157,22 @@ export default function SkillDetailPage() {
           </div>
         )}
 
+      {/* FAQ */}
+      {skill.faq && skill.faq.length > 0 && (
+        <div className="mt-8">
+          <FAQSection faqs={skill.faq} />
+        </div>
+      )}
+
       {/* Data Level Info */}
       <div className="mt-8">
         <DataLevelCard dataLevel={skill.dataLevel} />
       </div>
 
-      {/* FAQ */}
-      {skill.faq && skill.faq.length > 0 && (
+      {/* Quality Score */}
+      {skill.qualityScore && (
         <div className="mt-8">
-          <FAQSection faqs={skill.faq} />
+          <QualityScoreCard qualityScore={skill.qualityScore} />
         </div>
       )}
 
