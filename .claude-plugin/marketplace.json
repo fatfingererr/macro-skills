@@ -374,6 +374,24 @@
       ]
     },
     {
+      "name": "analyze-move-risk-gauges-leadlag",
+      "description": "用公開市場數據檢查「利率波動率（MOVE）是否對利率事件（如 JGB 殖利率變動）不恐慌，並且是否領先帶動 VIX / 信用利差走低」",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-move-risk-gauges-leadlag",
+      "category": "interest-rates",
+      "tags": [
+        "利率波動率",
+        "MOVE",
+        "VIX",
+        "信用利差",
+        "領先落後",
+        "事件分析"
+      ]
+    },
+    {
       "name": "analyze-japan-debt-service-tax-burden",
       "description": "以日本公債殖利率變化為觸發，量化「政府利息支出 / 稅收」負擔（含情境壓力測試），並判斷是否進入債務利息螺旋風險區。",
       "version": "0.1.1",

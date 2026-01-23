@@ -4397,6 +4397,196 @@
     "downloadUrl": "downloads/analyze-silver-miner-metal-ratio-0.1.0.zip"
   },
   {
+    "id": "analyze-move-risk-gauges-leadlag",
+    "name": "analyze-move-risk-gauges-leadlag",
+    "displayName": "MOVE 風險指標領先落後分析",
+    "description": "用公開市場數據檢查「利率波動率（MOVE）是否對利率事件（如 JGB 殖利率變動）不恐慌，並且是否領先帶動 VIX / 信用利差走低」",
+    "emoji": "🏃",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "利率波動率",
+      "MOVE",
+      "VIX",
+      "信用利差",
+      "領先落後",
+      "事件分析",
+      "JGB",
+      "風險指標"
+    ],
+    "category": "interest-rates",
+    "dataLevel": "free-limit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\r\n\r\n<principle name=\"move_as_leading_indicator\">\r\n**MOVE 作為利率波動率領先指標**\r\n\r\nMOVE Index（美林期權波動率指數）是衡量美國國債選擇權隱含波動率的指標：\r\n- **MOVE 低/下降**：利率市場對未來波動預期降低，風險偏好上升\r\n- **MOVE 高/上升**：利率市場恐慌，避險需求增加\r\n\r\nMOVE 常被視為「債市的 VIX」，可作為其他風險指標的領先訊號。\r\n</principle>\r\n\r\n<principle name=\"leadlag_cross_correlation\">\r\n**交叉相關判斷領先落後**\r\n\r\n使用 Cross-Correlation 判斷兩序列的領先/落後關係：\r\n- 在 [-L, +L] 位移範圍內計算相關係數\r\n- **最大相關出現在 lag > 0**：X 領先 Y\r\n- **最大相關出現在 lag < 0**：X 落後 Y\r\n- **最大相關出現在 lag ≈ 0**：同步移動\r\n\r\n典型設定：L = 20（交易日），配合平滑處理降低噪音。\r\n</principle>\r\n\r\n<principle name=\"shock_event_reaction\">\r\n**事件窗檢定：是否被嚇到**\r\n\r\n檢驗「利率事件（如 JGB 殖利率跳升）發生時，MOVE 是否恐慌」：\r\n1. 定義衝擊事件：|ΔY[t-k:t]| ≥ threshold（如 15bp）\r\n2. 檢查事件窗內 MOVE 變化\r\n3. 若 MOVE 反應 < 歷史分布中位數 → \"not spooked\"\r\n\r\n此邏輯可驗證「利率波動率對某事件不敏感」的敘事。\r\n</principle>\r\n\r\n<principle name=\"data_access\">\r\n**資料取得方式**\r\n\r\n本 skill 使用**無需 API key** 的公開資料來源：\r\n- **FRED CSV**: 殖利率、信用利差（OAS）代理\r\n- **Yahoo Finance**: VIX\r\n- **MacroMicro/Investing.com**: MOVE Index、JGB 10Y（需爬蟲）\r\n\r\n資料替代方案詳見 `references/data-sources.md`。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n實作利率波動率與風險指標的領先落後分析：\r\n\r\n1. **數據抓取**：從公開來源取得 MOVE、VIX、信用利差、JGB 殖利率\r\n2. **標準化處理**：Z 分數、平滑處理、頻率對齊\r\n3. **領先落後分析**：交叉相關找出 MOVE vs VIX / 信用利差的 lead/lag\r\n4. **事件窗檢定**：JGB 衝擊事件中 MOVE 是否「不恐慌」\r\n5. **方向一致性**：MOVE 下行時，其他風險指標是否同步下行\r\n\r\n輸出：領先落後判定、恐慌檢定結果、方向一致性比例、量化證據。\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：執行預設分析**\r\n\r\n```bash\r\ncd skills/analyze-move-risk-gauges-leadlag\r\npip install pandas numpy yfinance requests  # 首次使用\r\npython scripts/analyze.py --quick\r\n```\r\n\r\n輸出範例：\r\n```json\r\n{\r\n  \"status\": \"ok\",\r\n  \"headline\": \"MOVE not spooked by JGB yield moves and appears to lead VIX/Credit lower.\",\r\n  \"leadlag\": {\r\n    \"MOVE_vs_VIX\": {\"best_lag_days\": 6, \"corr\": 0.72},\r\n    \"MOVE_vs_CREDIT\": {\"best_lag_days\": 4, \"corr\": 0.61}\r\n  },\r\n  \"spooked_check\": {\r\n    \"shock_count\": 3,\r\n    \"mean_MOVE_reaction_on_shocks\": 0.8,\r\n    \"MOVE_zscore_now\": -0.4\r\n  }\r\n}\r\n```\r\n\r\n**完整分析**：\r\n```bash\r\npython scripts/analyze.py --start 2024-01-01 --end 2026-01-01 --output result.json\r\n```\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼操作？\r\n\r\n1. **快速檢查** - 查看目前 MOVE 的領先落後狀態與恐慌程度\r\n2. **完整分析** - 執行完整的領先落後與事件窗分析\r\n3. **視覺化圖表** - 生成多面板分析結果圖表\r\n4. **方法論學習** - 了解 Lead/Lag 分析與事件窗檢定的邏輯\r\n\r\n**請選擇或直接提供分析參數。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                     | Action                                     |\r\n|------------------------------|--------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"check\"  | 執行 `python scripts/analyze.py --quick`   |\r\n| 2, \"完整\", \"full\", \"analyze\" | 閱讀 `workflows/analyze.md` 並執行         |\r\n| 3, \"視覺化\", \"chart\", \"plot\" | 閱讀 `workflows/visualize.md` 並執行       |\r\n| 4, \"學習\", \"方法論\", \"why\"   | 閱讀 `references/methodology.md`           |\r\n| 提供參數 (如日期範圍)        | 閱讀 `workflows/analyze.md` 並使用參數執行 |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\nanalyze-move-risk-gauges-leadlag/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── manifest.json                      # 技能元數據\r\n├── workflows/\r\n│   ├── analyze.md                     # 完整分析工作流\r\n│   └── visualize.md                   # 視覺化工作流\r\n├── references/\r\n│   ├── data-sources.md                # 資料來源與替代方案\r\n│   ├── methodology.md                 # Lead/Lag 與事件窗方法論\r\n│   └── input-schema.md                # 完整輸入參數定義\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n└── scripts/\r\n    ├── analyze.py                     # 主分析腳本\r\n    ├── fetch_data.py                  # 數據抓取工具\r\n    └── visualize.py                   # 視覺化繪圖工具\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**方法論**: references/methodology.md\r\n- Lead/Lag 交叉相關分析\r\n- Z 分數標準化\r\n- 事件窗檢定邏輯\r\n\r\n**資料來源**: references/data-sources.md\r\n- MOVE Index 公開替代\r\n- VIX、信用利差、JGB 殖利率來源\r\n- 數據頻率與對齊\r\n\r\n**輸入參數**: references/input-schema.md\r\n- 完整參數定義\r\n- 預設值與建議範圍\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow     | Purpose          | 使用時機           |\r\n|--------------|------------------|--------------------|\r\n| analyze.md   | 完整領先落後分析 | 需要詳細分析報告時 |\r\n| visualize.md | 生成視覺化圖表   | 需要圖表展示時     |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構定義 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script        | Command                        | Purpose          |\r\n|---------------|--------------------------------|------------------|\r\n| analyze.py    | `--quick`                      | 快速檢查當前狀態 |\r\n| analyze.py    | `--start DATE --end DATE`      | 完整分析         |\r\n| fetch_data.py | `--series MOVE,VIX,CREDIT,JGB` | 抓取公開資料     |\r\n| visualize.py  | `-i result.json -o chart.png`  | 生成視覺化圖表   |\r\n</scripts_index>\r\n\r\n<input_schema_summary>\r\n\r\n**核心參數**\r\n\r\n| 參數                 | 類型   | 預設值       | 說明                  |\r\n|----------------------|--------|--------------|-----------------------|\r\n| start_date           | string | -            | 起始日期 (YYYY-MM-DD) |\r\n| end_date             | string | -            | 結束日期 (YYYY-MM-DD) |\r\n| rates_vol_symbol     | string | MOVE         | 利率波動率指標        |\r\n| equity_vol_symbol    | string | VIX          | 股市波動率指標        |\r\n| credit_spread_symbol | string | CDX_IG_PROXY | 信用利差/風險指標     |\r\n| jgb_yield_symbol     | string | JGB10Y       | 日本 10Y 殖利率       |\r\n\r\n**分析參數**\r\n\r\n| 參數                | 類型   | 預設值   | 說明                 |\r\n|---------------------|--------|----------|----------------------|\r\n| freq                | string | D        | 頻率（D=日 / W=週）  |\r\n| smooth_window       | int    | 5        | 平滑移動平均窗       |\r\n| zscore_window       | int    | 60       | Z 分數回看窗         |\r\n| lead_lag_max_days   | int    | 20       | 交叉相關最大位移天數 |\r\n| shock_window_days   | int    | 5        | 事件窗天數           |\r\n| shock_threshold_bps | float  | 15       | JGB 衝擊門檻 (bps)   |\r\n| output_mode         | string | markdown | 輸出格式             |\r\n\r\n完整參數定義見 `references/input-schema.md`。\r\n\r\n</input_schema_summary>\r\n\r\n<output_schema_summary>\r\n```json\r\n{\r\n  \"skill\": \"analyze-move-risk-gauges-leadlag\",\r\n  \"as_of\": \"2026-01-23\",\r\n  \"status\": \"ok\",\r\n  \"headline\": \"MOVE not spooked by JGB yield moves and appears to lead VIX/Credit lower.\",\r\n  \"leadlag\": {\r\n    \"MOVE_vs_VIX\": {\"best_lag_days\": 6, \"corr\": 0.72},\r\n    \"MOVE_vs_CREDIT\": {\"best_lag_days\": 4, \"corr\": 0.61}\r\n  },\r\n  \"spooked_check\": {\r\n    \"shock_definition\": \"abs(JGB10Y change over 5d) >= 15bp\",\r\n    \"shock_count\": 3,\r\n    \"mean_MOVE_reaction_on_shocks\": 0.8,\r\n    \"MOVE_zscore_now\": -0.4\r\n  },\r\n  \"direction_alignment\": {\r\n    \"MOVE_down_and_VIX_down_ratio\": 0.58,\r\n    \"MOVE_down_and_CREDIT_down_ratio\": 0.55\r\n  }\r\n}\r\n```\r\n\r\n完整輸出結構見 `templates/output-json.md`。\r\n</output_schema_summary>\r\n\r\n<success_criteria>\r\n執行成功時應產出：\r\n\r\n- [ ] MOVE vs VIX / Credit 的最佳領先天數與相關係數\r\n- [ ] JGB 衝擊事件數量與 MOVE 平均反應\r\n- [ ] MOVE 當前 Z 分數（恐慌程度）\r\n- [ ] 方向一致性比例\r\n- [ ] 一句話結論與量化證據\r\n- [ ] 視覺化圖表（可選）\r\n</success_criteria>",
+    "path": "skills/analyze-move-risk-gauges-leadlag/SKILL.md",
+    "directoryStructure": "analyze-move-risk-gauges-leadlag/\n├── manifest.json\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   └── methodology.md\n├── scripts\n│   ├── analyze.py\n│   ├── fetch_data.py\n│   └── visualize.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    └── visualize.md",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "MOVE 目前是否對 JGB 殖利率變動感到恐慌？",
+        "expectedResult": "## MOVE 風險指標領先落後分析結果\n\n### 結論\n- 利率波動率（MOVE）對「JGB 殖利率衝擊」反應偏弱 → **not too spooked**\n- MOVE 的變化在統計上對 VIX 與信用風險代理指標呈現 **領先 k 天** 的特徵\n- 最近一段 MOVE 下行期間，VIX / 信用利差同步走低的比例為：VIX = 58%、Credit = 55%\n\n### 證據（量化）\n┌───────────────────────┬──────────┬──────────┐\n│         指標          │ 領先天數 │ 相關係數 │\n├───────────────────────┼──────────┼──────────┤\n│ MOVE vs VIX           │ +6 天    │ 0.72     │\n├───────────────────────┼──────────┼──────────┤\n│ MOVE vs Credit Spread │ +4 天    │ 0.61     │\n└───────────────────────┴──────────┴──────────┘\n\n### 事件窗檢定\n┌─────────────────────────────────────┬───────┐\n│                指標                 │ 數值  │\n├─────────────────────────────────────┼───────┤\n│ JGB 衝擊事件（5日|Δ|≥15bp）        │ 3 次  │\n├─────────────────────────────────────┼───────┤\n│ 事件窗 MOVE 平均反應                │ +0.8  │\n├─────────────────────────────────────┼───────┤\n│ MOVE 當前 Z 分數                    │ -0.4  │\n└─────────────────────────────────────┴───────┘\n\n### 解讀\nMOVE 對近期 JGB 殖利率大幅波動的反應低於歷史分布中位數，\n顯示利率波動率市場並未因此恐慌。同時 MOVE 對 VIX 呈現\n6 天領先，符合「利率波動率領先帶動其他風險指標走低」的敘事。\n"
+      },
+      {
+        "question": "MOVE 目前是否是否領先 VIX 和信用利差？",
+        "expectedResult": "## MOVE 風險指標領先落後分析結果\n\n### 結論\n- 利率波動率（MOVE）對「JGB 殖利率衝擊」反應偏弱 → **not too spooked**\n- MOVE 的變化在統計上對 VIX 與信用風險代理指標呈現 **領先 k 天** 的特徵\n- 最近一段 MOVE 下行期間，VIX / 信用利差同步走低的比例為：VIX = 58%、Credit = 55%\n\n### 證據（量化）\n┌───────────────────────┬──────────┬──────────┐\n│         指標          │ 領先天數 │ 相關係數 │\n├───────────────────────┼──────────┼──────────┤\n│ MOVE vs VIX           │ +6 天    │ 0.72     │\n├───────────────────────┼──────────┼──────────┤\n│ MOVE vs Credit Spread │ +4 天    │ 0.61     │\n└───────────────────────┴──────────┴──────────┘\n\n### 事件窗檢定\n┌─────────────────────────────────────┬───────┐\n│                指標                 │ 數值  │\n├─────────────────────────────────────┼───────┤\n│ JGB 衝擊事件（5日|Δ|≥15bp）        │ 3 次  │\n├─────────────────────────────────────┼───────┤\n│ 事件窗 MOVE 平均反應                │ +0.8  │\n├─────────────────────────────────────┼───────┤\n│ MOVE 當前 Z 分數                    │ -0.4  │\n└─────────────────────────────────────┴───────┘\n\n### 解讀\nMOVE 對近期 JGB 殖利率大幅波動的反應低於歷史分布中位數，\n顯示利率波動率市場並未因此恐慌。同時 MOVE 對 VIX 呈現\n6 天領先，符合「利率波動率領先帶動其他風險指標走低」的敘事。\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 65,
+      "badge": "白銀",
+      "evaluatedAt": "2026-01-23",
+      "metrics": {
+        "problemFit": 75,
+        "correctness": 70,
+        "dataGovernance": 60,
+        "robustness": 60,
+        "maintainability": 65,
+        "usability": 70
+      },
+      "metricDetails": {
+        "problemFit": {
+          "score": 75,
+          "strengths": [
+            "清晰的三層分析框架（領先落後、事件窗、方向一致性）",
+            "明確定義「不恐慌」的量化標準"
+          ],
+          "improvements": [
+            "可增加更多不適用情境說明"
+          ]
+        },
+        "correctness": {
+          "score": 70,
+          "strengths": [
+            "交叉相關方法論可重現",
+            "有明確的數學定義"
+          ],
+          "improvements": [
+            "MOVE 公開替代數據需驗證準確性",
+            "可增加更多 golden case"
+          ]
+        },
+        "dataGovernance": {
+          "score": 60,
+          "strengths": [
+            "列出多個數據替代方案",
+            "FRED/Yahoo 無需 API key"
+          ],
+          "improvements": [
+            "MOVE 需爬蟲取得，穩定性待驗證",
+            "需增加 fallback 機制"
+          ]
+        },
+        "robustness": {
+          "score": 60,
+          "strengths": [
+            "有基本的缺值處理邏輯"
+          ],
+          "improvements": [
+            "需增加 failure-modes.md",
+            "爬蟲失敗的降級策略"
+          ]
+        },
+        "maintainability": {
+          "score": 65,
+          "strengths": [
+            "參數定義完整",
+            "有 manifest.json 版本控制"
+          ],
+          "improvements": [
+            "可增加自動化測試"
+          ]
+        },
+        "usability": {
+          "score": 70,
+          "strengths": [
+            "輸出有「一句話結論 + 證據」結構",
+            "支援 Markdown 與 JSON 輸出"
+          ],
+          "improvements": [
+            "可增加歷史對照",
+            "可增加即時監控"
+          ]
+        }
+      },
+      "details": "**任務適配度（75/100）**\n- 三層分析框架清晰\n- 待改進：增加不適用情境\n\n**正確性（70/100）**\n- 方法論可重現\n- 待改進：公開替代數據驗證\n\n**資料治理（60/100）**\n- 列出替代方案\n- 待改進：MOVE 爬蟲穩定性\n\n**穩健性（60/100）**\n- 基本缺值處理\n- 待改進：增加 failure-modes\n\n**可維護性（65/100）**\n- 參數定義完整\n- 待改進：自動化測試\n\n**輸出可用性（70/100）**\n- 結構化輸出\n- 待改進：歷史對照\n",
+      "upgradeNotes": {
+        "targetBadge": "黃金",
+        "requirements": [
+          {
+            "metric": "dataGovernance",
+            "currentScore": 60,
+            "targetScore": 75,
+            "suggestion": "增加 MOVE 替代數據源與爬蟲穩定性"
+          },
+          {
+            "metric": "robustness",
+            "currentScore": 60,
+            "targetScore": 75,
+            "suggestion": "增加 failure-modes.md 與降級策略"
+          }
+        ]
+      }
+    },
+    "bestPractices": [
+      {
+        "title": "使用 Z 分數而非絕對值",
+        "description": "MOVE/VIX 的絕對值難以跨時期比較，Z 分數標準化後更有意義"
+      },
+      {
+        "title": "平滑處理降低噪音",
+        "description": "短期噪音會干擾領先落後判斷，建議使用 5 日移動平均"
+      },
+      {
+        "title": "注意數據發布延遲",
+        "description": "JGB 殖利率數據可能有 1-2 天延遲，分析時需考慮"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "MOVE 數據取得困難",
+        "description": "MOVE Index 是 ICE/BofA 專有指數，公開數據需爬蟲或使用代理",
+        "consequence": "數據可能不穩定或有延遲"
+      },
+      {
+        "title": "過度解讀短期相關",
+        "description": "市場結構變化可能導致領先落後關係反轉",
+        "consequence": "歷史模式不一定適用於未來"
+      },
+      {
+        "title": "忽略極端行情",
+        "description": "極端恐慌時所有資產同步暴跌，領先落後關係可能消失",
+        "consequence": "正常時期的分析不適用於危機"
+      }
+    ],
+    "faq": [
+      {
+        "question": "什麼是 MOVE Index？",
+        "answer": "MOVE（Merrill Lynch Option Volatility Estimate）是衡量美國\n國債選擇權隱含波動率的指數，類似於股市的 VIX。\nMOVE 越高代表債券市場波動預期越大，通常與風險規避相關。\n"
+      },
+      {
+        "question": "為什麼要分析 MOVE 對 JGB 的反應？",
+        "answer": "JGB（日本國債）殖利率變動是全球利率市場的重要風險事件。\n如果 MOVE 對 JGB 大幅波動「不恐慌」，可能意味著：\n1. 市場認為這是日本特有問題，不會傳染\n2. 利率波動率市場預期已經消化\n3. 整體風險偏好仍然健康\n"
+      },
+      {
+        "question": "CDX IG 是什麼？為什麼用代理？",
+        "answer": "CDX IG（Investment Grade Credit Default Swap Index）是\n投資級信用違約交換指數。由於 CDX 數據需要訂閱，\n本 skill 使用 ICE BofA IG OAS（Option-Adjusted Spread）\n作為公開替代，反映投資級公司債相對國債的利差。\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 參考來源\n\n- ICE BofA MOVE Index: 原版 MOVE 指數\n- Bloomberg Terminal: MOVE / VIX / CDX IG 圖表\n- MacroMicro: 公開 MOVE 歷史數據\n\n## 數據來源\n\n**FRED（免費，無需 API key）**\n- 信用利差代理：BAMLC0A4CBBB (BBB OAS), BAMLC0A0CM (IG OAS)\n- 國債殖利率：DGS10\n\n**Yahoo Finance**\n- VIX: ^VIX\n\n**需爬蟲取得**\n- MOVE Index: MacroMicro / Investing.com\n- JGB 10Y Yield: Investing.com / MOF Japan\n"
+    },
+    "methodology": "本 skill 回答三個核心問題：\r\n\r\n| 問題                          | 方法                               | 輸出                     |\r\n|-------------------------------|------------------------------------|--------------------------|\r\n| MOVE 是否領先其他風險指標？   | 交叉相關 (Cross-Correlation)       | 最佳 lag 天數 + 相關係數 |\r\n| MOVE 對利率事件是否恐慌？     | 事件窗檢定 (Event Window)          | 平均反應 + Z 分數        |\r\n| MOVE 下行時其他指標是否同步？ | 方向一致性 (Directional Alignment) | 同向比例                 |\r\n\r\n---\r\n\r\n## 2. 數據預處理\r\n\r\n### 2.1 對齊到交易日\r\n\r\n所有時間序列對齊到 Business Day 索引，缺值使用前向填充（forward fill）：\r\n\r\n```python\r\ndf = df.sort_index().asfreq(\"B\").ffill()\r\n```\r\n\r\n**記錄缺值比例**：若缺值比例超過 5%，應在輸出中標註。\r\n\r\n### 2.2 平滑處理\r\n\r\n為降低短期噪音對 lead/lag 判斷的干擾，使用移動平均平滑：\r\n\r\n```python\r\nif smooth_window > 0:\r\n    df_smooth = df.rolling(smooth_window).mean()\r\nelse:\r\n    df_smooth = df.copy()\r\n```\r\n\r\n**建議設定**：`smooth_window = 5`（一週）\r\n\r\n### 2.3 Z 分數標準化\r\n\r\n將不同尺度的指標轉換為可比較的單位：\r\n\r\n$$z_t = \\frac{x_t - \\mu_{t,w}}{\\sigma_{t,w}}$$\r\n\r\n其中：\r\n- $x_t$：當期數值\r\n- $\\mu_{t,w}$：過去 $w$ 期的滾動平均\r\n- $\\sigma_{t,w}$：過去 $w$ 期的滾動標準差\r\n\r\n```python\r\ndef rolling_zscore(s: pd.Series, window: int) -> pd.Series:\r\n    mu = s.rolling(window).mean()\r\n    sd = s.rolling(window).std()\r\n    return (s - mu) / sd\r\n```\r\n\r\n**建議設定**：`zscore_window = 60`（約 3 個月）\r\n\r\n**解讀**：\r\n- Z > +2：極端高位（歷史 97.7% 分位以上）\r\n- Z ∈ [-1, +1]：正常區間\r\n- Z < -2：極端低位\r\n\r\n---\r\n\r\n## 3. Lead/Lag 分析：交叉相關\r\n\r\n### 3.1 原理\r\n\r\n交叉相關（Cross-Correlation）衡量兩序列在不同時間位移下的相關性：\r\n\r\n$$\\text{CrossCorr}(X, Y, k) = \\text{Corr}(X_{t+k}, Y_t)$$\r\n\r\n- **k > 0**：X 領先 Y（X 的變化先發生）\r\n- **k < 0**：X 落後 Y（Y 的變化先發生）\r\n- **k = 0**：同步\r\n\r\n### 3.2 實作\r\n\r\n```python\r\ndef crosscorr_leadlag(x: pd.Series, y: pd.Series, max_lag: int) -> tuple:\r\n    \"\"\"\r\n    計算 x 對 y 的交叉相關，找出最佳 lag\r\n\r\n    返回：(best_lag, best_corr)\r\n    - best_lag > 0：x 領先 y\r\n    - best_lag < 0：x 落後 y\r\n    \"\"\"\r\n    best_lag, best_corr = 0, -np.inf\r\n\r\n    for lag in range(-max_lag, max_lag + 1):\r\n        if lag > 0:\r\n            # x 領先：比較 x[:-lag] 與 y[lag:]\r\n            corr = x.shift(lag).corr(y)\r\n        else:\r\n            # x 落後：比較 x[-lag:] 與 y[:lag]\r\n            corr = x.shift(lag).corr(y)\r\n\r\n        if corr is not None and not np.isnan(corr) and corr > best_corr:\r\n            best_corr, best_lag = corr, lag\r\n\r\n    return best_lag, best_corr\r\n```\r\n\r\n### 3.3 解讀\r\n\r\n| 結果                                | 意義                                     |\r\n|-------------------------------------|------------------------------------------|\r\n| `MOVE_vs_VIX: lag=+6, corr=0.72`    | MOVE 變化領先 VIX 約 6 天，相關係數 0.72 |\r\n| `MOVE_vs_CREDIT: lag=+4, corr=0.61` | MOVE 變化領先信用利差約 4 天             |\r\n| `lag ≈ 0, corr > 0.8`               | 兩者同步移動                             |\r\n| `lag < 0`                           | MOVE 反而落後（需檢查數據品質）          |\r\n\r\n### 3.4 注意事項\r\n\r\n1. **相關不等於因果**：lead/lag 只表示統計上的時序關係\r\n2. **穩定性**：不同時期的 lead/lag 可能不同，建議計算滾動 lead/lag\r\n3. **顯著性**：可用 bootstrap 或 Fisher z-transform 檢定相關係數顯著性\r\n\r\n---\r\n\r\n## 4. 事件窗檢定：是否被嚇到\r\n\r\n### 4.1 原理\r\n\r\n檢驗「當利率事件發生時，MOVE 是否恐慌」：\r\n\r\n1. **定義事件**：JGB 殖利率在 $k$ 天內變動超過門檻\r\n2. **計算反應**：事件窗內 MOVE 的變化\r\n3. **比較歷史**：反應是否低於歷史分布中位數\r\n\r\n### 4.2 事件定義\r\n\r\n$$\\text{Shock}_t = \\mathbb{1}\\left[ |Y_t - Y_{t-k}| \\geq \\tau \\right]$$\r\n\r\n其中：\r\n- $Y_t$：JGB 10Y 殖利率\r\n- $k$：事件窗天數（預設 5）\r\n- $\\tau$：門檻（預設 15 bps）\r\n\r\n```python\r\ndef identify_shock_events(jgb: pd.Series, window: int, threshold_bps: float) -> pd.Series:\r\n    \"\"\"識別 JGB 衝擊事件\"\"\"\r\n    # 計算 k 日變化（bps）\r\n    change_bps = (jgb - jgb.shift(window)) * 100\r\n    # 標記衝擊\r\n    shock = change_bps.abs() >= threshold_bps\r\n    return shock\r\n```\r\n\r\n### 4.3 MOVE 反應計算\r\n\r\n$$\\text{MOVE\\_reaction}_t = \\text{MOVE}_t - \\text{MOVE}_{t-k}$$\r\n\r\n```python\r\ndef compute_move_reaction(move: pd.Series, shock: pd.Series, window: int) -> dict:\r\n    \"\"\"計算 MOVE 對衝擊事件的反應\"\"\"\r\n    move_change = move - move.shift(window)\r\n    reactions = move_change[shock].dropna()\r\n\r\n    return {\r\n        \"shock_count\": int(shock.sum()),\r\n        \"mean_reaction\": float(reactions.mean()) if len(reactions) else np.nan,\r\n        \"median_reaction\": float(reactions.median()) if len(reactions) else np.nan,\r\n        \"reactions\": reactions.tolist()\r\n    }\r\n```\r\n\r\n### 4.4 「不恐慌」判定\r\n\r\n| 條件                  | 判定                     |\r\n|-----------------------|--------------------------|\r\n| 平均反應 < 歷史中位數 | Not spooked              |\r\n| 平均反應 ≥ 歷史中位數 | Spooked                  |\r\n| 當前 MOVE Z 分數 < 0  | 目前偏低（利率市場平靜） |\r\n| 當前 MOVE Z 分數 > +1 | 目前偏高（利率市場緊張） |\r\n\r\n---\r\n\r\n## 5. 方向一致性\r\n\r\n### 5.1 原理\r\n\r\n檢驗「當 MOVE 下行時，其他風險指標是否也下行」：\r\n\r\n$$\\text{Alignment}_{X,Y} = \\frac{\\sum \\mathbb{1}[\\Delta X_t < 0 \\land \\Delta Y_t < 0]}{\\sum \\mathbb{1}[\\Delta X_t < 0]}$$\r\n\r\n### 5.2 實作\r\n\r\n```python\r\ndef compute_direction_alignment(df: pd.DataFrame) -> dict:\r\n    \"\"\"計算方向一致性\"\"\"\r\n    d = df.diff()\r\n\r\n    move_down = d[\"MOVE\"] < 0\r\n    vix_down = d[\"VIX\"] < 0\r\n    credit_down = d[\"CREDIT\"] < 0\r\n\r\n    align_vix = float((move_down & vix_down).sum() / move_down.sum())\r\n    align_credit = float((move_down & credit_down).sum() / move_down.sum())\r\n\r\n    return {\r\n        \"MOVE_down_and_VIX_down_ratio\": align_vix,\r\n        \"MOVE_down_and_CREDIT_down_ratio\": align_credit\r\n    }\r\n```\r\n\r\n### 5.3 解讀\r\n\r\n| 比例      | 意義                                      |\r\n|-----------|-------------------------------------------|\r\n| > 0.6     | 高度同向（符合「MOVE 帶動其他指標下行」） |\r\n| 0.4 - 0.6 | 中等同向                                  |\r\n| < 0.4     | 低同向（可能存在結構性差異）              |\r\n\r\n---\r\n\r\n## 6. 綜合判定邏輯\r\n\r\n### 6.1 結論生成\r\n\r\n```python\r\ndef generate_headline(leadlag: dict, spooked: dict, alignment: dict) -> str:\r\n    \"\"\"生成一句話結論\"\"\"\r\n    parts = []\r\n\r\n    # 恐慌檢定\r\n    if spooked[\"mean_reaction\"] < 1.0:\r\n        parts.append(\"MOVE not spooked by JGB yield moves\")\r\n    else:\r\n        parts.append(\"MOVE appears spooked by JGB yield moves\")\r\n\r\n    # 領先判定\r\n    move_vs_vix = leadlag[\"MOVE_vs_VIX\"][\"best_lag_days\"]\r\n    move_vs_credit = leadlag[\"MOVE_vs_CREDIT\"][\"best_lag_days\"]\r\n\r\n    if move_vs_vix > 0 and move_vs_credit > 0:\r\n        parts.append(\"and appears to lead VIX/Credit lower\")\r\n    elif move_vs_vix < 0 or move_vs_credit < 0:\r\n        parts.append(\"but may lag VIX/Credit\")\r\n    else:\r\n        parts.append(\"and moves in sync with VIX/Credit\")\r\n\r\n    return \" \".join(parts) + \".\"\r\n```\r\n\r\n### 6.2 信心水準\r\n\r\n| 信心   | 條件                                       |\r\n|--------|--------------------------------------------|\r\n| HIGH   | lead/lag 相關 > 0.7 且方向一致性 > 0.6     |\r\n| MEDIUM | lead/lag 相關 0.5-0.7 或方向一致性 0.4-0.6 |\r\n| LOW    | lead/lag 相關 < 0.5 或數據不足             |\r\n\r\n---\r\n\r\n## 7. 數學公式總結\r\n\r\n### Z 分數\r\n$$z_t = \\frac{x_t - \\bar{x}_{t-w:t}}{\\sigma_{t-w:t}}$$\r\n\r\n### 交叉相關\r\n$$\\rho_{XY}(k) = \\frac{\\text{Cov}(X_{t+k}, Y_t)}{\\sigma_X \\sigma_Y}$$\r\n\r\n### 事件窗反應\r\n$$R_t = \\text{MOVE}_t - \\text{MOVE}_{t-k} \\quad \\text{when} \\quad |\\Delta\\text{JGB}_{t-k:t}| \\geq \\tau$$\r\n\r\n### 方向一致性\r\n$$\\text{Align}_{XY} = P(\\Delta Y < 0 | \\Delta X < 0)$$\r\n\r\n---\r\n\r\n## 8. 參考文獻\r\n\r\n1. **Lead-Lag Analysis**: Hamilton, J.D. (1994). Time Series Analysis\r\n2. **Cross-Correlation**: Brockwell, P.J. & Davis, R.A. (2016). Introduction to Time Series and Forecasting\r\n3. **Event Studies**: MacKinlay, A.C. (1997). Event Studies in Economics and Finance\r\n\r\n---\r\n\r\n## 9. 程式碼：完整分析函數\r\n\r\n```python\r\nimport pandas as pd\r\nimport numpy as np\r\n\r\ndef analyze_rates_vol_leadlag(\r\n    df: pd.DataFrame,\r\n    smooth_window: int = 5,\r\n    zscore_window: int = 60,\r\n    lead_lag_max_days: int = 20,\r\n    shock_window_days: int = 5,\r\n    shock_threshold_bps: float = 15.0\r\n) -> dict:\r\n    \"\"\"\r\n    完整的利率波動率領先落後分析\r\n\r\n    Parameters:\r\n    -----------\r\n    df : DataFrame with columns [\"MOVE\", \"VIX\", \"CREDIT\", \"JGB10Y\"]\r\n\r\n    Returns:\r\n    --------\r\n    dict with leadlag, spooked_check, direction_alignment, headline\r\n    \"\"\"\r\n\r\n    # 1. 對齊\r\n    df = df.sort_index().asfreq(\"B\").ffill()\r\n\r\n    # 2. 平滑\r\n    if smooth_window > 0:\r\n        df_s = df.rolling(smooth_window).mean()\r\n    else:\r\n        df_s = df.copy()\r\n\r\n    # 3. Z 分數\r\n    z = df_s.apply(lambda c: rolling_zscore(c, zscore_window))\r\n\r\n    # 4. Lead/Lag\r\n    lag_vix, corr_vix = crosscorr_leadlag(df_s[\"MOVE\"], df_s[\"VIX\"], lead_lag_max_days)\r\n    lag_cr, corr_cr = crosscorr_leadlag(df_s[\"MOVE\"], df_s[\"CREDIT\"], lead_lag_max_days)\r\n\r\n    leadlag = {\r\n        \"MOVE_vs_VIX\": {\"best_lag_days\": int(lag_vix), \"corr\": round(corr_vix, 3)},\r\n        \"MOVE_vs_CREDIT\": {\"best_lag_days\": int(lag_cr), \"corr\": round(corr_cr, 3)}\r\n    }\r\n\r\n    # 5. 事件窗檢定\r\n    jgb_change_bps = (df_s[\"JGB10Y\"] - df_s[\"JGB10Y\"].shift(shock_window_days)) * 100\r\n    shock = jgb_change_bps.abs() >= shock_threshold_bps\r\n\r\n    move_react = df_s[\"MOVE\"] - df_s[\"MOVE\"].shift(shock_window_days)\r\n    reactions = move_react[shock].dropna()\r\n\r\n    spooked_check = {\r\n        \"shock_definition\": f\"abs(JGB10Y change over {shock_window_days}d) >= {shock_threshold_bps}bp\",\r\n        \"shock_count\": int(shock.sum()),\r\n        \"mean_MOVE_reaction_on_shocks\": round(float(reactions.mean()), 2) if len(reactions) else None,\r\n        \"MOVE_zscore_now\": round(float(z[\"MOVE\"].iloc[-1]), 2)\r\n    }\r\n\r\n    # 6. 方向一致性\r\n    d = df_s.diff()\r\n    move_down = d[\"MOVE\"] < 0\r\n\r\n    alignment = {\r\n        \"MOVE_down_and_VIX_down_ratio\": round(float((move_down & (d[\"VIX\"] < 0)).sum() / move_down.sum()), 2),\r\n        \"MOVE_down_and_CREDIT_down_ratio\": round(float((move_down & (d[\"CREDIT\"] < 0)).sum() / move_down.sum()), 2)\r\n    }\r\n\r\n    # 7. 生成結論\r\n    headline = generate_headline(leadlag, spooked_check, alignment)\r\n\r\n    return {\r\n        \"status\": \"ok\",\r\n        \"headline\": headline,\r\n        \"leadlag\": leadlag,\r\n        \"spooked_check\": spooked_check,\r\n        \"direction_alignment\": alignment\r\n    }\r\n```\r\n",
+    "downloadUrl": "downloads/analyze-move-risk-gauges-leadlag-0.1.0.zip"
+  },
+  {
     "id": "analyze-japan-debt-service-tax-burden",
     "name": "analyze-japan-debt-service-tax-burden",
     "displayName": "分析日本債務利息負擔",
