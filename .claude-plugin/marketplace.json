@@ -10,24 +10,6 @@
   },
   "plugins": [
     {
-      "name": "usd-reserve-loss-gold-revaluation",
-      "description": "在「美元／某貨幣失去儲備地位、黃金成為唯一錨」的假設下，用央行貨幣負債 ÷ 黃金儲備，推演「資產負債表可承受的隱含金價」，並輸出各國/各貨幣的槓桿程度、缺口與排名",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/usd-reserve-loss-gold-revaluation",
-      "category": "fx-factors",
-      "tags": [
-        "黃金",
-        "央行",
-        "儲備貨幣",
-        "美元",
-        "M0",
-        "M2"
-      ]
-    },
-    {
       "name": "zeberg-salomon-rotator",
       "description": "用領先和即時指標建構景氣模型，並判讀兩種景氣階段：景氣擴張與景氣收縮期，並根據理論給出\"撞冰山\"與\"下沉\"事件訊號",
       "version": "0.1.2",
@@ -43,6 +25,24 @@
         "景氣擴張",
         "景氣收縮",
         "FRED"
+      ]
+    },
+    {
+      "name": "usd-reserve-loss-gold-revaluation",
+      "description": "在「美元／某貨幣失去儲備地位、黃金成為唯一錨」的假設下，用央行貨幣負債 ÷ 黃金儲備，推演「資產負債表可承受的隱含金價」，並輸出各國/各貨幣的槓桿程度、缺口與排名",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/usd-reserve-loss-gold-revaluation",
+      "category": "fx-factors",
+      "tags": [
+        "黃金",
+        "央行",
+        "儲備貨幣",
+        "美元",
+        "M0",
+        "M2"
       ]
     },
     {
@@ -257,7 +257,7 @@
     {
       "name": "detect-freight-led-inflation-turn",
       "description": "透過美國卡斯貨運指數 (CASS Freight Index) 的週期轉折，偵測美國通膨壓力是否進入放緩或反轉階段。用於判斷「通膨是否正在降溫」，並驗證市場對降息、通膨回落的宏觀敘事是否有實體經濟數據支撐。",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": {
         "name": "Ricky Wang"
       },
@@ -291,6 +291,17 @@
       ]
     },
     {
+      "name": "cost-density-net-rr-calculator",
+      "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
+      "version": "0.1.0",
+      "author": {
+        "name": "macro-skills"
+      },
+      "source": "./skills/cost-density-net-rr-calculator",
+      "category": "indicator-monitoring",
+      "tags": []
+    },
+    {
       "name": "demographic-fiscal-trap-analyzer",
       "description": "分析人口老化、債務動態、官僚膨脹與通膨稀釋交互作用下的「財政陷阱」風險，量化各國/地區的財政脆弱度並識別潛在的貨幣稀釋路徑",
       "version": "0.1.0",
@@ -309,17 +320,6 @@
       ]
     },
     {
-      "name": "cost-density-net-rr-calculator",
-      "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
-      "version": "0.1.0",
-      "author": {
-        "name": "macro-skills"
-      },
-      "source": "./skills/cost-density-net-rr-calculator",
-      "category": "indicator-monitoring",
-      "tags": []
-    },
-    {
       "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
       "description": "從網路自動抓取礦業公司財務報表與營運揭露（產量、成本、資本支出），回算「礦業股/金屬本體比率」的基本面解釋與區間門檻（如 1.2/1.7），並輸出可重現的估值拆解（成本因子 / 槓桿因子 / 倍數因子 / 稀釋因子）。",
       "version": "0.1.0",
@@ -335,6 +335,24 @@
         "槓桿",
         "倍數",
         "稀釋"
+      ]
+    },
+    {
+      "name": "analyze-us-bank-credit-deposit-decoupling",
+      "description": "分析銀行貸款與存款之間的「信貸創造脫鉤」現象，用以辨識聯準會緊縮政策在銀行體系內部的真實傳導效果。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-us-bank-credit-deposit-decoupling",
+      "category": "credit-risk",
+      "tags": [
+        "QT",
+        "聯準會",
+        "銀行信貸",
+        "存款",
+        "RRP",
+        "隱性緊縮"
       ]
     },
     {
@@ -356,24 +374,6 @@
       ]
     },
     {
-      "name": "analyze-japan-debt-service-tax-burden",
-      "description": "以日本公債殖利率變化為觸發，量化「政府利息支出 / 稅收」負擔（含情境壓力測試），並判斷是否進入債務利息螺旋風險區。",
-      "version": "0.1.1",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/analyze-japan-debt-service-tax-burden",
-      "category": "interest-rates",
-      "tags": [
-        "日本",
-        "國債",
-        "債務",
-        "利息支出",
-        "稅收",
-        "壓力測試"
-      ]
-    },
-    {
       "name": "analyze-investment-clock-rotation",
       "description": "把「獲利成長 × 財務狀況（金融環境）」映射成「投資時鐘」，判斷目前落在哪個象限、近期是順時針還是逆時針旋轉、以及相對於上一輪循環的位置差異",
       "version": "0.1.0",
@@ -389,6 +389,24 @@
         "金融環境",
         "資產配置",
         "象限分析"
+      ]
+    },
+    {
+      "name": "analyze-japan-debt-service-tax-burden",
+      "description": "以日本公債殖利率變化為觸發，量化「政府利息支出 / 稅收」負擔（含情境壓力測試），並判斷是否進入債務利息螺旋風險區。",
+      "version": "0.1.1",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-japan-debt-service-tax-burden",
+      "category": "interest-rates",
+      "tags": [
+        "日本",
+        "國債",
+        "債務",
+        "利息支出",
+        "稅收",
+        "壓力測試"
       ]
     },
     {
