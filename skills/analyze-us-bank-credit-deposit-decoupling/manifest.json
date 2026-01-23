@@ -1,6 +1,6 @@
 {
   "name": "analyze-us-bank-credit-deposit-decoupling",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "displayName": "美國銀行信貸存款脫鉤分析",
   "description": "分析銀行貸款與存款之間的「信貸創造脫鉤」現象，用以辨識聯準會緊縮政策在銀行體系內部的真實傳導效果。",
   "author": "Ricky Wang",
