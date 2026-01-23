@@ -471,6 +471,12 @@ def main():
     parser.add_argument("--quick", action="store_true", help="Quick check (last 6 months)")
     parser.add_argument("--output", "-o", help="Output file path")
     parser.add_argument("--output-mode", choices=["json", "markdown"], default="markdown", help="Output format")
+    parser.add_argument("--chart", action="store_true", help="Generate Bloomberg-style visualization chart")
+    parser.add_argument("--chart-output", help="Chart output path (default: output/move-leadlag-YYYY-MM-DD.png)")
+    parser.add_argument("--rates-chart", action="store_true", help="Generate rates vs MOVE panic analysis chart")
+    parser.add_argument("--rates-chart-output", help="Rates chart output path")
+    parser.add_argument("--rates-col", default="JGB10Y", help="Column name for rates data (default: JGB10Y)")
+    parser.add_argument("--rates-name", default="JGB 10Y", help="Display name for rates (default: JGB 10Y)")
     parser.add_argument("--smooth-window", type=int, default=5, help="Smoothing window")
     parser.add_argument("--zscore-window", type=int, default=60, help="Z-score window")
     parser.add_argument("--lead-lag-max-days", type=int, default=20, help="Max lead/lag days")
@@ -533,6 +539,37 @@ def main():
         print(f"Result saved to {args.output}")
     else:
         print(output)
+
+    # Generate chart if requested
+    if args.chart:
+        try:
+            from visualize import create_bloomberg_chart
+            chart_path = args.chart_output
+            if not chart_path:
+                # 使用專案根目錄的 output/
+                project_root = Path(__file__).resolve().parent.parent.parent.parent.parent
+                chart_path = project_root / "output" / f"move-leadlag-{datetime.now().strftime('%Y-%m-%d')}.png"
+            create_bloomberg_chart(df, result, str(chart_path))
+        except ImportError as e:
+            print(f"Warning: Could not generate chart - {e}")
+
+    # Generate rates vs MOVE panic chart if requested
+    if args.rates_chart:
+        try:
+            from visualize_rates_move import create_rates_move_chart
+            rates_chart_path = args.rates_chart_output
+            if not rates_chart_path:
+                # 使用專案根目錄的 output/
+                project_root = Path(__file__).resolve().parent.parent.parent.parent.parent
+                safe_rates_name = args.rates_name.lower().replace(" ", "-").replace("/", "-")
+                rates_chart_path = project_root / "output" / f"{safe_rates_name}-move-panic-{datetime.now().strftime('%Y-%m-%d')}.png"
+            create_rates_move_chart(
+                df, result, str(rates_chart_path),
+                rates_col=args.rates_col,
+                rates_name=args.rates_name
+            )
+        except ImportError as e:
+            print(f"Warning: Could not generate rates chart - {e}")
 
 
 if __name__ == "__main__":
