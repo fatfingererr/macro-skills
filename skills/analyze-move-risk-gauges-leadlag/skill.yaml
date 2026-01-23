@@ -10,174 +10,212 @@ installCount: 0
 
 testQuestions:
   - question: 'MOVE 目前是否對 JGB 殖利率變動感到恐慌？'
+    imagePath: images/jgb-10y-move-panic-2026-01-23.png
     expectedResult: |
-      ## MOVE 風險指標領先落後分析結果
+      MOVE 對 JGB 殖利率變動的反應                                                                                                                                                          
+      判定：SPOOKED（有恐慌反應）
 
-      ### 結論
-      - 利率波動率（MOVE）對「JGB 殖利率衝擊」反應偏弱 → **not too spooked**
-      - MOVE 的變化在統計上對 VIX 與信用風險代理指標呈現 **領先 k 天** 的特徵
-      - 最近一段 MOVE 下行期間，VIX / 信用利差同步走低的比例為：VIX = 58%、Credit = 55%
+      量化證據
+      ┌──────────────────┬────────────────────────────┐
+      │       項目       │            數值            │
+      ├──────────────────┼────────────────────────────┤
+      │ 衝擊定義         │ 5 日內 JGB 10Y 變動 ≥ 15bp │
+      ├──────────────────┼────────────────────────────┤
+      │ 衝擊事件數       │ 9 次                       │
+      ├──────────────────┼────────────────────────────┤
+      │ MOVE 平均反應    │ +18.17（明顯上升）         │
+      ├──────────────────┼────────────────────────────┤
+      │ MOVE 當前 Z 分數 │ -1.25                      │
+      └──────────────────┴────────────────────────────┘
 
-      ### 證據（量化）
-      ┌───────────────────────┬──────────┬──────────┐
-      │         指標          │ 領先天數 │ 相關係數 │
-      ├───────────────────────┼──────────┼──────────┤
-      │ MOVE vs VIX           │ +6 天    │ 0.72     │
-      ├───────────────────────┼──────────┼──────────┤
-      │ MOVE vs Credit Spread │ +4 天    │ 0.61     │
-      └───────────────────────┴──────────┴──────────┘
+      解讀
+      當 JGB 殖利率出現顯著波動時（5 日內變動 ≥ 15bp），MOVE Index 平均上升 18.17 點，這表示：
 
-      ### 事件窗檢定
-      ┌─────────────────────────────────────┬───────┐
-      │                指標                 │ 數值  │
-      ├─────────────────────────────────────┼───────┤
-      │ JGB 衝擊事件（5日|Δ|≥15bp）        │ 3 次  │
-      ├─────────────────────────────────────┼───────┤
-      │ 事件窗 MOVE 平均反應                │ +0.8  │
-      ├─────────────────────────────────────┼───────┤
-      │ MOVE 當前 Z 分數                    │ -0.4  │
-      └─────────────────────────────────────┴───────┘
+      1. 利率波動率市場對日本利率衝擊有明確反應，並非「無視」或「不恐慌」
+      2. 這與「日本升息對全球利率波動率無影響」的敘事不一致
+      3. 日本央行政策變化仍會傳導至美國利率波動率預期
 
-      ### 解讀
-      MOVE 對近期 JGB 殖利率大幅波動的反應低於歷史分布中位數，
-      顯示利率波動率市場並未因此恐慌。同時 MOVE 對 VIX 呈現
-      6 天領先，符合「利率波動率領先帶動其他風險指標走低」的敘事。
+      但有一個緩和因素
+      MOVE 當前 Z 分數為 -1.25（低於歷史平均超過 1 個標準差），顯示：
+
+      - 儘管對事件有反應，但 MOVE 整體水位偏低
+      - 市場對未來利率波動的預期目前並不高漲
+      - 處於相對「平靜」狀態，但遇到衝擊時仍會反應
+
+      一句話：MOVE 對 JGB 衝擊「會恐慌」，但目前處於低檔區間，尚未進入持續高度警戒狀態。
 
   - question: 'MOVE 目前是否是否領先 VIX 和信用利差？'
+    imagePath: images/move-vix-credit-leadlag-2026-01-23.png
     expectedResult: |
-      ## MOVE 風險指標領先落後分析結果
+      MOVE 領先落後分析結果                                                                                                                                                                       
 
-      ### 結論
-      - 利率波動率（MOVE）對「JGB 殖利率衝擊」反應偏弱 → **not too spooked**
-      - MOVE 的變化在統計上對 VIX 與信用風險代理指標呈現 **領先 k 天** 的特徵
-      - 最近一段 MOVE 下行期間，VIX / 信用利差同步走低的比例為：VIX = 58%、Credit = 55%
+      核心發現
+      MOVE 目前並未領先 VIX 和信用利差，反而略微落後。
+      ┌────────────────┬──────────┬──────────┬─────────────────────────────┐                                                                                                                      
+      │     指標對     │ 最佳 Lag │ 相關係數 │            解讀             │
+      ├────────────────┼──────────┼──────────┼─────────────────────────────┤
+      │ MOVE vs VIX    │ -1 天    │ 0.385    │ MOVE 落後 VIX 約 1 個交易日 │
+      ├────────────────┼──────────┼──────────┼─────────────────────────────┤
+      │ MOVE vs Credit │ 0 天     │ 0.704    │ MOVE 與信用利差同步移動     │
+      └────────────────┴──────────┴──────────┴─────────────────────────────┘
 
-      ### 證據（量化）
-      ┌───────────────────────┬──────────┬──────────┐
-      │         指標          │ 領先天數 │ 相關係數 │
-      ├───────────────────────┼──────────┼──────────┤
-      │ MOVE vs VIX           │ +6 天    │ 0.72     │
-      ├───────────────────────┼──────────┼──────────┤
-      │ MOVE vs Credit Spread │ +4 天    │ 0.61     │
-      └───────────────────────┴──────────┴──────────┘
+      當前狀態
+      - MOVE 當前 Z 分數：-1.25（低於歷史平均，偏低檔）
+      - 方向一致性：MOVE 下行時，VIX 同步下行 71%、信用利差同步下行 66%
 
-      ### 事件窗檢定
-      ┌─────────────────────────────────────┬───────┐
-      │                指標                 │ 數值  │
-      ├─────────────────────────────────────┼───────┤
-      │ JGB 衝擊事件（5日|Δ|≥15bp）        │ 3 次  │
-      ├─────────────────────────────────────┼───────┤
-      │ 事件窗 MOVE 平均反應                │ +0.8  │
-      ├─────────────────────────────────────┼───────┤
-      │ MOVE 當前 Z 分數                    │ -0.4  │
-      └─────────────────────────────────────┴───────┘
-
-      ### 解讀
-      MOVE 對近期 JGB 殖利率大幅波動的反應低於歷史分布中位數，
-      顯示利率波動率市場並未因此恐慌。同時 MOVE 對 VIX 呈現
-      6 天領先，符合「利率波動率領先帶動其他風險指標走低」的敘事。
+      結論
+      MOVE 目前並非領先指標，而是與 VIX/Credit 同步或略微落後。
+      MOVE 本身處於相對低檔區間（Z = -1.25），顯示利率波動率預期目前並不高漲。
 
 qualityScore:
-  overall: 65
+  overall: 74
   badge: 白銀
-  evaluatedAt: "2026-01-23"
+  evaluatedAt: "2026-01-24"
 
   metrics:
-    problemFit: 75
-    correctness: 70
-    dataGovernance: 60
-    robustness: 60
-    maintainability: 65
-    usability: 70
+    problemFit: 78
+    correctness: 75
+    dataGovernance: 72
+    robustness: 65
+    maintainability: 75
+    usability: 78
 
   metricDetails:
     problemFit:
-      score: 75
+      score: 78
       strengths:
-        - 清晰的三層分析框架（領先落後、事件窗、方向一致性）
-        - 明確定義「不恐慌」的量化標準
+        - SKILL.md 有清晰的 <objective> 說明核心問題
+        - 三層分析框架（領先落後、事件窗、方向一致性）定義明確
+        - workflows/ 有完整主路徑（analyze.md, visualize.md）
+        - input-schema.md 欄位定義清晰，有表格說明
+        - 有 <success_criteria> 說明執行成功的標準
+        - 支援參數化利率輸入（可分析不同國家債券）
       improvements:
-        - 可增加更多不適用情境說明
+        - 缺少明確的「不適用情境」說明
+        - 缺少「缺資料分支」處理說明
 
     correctness:
-      score: 70
+      score: 75
       strengths:
-        - 交叉相關方法論可重現
-        - 有明確的數學定義
+        - methodology.md 有完整 LaTeX 公式推導
+        - scripts/ 實作與文檔吻合
+        - 有明確的參數定義（modelConfig.defaultParams）
+        - 交叉相關、Z 分數、事件窗方法論可重現
       improvements:
-        - MOVE 公開替代數據需驗證準確性
-        - 可增加更多 golden case
+        - examples/ 為空，缺少 golden case 可做回歸測試
+        - 可增加邊界案例驗證
 
     dataGovernance:
-      score: 60
+      score: 72
       strengths:
-        - 列出多個數據替代方案
+        - data-sources.md 完整（來源、頻率、延遲、fallback）
+        - 有 fallback 策略表（MacroMicro CDP → 利率實現波動率）
+        - 有 12 小時 cache 機制避免重複請求
+        - 授權說明清楚（免費公開數據）
         - FRED/Yahoo 無需 API key
       improvements:
-        - MOVE 需爬蟲取得，穩定性待驗證
-        - 需增加 fallback 機制
+        - 無 cross-validate.md 或 explore_*.py 驗證流程
+        - cache 輸出無 timestamp 記錄
+        - Chrome CDP 穩定性仍待驗證
 
     robustness:
-      score: 60
-      strengths:
-        - 有基本的缺值處理邏輯
-      improvements:
-        - 需增加 failure-modes.md
-        - 爬蟲失敗的降級策略
-
-    maintainability:
       score: 65
       strengths:
-        - 參數定義完整
-        - 有 manifest.json 版本控制
+        - 有 cache 機制避免重複請求
+        - 有基本的缺值處理（ffill）
+        - output-json.md 定義了 error 輸出結構
       improvements:
+        - 錯誤處理不完整，缺少 try-except 包裹
+        - 無 failure-modes.md 說明失敗模式
+        - 無明確的降級輸出機制實作
+        - Chrome CDP 失敗時的處理策略不明確
+
+    maintainability:
+      score: 75
+      strengths:
+        - manifest.json 有 semver 版本（0.1.0）
+        - 有完整 dependencies 清單
+        - templates/ 欄位命名穩定
+        - 無重複文件（沒有 root + references 同名 md）
+        - 參數集中在 modelConfig.defaultParams
+        - 新增 visualize_rates_move.py 支援參數化利率分析
+      improvements:
+        - visualize.py 和 visualize_rates_move.py 有部分重複代碼
         - 可增加自動化測試
 
     usability:
-      score: 70
+      score: 78
       strengths:
-        - 輸出有「一句話結論 + 證據」結構
-        - 支援 Markdown 與 JSON 輸出
+        - output-markdown.md 有 TL;DR（結論一句話）
+        - 有 reasons 列表作為依據
+        - output-json.md 有 status + confidence + reasons
+        - 有多個 visualizer 腳本（visualize.py, visualize_rates_move.py）
+        - 有解讀說明（methodology.md 有解讀表格）
+        - skill.yaml 有 testQuestions 提供實際範例
+        - 圖表支援軸翻轉與 Z 分數對齊，視覺比較更直觀
       improvements:
-        - 可增加歷史對照
-        - 可增加即時監控
+        - 缺少「下一步建議」
+        - 無 historical-episodes.md（歷史對照）
 
   details: |
-    **任務適配度（75/100）**
-    - 三層分析框架清晰
-    - 待改進：增加不適用情境
+    **任務適配度（78/100）**
+    - SKILL.md 有清晰的 <objective> 與 <success_criteria>
+    - 三層分析框架（領先落後、事件窗、方向一致性）定義明確
+    - 支援參數化利率輸入（--rates-col, --rates-name）
+    - 待改進：增加不適用情境說明、缺資料分支處理
 
-    **正確性（70/100）**
-    - 方法論可重現
-    - 待改進：公開替代數據驗證
+    **正確性（75/100）**
+    - methodology.md 有完整 LaTeX 公式推導
+    - scripts/ 實作與文檔吻合
+    - 待改進：examples/ 為空，需增加 golden case
 
-    **資料治理（60/100）**
-    - 列出替代方案
-    - 待改進：MOVE 爬蟲穩定性
+    **資料治理（72/100）**
+    - data-sources.md 完整，有 fallback 策略
+    - 有 12 小時 cache 機制
+    - 待改進：無 cross-validate 流程、無 timestamp 記錄
 
-    **穩健性（60/100）**
-    - 基本缺值處理
-    - 待改進：增加 failure-modes
+    **穩健性（65/100）**
+    - 有 cache 與基本缺值處理
+    - 待改進：錯誤處理不完整、需增加 failure-modes.md
 
-    **可維護性（65/100）**
-    - 參數定義完整
-    - 待改進：自動化測試
+    **可維護性（75/100）**
+    - manifest.json 有 semver 版本與 dependencies
+    - 參數集中定義，模板穩定
+    - 待改進：部分代碼重複、可增加自動化測試
 
-    **輸出可用性（70/100）**
-    - 結構化輸出
-    - 待改進：歷史對照
+    **輸出可用性（78/100）**
+    - 有 TL;DR + 依據 + status/confidence/reasons
+    - 多個 visualizer 腳本，支援軸翻轉與 Z 分數對齊
+    - 待改進：缺少下一步建議、無歷史對照
 
   upgradeNotes:
     targetBadge: 黃金
     requirements:
-      - metric: dataGovernance
-        currentScore: 60
-        targetScore: 75
-        suggestion: 增加 MOVE 替代數據源與爬蟲穩定性
       - metric: robustness
-        currentScore: 60
+        currentScore: 65
         targetScore: 75
-        suggestion: 增加 failure-modes.md 與降級策略
+        suggestion: |
+          1. 增加 failure-modes.md 說明失敗模式與處理策略
+          2. 在 scripts/ 中增加 try-except 包裹與降級輸出
+          3. Chrome CDP 失敗時自動切換到 fallback 數據源
+      - metric: correctness
+        currentScore: 75
+        targetScore: 80
+        suggestion: |
+          1. 在 examples/ 增加至少 1 個 golden case 可做回歸測試
+          2. 增加邊界案例驗證（如數據不足、極端值）
+      - metric: dataGovernance
+        currentScore: 72
+        targetScore: 80
+        suggestion: |
+          1. 增加 cross-validate.md 或 explore_*.py 驗證流程
+          2. cache 輸出增加 timestamp 和 source 記錄
+      - metric: usability
+        currentScore: 78
+        targetScore: 85
+        suggestion: |
+          1. 增加 historical-episodes.md 歷史對照
+          2. output-markdown.md 增加「下一步建議」區塊
 
 bestPractices:
   - title: 使用 Z 分數而非絕對值
@@ -188,15 +226,18 @@ bestPractices:
     description: JGB 殖利率數據可能有 1-2 天延遲，分析時需考慮
 
 pitfalls:
-  - title: MOVE 數據取得困難
-    description: MOVE Index 是 ICE/BofA 專有指數，公開數據需爬蟲或使用代理
-    consequence: 數據可能不穩定或有延遲
   - title: 過度解讀短期相關
     description: 市場結構變化可能導致領先落後關係反轉
     consequence: 歷史模式不一定適用於未來
   - title: 忽略極端行情
     description: 極端恐慌時所有資產同步暴跌，領先落後關係可能消失
     consequence: 正常時期的分析不適用於危機
+  - title: 混淆軸翻轉與原始方向
+    description: |
+      時序圖的利率 Y 軸已翻轉，Z 分數也已取負。
+      解讀時需注意：圖表上「向上」代表利率下降/緊縮緩和，
+      「向下」代表利率上升/緊縮壓力
+    consequence: 誤讀圖表方向可能導致錯誤的市場判斷
 
 faq:
   - question: 什麼是 MOVE Index？
@@ -205,20 +246,32 @@ faq:
       國債選擇權隱含波動率的指數，類似於股市的 VIX。
       MOVE 越高代表債券市場波動預期越大，通常與風險規避相關。
 
-  - question: 為什麼要分析 MOVE 對 JGB 的反應？
+  - question: 為什麼利率 Y 軸要翻轉？
     answer: |
-      JGB（日本國債）殖利率變動是全球利率市場的重要風險事件。
-      如果 MOVE 對 JGB 大幅波動「不恐慌」，可能意味著：
-      1. 市場認為這是日本特有問題，不會傳染
-      2. 利率波動率市場預期已經消化
-      3. 整體風險偏好仍然健康
+      翻轉利率 Y 軸（invert_yaxis）的目的是讓視覺比較更直觀：
+      - 利率下降（寬鬆）→ 圖表向上 → 風險偏好上升
+      - 利率上升（緊縮）→ 圖表向下 → 風險偏好下降
+      這樣當 MOVE 和利率正相關時，兩條線會同向移動，
+      便於快速判斷兩者的相關性與方向一致性。
 
-  - question: CDX IG 是什麼？為什麼用代理？
+  - question: Z 分數為什麼也要翻轉？
     answer: |
-      CDX IG（Investment Grade Credit Default Swap Index）是
-      投資級信用違約交換指數。由於 CDX 數據需要訂閱，
-      本 skill 使用 ICE BofA IG OAS（Option-Adjusted Spread）
-      作為公開替代，反映投資級公司債相對國債的利差。
+      Z 分數面板需與時序圖保持視覺一致性。
+      假設利率上升（Z=+2），但時序圖的軸已翻轉（向下），
+      則 Z 分數也需取負值（-2）才能讓「高值在上」的慣例一致。
+      否則會出現時序圖向下、Z 分數卻向上的視覺矛盾。
+
+  - question: 如何分析其他國家債券對 MOVE 的影響？
+    answer: |
+      使用 visualize_rates_move.py 的參數化功能：
+
+      # 分析德國 Bund 10Y
+      python visualize_rates_move.py --rates-col BUND10Y --rates-name "Bund 10Y"
+
+      # 分析美國 UST 10Y
+      python visualize_rates_move.py --rates-col UST10Y --rates-name "UST 10Y"
+
+      注意：需確保數據源有對應的欄位，否則需先擴充 fetch_data.py。
 
 about:
   repository: https://github.com/fatfingererr/macro-skills
