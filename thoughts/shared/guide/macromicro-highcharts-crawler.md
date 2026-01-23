@@ -1,23 +1,25 @@
-# MacroMicro 財經 M 平方 Highcharts 圖表爬蟲指南
+# MacroMicro Highcharts 圖表爬蟲指南
 
 從 MacroMicro (財經 M 平方) 網站的 Highcharts 互動圖表中提取完整時間序列數據的實戰經驗整理。
+
+> **推薦方法**：使用 Chrome CDP 連接（繞過 Cloudflare），詳見 [方法一：Chrome CDP](#方法一chrome-cdp-推薦)
 
 ---
 
 ## 目錄
 
-1. [MacroMicro 網站特點](#macromicro-網站特點)
-2. [核心技術：Highcharts 數據提取](#核心技術highcharts-數據提取)
-3. [完整實作流程](#完整實作流程)
-4. [程式碼模板](#程式碼模板)
+1. [網站特點](#網站特點)
+2. [方法一：Chrome CDP（推薦）](#方法一chrome-cdp-推薦)
+3. [方法二：Selenium 自動化（備選）](#方法二selenium-自動化備選)
+4. [Highcharts 數據結構](#highcharts-數據結構)
 5. [常見問題與解決方案](#常見問題與解決方案)
 6. [可用圖表清單](#可用圖表清單)
 
 ---
 
-## MacroMicro 網站特點
+## 網站特點
 
-### 網站架構
+### 架構概覽
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -45,11 +47,228 @@
 |---------------------------|----------------|------------------------------|
 | 官方 API                  | ❌ 需付費會員   | 免費用戶無法存取完整時間序列 |
 | 直接 HTTP 請求            | ❌ 無法取得數據 | 數據由 JavaScript 動態渲染   |
-| **Selenium + Highcharts** | ✅ 成功         | 等待圖表渲染後從 JS 對象提取 |
+| Selenium 自動化           | ⚠️ 經常被擋    | Cloudflare 偵測自動化瀏覽器  |
+| **Chrome CDP 連接**       | ✅ 推薦         | 連接真實 Chrome，繞過防護    |
 
 ---
 
-## 核心技術：Highcharts 數據提取
+## 方法一：Chrome CDP（推薦）
+
+使用 Chrome DevTools Protocol 連接到你自己的 Chrome 瀏覽器，完全繞過 Cloudflare 和反爬蟲偵測。
+
+> **前置知識**：詳細原理請參考 [Chrome CDP 數據爬取 SOP](./chrome-cdp-scraping-sop.md)
+
+### 快速開始
+
+**Step 1：關閉所有 Chrome，用調試端口重新啟動**
+
+```bash
+# Windows
+"C:\Program Files\Google\Chrome\Application\chrome.exe" ^
+  --remote-debugging-port=9222 ^
+  --remote-allow-origins=* ^
+  --user-data-dir="%USERPROFILE%\.chrome-debug-profile" ^
+  "https://www.macromicro.me/charts/46877/cass-freight-index"
+```
+
+**Step 2：確認頁面載入完成**（圖表已顯示）
+
+**Step 3：執行爬蟲腳本**
+
+```bash
+python fetch_macromicro_cdp.py --output data.json
+```
+
+### 完整程式碼
+
+```python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+MacroMicro Highcharts 數據提取器（CDP 版本）
+透過 Chrome DevTools Protocol 連接到已開啟的 Chrome
+"""
+
+import json
+import argparse
+import requests
+import websocket
+from pathlib import Path
+
+CDP_PORT = 9222
+
+# Highcharts 數據提取 JavaScript
+EXTRACT_HIGHCHARTS_JS = '''
+(function() {
+    if (typeof Highcharts === 'undefined' || !Highcharts.charts) {
+        return JSON.stringify({error: 'Highcharts not found'});
+    }
+
+    var charts = Highcharts.charts.filter(c => c !== undefined && c !== null);
+    if (charts.length === 0) {
+        return JSON.stringify({error: 'No charts found'});
+    }
+
+    var result = [];
+    for (var i = 0; i < charts.length; i++) {
+        var chart = charts[i];
+        var chartInfo = {
+            title: chart.title ? chart.title.textStr : 'Chart ' + i,
+            series: []
+        };
+
+        for (var j = 0; j < chart.series.length; j++) {
+            var s = chart.series[j];
+            var seriesData = [];
+
+            // 優先使用 xData/yData
+            if (s.xData && s.xData.length > 0) {
+                for (var k = 0; k < s.xData.length; k++) {
+                    seriesData.push({
+                        x: s.xData[k],
+                        y: s.yData[k],
+                        date: new Date(s.xData[k]).toISOString().split('T')[0]
+                    });
+                }
+            } else if (s.data && s.data.length > 0) {
+                seriesData = s.data.map(function(point) {
+                    return {
+                        x: point.x,
+                        y: point.y,
+                        date: point.x ? new Date(point.x).toISOString().split('T')[0] : null
+                    };
+                });
+            }
+
+            chartInfo.series.push({
+                name: s.name,
+                type: s.type,
+                dataLength: seriesData.length,
+                data: seriesData
+            });
+        }
+        result.push(chartInfo);
+    }
+    return JSON.stringify(result);
+})()
+'''
+
+
+def get_page_ws_url(url_keyword='macromicro'):
+    """取得目標頁面的 WebSocket URL"""
+    try:
+        resp = requests.get(f'http://127.0.0.1:{CDP_PORT}/json', timeout=5)
+        pages = resp.json()
+
+        for page in pages:
+            if url_keyword.lower() in page.get('url', '').lower():
+                return page.get('webSocketDebuggerUrl')
+
+        return pages[0].get('webSocketDebuggerUrl') if pages else None
+
+    except requests.exceptions.ConnectionError:
+        print("錯誤：無法連接到 Chrome")
+        print("請確認已用 --remote-debugging-port=9222 啟動 Chrome")
+        return None
+
+
+def execute_js(ws_url, js_code):
+    """透過 CDP 執行 JavaScript"""
+    ws = websocket.create_connection(ws_url, timeout=30)
+    cmd = {
+        "id": 1,
+        "method": "Runtime.evaluate",
+        "params": {"expression": js_code, "returnByValue": True}
+    }
+    ws.send(json.dumps(cmd))
+    result = json.loads(ws.recv())
+    ws.close()
+    return result
+
+
+def extract_highcharts_data(output_file=None):
+    """提取 Highcharts 圖表數據"""
+    print("正在連接到 Chrome...")
+    ws_url = get_page_ws_url('macromicro')
+
+    if not ws_url:
+        raise ConnectionError("無法連接，請確認 Chrome 已啟動")
+
+    print("正在提取 Highcharts 數據...")
+    result = execute_js(ws_url, EXTRACT_HIGHCHARTS_JS)
+
+    value = result.get('result', {}).get('result', {}).get('value')
+    if not value:
+        raise ValueError("無法取得數據")
+
+    data = json.loads(value)
+
+    if isinstance(data, dict) and 'error' in data:
+        raise ValueError(f"提取失敗: {data['error']}")
+
+    # 顯示摘要
+    print(f"\n成功提取 {len(data)} 個圖表!")
+    for chart in data:
+        print(f"\n【{chart.get('title', 'Unknown')}】")
+        for series in chart.get('series', []):
+            if series.get('dataLength', 0) > 0:
+                last = series['data'][-1]
+                print(f"  {series['name']}: {series['dataLength']} 筆")
+                print(f"    最新: {last['date']} = {last['y']:.4f}")
+
+    # 保存
+    if output_file:
+        Path(output_file).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        print(f"\n已保存到: {output_file}")
+
+    return data
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output", "-o", type=str, help="輸出 JSON 檔案")
+    args = parser.parse_args()
+    extract_highcharts_data(output_file=args.output)
+```
+
+### 輔助函式
+
+```python
+def get_series_data(data, series_name):
+    """取得特定 series 的數據（部分名稱匹配）"""
+    for chart in data:
+        for series in chart.get('series', []):
+            if series_name.lower() in series.get('name', '').lower():
+                return series.get('data', [])
+    return []
+
+
+def to_pandas_dataframe(data, series_name):
+    """轉換為 Pandas DataFrame"""
+    import pandas as pd
+
+    points = get_series_data(data, series_name)
+    if not points:
+        return None
+
+    df = pd.DataFrame(points)
+    df['date'] = pd.to_datetime(df['date'])
+    df = df.set_index('date').sort_index()
+    df = df[['y']].rename(columns={'y': series_name})
+    return df
+```
+
+---
+
+## 方法二：Selenium 自動化（備選）
+
+當 CDP 方法不可用時，可以嘗試 Selenium。但請注意：**Cloudflare 經常會擋住 Selenium**。
+
+---
+
+## Highcharts 數據結構
 
 ### Highcharts 對象結構
 
