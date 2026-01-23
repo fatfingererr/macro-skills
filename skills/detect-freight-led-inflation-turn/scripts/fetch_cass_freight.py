@@ -6,15 +6,28 @@ CASS Freight Index 爬蟲
 從 MacroMicro 的 Highcharts 圖表中提取 CASS Freight Index 完整時間序列數據。
 包含四個指標：Shipments Index, Expenditures Index, Shipments YoY, Expenditures YoY
 
+推薦方法：Chrome CDP（繞過 Cloudflare）
+備選方法：Selenium 自動化
+
 Usage:
-    python fetch_cass_freight.py
-    python fetch_cass_freight.py --cache-dir ./cache
-    python fetch_cass_freight.py --output cass_data.csv
+    # 方法一：Chrome CDP（推薦）
+    # Step 1: 啟動 Chrome 調試模式
+    # Windows:
+    #   "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" ^
+    #     --remote-debugging-port=9222 ^
+    #     --remote-allow-origins=* ^
+    #     --user-data-dir="%USERPROFILE%\\.chrome-debug-profile" ^
+    #     "https://www.macromicro.me/charts/46877/cass-freight-index"
+    #
+    # Step 2: 等待頁面完全載入（圖表顯示），然後執行：
+    python fetch_cass_freight.py --cdp
+
+    # 方法二：Selenium（備選）
+    python fetch_cass_freight.py --selenium --no-headless
 """
 
 import argparse
 import json
-import random
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -23,9 +36,8 @@ from typing import Dict, Any, Optional, List
 import pandas as pd
 
 # ========== 配置區域 ==========
-CASS_FREIGHT_URL = "https://en.macromicro.me/charts/46877/cass-freight-index"
-CHART_WAIT_SECONDS = 35
-MAX_RETRIES = 3
+CASS_FREIGHT_URL = "https://www.macromicro.me/charts/46877/cass-freight-index"
+CDP_PORT = 9222
 CACHE_MAX_AGE_HOURS = 12
 
 # CASS Freight Index 四個指標的關鍵字
@@ -35,215 +47,299 @@ CASS_SERIES_KEYWORDS = {
     "shipments_yoy": ["Shipments YoY", "shipments yoy", "Shipments Year"],
     "expenditures_yoy": ["Expenditures YoY", "expenditures yoy", "Expenditures Year"]
 }
-
-USER_AGENTS = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15',
-    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-]
 # ==============================
 
 # Highcharts 數據提取 JavaScript
 EXTRACT_HIGHCHARTS_JS = '''
-// 檢查 Highcharts 是否存在
-if (typeof Highcharts === 'undefined') {
-    return {error: 'Highcharts not loaded', retry: true};
-}
+(function() {
+    if (typeof Highcharts === 'undefined' || !Highcharts.charts) {
+        return JSON.stringify({error: 'Highcharts not found'});
+    }
 
-// 獲取所有有效的圖表
-var charts = Highcharts.charts.filter(c => c !== undefined && c !== null);
-if (charts.length === 0) {
-    return {error: 'No charts found', totalCharts: Highcharts.charts.length, retry: true};
-}
+    var charts = Highcharts.charts.filter(c => c !== undefined && c !== null);
+    if (charts.length === 0) {
+        return JSON.stringify({error: 'No charts found'});
+    }
 
-// 提取每個圖表的數據
-var result = [];
-for (var i = 0; i < charts.length; i++) {
-    var chart = charts[i];
-    var chartInfo = {
-        title: chart.title ? chart.title.textStr : 'Chart ' + i,
-        series: []
-    };
+    var result = [];
+    for (var i = 0; i < charts.length; i++) {
+        var chart = charts[i];
+        var chartInfo = {
+            title: chart.title ? chart.title.textStr : 'Chart ' + i,
+            series: []
+        };
 
-    for (var j = 0; j < chart.series.length; j++) {
-        var s = chart.series[j];
+        for (var j = 0; j < chart.series.length; j++) {
+            var s = chart.series[j];
+            var seriesData = [];
 
-        // 嘗試從 data 或 xData/yData 提取
-        var seriesData = [];
-        if (s.data && s.data.length > 0) {
-            seriesData = s.data.map(function(point) {
-                return {
-                    x: point.x,
-                    y: point.y,
-                    date: point.x ? new Date(point.x).toISOString().split('T')[0] : null
-                };
-            });
-        } else if (s.xData && s.xData.length > 0) {
-            for (var k = 0; k < s.xData.length; k++) {
-                seriesData.push({
-                    x: s.xData[k],
-                    y: s.yData[k],
-                    date: new Date(s.xData[k]).toISOString().split('T')[0]
+            // 優先使用 xData/yData（更可靠）
+            if (s.xData && s.xData.length > 0) {
+                for (var k = 0; k < s.xData.length; k++) {
+                    seriesData.push({
+                        x: s.xData[k],
+                        y: s.yData[k],
+                        date: new Date(s.xData[k]).toISOString().split('T')[0]
+                    });
+                }
+            } else if (s.data && s.data.length > 0) {
+                seriesData = s.data.map(function(point) {
+                    return {
+                        x: point.x,
+                        y: point.y,
+                        date: point.x ? new Date(point.x).toISOString().split('T')[0] : null
+                    };
                 });
             }
+
+            chartInfo.series.push({
+                name: s.name,
+                type: s.type,
+                dataLength: seriesData.length,
+                data: seriesData
+            });
         }
-
-        chartInfo.series.push({
-            name: s.name,
-            type: s.type,
-            dataLength: seriesData.length,
-            data: seriesData
-        });
+        result.push(chartInfo);
     }
-    result.push(chartInfo);
-}
-
-return result;
+    return JSON.stringify(result);
+})()
 '''
 
 
-def get_selenium_driver():
-    """建立 Selenium WebDriver（帶防偵測配置）"""
-    from selenium import webdriver
-    from selenium.webdriver.chrome.service import Service
-    from selenium.webdriver.chrome.options import Options
-    from webdriver_manager.chrome import ChromeDriverManager
+# ==================== CDP 方法（推薦） ====================
 
-    chrome_options = Options()
-
-    # 基本設定
-    chrome_options.add_argument('--headless=new')
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
-    chrome_options.add_argument('--disable-gpu')
-    chrome_options.add_argument('--window-size=1920,1080')
-
-    # 防偵測設定
-    chrome_options.add_argument('--disable-blink-features=AutomationControlled')
-    chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
-    chrome_options.add_experimental_option('useAutomationExtension', False)
-
-    # 隨機 User-Agent
-    user_agent = random.choice(USER_AGENTS)
-    chrome_options.add_argument(f'user-agent={user_agent}')
-
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=chrome_options)
-    driver.set_page_load_timeout(120)
-
-    return driver
-
-
-def fetch_macromicro_chart(url: str) -> Dict[str, Any]:
+def get_cdp_ws_url(port: int = CDP_PORT, url_keyword: str = 'macromicro') -> Optional[str]:
     """
-    從 MacroMicro 圖表抓取數據
+    取得目標頁面的 WebSocket URL
 
     Parameters
     ----------
-    url : str
-        MacroMicro 圖表頁面 URL
+    port : int
+        Chrome 調試端口
+    url_keyword : str
+        URL 關鍵字用於匹配目標頁面
+
+    Returns
+    -------
+    str or None
+        WebSocket URL，若無法連接則返回 None
+    """
+    import requests
+
+    try:
+        resp = requests.get(f'http://127.0.0.1:{port}/json', timeout=5)
+        pages = resp.json()
+
+        # 優先找包含關鍵字的頁面
+        for page in pages:
+            if url_keyword.lower() in page.get('url', '').lower():
+                return page.get('webSocketDebuggerUrl')
+
+        # 沒找到就返回第一個頁面
+        return pages[0].get('webSocketDebuggerUrl') if pages else None
+
+    except Exception as e:
+        print(f"[CDP] 無法連接到 Chrome (port {port}): {e}")
+        return None
+
+
+def cdp_execute_js(ws_url: str, js_code: str, timeout: int = 30) -> Any:
+    """
+    透過 CDP 執行 JavaScript
+
+    Parameters
+    ----------
+    ws_url : str
+        WebSocket URL
+    js_code : str
+        要執行的 JavaScript 代碼
+    timeout : int
+        連線超時秒數
+
+    Returns
+    -------
+    Any
+        JavaScript 執行結果
+    """
+    import websocket
+
+    ws = websocket.create_connection(ws_url, timeout=timeout)
+
+    cmd = {
+        "id": 1,
+        "method": "Runtime.evaluate",
+        "params": {
+            "expression": js_code,
+            "returnByValue": True
+        }
+    }
+    ws.send(json.dumps(cmd))
+    result = json.loads(ws.recv())
+    ws.close()
+
+    return result
+
+
+def fetch_via_cdp(port: int = CDP_PORT) -> Dict[str, Any]:
+    """
+    使用 Chrome CDP 抓取 MacroMicro 圖表數據
+
+    這是推薦的方法，可以繞過 Cloudflare 防護。
+
+    前置條件：
+    1. 關閉所有 Chrome 視窗
+    2. 用調試端口啟動 Chrome 並開啟目標頁面
+    3. 等待頁面完全載入（圖表顯示）
+
+    Parameters
+    ----------
+    port : int
+        Chrome 調試端口（預設 9222）
 
     Returns
     -------
     dict
-        包含所有圖表和 series 數據的字典
+        包含圖表數據的字典
     """
+    print(f"[CDP] 連接到 Chrome (port {port})...")
+    ws_url = get_cdp_ws_url(port)
+
+    if not ws_url:
+        raise ConnectionError(
+            f"無法連接到 Chrome 調試端口 {port}\n"
+            f"請確認已用以下方式啟動 Chrome：\n"
+            f'  "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" ^\n'
+            f"    --remote-debugging-port={port} ^\n"
+            f"    --remote-allow-origins=* ^\n"
+            f'    --user-data-dir="%USERPROFILE%\\.chrome-debug-profile" ^\n'
+            f'    "{CASS_FREIGHT_URL}"'
+        )
+
+    print(f"[CDP] 已連接，正在提取 Highcharts 數據...")
+    result = cdp_execute_js(ws_url, EXTRACT_HIGHCHARTS_JS)
+
+    # 解析結果
+    value = result.get('result', {}).get('result', {}).get('value')
+    if not value:
+        raise ValueError(f"無法取得數據: {result}")
+
+    data = json.loads(value)
+
+    if isinstance(data, dict) and 'error' in data:
+        raise ValueError(f"提取失敗: {data['error']}")
+
+    print(f"[CDP] 成功提取 {len(data)} 個圖表!")
+
+    return {
+        "source": "MacroMicro (CDP)",
+        "url": CASS_FREIGHT_URL,
+        "charts": data,
+        "fetched_at": datetime.now().isoformat()
+    }
+
+
+# ==================== Selenium 方法（備選） ====================
+
+def fetch_via_selenium(
+    headless: bool = False,
+    wait_seconds: int = 35
+) -> Dict[str, Any]:
+    """
+    使用 Selenium 抓取 MacroMicro 圖表數據
+
+    這是備選方法，可能會被 Cloudflare 擋住。
+
+    Parameters
+    ----------
+    headless : bool
+        是否使用無頭模式（建議 False，以便手動通過驗證）
+    wait_seconds : int
+        等待圖表渲染的秒數
+
+    Returns
+    -------
+    dict
+        包含圖表數據的字典
+    """
+    from selenium import webdriver
+    from selenium.webdriver.chrome.options import Options
+    from selenium.webdriver.chrome.service import Service
     from selenium.webdriver.common.by import By
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.support import expected_conditions as EC
 
-    driver = None
-
     try:
-        # 1. 隨機延遲
-        delay = random.uniform(1.0, 2.0)
-        print(f"請求前延遲 {delay:.2f} 秒...")
-        time.sleep(delay)
+        from webdriver_manager.chrome import ChromeDriverManager
+        service = Service(ChromeDriverManager().install())
+    except ImportError:
+        print("[Warning] webdriver-manager 未安裝，使用系統 ChromeDriver")
+        service = None
 
-        # 2. 啟動瀏覽器
-        driver = get_selenium_driver()
-        print(f"正在抓取: {url}")
-        driver.get(url)
+    options = Options()
 
-        # 3. 初步等待頁面載入
-        print("等待頁面載入...")
-        time.sleep(5)
+    if headless:
+        options.add_argument('--headless=new')
 
-        # 4. 滾動到頁面頂部
-        driver.execute_script('window.scrollTo(0, 0);')
-        time.sleep(3)
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--window-size=1920,1080')
+    options.add_argument('--disable-blink-features=AutomationControlled')
+    options.add_experimental_option('excludeSwitches', ['enable-automation'])
+    options.add_experimental_option('useAutomationExtension', False)
 
-        # 5. 等待圖表區域出現
-        print("等待圖表區域...")
-        chart_selectors = [
-            '.chart-area',
-            '.chart-wrapper',
-            '.mm-chart-wrapper',
-            '#chartArea',
-            '.highcharts-container',
-            '[data-highcharts-chart]'
-        ]
+    driver = None
+    try:
+        print("[Selenium] 啟動瀏覽器...")
+        if service:
+            driver = webdriver.Chrome(service=service, options=options)
+        else:
+            driver = webdriver.Chrome(options=options)
 
-        for selector in chart_selectors:
-            try:
-                WebDriverWait(driver, 30).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, selector))
-                )
-                print(f"找到圖表區域: {selector}")
-                break
-            except Exception:
-                continue
+        driver.set_page_load_timeout(120)
 
-        # 6. 長時間等待 Highcharts 渲染完成
-        print(f"等待圖表完全渲染 ({CHART_WAIT_SECONDS}秒)...")
-        time.sleep(CHART_WAIT_SECONDS)
+        print(f"[Selenium] 載入頁面: {CASS_FREIGHT_URL}")
+        driver.get(CASS_FREIGHT_URL)
 
-        # 7. 確保頁面穩定
-        driver.execute_script('window.scrollTo(0, 0);')
-        time.sleep(2)
+        # 等待圖表區域
+        print("[Selenium] 等待圖表區域...")
+        try:
+            WebDriverWait(driver, 30).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, '.highcharts-container'))
+            )
+        except Exception:
+            print("[Warning] 未找到圖表區域，繼續等待...")
 
-        # 8. 執行 JavaScript 提取數據（帶重試）
-        print("從 Highcharts 圖表中提取數據...")
-        chart_data = None
+        # 等待圖表完全渲染
+        print(f"[Selenium] 等待圖表渲染 ({wait_seconds}秒)...")
+        time.sleep(wait_seconds)
 
-        for retry in range(MAX_RETRIES):
-            chart_data = driver.execute_script(EXTRACT_HIGHCHARTS_JS)
+        # 提取數據
+        print("[Selenium] 提取 Highcharts 數據...")
+        chart_data = driver.execute_script(f"return {EXTRACT_HIGHCHARTS_JS}")
 
-            if isinstance(chart_data, dict) and chart_data.get('retry'):
-                print(f"重試 {retry + 1}/{MAX_RETRIES}，等待 10 秒...")
-                time.sleep(10)
-                driver.execute_script(
-                    'window.scrollTo(0, 100); '
-                    'setTimeout(() => window.scrollTo(0, 0), 500);'
-                )
-                continue
-            else:
-                break
+        if isinstance(chart_data, str):
+            chart_data = json.loads(chart_data)
 
-        # 9. 檢查結果
         if isinstance(chart_data, dict) and 'error' in chart_data:
-            raise ValueError(f"提取圖表數據失敗: {chart_data['error']}")
+            raise ValueError(f"提取失敗: {chart_data['error']}")
 
-        print(f"成功獲取 {len(chart_data)} 個圖表的數據!")
+        print(f"[Selenium] 成功提取 {len(chart_data)} 個圖表!")
 
         return {
-            "source": "MacroMicro",
-            "url": url,
+            "source": "MacroMicro (Selenium)",
+            "url": CASS_FREIGHT_URL,
             "charts": chart_data,
             "fetched_at": datetime.now().isoformat()
         }
 
-    except Exception as e:
-        print(f"抓取失敗: {e}")
-        raise
-
     finally:
         if driver:
             driver.quit()
-            print("瀏覽器已關閉")
+            print("[Selenium] 瀏覽器已關閉")
 
+
+# ==================== 數據處理 ====================
 
 def find_series_by_keywords(
     chart_data: Dict[str, Any],
@@ -257,6 +353,24 @@ def find_series_by_keywords(
                 if keyword.lower() in series_name.lower():
                     return series
     return None
+
+
+def series_to_dataframe(series_data: Dict[str, Any]) -> Optional[pd.DataFrame]:
+    """將 series 數據轉換為 DataFrame"""
+    try:
+        points = series_data.get('data', [])
+        if not points:
+            return None
+
+        df = pd.DataFrame(points)
+        df['date'] = pd.to_datetime(df['date'])
+        df = df.set_index('date').sort_index()
+        df = df[['y']].rename(columns={'y': series_data.get('name', 'value')})
+
+        return df
+    except Exception as e:
+        print(f"[Error] 轉換失敗: {e}")
+        return None
 
 
 def extract_all_cass_series(chart_data: Dict[str, Any]) -> Dict[str, pd.DataFrame]:
@@ -276,39 +390,23 @@ def extract_all_cass_series(chart_data: Dict[str, Any]) -> Dict[str, pd.DataFram
         for s in chart.get('series', []):
             all_series_names.append(s.get('name', 'Unknown'))
 
-    print(f"可用 series: {all_series_names}")
+    print(f"[Info] 可用 series: {all_series_names}")
 
-    # 嘗試匹配每個指標
+    # 匹配每個指標
     for key, keywords in CASS_SERIES_KEYWORDS.items():
         series = find_series_by_keywords(chart_data, keywords)
         if series and series.get('dataLength', 0) > 0:
-            df = macromicro_to_dataframe(series)
+            df = series_to_dataframe(series)
             if df is not None and len(df) > 0:
                 results[key] = df
-                print(f"[Success] {key}: {len(df)} 筆數據, 範圍 {df.index.min()} ~ {df.index.max()}")
+                print(f"[OK] {key}: {len(df)} 筆, {df.index.min().strftime('%Y-%m')} ~ {df.index.max().strftime('%Y-%m')}")
         else:
             print(f"[Warning] 未找到 {key}")
 
     return results
 
 
-def macromicro_to_dataframe(series_data: Dict[str, Any]) -> Optional[pd.DataFrame]:
-    """將 MacroMicro series 轉換為 DataFrame"""
-    try:
-        points = series_data.get('data', [])
-        if not points:
-            return None
-
-        df = pd.DataFrame(points)
-        df['date'] = pd.to_datetime(df['date'])
-        df = df.set_index('date').sort_index()
-        df = df[['y']].rename(columns={'y': series_data.get('name', 'value')})
-
-        return df
-    except Exception as e:
-        print(f"轉換失敗: {e}")
-        return None
-
+# ==================== 快取管理 ====================
 
 class CassFreightCache:
     """CASS Freight Index 數據快取管理"""
@@ -343,29 +441,22 @@ class CassFreightCache:
     def set_raw(self, data: Dict):
         with open(self._cache_path(), 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
-        print(f"[Cache] 已儲存原始數據到 {self._cache_path()}")
-
-    def get_series(self, series_key: str) -> Optional[pd.DataFrame]:
-        csv_path = self._csv_path(series_key)
-        if not csv_path.exists():
-            return None
-        if not self.is_fresh():
-            return None
-        try:
-            df = pd.read_csv(csv_path, index_col=0, parse_dates=True)
-            return df
-        except Exception:
-            return None
+        print(f"[Cache] 已儲存到 {self._cache_path()}")
 
     def set_series(self, series_key: str, df: pd.DataFrame):
         csv_path = self._csv_path(series_key)
         df.to_csv(csv_path)
-        print(f"[Cache] 已儲存 {series_key} 到 {csv_path}")
 
+
+# ==================== 主要 API ====================
 
 def fetch_cass_freight_index(
     cache_dir: Optional[str] = None,
-    force_refresh: bool = False
+    force_refresh: bool = False,
+    method: str = 'cdp',
+    cdp_port: int = CDP_PORT,
+    selenium_headless: bool = False,
+    selenium_wait: int = 35
 ) -> Dict[str, pd.DataFrame]:
     """
     獲取 CASS Freight Index 所有四個指標
@@ -376,6 +467,14 @@ def fetch_cass_freight_index(
         快取目錄
     force_refresh : bool
         是否強制重新抓取
+    method : str
+        抓取方法: 'cdp'（推薦）或 'selenium'
+    cdp_port : int
+        CDP 調試端口
+    selenium_headless : bool
+        Selenium 是否使用無頭模式
+    selenium_wait : int
+        Selenium 等待圖表渲染秒數
 
     Returns
     -------
@@ -393,14 +492,20 @@ def fetch_cass_freight_index(
     if cache and not force_refresh:
         cached_data = cache.get_raw()
         if cached_data:
-            print("[Cache Hit] 使用快取數據")
+            print("[Cache] 使用快取數據")
             results = extract_all_cass_series(cached_data)
             if results:
                 return results
 
     # 抓取新數據
-    print("從 MacroMicro 抓取 CASS Freight Index...")
-    chart_data = fetch_macromicro_chart(CASS_FREIGHT_URL)
+    print(f"[Fetch] 使用 {method.upper()} 方法從 MacroMicro 抓取...")
+
+    if method == 'cdp':
+        chart_data = fetch_via_cdp(port=cdp_port)
+    elif method == 'selenium':
+        chart_data = fetch_via_selenium(headless=selenium_headless, wait_seconds=selenium_wait)
+    else:
+        raise ValueError(f"不支援的方法: {method}")
 
     # 儲存快取
     if cache:
@@ -419,13 +524,70 @@ def fetch_cass_freight_index(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="從 MacroMicro 抓取 CASS Freight Index"
+        description="從 MacroMicro 抓取 CASS Freight Index",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+使用範例:
+
+  方法一：Chrome CDP（推薦）
+  ========================
+  Step 1: 啟動 Chrome 調試模式
+    Windows:
+      "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" ^
+        --remote-debugging-port=9222 ^
+        --remote-allow-origins=* ^
+        --user-data-dir="%USERPROFILE%\\.chrome-debug-profile" ^
+        "https://www.macromicro.me/charts/46877/cass-freight-index"
+
+  Step 2: 等待頁面載入（圖表顯示），然後執行：
+    python fetch_cass_freight.py --cdp
+
+  方法二：Selenium（備選）
+  ======================
+    python fetch_cass_freight.py --selenium --no-headless
+"""
     )
+
+    # 方法選擇
+    method_group = parser.add_mutually_exclusive_group()
+    method_group.add_argument(
+        "--cdp",
+        action="store_true",
+        help="使用 Chrome CDP 方法（推薦）"
+    )
+    method_group.add_argument(
+        "--selenium",
+        action="store_true",
+        help="使用 Selenium 方法（備選）"
+    )
+
+    # CDP 選項
+    parser.add_argument(
+        "--cdp-port",
+        type=int,
+        default=CDP_PORT,
+        help=f"CDP 調試端口 (預設: {CDP_PORT})"
+    )
+
+    # Selenium 選項
+    parser.add_argument(
+        "--no-headless",
+        action="store_true",
+        help="Selenium: 顯示瀏覽器視窗"
+    )
+    parser.add_argument(
+        "--wait",
+        type=int,
+        default=35,
+        help="Selenium: 等待圖表渲染秒數 (預設: 35)"
+    )
+
+    # 通用選項
     parser.add_argument(
         "--cache-dir",
         type=str,
         default="cache",
-        help="快取目錄 (default: cache)"
+        help="快取目錄 (預設: cache)"
     )
     parser.add_argument(
         "--force-refresh",
@@ -441,11 +603,20 @@ def main():
 
     args = parser.parse_args()
 
+    # 決定使用哪種方法
+    if args.selenium:
+        method = 'selenium'
+    else:
+        method = 'cdp'  # 預設使用 CDP
+
     try:
-        # 抓取數據
         results = fetch_cass_freight_index(
             cache_dir=args.cache_dir,
-            force_refresh=args.force_refresh
+            force_refresh=args.force_refresh,
+            method=method,
+            cdp_port=args.cdp_port,
+            selenium_headless=not args.no_headless,
+            selenium_wait=args.wait
         )
 
         if not results:
@@ -462,8 +633,8 @@ def main():
             print(f"  數據點: {len(df)}")
             print(f"  範圍: {df.index.min().strftime('%Y-%m-%d')} ~ {df.index.max().strftime('%Y-%m-%d')}")
             print(f"  最新值: {df.iloc[-1].values[0]:.2f}")
-            print(f"  最新 5 筆:")
-            for idx, row in df.tail(5).iterrows():
+            print(f"  最新 3 筆:")
+            for idx, row in df.tail(3).iterrows():
                 print(f"    {idx.strftime('%Y-%m-%d')}: {row.values[0]:.2f}")
 
         # 輸出合併 CSV
