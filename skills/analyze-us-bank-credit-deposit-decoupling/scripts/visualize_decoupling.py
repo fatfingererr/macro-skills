@@ -2,11 +2,16 @@
 """
 銀行信貸-存款脫鉤視覺化
 
-生成 Bloomberg 風格的脫鉤分析圖表。
+生成 Bloomberg Intelligence 風格的面積圖，
+參考 FRED 原生圖表設計（藍色貸款、紅色存款）。
 
 Usage:
     python visualize_decoupling.py --start 2022-06-01
     python visualize_decoupling.py --start 2022-06-01 --output chart.png
+
+Data Sources:
+    - TOTLL: Loans and Leases in Bank Credit, All Commercial Banks
+    - DPSACBW027SBOG: Deposits, All Commercial Banks
 """
 
 import argparse
@@ -18,40 +23,48 @@ from typing import Dict, Optional
 import numpy as np
 import pandas as pd
 
-try:
-    import matplotlib.pyplot as plt
-    import matplotlib.dates as mdates
-    from matplotlib.patches import Patch
-    HAS_MATPLOTLIB = True
-except ImportError:
-    HAS_MATPLOTLIB = False
-    print("Warning: matplotlib not installed. Run: pip install matplotlib")
+# Matplotlib setup - must be before importing pyplot
+import matplotlib
+matplotlib.use('Agg')
 
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from matplotlib.ticker import FuncFormatter
 
 # ============================================================================
-# Configuration
+# Font Configuration (中文字體)
 # ============================================================================
 
-STYLE_CONFIG = {
-    # Bloomberg-style dark theme
-    "figure.facecolor": "#1a1a2e",
-    "axes.facecolor": "#16213e",
-    "axes.edgecolor": "#4a4a6a",
-    "axes.labelcolor": "#e0e0e0",
-    "text.color": "#e0e0e0",
-    "xtick.color": "#a0a0a0",
-    "ytick.color": "#a0a0a0",
-    "grid.color": "#2a2a4a",
-    "grid.linestyle": "--",
-    "grid.alpha": 0.5,
-}
+plt.rcParams['font.sans-serif'] = [
+    'Microsoft JhengHei',  # Windows 正黑體
+    'SimHei',              # Windows 黑體
+    'Microsoft YaHei',     # Windows 微軟雅黑
+    'PingFang TC',         # macOS 蘋方
+    'Noto Sans CJK TC',    # Linux/通用
+    'DejaVu Sans'          # 備用
+]
+plt.rcParams['axes.unicode_minus'] = False
+
+# ============================================================================
+# Bloomberg Style Configuration
+# ============================================================================
 
 COLORS = {
-    "loans": "#4fc3f7",      # Light blue
-    "deposits": "#81c784",   # Light green
-    "rrp": "#ef5350",        # Red
-    "gap": "#ffa726",        # Orange
-    "stress": "#ba68c8",     # Purple
+    # 背景與網格
+    "background": "#1a1a2e",
+    "grid": "#2d2d44",
+
+    # 文字
+    "text": "#ffffff",
+    "text_dim": "#888888",
+
+    # 面積圖配色（參考 FRED 原生圖表）
+    "loans": "#4a90d9",      # 藍色 - 貸款
+    "deposits": "#d94a4a",   # 紅色 - 存款
+
+    # 輔助元素
+    "zero_line": "#666666",
+    "annotation_bg": "#2a2a4a",
 }
 
 
@@ -65,8 +78,7 @@ def load_analysis_data(cache_dir: Path) -> Dict[str, pd.Series]:
 
     series_map = {
         "loans": "TOTLL",
-        "deposits": "DPSACBW027SBOG",
-        "rrp": "RRPONTSYD"
+        "deposits": "DPSACBW027SBOG"
     }
 
     for name, series_id in series_map.items():
@@ -76,9 +88,12 @@ def load_analysis_data(cache_dir: Path) -> Dict[str, pd.Series]:
                 cached = json.load(f)
             series = pd.Series(cached["data"])
             series.index = pd.to_datetime(series.index)
+            series = series.sort_index()
             data[name] = series
+            print(f"Loaded {series_id}: {len(series)} data points")
         else:
             print(f"Warning: Cache file not found for {series_id}")
+            print(f"  Please run: python decoupling_analyzer.py --start 2022-06-01")
 
     return data
 
@@ -87,45 +102,36 @@ def calculate_plot_data(
     data: Dict[str, pd.Series],
     start_date: str
 ) -> Dict[str, pd.Series]:
-    """Calculate cumulative changes and metrics for plotting."""
+    """Calculate cumulative changes for plotting."""
     loans = data["loans"]
     deposits = data["deposits"]
-    rrp = data["rrp"]
 
     # Filter by start date
     start = pd.to_datetime(start_date)
     loans = loans[loans.index >= start]
     deposits = deposits[deposits.index >= start]
-    rrp = rrp[rrp.index >= start]
-
-    # Resample RRP to weekly if needed
-    if len(rrp) > len(loans) * 2:
-        rrp = rrp.resample("W-WED").last()
 
     # Align to common dates
-    common_idx = loans.index.intersection(deposits.index).intersection(rrp.index)
+    common_idx = loans.index.intersection(deposits.index)
     loans = loans.loc[common_idx]
     deposits = deposits.loc[common_idx]
-    rrp = rrp.loc[common_idx]
 
-    # Calculate cumulative changes
+    # Calculate cumulative changes from base date
     loan_change = loans - loans.iloc[0]
     deposit_change = deposits - deposits.iloc[0]
-    rrp_change = rrp - rrp.iloc[0]
-    gap = loan_change - deposit_change
 
-    # Calculate stress ratio
-    with np.errstate(divide='ignore', invalid='ignore'):
-        stress_ratio = gap / loan_change
-        stress_ratio = stress_ratio.replace([np.inf, -np.inf], np.nan)
+    # Find deposit minimum (maximum drawdown)
+    deposit_min = deposit_change.min()
+    deposit_min_idx = deposit_change.idxmin()
 
     return {
         "dates": common_idx,
         "loan_change": loan_change,
         "deposit_change": deposit_change,
-        "rrp_change": rrp_change,
-        "gap": gap,
-        "stress_ratio": stress_ratio
+        "deposit_min": deposit_min,
+        "deposit_min_date": deposit_min_idx,
+        "base_date": loans.index[0],
+        "end_date": loans.index[-1]
     }
 
 
@@ -133,167 +139,217 @@ def calculate_plot_data(
 # Plotting
 # ============================================================================
 
+def format_billions(x, pos):
+    """Format y-axis values as billions with comma separator."""
+    if x >= 0:
+        return f'{x:,.0f}'
+    else:
+        return f'{x:,.0f}'
+
+
 def create_decoupling_chart(
     plot_data: Dict[str, pd.Series],
     output_path: Optional[str] = None,
-    title: str = "Bank Credit-Deposit Decoupling Analysis"
+    title: str = "US Bank Credit-Deposit Decoupling"
 ) -> None:
-    """Create the decoupling analysis chart."""
-    if not HAS_MATPLOTLIB:
-        print("Cannot create chart: matplotlib not installed")
-        return
+    """
+    Create Bloomberg-style area chart showing credit-deposit decoupling.
 
-    # Apply style
-    plt.rcParams.update(STYLE_CONFIG)
+    Features:
+    - Area chart (not line chart)
+    - Blue area for loans, red area for deposits
+    - Clear zero line
+    - Latest values annotated on right side
+    """
+    plt.style.use('dark_background')
 
-    # Create figure with two subplots
-    fig, (ax1, ax2) = plt.subplots(
-        2, 1,
-        figsize=(14, 10),
-        gridspec_kw={"height_ratios": [2, 1]},
-        sharex=True
-    )
+    # Create figure
+    fig, ax = plt.subplots(figsize=(14, 8), facecolor=COLORS["background"])
+    ax.set_facecolor(COLORS["background"])
 
     dates = plot_data["dates"]
+    loan_change = plot_data["loan_change"]
+    deposit_change = plot_data["deposit_change"]
 
     # =========================================================================
-    # Top panel: Cumulative changes
+    # Plot Area Charts
     # =========================================================================
 
-    # Plot lines
-    ax1.plot(
-        dates, plot_data["loan_change"],
-        color=COLORS["loans"], linewidth=2, label="累積新增貸款"
-    )
-    ax1.plot(
-        dates, plot_data["deposit_change"],
-        color=COLORS["deposits"], linewidth=2, label="累積新增存款"
-    )
-    ax1.plot(
-        dates, plot_data["rrp_change"],
-        color=COLORS["rrp"], linewidth=1.5, linestyle="--", label="累積 RRP 變化"
+    # Loans area (blue) - always positive, draw first
+    ax.fill_between(
+        dates, 0, loan_change,
+        color=COLORS["loans"],
+        alpha=0.7,
+        label='Loans and Leases in Bank Credit, All Commercial Banks',
+        zorder=2
     )
 
-    # Fill gap area
-    ax1.fill_between(
-        dates,
-        plot_data["deposit_change"],
-        plot_data["loan_change"],
-        where=plot_data["loan_change"] > plot_data["deposit_change"],
-        alpha=0.3,
-        color=COLORS["gap"],
-        label="Decoupling Gap"
+    # Deposits area (red) - can be negative
+    ax.fill_between(
+        dates, 0, deposit_change,
+        color=COLORS["deposits"],
+        alpha=0.7,
+        label='Deposits, All Commercial Banks',
+        zorder=3
     )
 
-    # Formatting
-    ax1.set_ylabel("累積變化 (Billions USD)", fontsize=11)
-    ax1.legend(loc="upper left", framealpha=0.9, fontsize=9)
-    ax1.grid(True, alpha=0.3)
+    # =========================================================================
+    # Zero Line
+    # =========================================================================
+    ax.axhline(y=0, color=COLORS["zero_line"], linewidth=1, zorder=1)
 
-    # Title
-    ax1.set_title(
-        f"{title}\n銀行信貸-存款脫鉤分析",
-        fontsize=14,
-        fontweight="bold",
-        pad=10
-    )
-
-    # Add annotation for latest gap
-    latest_gap = plot_data["gap"].iloc[-1]
+    # =========================================================================
+    # Latest Value Annotations (右側標註)
+    # =========================================================================
     latest_date = dates[-1]
-    ax1.annotate(
-        f"Gap: ${latest_gap/1000:.2f}T",
-        xy=(latest_date, latest_gap + plot_data["deposit_change"].iloc[-1]),
-        xytext=(10, 10),
-        textcoords="offset points",
-        fontsize=10,
-        color=COLORS["gap"],
-        fontweight="bold"
+    latest_loan = loan_change.iloc[-1]
+    latest_deposit = deposit_change.iloc[-1]
+
+    # Loan annotation
+    ax.annotate(
+        f'Loans and Leases in Bank\nCredit, All Commercial\nBanks: {latest_date.strftime("%b %d, %Y")}\n{latest_loan:,.2f}',
+        xy=(latest_date, latest_loan),
+        xytext=(15, 0),
+        textcoords='offset points',
+        fontsize=9,
+        color=COLORS["loans"],
+        fontweight='bold',
+        va='center',
+        bbox=dict(
+            boxstyle='round,pad=0.4',
+            facecolor=COLORS["background"],
+            edgecolor=COLORS["loans"],
+            alpha=0.9
+        )
+    )
+
+    # Deposit annotation
+    ax.annotate(
+        f'Deposits, All Commercial\nBanks: {latest_date.strftime("%b %d, %Y")}\n{latest_deposit:,.2f}',
+        xy=(latest_date, latest_deposit),
+        xytext=(15, 0),
+        textcoords='offset points',
+        fontsize=9,
+        color=COLORS["deposits"],
+        fontweight='bold',
+        va='center',
+        bbox=dict(
+            boxstyle='round,pad=0.4',
+            facecolor=COLORS["background"],
+            edgecolor=COLORS["deposits"],
+            alpha=0.9
+        )
     )
 
     # =========================================================================
-    # Bottom panel: Stress ratio
+    # Mark Maximum Drawdown Point (橫向標註，在資料點上方)
     # =========================================================================
+    deposit_min = plot_data["deposit_min"]
+    deposit_min_date = plot_data["deposit_min_date"]
 
-    ax2.plot(
-        dates, plot_data["stress_ratio"],
-        color=COLORS["stress"], linewidth=2, label="Deposit Stress Ratio"
-    )
-
-    # Threshold lines
-    thresholds = [
-        (0.3, "Low", "#4caf50"),
-        (0.5, "Medium", "#ffeb3b"),
-        (0.7, "High", "#ff9800"),
-        (0.85, "Extreme", "#f44336")
-    ]
-
-    for thresh, label, color in thresholds:
-        ax2.axhline(y=thresh, color=color, linestyle=":", alpha=0.7, linewidth=1)
-        ax2.text(
-            dates[0], thresh + 0.02, label,
-            fontsize=8, color=color, alpha=0.8
+    if deposit_min < 0:
+        ax.scatter([deposit_min_date], [deposit_min], color=COLORS["deposits"],
+                   s=60, zorder=5, marker='v')
+        ax.annotate(
+            f'Max Drawdown: {deposit_min:,.0f}B ({deposit_min_date.strftime("%Y-%m-%d")})',
+            xy=(deposit_min_date, deposit_min),
+            xytext=(10, -18),
+            textcoords='offset points',
+            fontsize=9,
+            color=COLORS["text"],  # 改用白色文字更清楚
+            fontweight='bold',
+            ha='left',
+            va='top'
         )
 
-    # Fill zones
-    y_max = max(1.0, plot_data["stress_ratio"].max() * 1.1)
-    ax2.fill_between(dates, 0, 0.3, alpha=0.1, color="#4caf50")
-    ax2.fill_between(dates, 0.3, 0.5, alpha=0.1, color="#ffeb3b")
-    ax2.fill_between(dates, 0.5, 0.7, alpha=0.1, color="#ff9800")
-    ax2.fill_between(dates, 0.7, y_max, alpha=0.1, color="#f44336")
+    # =========================================================================
+    # Grid & Axes
+    # =========================================================================
+    ax.grid(True, color=COLORS["grid"], alpha=0.3, linestyle='-', linewidth=0.5)
+    ax.set_axisbelow(True)
 
-    # Formatting
-    ax2.set_ylabel("Stress Ratio", fontsize=11)
-    ax2.set_xlabel("Date", fontsize=11)
-    ax2.set_ylim(0, y_max)
-    ax2.grid(True, alpha=0.3)
+    # Y-axis formatting
+    ax.yaxis.set_major_formatter(FuncFormatter(format_billions))
+    ax.tick_params(axis='y', colors=COLORS["text_dim"])
+    ax.set_ylabel("Cumulative Change (Billions USD)", color=COLORS["text_dim"], fontsize=10)
 
-    # Latest value annotation
-    latest_stress = plot_data["stress_ratio"].iloc[-1]
-    ax2.annotate(
-        f"Current: {latest_stress:.2f}",
-        xy=(latest_date, latest_stress),
-        xytext=(10, 10),
-        textcoords="offset points",
-        fontsize=10,
-        color=COLORS["stress"],
-        fontweight="bold"
+    # X-axis formatting
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
+    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=3))
+    ax.tick_params(axis='x', colors=COLORS["text_dim"], rotation=45)
+
+    # Expand x-axis to make room for annotations
+    x_min, x_max = ax.get_xlim()
+    ax.set_xlim(x_min, x_max + (x_max - x_min) * 0.15)
+
+    # =========================================================================
+    # Legend
+    # =========================================================================
+    legend_elements = [
+        plt.Rectangle((0, 0), 1, 1, fc=COLORS["loans"], alpha=0.7,
+                       label='Loans and Leases in Bank Credit'),
+        plt.Rectangle((0, 0), 1, 1, fc=COLORS["deposits"], alpha=0.7,
+                       label='Deposits, All Commercial Banks'),
+    ]
+
+    ax.legend(
+        handles=legend_elements,
+        loc='upper left',
+        fontsize=9,
+        facecolor=COLORS["background"],
+        edgecolor=COLORS["grid"],
+        labelcolor=COLORS["text"]
     )
 
     # =========================================================================
-    # Common formatting
+    # Title
     # =========================================================================
+    base_date = plot_data["base_date"]
+    end_date = plot_data["end_date"]
+    fig.suptitle(
+        f"{title}\nCumulative Change Since {base_date.strftime('%Y-%m-%d')}",
+        color=COLORS["text"],
+        fontsize=14,
+        fontweight='bold',
+        x=0.38,
+        y=0.98,
+        ha='center'
+    )
 
-    # X-axis date formatting
-    ax2.xaxis.set_major_locator(mdates.MonthLocator(interval=3))
-    ax2.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m"))
-    plt.xticks(rotation=45)
-
+    # =========================================================================
     # Footer
+    # =========================================================================
     fig.text(
-        0.99, 0.01,
-        f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')} | Data: FRED",
-        ha="right",
+        0.02, 0.02,
+        "Source: FRED",
+        color=COLORS["text_dim"],
         fontsize=8,
-        color="#808080"
+        ha='left'
     )
 
     fig.text(
-        0.01, 0.01,
-        "analyze-us-bank-credit-deposit-decoupling skill",
-        ha="left",
+        0.70, 0.02,
+        f"Generated: {datetime.now().strftime('%Y-%m-%d')}",
+        color=COLORS["text_dim"],
         fontsize=8,
-        color="#808080"
+        ha='right'
     )
 
-    # Tight layout
+    # =========================================================================
+    # Layout & Save
+    # =========================================================================
     plt.tight_layout()
-    plt.subplots_adjust(bottom=0.08)
+    plt.subplots_adjust(top=0.92, bottom=0.12, right=0.72)
 
-    # Save or show
     if output_path:
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        plt.savefig(output_path, dpi=150, facecolor=fig.get_facecolor())
+        output_path = Path(output_path)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig(
+            output_path,
+            dpi=150,
+            bbox_inches='tight',
+            facecolor=COLORS["background"]
+        )
         print(f"Chart saved to: {output_path}")
     else:
         plt.show()
@@ -307,7 +363,7 @@ def create_decoupling_chart(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="銀行信貸-存款脫鉤視覺化"
+        description="銀行信貸-存款脫鉤視覺化 (Bloomberg 風格面積圖)"
     )
     parser.add_argument(
         "--start", "-s",
@@ -325,28 +381,35 @@ def main():
     )
     parser.add_argument(
         "--title", "-t",
-        default="Bank Credit-Deposit Decoupling Analysis",
+        default="US Bank Credit-Deposit Decoupling",
         help="圖表標題"
     )
 
     args = parser.parse_args()
 
-    if not HAS_MATPLOTLIB:
-        print("Error: matplotlib is required for visualization")
-        print("Install with: pip install matplotlib")
-        return
-
+    print(f"\n{'='*60}")
+    print("  銀行信貸-存款脫鉤視覺化")
+    print("  Bloomberg Style Area Chart")
+    print(f"{'='*60}")
     print(f"Loading data from: {args.cache_dir}")
+
     data = load_analysis_data(Path(args.cache_dir))
 
-    if not data:
-        print("Error: No data found. Run decoupling_analyzer.py first to fetch data.")
+    if len(data) < 2:
+        print("\nError: Missing data. Please run the analyzer first:")
+        print("  python decoupling_analyzer.py --start 2022-06-01")
         return
 
-    print(f"Calculating plot data from {args.start}...")
+    print(f"\nCalculating plot data from {args.start}...")
     plot_data = calculate_plot_data(data, args.start)
 
-    print("Creating chart...")
+    print(f"Data points: {len(plot_data['dates'])}")
+    print(f"Date range: {plot_data['base_date'].date()} to {plot_data['end_date'].date()}")
+    print(f"Latest loan change: {plot_data['loan_change'].iloc[-1]:,.0f} B")
+    print(f"Latest deposit change: {plot_data['deposit_change'].iloc[-1]:,.0f} B")
+    print(f"Deposit max drawdown: {plot_data['deposit_min']:,.0f} B on {plot_data['deposit_min_date'].date()}")
+
+    print("\nCreating Bloomberg-style area chart...")
     create_decoupling_chart(
         plot_data,
         output_path=args.output,

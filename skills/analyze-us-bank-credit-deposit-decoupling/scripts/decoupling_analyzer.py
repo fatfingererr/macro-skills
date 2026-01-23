@@ -9,28 +9,49 @@ Usage:
     python decoupling_analyzer.py --quick
     python decoupling_analyzer.py --start 2022-06-01 --end 2026-01-23
     python decoupling_analyzer.py --start 2022-06-01 --output result.json
+
+Data Sources (Public FRED CSV):
+    - TOTLL: Loans and Leases in Bank Credit, All Commercial Banks
+      https://fred.stlouisfed.org/series/TOTLL
+    - DPSACBW027SBOG: Deposits, All Commercial Banks
+      https://fred.stlouisfed.org/series/DPSACBW027SBOG
 """
 
 import argparse
 import json
-import os
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
+from io import StringIO
 
 import numpy as np
 import pandas as pd
+
+try:
+    import requests
+    HAS_REQUESTS = True
+except ImportError:
+    HAS_REQUESTS = False
 
 # ============================================================================
 # Configuration
 # ============================================================================
 
 CONFIG = {
-    # FRED Series IDs
-    "loan_series": "TOTLL",
-    "deposit_series": "DPSACBW027SBOG",
-    "rrp_series": "RRPONTSYD",
+    # FRED Series IDs and their public CSV URLs
+    "series": {
+        "loans": {
+            "id": "TOTLL",
+            "name": "Loans and Leases in Bank Credit, All Commercial Banks",
+            "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=TOTLL"
+        },
+        "deposits": {
+            "id": "DPSACBW027SBOG",
+            "name": "Deposits, All Commercial Banks",
+            "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DPSACBW027SBOG"
+        }
+    },
 
     # Analysis parameters
     "default_start": "2022-06-01",
@@ -44,62 +65,70 @@ CONFIG = {
         "extreme": 0.85
     },
 
-    # Correlation thresholds
-    "correlation_high": 0.8,
-    "correlation_medium": 0.5,
-
     # Cache settings
     "cache_dir": Path(__file__).parent / "cache",
-    "cache_max_age_hours": 12
+    "cache_max_age_hours": 24
 }
 
 
 # ============================================================================
-# Data Fetching
+# Data Fetching (Public FRED CSV - No API Key Required)
 # ============================================================================
 
-def get_fred_api_key() -> str:
-    """Get FRED API key from environment variable."""
-    api_key = os.environ.get("FRED_API_KEY")
-    if not api_key:
-        print("Warning: FRED_API_KEY not set. Using cached data or mock data.")
-        return ""
-    return api_key
-
-
-def fetch_fred_series(
-    series_id: str,
-    start_date: str,
-    end_date: str,
-    api_key: str
-) -> pd.Series:
+def fetch_fred_csv(series_key: str) -> pd.Series:
     """
-    Fetch data from FRED API.
+    Fetch data from FRED public CSV endpoint.
 
     Args:
-        series_id: FRED series identifier
-        start_date: Start date (YYYY-MM-DD)
-        end_date: End date (YYYY-MM-DD)
-        api_key: FRED API key
+        series_key: Key in CONFIG["series"] (e.g., "loans", "deposits")
 
     Returns:
         pandas Series with datetime index
     """
-    try:
-        from fredapi import Fred
-        fred = Fred(api_key=api_key)
-        data = fred.get_series(series_id, start_date, end_date)
-        return data
-    except ImportError:
-        print("fredapi not installed. Run: pip install fredapi")
+    if not HAS_REQUESTS:
+        print("Error: requests library required. Run: pip install requests")
         sys.exit(1)
-    except Exception as e:
+
+    series_info = CONFIG["series"][series_key]
+    url = series_info["url"]
+    series_id = series_info["id"]
+
+    print(f"Fetching {series_id} ({series_info['name']})...")
+    print(f"  URL: {url}")
+
+    try:
+        response = requests.get(url, timeout=30)
+        response.raise_for_status()
+
+        # Parse CSV
+        df = pd.read_csv(StringIO(response.text))
+
+        # FRED CSV format: DATE, SERIES_ID columns
+        df.columns = ["DATE", "VALUE"]
+        df["DATE"] = pd.to_datetime(df["DATE"])
+        df["VALUE"] = pd.to_numeric(df["VALUE"], errors="coerce")
+        df = df.dropna()
+        df = df.set_index("DATE")
+
+        series = df["VALUE"]
+        series.name = series_id
+
+        print(f"  Downloaded {len(series)} data points")
+        print(f"  Date range: {series.index.min().date()} to {series.index.max().date()}")
+
+        return series
+
+    except requests.exceptions.RequestException as e:
         print(f"Error fetching {series_id}: {e}")
+        return pd.Series()
+    except Exception as e:
+        print(f"Error parsing {series_id} data: {e}")
         return pd.Series()
 
 
-def load_cached_data(series_id: str) -> Optional[pd.Series]:
+def load_cached_data(series_key: str) -> Optional[pd.Series]:
     """Load data from cache if available and not expired."""
+    series_id = CONFIG["series"][series_key]["id"]
     cache_file = CONFIG["cache_dir"] / f"{series_id}.json"
 
     if not cache_file.exists():
@@ -113,108 +142,86 @@ def load_cached_data(series_id: str) -> Optional[pd.Series]:
         fetched_at = datetime.fromisoformat(cached["fetched_at"])
         age = datetime.now() - fetched_at
         if age > timedelta(hours=CONFIG["cache_max_age_hours"]):
+            print(f"Cache expired for {series_id} (age: {age})")
             return None
 
         # Convert to Series
         data = pd.Series(cached["data"])
         data.index = pd.to_datetime(data.index)
+        data.name = series_id
+        print(f"Using cached data for {series_id} (cached {age.seconds // 3600}h ago)")
         return data
 
-    except Exception:
+    except Exception as e:
+        print(f"Cache read error for {series_id}: {e}")
         return None
 
 
-def save_to_cache(series_id: str, data: pd.Series) -> None:
+def save_to_cache(series_key: str, data: pd.Series) -> None:
     """Save data to cache."""
+    series_id = CONFIG["series"][series_key]["id"]
     CONFIG["cache_dir"].mkdir(parents=True, exist_ok=True)
     cache_file = CONFIG["cache_dir"] / f"{series_id}.json"
 
+    # Convert index to string for JSON serialization
+    data_dict = {str(k): v for k, v in data.to_dict().items()}
+
     cached = {
         "series_id": series_id,
+        "series_name": CONFIG["series"][series_key]["name"],
         "fetched_at": datetime.now().isoformat(),
-        "data": data.to_dict()
+        "data": data_dict
     }
 
     with open(cache_file, "w") as f:
-        json.dump(cached, f, default=str)
+        json.dump(cached, f, default=str, indent=2)
+
+    print(f"  Cached to {cache_file}")
 
 
 def get_data(
     start_date: str,
     end_date: str,
     use_cache: bool = True
-) -> Tuple[pd.Series, pd.Series, pd.Series]:
+) -> Tuple[pd.Series, pd.Series]:
     """
-    Get loan, deposit, and RRP data.
+    Get loan and deposit data from FRED.
+
+    Args:
+        start_date: Start date (YYYY-MM-DD)
+        end_date: End date (YYYY-MM-DD)
+        use_cache: Whether to use cached data
 
     Returns:
-        Tuple of (loans, deposits, rrp) as pandas Series
+        Tuple of (loans, deposits) as pandas Series
     """
-    api_key = get_fred_api_key()
-
-    series_ids = [
-        CONFIG["loan_series"],
-        CONFIG["deposit_series"],
-        CONFIG["rrp_series"]
-    ]
-
     results = []
 
-    for series_id in series_ids:
+    for series_key in ["loans", "deposits"]:
         # Try cache first
         if use_cache:
-            cached = load_cached_data(series_id)
+            cached = load_cached_data(series_key)
             if cached is not None:
-                print(f"Using cached data for {series_id}")
                 results.append(cached)
                 continue
 
-        # Fetch from FRED
-        if api_key:
-            print(f"Fetching {series_id} from FRED...")
-            data = fetch_fred_series(series_id, start_date, end_date, api_key)
-            if not data.empty:
-                save_to_cache(series_id, data)
-                results.append(data)
-                continue
+        # Fetch from FRED public CSV
+        data = fetch_fred_csv(series_key)
+        if data.empty:
+            print(f"Error: Failed to fetch {series_key} data")
+            sys.exit(1)
 
-        # Use mock data for demo
-        print(f"Using mock data for {series_id}")
-        results.append(generate_mock_data(series_id, start_date, end_date))
+        save_to_cache(series_key, data)
+        results.append(data)
 
-    return tuple(results)
+    # Filter by date range
+    start = pd.to_datetime(start_date)
+    end = pd.to_datetime(end_date)
 
+    loans = results[0][(results[0].index >= start) & (results[0].index <= end)]
+    deposits = results[1][(results[1].index >= start) & (results[1].index <= end)]
 
-def generate_mock_data(series_id: str, start_date: str, end_date: str) -> pd.Series:
-    """Generate mock data for demonstration."""
-    dates = pd.date_range(start=start_date, end=end_date, freq="W-WED")
-
-    if series_id == CONFIG["loan_series"]:
-        # Loans: increasing trend
-        base = 10000
-        trend = np.linspace(0, 2100, len(dates))
-        noise = np.random.randn(len(dates)) * 20
-        values = base + trend + noise
-
-    elif series_id == CONFIG["deposit_series"]:
-        # Deposits: slower increase
-        base = 17000
-        trend = np.linspace(0, 500, len(dates))
-        noise = np.random.randn(len(dates)) * 30
-        values = base + trend + noise
-
-    else:  # RRP
-        # RRP: rise then fall
-        base = 500
-        peak_idx = len(dates) // 3
-        trend = np.concatenate([
-            np.linspace(0, 2000, peak_idx),
-            np.linspace(2000, 500, len(dates) - peak_idx)
-        ])
-        noise = np.random.randn(len(dates)) * 50
-        values = base + trend + noise
-
-    return pd.Series(values, index=dates)
+    return loans, deposits
 
 
 # ============================================================================
@@ -223,80 +230,112 @@ def generate_mock_data(series_id: str, start_date: str, end_date: str) -> pd.Ser
 
 def align_data(
     loans: pd.Series,
-    deposits: pd.Series,
-    rrp: pd.Series
-) -> Tuple[pd.Series, pd.Series, pd.Series]:
-    """Align all series to common dates."""
-    # Resample RRP to weekly if daily
-    if len(rrp) > len(loans) * 2:
-        rrp = rrp.resample("W-WED").last()
-
+    deposits: pd.Series
+) -> Tuple[pd.Series, pd.Series]:
+    """Align loan and deposit series to common dates."""
     # Find common dates
-    common_idx = loans.index.intersection(deposits.index).intersection(rrp.index)
+    common_idx = loans.index.intersection(deposits.index)
 
     return (
         loans.loc[common_idx],
-        deposits.loc[common_idx],
-        rrp.loc[common_idx]
+        deposits.loc[common_idx]
     )
 
 
 def calculate_cumulative_changes(
     loans: pd.Series,
-    deposits: pd.Series,
-    rrp: pd.Series
+    deposits: pd.Series
 ) -> Dict[str, pd.Series]:
     """Calculate cumulative changes from base date."""
     return {
         "loan_change": loans - loans.iloc[0],
-        "deposit_change": deposits - deposits.iloc[0],
-        "rrp_change": rrp - rrp.iloc[0]
+        "deposit_change": deposits - deposits.iloc[0]
     }
 
 
 def calculate_decoupling_metrics(
     cumulative: Dict[str, pd.Series]
 ) -> Dict[str, Any]:
-    """Calculate decoupling gap and stress ratio."""
+    """Calculate decoupling gap, stress ratio, and deposit dynamics."""
     loan_change = cumulative["loan_change"]
     deposit_change = cumulative["deposit_change"]
-    rrp_change = cumulative["rrp_change"]
 
-    # Decoupling gap
+    # Decoupling gap: 貸款增量 - 存款增量
+    # 正值表示貸款創造的存款「消失」了
     decoupling_gap = loan_change - deposit_change
 
-    # Stress ratio (avoid division by zero)
+    # Stress ratio: Gap / 新增貸款
+    # 表示每單位新增貸款中，有多少比例的存款「被抽走」
     with np.errstate(divide='ignore', invalid='ignore'):
         stress_ratio = decoupling_gap / loan_change
         stress_ratio = stress_ratio.replace([np.inf, -np.inf], np.nan)
 
-    # Correlation with RRP
-    valid_idx = ~(decoupling_gap.isna() | rrp_change.isna())
-    if valid_idx.sum() > 10:
-        correlation = np.corrcoef(
-            decoupling_gap[valid_idx],
-            rrp_change[valid_idx]
-        )[0, 1]
+    # === 存款動態分析 (Deposit Dynamics) ===
+    # 存款最大回撤（Maximum Drawdown）
+    deposit_min = deposit_change.min()
+    deposit_min_idx = deposit_change.idxmin()
+    deposit_min_date = str(deposit_min_idx.date()) if hasattr(deposit_min_idx, 'date') else str(deposit_min_idx)
+
+    # 當前存款變化
+    current_deposit = deposit_change.iloc[-1]
+
+    # 從低谷回升的幅度
+    recovery_from_trough = current_deposit - deposit_min
+
+    # 回升比率（相對於低谷深度）
+    if deposit_min < 0:
+        recovery_ratio = recovery_from_trough / abs(deposit_min)
     else:
-        correlation = np.nan
+        recovery_ratio = 0
+
+    # 判斷當前階段
+    if current_deposit < 0:
+        if current_deposit <= deposit_min * 0.9:  # 接近或超過低谷
+            phase = "contraction_deepening"
+            phase_label = "存款收縮加深"
+        else:
+            phase = "contraction_stabilizing"
+            phase_label = "存款收縮趨穩"
+    else:
+        if recovery_ratio > 1.5:
+            phase = "strong_recovery"
+            phase_label = "強勁回升"
+        elif recovery_ratio > 1.0:
+            phase = "recovery_but_lagging"
+            phase_label = "回升中但落後貸款"
+        else:
+            phase = "partial_recovery"
+            phase_label = "部分回升"
 
     return {
         "decoupling_gap": decoupling_gap,
         "stress_ratio": stress_ratio,
-        "rrp_correlation": correlation,
+        "loan_change_series": loan_change,
+        "deposit_change_series": deposit_change,
         "latest_gap": decoupling_gap.iloc[-1],
-        "latest_stress_ratio": stress_ratio.iloc[-1],
+        "latest_stress_ratio": stress_ratio.iloc[-1] if not np.isnan(stress_ratio.iloc[-1]) else 0,
         "latest_loan_change": loan_change.iloc[-1],
         "latest_deposit_change": deposit_change.iloc[-1],
-        "latest_rrp_change": rrp_change.iloc[-1]
+        # 存款動態
+        "deposit_max_drawdown": deposit_min,
+        "deposit_max_drawdown_date": deposit_min_date,
+        "recovery_from_trough": recovery_from_trough,
+        "recovery_ratio": recovery_ratio,
+        "phase": phase,
+        "phase_label": phase_label
     }
 
 
 def assess_tightening(metrics: Dict[str, Any]) -> Dict[str, str]:
     """Assess tightening type based on metrics."""
     stress = metrics["latest_stress_ratio"]
-    corr = metrics["rrp_correlation"]
     gap = metrics["latest_gap"]
+    loan_change = metrics["latest_loan_change"]
+    deposit_change = metrics["latest_deposit_change"]
+
+    # Handle NaN stress ratio
+    if np.isnan(stress):
+        stress = 0
 
     # Determine stress level
     thresholds = CONFIG["stress_thresholds"]
@@ -311,27 +350,37 @@ def assess_tightening(metrics: Dict[str, Any]) -> Dict[str, str]:
     else:
         stress_level = "normal"
 
-    # Determine tightening type
-    if gap > 0 and stress > thresholds["medium"] and corr > CONFIG["correlation_medium"]:
-        tightening_type = "hidden_balance_sheet_tightening"
-        tightening_label = "隱性資產負債表緊縮"
-        driver = "RRP_liquidity_absorption"
-        driver_label = "RRP 流動性吸收"
+    # Determine tightening type based on gap and stress
+    if gap > 0 and stress > thresholds["high"]:
+        tightening_type = "severe_decoupling"
+        tightening_label = "嚴重信貸-存款脫鉤"
+        driver = "deposit_outflow"
+        driver_label = "存款外流/緊縮傳導"
+    elif gap > 0 and stress > thresholds["medium"]:
+        tightening_type = "moderate_decoupling"
+        tightening_label = "中度信貸-存款脫鉤"
+        driver = "tightening_transmission"
+        driver_label = "緊縮政策傳導"
     elif gap > 0 and stress > thresholds["low"]:
-        tightening_type = "moderate_tightening"
-        tightening_label = "中度緊縮"
+        tightening_type = "mild_decoupling"
+        tightening_label = "輕度脫鉤"
         driver = "mixed"
         driver_label = "混合因素"
+    elif deposit_change < 0:
+        tightening_type = "deposit_contraction"
+        tightening_label = "存款收縮"
+        driver = "deposit_flight"
+        driver_label = "存款外逃"
     else:
         tightening_type = "neutral"
-        tightening_label = "中性"
+        tightening_label = "正常"
         driver = "none"
         driver_label = "無"
 
-    # Confidence level
-    if stress > thresholds["high"] and corr > CONFIG["correlation_high"]:
+    # Confidence level based on data quality
+    if stress > thresholds["high"]:
         confidence = "high"
-    elif stress > thresholds["medium"] or corr > CONFIG["correlation_medium"]:
+    elif stress > thresholds["medium"]:
         confidence = "medium"
     else:
         confidence = "low"
@@ -351,21 +400,37 @@ def generate_implication(
     metrics: Dict[str, Any]
 ) -> str:
     """Generate macro implication text."""
-    if assessment["tightening_type"] == "hidden_balance_sheet_tightening":
+    gap = metrics["latest_gap"]
+    loan_change = metrics["latest_loan_change"]
+    deposit_change = metrics["latest_deposit_change"]
+
+    if assessment["tightening_type"] == "severe_decoupling":
         return (
-            "本次緊縮並非來自銀行縮手放貸，而是聯準會透過 RRP 抽走體系存款，"
-            "導致市場必須爭奪有限的存款來支撐既有負債結構，"
-            "屬於「隱性金融緊縮」狀態。"
+            f"銀行信貸與存款出現嚴重脫鉤。"
+            f"貸款累積增加 {loan_change:,.0f} 億美元，但存款僅增加 {deposit_change:,.0f} 億美元，"
+            f"落差達 {gap:,.0f} 億美元（{gap/1000:.2f} 兆美元）。"
+            f"這顯示緊縮政策正有效傳導至銀行體系，存款端承受顯著壓力。"
         )
-    elif assessment["tightening_type"] == "moderate_tightening":
+    elif assessment["tightening_type"] == "moderate_decoupling":
         return (
-            "銀行信貸創造與存款增長出現一定程度的脫鉤，"
-            "顯示金融條件正在收緊，但尚未達到極端水準。"
+            f"銀行信貸創造與存款增長出現中度脫鉤。"
+            f"貸款增加 {loan_change:,.0f} 億美元，存款增加 {deposit_change:,.0f} 億美元，"
+            f"落差 {gap:,.0f} 億美元。金融條件正在收緊，但尚未達到極端水準。"
+        )
+    elif assessment["tightening_type"] == "mild_decoupling":
+        return (
+            f"銀行信貸與存款增長出現輕度脫鉤，落差約 {gap:,.0f} 億美元。"
+            f"緊縮傳導已開始，但銀行負債端壓力尚在可控範圍。"
+        )
+    elif assessment["tightening_type"] == "deposit_contraction":
+        return (
+            f"存款出現絕對收縮（減少 {abs(deposit_change):,.0f} 億美元），"
+            f"顯示資金正從銀行體系外流，可能流向貨幣市場基金或其他資產。"
         )
     else:
         return (
-            "銀行信貸與存款增長大致同步，"
-            "信貸創造機制正常運作，暫無明顯的隱性緊縮跡象。"
+            f"銀行信貸與存款增長大致同步，"
+            f"信貸創造機制正常運作，暫無明顯的脫鉤跡象。"
         )
 
 
@@ -378,7 +443,6 @@ def format_output(
     end_date: str,
     loans: pd.Series,
     deposits: pd.Series,
-    rrp: pd.Series,
     cumulative: Dict[str, pd.Series],
     metrics: Dict[str, Any],
     assessment: Dict[str, str]
@@ -386,56 +450,69 @@ def format_output(
     """Format analysis output as dictionary."""
     implication = generate_implication(assessment, metrics)
 
+    # Get actual data range from the series
+    actual_start = loans.index.min()
+    actual_end = loans.index.max()
+
     return {
         "skill": "analyze_bank_credit_deposit_decoupling",
-        "version": "0.1.0",
+        "version": "2.0.0",
         "generated_at": datetime.now().isoformat(),
         "status": "success",
 
         "analysis_period": {
-            "start": start_date,
-            "end": end_date,
+            "requested_start": start_date,
+            "requested_end": end_date,
+            "actual_start": str(actual_start.date()),
+            "actual_end": str(actual_end.date()),
             "frequency": CONFIG["default_frequency"],
             "observation_count": len(loans)
         },
 
         "data_sources": {
             "loans": {
-                "series_id": CONFIG["loan_series"],
-                "latest_value": float(loans.iloc[-1]),
+                "series_id": CONFIG["series"]["loans"]["id"],
+                "series_name": CONFIG["series"]["loans"]["name"],
+                "url": CONFIG["series"]["loans"]["url"],
+                "base_value_billion_usd": round(float(loans.iloc[0]), 2),
+                "latest_value_billion_usd": round(float(loans.iloc[-1]), 2),
                 "latest_date": str(loans.index[-1].date())
             },
             "deposits": {
-                "series_id": CONFIG["deposit_series"],
-                "latest_value": float(deposits.iloc[-1]),
+                "series_id": CONFIG["series"]["deposits"]["id"],
+                "series_name": CONFIG["series"]["deposits"]["name"],
+                "url": CONFIG["series"]["deposits"]["url"],
+                "base_value_billion_usd": round(float(deposits.iloc[0]), 2),
+                "latest_value_billion_usd": round(float(deposits.iloc[-1]), 2),
                 "latest_date": str(deposits.index[-1].date())
-            },
-            "rrp": {
-                "series_id": CONFIG["rrp_series"],
-                "latest_value": float(rrp.iloc[-1]),
-                "latest_date": str(rrp.index[-1].date())
             }
         },
 
         "cumulative_changes": {
-            "base_date": start_date,
-            "new_loans_billion_usd": round(metrics["latest_loan_change"], 2),
-            "new_deposits_billion_usd": round(metrics["latest_deposit_change"], 2),
-            "rrp_change_billion_usd": round(metrics["latest_rrp_change"], 2)
+            "base_date": str(actual_start.date()),
+            "end_date": str(actual_end.date()),
+            "loans_billion_usd": round(metrics["latest_loan_change"], 2),
+            "deposits_billion_usd": round(metrics["latest_deposit_change"], 2),
+            "gap_billion_usd": round(metrics["latest_gap"], 2),
+            "gap_trillion_usd": round(metrics["latest_gap"] / 1000, 3)
         },
 
-        "decoupling_metrics": {
-            "decoupling_gap_billion_usd": round(metrics["latest_gap"], 2),
-            "decoupling_gap_trillion_usd": round(metrics["latest_gap"] / 1000, 2),
-            "deposit_stress_ratio": round(metrics["latest_stress_ratio"], 3),
-            "rrp_gap_correlation": round(metrics["rrp_correlation"], 2) if not np.isnan(metrics["rrp_correlation"]) else None
+        "deposit_dynamics": {
+            "max_drawdown_billion_usd": round(metrics["deposit_max_drawdown"], 2),
+            "max_drawdown_trillion_usd": round(metrics["deposit_max_drawdown"] / 1000, 3),
+            "max_drawdown_date": metrics["deposit_max_drawdown_date"],
+            "current_deposit_change_billion_usd": round(metrics["latest_deposit_change"], 2),
+            "recovery_from_trough_billion_usd": round(metrics["recovery_from_trough"], 2),
+            "recovery_ratio": round(metrics["recovery_ratio"], 2),
+            "phase": metrics["phase"],
+            "phase_label": metrics["phase_label"]
         },
 
         "assessment": {
-            "tightening_type": assessment["tightening_type"],
-            "tightening_type_label": assessment["tightening_label"],
-            "primary_driver": assessment["primary_driver"],
-            "primary_driver_label": assessment["driver_label"],
+            "decoupling_status": assessment["tightening_type"],
+            "decoupling_status_label": assessment["tightening_label"],
+            "deposit_stress_ratio": round(metrics["latest_stress_ratio"], 3),
+            "interpretation": f"每新增 $1 貸款，僅有 ${1 - metrics['latest_stress_ratio']:.2f} 形成存款",
             "confidence": assessment["confidence"],
             "stress_level": assessment["stress_level"]
         },
@@ -443,29 +520,40 @@ def format_output(
         "macro_implication": implication,
 
         "recommended_next_checks": [
-            "監控 RRP 規模變化趨勢",
-            "觀察銀行存款利率是否上升",
+            "觀察銀行存款利率是否上升（搶存款跡象）",
             "追蹤 SOFR-Fed Funds 利差變化",
-            "關注大額存款（>$250K）外逃跡象"
+            "關注大額存款（>$250K）外逃跡象",
+            "監控貨幣市場基金流入量"
         ],
 
         "caveats": [
-            "本分析假設 RRP 是主要的存款吸收來源，忽略 TGA 等其他因素",
+            "本分析僅使用貸款與存款兩個公開 FRED 指標",
             "週頻數據可能錯過日內波動",
-            "deposit_stress_ratio 歷史分位數基於 2013 年後數據"
+            "未納入 TGA、RRP 等其他流動性因素"
         ]
     }
 
 
-def format_quick_output(metrics: Dict[str, Any], assessment: Dict[str, str]) -> Dict[str, Any]:
+def format_quick_output(
+    metrics: Dict[str, Any],
+    assessment: Dict[str, str],
+    loans: pd.Series,
+    deposits: pd.Series
+) -> Dict[str, Any]:
     """Format quick check output."""
     return {
         "as_of": datetime.now().strftime("%Y-%m-%d"),
-        "decoupling_gap_trillion_usd": round(metrics["latest_gap"] / 1000, 2),
-        "deposit_stress_ratio": round(metrics["latest_stress_ratio"], 2),
+        "data_end_date": str(loans.index[-1].date()),
+        "loans_billion_usd": round(float(loans.iloc[-1]), 2),
+        "deposits_billion_usd": round(float(deposits.iloc[-1]), 2),
+        "decoupling_gap_billion_usd": round(metrics["latest_gap"], 2),
+        "decoupling_gap_trillion_usd": round(metrics["latest_gap"] / 1000, 3),
+        "deposit_stress_ratio": round(metrics["latest_stress_ratio"], 3),
         "tightening_type": assessment["tightening_type"],
+        "tightening_label": assessment["tightening_label"],
+        "stress_level": assessment["stress_level"],
         "confidence": assessment["confidence"],
-        "summary": f"存款壓力比率 {assessment['stress_level']}，{assessment['tightening_label']}"
+        "summary": f"存款壓力比率 {assessment['stress_level']}（{metrics['latest_stress_ratio']:.1%}），{assessment['tightening_label']}"
     }
 
 
@@ -477,31 +565,51 @@ def run_analysis(
     start_date: str,
     end_date: str,
     quick: bool = False,
-    output_file: Optional[str] = None
+    output_file: Optional[str] = None,
+    use_cache: bool = True
 ) -> Dict[str, Any]:
     """Run the decoupling analysis."""
-    print(f"\n=== 銀行信貸-存款脫鉤分析 ===")
-    print(f"分析期間: {start_date} 至 {end_date}\n")
+    print(f"\n{'='*60}")
+    print(f"  銀行信貸-存款脫鉤分析")
+    print(f"  Bank Credit-Deposit Decoupling Analysis")
+    print(f"{'='*60}")
+    print(f"分析期間: {start_date} 至 {end_date}")
+    print(f"數據來源: FRED (Federal Reserve Economic Data)\n")
 
-    # Fetch data
-    loans, deposits, rrp = get_data(start_date, end_date)
+    # Fetch data from FRED public CSV
+    loans, deposits = get_data(start_date, end_date, use_cache=use_cache)
+
+    if loans.empty or deposits.empty:
+        print("Error: Failed to retrieve data")
+        return {"status": "error", "message": "Failed to retrieve data"}
 
     # Align data
-    loans, deposits, rrp = align_data(loans, deposits, rrp)
-    print(f"數據點數: {len(loans)}")
+    loans, deposits = align_data(loans, deposits)
+    print(f"\n對齊後數據點數: {len(loans)}")
+    print(f"實際數據範圍: {loans.index.min().date()} 至 {loans.index.max().date()}")
 
     # Calculate metrics
-    cumulative = calculate_cumulative_changes(loans, deposits, rrp)
+    cumulative = calculate_cumulative_changes(loans, deposits)
     metrics = calculate_decoupling_metrics(cumulative)
     assessment = assess_tightening(metrics)
 
+    # Print summary
+    print(f"\n{'─'*60}")
+    print("分析結果摘要:")
+    print(f"  貸款變化: {metrics['latest_loan_change']:+,.1f} 億美元")
+    print(f"  存款變化: {metrics['latest_deposit_change']:+,.1f} 億美元")
+    print(f"  脫鉤落差: {metrics['latest_gap']:,.1f} 億美元 ({metrics['latest_gap']/1000:.2f} 兆)")
+    print(f"  壓力比率: {metrics['latest_stress_ratio']:.1%}")
+    print(f"  判定結果: {assessment['tightening_label']} ({assessment['stress_level']})")
+    print(f"{'─'*60}\n")
+
     # Format output
     if quick:
-        result = format_quick_output(metrics, assessment)
+        result = format_quick_output(metrics, assessment, loans, deposits)
     else:
         result = format_output(
             start_date, end_date,
-            loans, deposits, rrp,
+            loans, deposits,
             cumulative, metrics, assessment
         )
 
@@ -520,7 +628,7 @@ def run_analysis(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="銀行信貸-存款脫鉤分析器"
+        description="銀行信貸-存款脫鉤分析器 (使用 FRED 公開數據)"
     )
     parser.add_argument(
         "--quick", "-q",
@@ -542,29 +650,19 @@ def main():
         help="輸出檔案路徑 (JSON)"
     )
     parser.add_argument(
-        "--fetch-only",
-        action="store_true",
-        help="僅抓取數據，不執行分析"
-    )
-    parser.add_argument(
         "--no-cache",
         action="store_true",
-        help="不使用快取數據"
+        help="不使用快取數據，強制從 FRED 重新下載"
     )
 
     args = parser.parse_args()
-
-    if args.fetch_only:
-        print("抓取數據中...")
-        get_data(args.start, args.end, use_cache=not args.no_cache)
-        print("數據抓取完成")
-        return
 
     run_analysis(
         start_date=args.start,
         end_date=args.end,
         quick=args.quick,
-        output_file=args.output
+        output_file=args.output,
+        use_cache=not args.no_cache
     )
 
 
