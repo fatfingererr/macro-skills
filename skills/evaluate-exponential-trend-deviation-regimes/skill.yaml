@@ -5,7 +5,7 @@ authorUrl: https://github.com/fatfingererr/macro-skills
 tools:
   - claude-code
 
-featured: true
+featured: false
 installCount: 0
 
 testQuestions:
@@ -137,41 +137,115 @@ testQuestions:
       3. 當前 +49.4% 正好位於 95 分位線上，偏離度較高但遠未達到泡沫極端
 
 qualityScore:
-  overall: 75
-  badge: 白銀
+  overall: 63
+  badge: 中高級
+  evaluatedAt: "2026-01-23"
+
   metrics:
-    architecture: 80
-    maintainability: 75
-    content: 85
-    community: 20
-    security: 95
-    compliance: 80
+    problemFit: 72
+    correctness: 65
+    dataGovernance: 60
+    robustness: 58
+    maintainability: 62
+    usability: 61
+
+  metricDetails:
+    problemFit:
+      score: 72
+      strengths:
+        - 清晰的指數趨勢擬合方法論
+        - 歷史對照機制完整
+        - 適用多種資產類別
+      improvements:
+        - 宏觀因子分析僅針對黃金設計
+        - 可增加結構性變化處理
+
+    correctness:
+      score: 65
+      strengths:
+        - 方法論有理論依據
+        - testQuestions 有 expectedResult
+        - 歷史峰值對照清楚
+      improvements:
+        - 趨勢擬合區間選擇影響結果
+        - 可增加敏感度分析
+
+    dataGovernance:
+      score: 60
+      strengths:
+        - 使用 Yahoo Finance 免費數據
+        - 有 Stooq 替代來源
+      improvements:
+        - 缺少 data-sources.md 完整文檔
+        - FRED 宏觀數據整合需說明
+
+    robustness:
+      score: 58
+      strengths:
+        - pitfalls 詳列擬合風險
+        - bestPractices 有數據長度建議
+      improvements:
+        - 缺少 failure-modes.md
+        - 結構性變化偵測需加強
+
+    maintainability:
+      score: 62
+      strengths:
+        - 參數定義完整
+        - 多數據來源支援
+      improvements:
+        - 可增加 manifest.json 版本控制
+        - 宏觀因子需定期更新
+
+    usability:
+      score: 61
+      strengths:
+        - FAQ 解答偏離度概念
+        - 輸出有歷史對照圖表
+      improvements:
+        - 可增加 historical-episodes.md
+        - 可增加更多資產範例
+
   details: |
-    **架構（80/100）**
-    - 清晰的指數趨勢擬合方法論
-    - 歷史對照機制完整
-    - 宏觀因子整合設計合理
+    **任務適配度（72/100）**
+    - 指數趨勢擬合方法論清晰
+    - 待改進：宏觀因子擴展
 
-    **可維護性（75/100）**
+    **正確性（65/100）**
+    - 方法論有理論依據
+    - 待改進：敏感度分析
+
+    **資料治理（60/100）**
+    - 使用免費數據
+    - 待改進：增加 data-sources.md
+
+    **穩健性（58/100）**
+    - pitfalls 詳列風險
+    - 待改進：增加 failure-modes.md
+
+    **可維護性（62/100）**
     - 參數定義完整
-    - 多數據來源支援
-    - 工作流程分離
+    - 待改進：增加版本控制
 
-    **內容（85/100）**
-    - 1970s vs 2000s 行情體質分類有理論依據
-    - 歷史峰值對照（2011/1980）有實際意義
-    - 宏觀代理指標選擇合理
+    **輸出可用性（61/100）**
+    - FAQ 解答核心概念
+    - 待改進：增加資產範例
 
-    **社區（20/100）**
-    - 新技能，尚無社區貢獻
-
-    **安全（95/100）**
-    - 僅讀取公開價格數據
-    - 無需 API key
-
-    **規範符合性（80/100）**
-    - 遵循 Claude Code 規範
-    - 完整的文件結構
+  upgradeNotes:
+    targetBadge: 高級
+    requirements:
+      - metric: robustness
+        currentScore: 58
+        targetScore: 80
+        suggestion: 增加 failure-modes.md 與結構變化處理
+      - metric: dataGovernance
+        currentScore: 60
+        targetScore: 80
+        suggestion: 增加 data-sources.md
+      - metric: correctness
+        currentScore: 65
+        targetScore: 80
+        suggestion: 增加敏感度分析與驗證
 
 bestPractices:
   - title: 使用足夠長的歷史數據

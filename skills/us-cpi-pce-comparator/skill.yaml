@@ -26,41 +26,113 @@ testQuestions:
       - 人口覆蓋
 
 qualityScore:
-  overall: 75
-  badge: 白銀
+  overall: 57
+  badge: 中級
+  evaluatedAt: "2026-01-23"
+
   metrics:
-    architecture: 80
-    maintainability: 80
-    content: 85
-    community: 20
-    security: 95
-    compliance: 85
+    problemFit: 65
+    correctness: 60
+    dataGovernance: 55
+    robustness: 50
+    maintainability: 55
+    usability: 57
+
+  metricDetails:
+    problemFit:
+      score: 65
+      strengths:
+        - CPI/PCE 比較概念清晰
+        - 三層訊號架構設計
+      improvements:
+        - testQuestions 的 expectedResult 過於簡略
+        - 可增加具體分析流程說明
+
+    correctness:
+      score: 60
+      strengths:
+        - 方法論有理論依據
+        - 包含 Core vs Headline 說明
+      improvements:
+        - 缺少詳細的 expectedResult
+        - 可增加計算範例
+
+    dataGovernance:
+      score: 55
+      strengths:
+        - 使用 FRED 免費數據
+        - 有 BLS API 替代來源
+      improvements:
+        - 缺少 data-sources.md 完整文檔
+        - 數據更新時間需說明
+
+    robustness:
+      score: 50
+      strengths:
+        - pitfalls 詳列權重差異風險
+        - bestPractices 有指標選擇建議
+      improvements:
+        - 缺少 failure-modes.md
+        - 錯誤處理機制不明確
+
+    maintainability:
+      score: 55
+      strengths:
+        - 參數定義完整
+        - 模組化腳本設計
+      improvements:
+        - 可增加 manifest.json 版本控制
+        - 缺少實際腳本實作
+
+    usability:
+      score: 57
+      strengths:
+        - FAQ 解答 Fed 目標指標
+        - 有 re-accelerate 判斷說明
+      improvements:
+        - testQuestions 的 expectedResult 需完善
+        - 可增加視覺化輸出
+
   details: |
-    **架構（80/100）**
-    - 清晰的三層訊號架構
-    - 模組化腳本設計
-    - 無需 API key 的數據獲取
+    **任務適配度（65/100）**
+    - CPI/PCE 比較概念清晰
+    - 待改進：expectedResult 需完善
 
-    **可維護性（80/100）**
-    - 工作流程分離清晰
+    **正確性（60/100）**
+    - 方法論有依據
+    - 待改進：增加計算範例
+
+    **資料治理（55/100）**
+    - 使用 FRED 免費數據
+    - 待改進：增加 data-sources.md
+
+    **穩健性（50/100）**
+    - pitfalls 詳列風險
+    - 待改進：增加 failure-modes.md
+
+    **可維護性（55/100）**
     - 參數定義完整
-    - 多數據源支援
+    - 待改進：增加版本控制
 
-    **內容（85/100）**
-    - 完整的方法論文檔
-    - CPI/PCE 差異深度解析
-    - 實用的 CLI 工具
+    **輸出可用性（57/100）**
+    - FAQ 解答核心問題
+    - 待改進：完善 expectedResult
 
-    **社區（20/100）**
-    - 新技能，尚無社區貢獻
-
-    **安全（95/100）**
-    - 僅讀取公開經濟數據
-    - 無需 API key
-
-    **規範符合性（85/100）**
-    - 遵循 Claude Code 規範
-    - 完整的文件結構
+  upgradeNotes:
+    targetBadge: 中高級
+    requirements:
+      - metric: correctness
+        currentScore: 60
+        targetScore: 70
+        suggestion: 完善 testQuestions 的 expectedResult
+      - metric: robustness
+        currentScore: 50
+        targetScore: 65
+        suggestion: 增加 failure-modes.md
+      - metric: dataGovernance
+        currentScore: 55
+        targetScore: 65
+        suggestion: 增加 data-sources.md
 
 bestPractices:
   - title: 關注 Core 而非 Headline

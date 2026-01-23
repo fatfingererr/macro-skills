@@ -278,41 +278,118 @@ testQuestions:
       - 熱力圖：output/return-heatmap-2026-01-21.png（銀價漲幅 × 比率組合）
 
 qualityScore:
-  overall: 65
-  badge: 白銀
+  overall: 66
+  badge: 中高級
+  evaluatedAt: "2026-01-23"
+
   metrics:
-    architecture: 80
-    maintainability: 70
-    content: 85
-    community: 20
-    security: 75
-    compliance: 70
+    problemFit: 75
+    correctness: 70
+    dataGovernance: 58
+    robustness: 62
+    maintainability: 65
+    usability: 66
+
+  metricDetails:
+    problemFit:
+      score: 75
+      strengths:
+        - 完整的四因子拆解框架
+        - 清晰的反推數學公式
+        - 門檻反推功能實用
+      improvements:
+        - 可增加不適用情境說明
+        - 單因子歸因為極端情境需強調
+
+    correctness:
+      score: 70
+      strengths:
+        - 方法論文檔完整
+        - testQuestions 有詳細 expectedResult
+        - 含歷史底部事件因子分析
+      improvements:
+        - Proxy AISC 可能有誤差
+        - 財報時滯影響需說明
+
+    dataGovernance:
+      score: 58
+      strengths:
+        - 使用 SEC/SEDAR 公開數據
+        - hybrid 方法抽取 AISC
+      improvements:
+        - 缺少 data-sources.md 完整文檔
+        - 需爬蟲抓取，可能有合規問題
+        - 爬取頻率與間隔需規範
+
+    robustness:
+      score: 62
+      strengths:
+        - pitfalls 詳列 proxy 風險
+        - bestPractices 有快取建議
+      improvements:
+        - 缺少 failure-modes.md
+        - SEC EDGAR 格式變動風險
+        - 需增加爬蟲失敗處理
+
+    maintainability:
+      score: 65
+      strengths:
+        - 路由器模式設計
+        - 分層 workflows/references
+      improvements:
+        - 可增加 manifest.json 版本控制
+        - AISC 抽取邏輯需持續調整
+        - 需監控 ETF 成分變化
+
+    usability:
+      score: 66
+      strengths:
+        - FAQ 解答 AISC/Cash Cost 差異
+        - 輸出有因子雷達圖
+      improvements:
+        - 可增加 historical-episodes.md
+        - 可增加因子趨勢視覺化
+
   details: |
-    **架構（80/100）**
-    - 清晰的路由器模式
-    - 分層的 workflows/references
-    - 完整的因子拆解邏輯
+    **任務適配度（75/100）**
+    - 四因子拆解與反推公式清晰
+    - 待改進：增加不適用情境
 
-    **可維護性（70/100）**
-    - SEC EDGAR 格式可能變動
-    - AISC 抽取需持續調整
-    - 需監控 ETF 成分變化
+    **正確性（70/100）**
+    - 方法論完整
+    - 待改進：Proxy AISC 誤差說明
 
-    **內容（85/100）**
-    - 完整的四因子拆解方法論
-    - 清晰的反推數學公式
-    - 含事件研究與風險提示
+    **資料治理（58/100）**
+    - 使用公開財報數據
+    - 待改進：增加爬蟲規範說明
 
-    **社群（20/100）**
-    - 新建技能，尚無社群反饋
+    **穩健性（62/100）**
+    - pitfalls 詳列風險
+    - 待改進：增加 failure-modes.md
 
-    **安全（75/100）**
-    - 需爬蟲抓取財報
-    - 建議設定合理爬取間隔
+    **可維護性（65/100）**
+    - 路由器模式設計
+    - 待改進：增加版本控制
 
-    **合規（70/100）**
-    - SEC/SEDAR 公開數據
-    - 需遵守網站使用條款
+    **輸出可用性（66/100）**
+    - FAQ 解答核心概念
+    - 待改進：增加歷史對照
+
+  upgradeNotes:
+    targetBadge: 高級
+    requirements:
+      - metric: dataGovernance
+        currentScore: 58
+        targetScore: 80
+        suggestion: 增加 data-sources.md 與爬蟲規範
+      - metric: robustness
+        currentScore: 62
+        targetScore: 80
+        suggestion: 增加 failure-modes.md 與爬蟲失敗處理
+      - metric: maintainability
+        currentScore: 65
+        targetScore: 75
+        suggestion: 增加版本控制與 ETF 成分追蹤
 
 bestPractices:
   - title: 使用 hybrid 方法抽取 AISC

@@ -108,41 +108,115 @@ testQuestions:
       4. 當前處於歷史第二高位：僅次於 1999 年科技泡沫
 
 qualityScore:
-  overall: 75
-  badge: 白銀
+  overall: 67
+  badge: 中高級
+  evaluatedAt: "2026-01-23"
+
   metrics:
-    architecture: 85
-    maintainability: 80
-    content: 85
-    community: 20
-    security: 95
-    compliance: 85
+    problemFit: 75
+    correctness: 70
+    dataGovernance: 65
+    robustness: 60
+    maintainability: 68
+    usability: 64
+
+  metricDetails:
+    problemFit:
+      score: 75
+      strengths:
+        - 清晰的分位數計算邏輯
+        - 多指標合成設計
+        - 歷史事件識別機制
+      improvements:
+        - 可增加估值指標適用性說明
+        - 可增加時代背景差異說明
+
+    correctness:
+      score: 70
+      strengths:
+        - 方法論文檔完整
+        - testQuestions 有 expectedResult
+        - 歷史類比事件有數據支持
+      improvements:
+        - 歷史極端事件樣本有限（4-6 次）
+        - 可增加統計顯著性說明
+
+    dataGovernance:
+      score: 65
+      strengths:
+        - 使用 Shiller 公開數據
+        - 使用 FRED 免費數據
+      improvements:
+        - 缺少 data-sources.md 完整文檔
+        - 各指標歷史長度不同需說明
+
+    robustness:
+      score: 60
+      strengths:
+        - pitfalls 詳列單一指標風險
+        - bestPractices 有多指標合成建議
+      improvements:
+        - 缺少 failure-modes.md
+        - 極端事件樣本數限制需強調
+
+    maintainability:
+      score: 68
+      strengths:
+        - 參數定義完整
+        - 多資料來源支援
+      improvements:
+        - 可增加 manifest.json 版本控制
+        - 可增加數據更新自動化
+
+    usability:
+      score: 64
+      strengths:
+        - FAQ 解答分位數概念
+        - 風險解讀框架清晰
+      improvements:
+        - 可增加 historical-episodes.md
+        - 可增加視覺化圖表輸出
+
   details: |
-    **架構（85/100）**
-    - 清晰的分位數計算邏輯
-    - 多指標合成設計
-    - 歷史事件識別機制
+    **任務適配度（75/100）**
+    - 分位數計算與多指標合成清晰
+    - 待改進：增加時代背景說明
 
-    **可維護性（80/100）**
+    **正確性（70/100）**
+    - 方法論完整
+    - 待改進：歷史樣本數有限
+
+    **資料治理（65/100）**
+    - 使用 Shiller 與 FRED 公開數據
+    - 待改進：增加 data-sources.md
+
+    **穩健性（60/100）**
+    - pitfalls 詳列風險
+    - 待改進：增加 failure-modes.md
+
+    **可維護性（68/100）**
     - 參數定義完整
-    - 多資料源支援
-    - 工作流程分離
+    - 待改進：增加版本控制
 
-    **內容（85/100）**
-    - 完整的方法論文檔
-    - 估值指標詳解
-    - 風險解讀框架
+    **輸出可用性（64/100）**
+    - FAQ 解答核心概念
+    - 待改進：增加歷史對照
 
-    **社區（20/100）**
-    - 新技能，尚無社區貢獻
-
-    **安全（95/100）**
-    - 僅讀取公開估值數據
-    - 無需 API key
-
-    **規範符合性（85/100）**
-    - 遵循 Claude Code 規範
-    - 完整的文件結構
+  upgradeNotes:
+    targetBadge: 高級
+    requirements:
+      - metric: robustness
+        currentScore: 60
+        targetScore: 80
+        suggestion: 增加 failure-modes.md 與樣本限制說明
+      - metric: dataGovernance
+        currentScore: 65
+        targetScore: 80
+        suggestion: 增加 data-sources.md 與歷史長度說明
+      - metric: usability
+        currentScore: 64
+        targetScore: 75
+        suggestion: 增加歷史對照與視覺化
 
 bestPractices:
   - title: 使用多指標合成

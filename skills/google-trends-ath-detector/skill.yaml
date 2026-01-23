@@ -24,44 +24,115 @@ testQuestions:
       並透過相關性分析輸出解讀。
 
 qualityScore:
-  overall: 85
-  badge: 黃金
+  overall: 49
+  badge: 中級
+  evaluatedAt: "2026-01-23"
+
   metrics:
-    architecture: 90
-    maintainability: 85
-    content: 90
-    community: 30
-    security: 95
-    compliance: 90
+    problemFit: 60
+    correctness: 50
+    dataGovernance: 40
+    robustness: 42
+    maintainability: 50
+    usability: 52
+
+  metricDetails:
+    problemFit:
+      score: 60
+      strengths:
+        - 訊號分型概念清晰
+        - Selenium 爬蟲設計完整
+      improvements:
+        - Google Trends API 不穩定
+        - 爬蟲被封鎖風險高
+
+    correctness:
+      score: 50
+      strengths:
+        - testQuestions 有 expectedResult
+        - 訊號分類邏輯說明
+      improvements:
+        - 爬蟲穩定性難以保證
+        - z-score 計算需驗證
+
+    dataGovernance:
+      score: 40
+      strengths:
+        - 說明數據來源與延遲
+        - 有 debug 模式說明
+      improvements:
+        - 缺少 data-sources.md 完整文檔
+        - 爬蟲可能違反 ToS
+        - 數據可靠性不穩定
+
+    robustness:
+      score: 42
+      strengths:
+        - pitfalls 詳列封鎖風險
+        - bestPractices 有頻率控制建議
+      improvements:
+        - 缺少 failure-modes.md
+        - 爬蟲失敗率較高
+        - 429 錯誤處理需加強
+
+    maintainability:
+      score: 50
+      strengths:
+        - 模組化爬蟲設計
+        - 防偵測策略完整
+      improvements:
+        - 可增加 manifest.json 版本控制
+        - Selenium 依賴複雜
+
+    usability:
+      score: 52
+      strengths:
+        - FAQ 解答 Google Trends 概念
+        - 有 debug 與調試說明
+      improvements:
+        - 執行環境需求高
+        - 需要 Chrome 與 Selenium
+
   details: |
-    **架構（90/100）**
-    - Selenium 模擬真人瀏覽器行為
-    - 多層防偵測策略（User-Agent 輪換、隨機延遲）
-    - 清晰的訊號分型流程
-    - 完整的爬蟲核心類設計
+    **任務適配度（60/100）**
+    - 訊號分型概念清晰
+    - 待改進：爬蟲穩定性
 
-    **可維護性（85/100）**
-    - 工作流程分離清晰
-    - 參數定義完整
-    - 專注單一數據源
-    - 模組化爬蟲設計
+    **正確性（50/100）**
+    - 有 expectedResult
+    - 待改進：爬蟲可靠性
 
-    **內容（90/100）**
-    - 完整的訊號分析框架
-    - 詳細的參考文件
-    - 實用的 CLI 工具
+    **資料治理（40/100）**
+    - 說明數據來源
+    - 待改進：ToS 合規性
 
-    **社區（30/100）**
-    - 新技能，尚無社區貢獻
+    **穩健性（42/100）**
+    - pitfalls 詳列風險
+    - 待改進：錯誤處理
 
-    **安全（95/100）**
-    - 僅讀取公開 Google Trends 數據
-    - 模擬正常瀏覽器行為
+    **可維護性（50/100）**
+    - 模組化設計
+    - 待改進：依賴複雜
 
-    **規範符合性（90/100）**
-    - 遵循 Claude Code 規範
-    - 完整的文件結構
-    - 基於 design-human-like-crawler.md 設計
+    **輸出可用性（52/100）**
+    - FAQ 解答概念
+    - 待改進：環境需求高
+
+  upgradeNotes:
+    targetBadge: 中高級
+    requirements:
+      - metric: dataGovernance
+        currentScore: 40
+        targetScore: 60
+        suggestion: 改用官方 API 或確認 ToS 合規
+      - metric: robustness
+        currentScore: 42
+        targetScore: 60
+        suggestion: 增加錯誤重試與降級機制
+      - metric: correctness
+        currentScore: 50
+        targetScore: 65
+        suggestion: 增加爬蟲穩定性測試
 
 bestPractices:
   - title: 使用 Topic Entity 而非純關鍵字

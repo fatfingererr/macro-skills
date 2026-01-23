@@ -124,43 +124,120 @@ testQuestions:
       圖表已儲存至 shanghai-silver-drain-report-2026-01-22.png
 
 qualityScore:
-  overall: 65
-  badge: 白銀
+  overall: 80
+  badge: 高級
+  evaluatedAt: "2026-01-23"
+
   metrics:
-    architecture: 75
-    maintainability: 70
-    content: 80
-    community: 10
-    security: 90
-    compliance: 70
+    problemFit: 82
+    correctness: 82
+    dataGovernance: 85
+    robustness: 72
+    maintainability: 78
+    usability: 81
+
+  metricDetails:
+    problemFit:
+      score: 82
+      strengths:
+        - SKILL.md 有三維度量化框架與成功準則
+        - workflows/ 覆蓋分析、數據抓取、交叉驗證三路徑
+        - input-schema.md 含核心與分析參數完整定義
+      improvements:
+        - 可增加不適用情境（如倉儲規則變動期間）
+
+    correctness:
+      score: 82
+      strengths:
+        - methodology.md 有完整三維度公式與 Z 分數計算
+        - testQuestions 有詳細 expectedResult 作為回歸基準
+        - scripts/ 有 drain_detector.py 與 visualize_drain.py
+      improvements:
+        - 可增加 examples/ 目錄存放 golden case
+
+    dataGovernance:
+      score: 85
+      strengths:
+        - data-sources.md 詳列 CEIC/SGE/SHFE 來源與口徑
+        - workflows/cross-validate.md 有交叉驗證流程
+        - 多個 fetch_*.py 與 explore_*.py 腳本
+        - data/ 目錄有實際 CSV 快取
+      improvements:
+        - 可增加 fallback 替代來源文檔
+
+    robustness:
+      score: 72
+      strengths:
+        - pitfalls 區段詳列搬倉、格式變更等風險
+        - bestPractices 有平滑視窗建議
+      improvements:
+        - 缺少 failure-modes.md 明確降級策略
+        - Selenium 爬蟲需更完善的錯誤處理
+        - 可增加資料缺失時的輸出行為說明
+
+    maintainability:
+      score: 78
+      strengths:
+        - manifest.json 有版本控制
+        - templates/ 輸出結構定義清晰
+        - 無重複文件
+      improvements:
+        - 部分門檻參數分散於 scripts 中
+        - 可集中管理 Z_THRESHOLD 等參數
+
+    usability:
+      score: 81
+      strengths:
+        - output-markdown.md 有三維度表格與敘事解讀
+        - FAQ 解答 Z 分數、SGE/SHFE 差異等問題
+        - about 區段有訊號分級解讀表
+      improvements:
+        - 可增加 historical-episodes.md 歷史對照
+        - 輸出可增加 confidence 信心度欄位
+
   details: |
-    **架構（75/100）**
-    - 清晰的三維度量化邏輯
-    - 三段式訊號判定框架
-    - 可配置的門檻參數
+    **任務適配度（82/100）**
+    - SKILL.md 有三維度量化框架
+    - workflows/ 覆蓋分析、抓取、交叉驗證
+    - 待改進：增加不適用情境說明
 
-    **可維護性（70/100）**
-    - PDF 解析依賴網站格式
-    - Selenium 爬蟲需定期維護選擇器
-    - 中國網站可能有存取限制
+    **正確性（82/100）**
+    - methodology.md 有完整公式
+    - testQuestions 有 expectedResult 回歸基準
+    - 待改進：增加 examples/ golden case
 
-    **內容（80/100）**
-    - 完整的方法論文檔
-    - 數據口徑說明清楚
-    - 實用的敘事解讀模板
+    **資料治理（85/100）**
+    - 有 cross-validate.md 交叉驗證
+    - 多個 fetch/explore 腳本與 data/ 快取
+    - 待改進：增加 fallback 來源
 
-    **社區（10/100）**
-    - 新技能，尚無社區貢獻
+    **穩健性（72/100）**
+    - pitfalls 詳列常見風險
+    - 待改進：增加 failure-modes.md
 
-    **安全（90/100）**
-    - 僅讀取公開數據
-    - 使用 Selenium 模擬瀏覽器行為
-    - 無需 API key
+    **可維護性（78/100）**
+    - manifest.json 有版本控制
+    - 待改進：參數集中管理
 
-    **規範符合性（70/100）**
-    - 遵循 Claude Code 規範
-    - 完整的文件結構
-    - PDF 解析穩定性待驗證
+    **輸出可用性（81/100）**
+    - 有三維度表格與敘事解讀
+    - 待改進：增加歷史對照文檔
+
+  upgradeNotes:
+    targetBadge: 頂級
+    requirements:
+      - metric: robustness
+        currentScore: 72
+        targetScore: 85
+        suggestion: 增加 failure-modes.md 與 Selenium 錯誤處理
+      - metric: maintainability
+        currentScore: 78
+        targetScore: 85
+        suggestion: 集中管理門檻參數至 CONFIG 區
+      - metric: usability
+        currentScore: 81
+        targetScore: 90
+        suggestion: 增加 historical-episodes.md 與 confidence 欄位
 
 bestPractices:
   - title: 使用平滑視窗避免單週跳動

@@ -122,41 +122,115 @@ testQuestions:
       需持續監控風險指標判斷哪方佔上風。
 
 qualityScore:
-  overall: 70
-  badge: 白銀
+  overall: 75
+  badge: 中高級
+  evaluatedAt: "2026-01-23"
+
   metrics:
-    architecture: 80
+    problemFit: 80
+    correctness: 78
+    dataGovernance: 72
+    robustness: 70
     maintainability: 75
-    content: 85
-    community: 20
-    security: 95
-    compliance: 80
+    usability: 75
+
+  metricDetails:
+    problemFit:
+      score: 80
+      strengths:
+        - SKILL.md 有清晰的勞動-財政連結邏輯
+        - 三種分析模型可選
+        - 雙通道（供給/避險）風險解讀
+      improvements:
+        - 歷史樣本較少（約 6 次），統計效力有限
+
+    correctness:
+      score: 78
+      strengths:
+        - 事件分組區間法邏輯清楚
+        - testQuestions 有詳細 expectedResult
+        - 薩姆規則等指標定義明確
+      improvements:
+        - 歷史樣本數量有限需謹慎解讀
+        - 可增加更多驗證案例
+
+    dataGovernance:
+      score: 72
+      strengths:
+        - 使用 FRED 免費公開數據
+        - 數據來源穩定
+      improvements:
+        - 缺少 data-sources.md 完整文檔
+        - JOLTS 數據延遲約 2 個月
+
+    robustness:
+      score: 70
+      strengths:
+        - pitfalls 詳列延遲、區間依賴風險
+        - bestPractices 有多指標交叉驗證建議
+      improvements:
+        - 缺少 failure-modes.md
+        - 可增加數據缺失時的處理策略
+
+    maintainability:
+      score: 75
+      strengths:
+        - 參數定義完整
+        - 三種模型可切換
+      improvements:
+        - 可增加 manifest.json 版本控制
+
+    usability:
+      score: 75
+      strengths:
+        - FAQ 解答情境定義、財政機制、UST 影響
+        - 輸出有雙通道風險表格
+      improvements:
+        - 可增加 historical-episodes.md
+        - 可增加視覺化圖表輸出
+
   details: |
-    **架構（80/100）**
-    - 清晰的勞動-財政連結邏輯
+    **任務適配度（80/100）**
+    - 勞動-財政連結邏輯清晰
     - 三種分析模型可選
-    - 模組化的指標計算
+    - 待改進：歷史樣本較少
+
+    **正確性（78/100）**
+    - 事件分組區間法邏輯清楚
+    - testQuestions 有 expectedResult
+    - 待改進：增加驗證案例
+
+    **資料治理（72/100）**
+    - 使用 FRED 穩定數據
+    - 待改進：增加 data-sources.md
+
+    **穩健性（70/100）**
+    - pitfalls 詳列風險
+    - 待改進：增加 failure-modes.md
 
     **可維護性（75/100）**
     - 參數定義完整
-    - FRED 數據源穩定
-    - 需定期驗證歷史樣本
+    - 待改進：增加版本控制
 
-    **內容（85/100）**
-    - 完整的方法論文檔
-    - 歷史事件樣本解析
-    - UST 風險雙通道解讀
+    **輸出可用性（75/100）**
+    - FAQ 解答核心問題
+    - 待改進：增加歷史對照與視覺化
 
-    **社區（20/100）**
-    - 新技能，尚無社區貢獻
-
-    **安全（95/100）**
-    - 僅讀取公開經濟數據
-    - 無需 API key
-
-    **規範符合性（80/100）**
-    - 遵循 Claude Code 規範
-    - 完整的文件結構
+  upgradeNotes:
+    targetBadge: 高級
+    requirements:
+      - metric: correctness
+        currentScore: 78
+        targetScore: 85
+        suggestion: 增加更多歷史驗證案例
+      - metric: dataGovernance
+        currentScore: 72
+        targetScore: 80
+        suggestion: 增加 data-sources.md 與延遲處理
+      - metric: robustness
+        currentScore: 70
+        targetScore: 80
+        suggestion: 增加 failure-modes.md
 
 bestPractices:
   - title: 使用多指標交叉驗證

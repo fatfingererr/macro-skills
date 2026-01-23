@@ -6,7 +6,7 @@ authorUrl: https://github.com/fatfingererr/macro-skills
 tools:
   - claude-code
 
-featured: false
+featured: true
 installCount: 0
 
 testQuestions:
@@ -30,40 +30,115 @@ testQuestions:
       - 風險提示（資本開支週期、均值回歸）
 
 qualityScore:
-  overall: 65
-  badge: 白銀
+  overall: 82
+  badge: 高級
+  evaluatedAt: "2026-01-23"
+
   metrics:
-    architecture: 75
-    maintainability: 70
-    content: 80
-    community: 20
-    security: 85
-    compliance: 80
+    problemFit: 85
+    correctness: 84
+    dataGovernance: 78
+    robustness: 78
+    maintainability: 82
+    usability: 85
+
+  metricDetails:
+    problemFit:
+      score: 85
+      strengths:
+        - SKILL.md 有清晰一句話目標與成功準則
+        - workflows/ 覆蓋分析、數據研究、訊號生成三路徑
+        - input-schema.md 參數定義完整含預設值
+      improvements:
+        - 可增加不適用情境說明（如串流公司）
+
+    correctness:
+      score: 84
+      strengths:
+        - methodology.md 有完整公式推導與成本口徑層次
+        - scripts/margin_calculator.py 與方法論吻合
+        - examples/sample-output.json 提供 golden case
+      improvements:
+        - 可增加多個邊界案例（極端成本、缺值情境）
+
+    dataGovernance:
+      score: 78
+      strengths:
+        - data-sources.md 列出金價/AISC/產量來源
+        - workflows/data-research.md 有爬蟲設計指引
+      improvements:
+        - 缺少 fallback 替代方案文檔
+        - 可增加 cross-validate.md 交叉驗證流程
+
+    robustness:
+      score: 78
+      strengths:
+        - pitfalls 區段詳列常見陷阱與後果
+        - 有成本滯後、口徑差異等風險提示
+      improvements:
+        - 可增加 failure-modes.md 明確降級策略
+        - scripts 可加強缺值處理說明
+
+    maintainability:
+      score: 82
+      strengths:
+        - manifest.json 有 semver 版本
+        - templates/ 輸出結構穩定
+        - 目錄結構清晰無重複文件
+      improvements:
+        - 參數可更集中管理（如 CONFIG 區）
+
+    usability:
+      score: 85
+      strengths:
+        - output-markdown.md 有 TL;DR 與後續建議
+        - FAQ 詳細解答 AISC/成本/極端毛利問題
+        - about 區段有使用場景與預設籃子
+      improvements:
+        - 可增加 historical-episodes.md 歷史對照
+
   details: |
-    **架構（75/100）**
-    - 清晰的路由器模式
-    - 分層的 workflows/references
-    - 可擴展的腳本設計
+    **任務適配度（85/100）**
+    - SKILL.md 有清晰一句話目標與成功準則
+    - workflows/ 覆蓋分析、數據研究、訊號生成
+    - 待改進：增加不適用情境說明
 
-    **可維護性（70/100）**
-    - 成本數據需手動更新或爬蟲維護
-    - 依賴公司財報披露頻率
+    **正確性（84/100）**
+    - methodology.md 有完整公式與成本口徑層次
+    - 有 sample-output.json 作為 golden case
+    - 待改進：增加邊界案例
 
-    **內容（80/100）**
-    - 完整的方法論說明
-    - 清晰的輸入/輸出定義
-    - 含後續研究建議
+    **資料治理（78/100）**
+    - data-sources.md 列出完整來源
+    - 待改進：增加 fallback 與交叉驗證
 
-    **社群（20/100）**
-    - 新建技能，尚無社群反饋
+    **穩健性（78/100）**
+    - pitfalls 區段詳列常見陷阱
+    - 待改進：增加 failure-modes.md
 
-    **安全（85/100）**
-    - 使用公開數據
-    - 爬蟲遵循防偵測最佳實踐
+    **可維護性（82/100）**
+    - manifest.json 有版本控制
+    - 待改進：參數集中管理
 
-    **合規（80/100）**
-    - 數據來源透明
-    - 明確標註「代理值」非會計毛利率
+    **輸出可用性（85/100）**
+    - FAQ 完整、有使用場景說明
+    - 待改進：增加歷史對照文檔
+
+  upgradeNotes:
+    targetBadge: 頂級
+    requirements:
+      - metric: dataGovernance
+        currentScore: 78
+        targetScore: 85
+        suggestion: 增加 cross-validate.md 與 fallback 來源
+      - metric: robustness
+        currentScore: 78
+        targetScore: 85
+        suggestion: 增加 failure-modes.md 與降級策略
+      - metric: usability
+        currentScore: 85
+        targetScore: 90
+        suggestion: 增加 historical-episodes.md 歷史對照
 
 bestPractices:
   - title: 優先使用 AISC 口徑

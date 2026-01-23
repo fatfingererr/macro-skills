@@ -5,7 +5,7 @@ authorUrl: https://github.com/fatfingererr/macro-skills
 tools:
   - claude-code
 
-featured: true
+featured: false
 installCount: 0
 
 testQuestions:
@@ -107,41 +107,115 @@ testQuestions:
 
 
 qualityScore:
-  overall: 70
-  badge: 白銀
+  overall: 69
+  badge: 中高級
+  evaluatedAt: "2026-01-23"
+
   metrics:
-    architecture: 80
-    maintainability: 75
-    content: 80
-    community: 20
-    security: 95
-    compliance: 80
+    problemFit: 76
+    correctness: 72
+    dataGovernance: 65
+    robustness: 65
+    maintainability: 70
+    usability: 66
+
+  metricDetails:
+    problemFit:
+      score: 76
+      strengths:
+        - 清晰的三行情分類邏輯
+        - ATR% 標準化跨資產比較
+        - 雙條件判定擠壓行情
+      improvements:
+        - 可增加更多資產類別適用說明
+        - 可增加模型限制描述
+
+    correctness:
+      score: 72
+      strengths:
+        - Ole Hansen 案例作為參考
+        - testQuestions 有詳細 expectedResult
+        - 反身性機制說明清楚
+      improvements:
+        - 可增加回測驗證
+        - 可增加歷史擠壓事件統計
+
+    dataGovernance:
+      score: 65
+      strengths:
+        - 使用 Yahoo Finance 免費數據
+        - 有 Stooq 替代來源
+      improvements:
+        - 缺少 data-sources.md 完整文檔
+        - 可增加數據延遲說明
+
+    robustness:
+      score: 65
+      strengths:
+        - pitfalls 詳列基準期風險
+        - bestPractices 有雙條件判定
+      improvements:
+        - 缺少 failure-modes.md
+        - 可增加數據缺失時的降級策略
+
+    maintainability:
+      score: 70
+      strengths:
+        - 參數定義完整
+        - 可配置門檻參數
+      improvements:
+        - 可增加 manifest.json 版本控制
+        - 可增加基準期自動更新機制
+
+    usability:
+      score: 66
+      strengths:
+        - FAQ 解答擠壓行情概念
+        - 輸出有可操作調整建議
+      improvements:
+        - 可增加 historical-episodes.md
+        - 可增加即時監控警報功能
+
   details: |
-    **架構（80/100）**
-    - 清晰的三行情分類邏輯
-    - ATR% 標準化設計
-    - 可配置的門檻參數
+    **任務適配度（76/100）**
+    - 三行情分類與雙條件判定清晰
+    - 待改進：增加資產適用說明
 
-    **可維護性（75/100）**
+    **正確性（72/100）**
+    - Ole Hansen 案例參考
+    - 待改進：增加回測驗證
+
+    **資料治理（65/100）**
+    - 使用 Yahoo Finance 免費數據
+    - 待改進：增加 data-sources.md
+
+    **穩健性（65/100）**
+    - pitfalls 詳列風險
+    - 待改進：增加 failure-modes.md
+
+    **可維護性（70/100）**
     - 參數定義完整
-    - 多資料來源支援
-    - 工作流程分離
+    - 待改進：增加版本控制
 
-    **內容（80/100）**
-    - Ole Hansen 案例解讀
-    - 反身性機制說明
-    - 實用的風控建議
+    **輸出可用性（66/100）**
+    - FAQ 解答核心概念
+    - 待改進：增加歷史對照
 
-    **社區（20/100）**
-    - 新技能，尚無社區貢獻
-
-    **安全（95/100）**
-    - 僅讀取公開價格數據
-    - 無需 API key
-
-    **規範符合性（80/100）**
-    - 遵循 Claude Code 規範
-    - 完整的文件結構
+  upgradeNotes:
+    targetBadge: 高級
+    requirements:
+      - metric: correctness
+        currentScore: 72
+        targetScore: 80
+        suggestion: 增加回測驗證與歷史事件統計
+      - metric: dataGovernance
+        currentScore: 65
+        targetScore: 80
+        suggestion: 增加 data-sources.md 與延遲說明
+      - metric: robustness
+        currentScore: 65
+        targetScore: 80
+        suggestion: 增加 failure-modes.md
 
 bestPractices:
   - title: 使用百分比 ATR 而非絕對值

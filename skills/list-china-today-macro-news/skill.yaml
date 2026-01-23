@@ -283,6 +283,117 @@ testQuestions:
       ---
       報告由 list-china-today-macro-news skill 自動生成
 
+qualityScore:
+  overall: 42
+  badge: 中級
+  evaluatedAt: "2026-01-23"
+
+  metrics:
+    problemFit: 55
+    correctness: 45
+    dataGovernance: 35
+    robustness: 38
+    maintainability: 40
+    usability: 39
+
+  metricDetails:
+    problemFit:
+      score: 55
+      strengths:
+        - 中國宏觀新聞聚焦明確
+        - testQuestions 有詳細 expectedResult
+      improvements:
+        - 新聞來源有限（僅 2 個）
+        - 依賴外部網站結構
+
+    correctness:
+      score: 45
+      strengths:
+        - expectedResult 格式詳細
+        - 包含數據表格與解讀
+      improvements:
+        - 爬蟲結果可能不穩定
+        - 新聞內容變化快速
+
+    dataGovernance:
+      score: 35
+      strengths:
+        - 說明支援的新聞來源
+        - 有深度抓取說明
+      improvements:
+        - 缺少 data-sources.md 完整文檔
+        - 爬蟲可能違反網站 ToS
+        - 數據時效性難以保證
+
+    robustness:
+      score: 38
+      strengths:
+        - pitfalls 詳列 API 限流風險
+        - 有多源交叉驗證建議
+      improvements:
+        - 缺少 failure-modes.md
+        - 網站結構變化會導致失敗
+        - 錯誤處理不完整
+
+    maintainability:
+      score: 40
+      strengths:
+        - 有關鍵字篩選機制
+        - 模組化腳本設計
+      improvements:
+        - 可增加 manifest.json 版本控制
+        - 爬蟲需持續維護
+
+    usability:
+      score: 39
+      strengths:
+        - FAQ 解答來源與關鍵字
+        - 有 CLI 使用範例
+      improvements:
+        - 環境設定複雜
+        - 輸出格式可能不一致
+
+  details: |
+    **任務適配度（55/100）**
+    - 中國宏觀新聞聚焦明確
+    - 待改進：來源有限
+
+    **正確性（45/100）**
+    - expectedResult 格式詳細
+    - 待改進：爬蟲穩定性
+
+    **資料治理（35/100）**
+    - 說明新聞來源
+    - 待改進：ToS 合規性
+
+    **穩健性（38/100）**
+    - pitfalls 詳列風險
+    - 待改進：錯誤處理
+
+    **可維護性（40/100）**
+    - 有關鍵字機制
+    - 待改進：持續維護
+
+    **輸出可用性（39/100）**
+    - FAQ 解答概念
+    - 待改進：輸出一致性
+
+  upgradeNotes:
+    targetBadge: 中高級
+    requirements:
+      - metric: dataGovernance
+        currentScore: 35
+        targetScore: 60
+        suggestion: 確認 ToS 合規並增加 data-sources.md
+      - metric: robustness
+        currentScore: 38
+        targetScore: 60
+        suggestion: 增加錯誤處理與 failure-modes.md
+      - metric: maintainability
+        currentScore: 40
+        targetScore: 60
+        suggestion: 增加版本控制與爬蟲健康檢查
+
 bestPractices:
   - title: 使用預設宏觀關鍵字
     description: 不指定 keyword 時，腳本會自動使用涵蓋央行、利率、GDP、PMI 等完整宏觀關鍵字

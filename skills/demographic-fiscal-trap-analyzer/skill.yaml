@@ -213,15 +213,115 @@ testQuestions:
 
 
 qualityScore:
-  overall: 72
-  badge: Silver
+  overall: 65
+  badge: 中高級
+  evaluatedAt: "2026-01-23"
+
   metrics:
-    architecture: 80
-    maintainability: 75
-    content: 85
-    community: 15
-    security: 90
-    compliance: 85
+    problemFit: 75
+    correctness: 68
+    dataGovernance: 60
+    robustness: 60
+    maintainability: 65
+    usability: 62
+
+  metricDetails:
+    problemFit:
+      score: 75
+      strengths:
+        - 完整的四支柱分析框架
+        - Z-score 標準化跨國比較
+        - 通膨激勵指數設計
+      improvements:
+        - 可增加更多國家覆蓋
+        - 可增加模型限制說明
+
+    correctness:
+      score: 68
+      strengths:
+        - testQuestions 有詳細 expectedResult
+        - 四象限分類邏輯清楚
+        - 含投資建議與政策建議
+      improvements:
+        - 跨國會計準則差異需說明
+        - 長期預測不確定性需強調
+
+    dataGovernance:
+      score: 60
+      strengths:
+        - 使用 World Bank、IMF 公開數據
+        - 有分層數據回退機制
+      improvements:
+        - 缺少 data-sources.md 完整文檔
+        - 數據延遲 1-2 年需說明
+
+    robustness:
+      score: 60
+      strengths:
+        - pitfalls 詳列數據延遲風險
+        - bestPractices 有權重調整說明
+      improvements:
+        - 缺少 failure-modes.md
+        - 殖利率數據缺失處理需加強
+
+    maintainability:
+      score: 65
+      strengths:
+        - 參數定義完整
+        - 權重可調整設計
+      improvements:
+        - 可增加 manifest.json 版本控制
+        - 數據更新流程需文檔化
+
+    usability:
+      score: 62
+      strengths:
+        - FAQ 解答 z-score 與象限概念
+        - 輸出有資產配置建議
+      improvements:
+        - 可增加 historical-episodes.md
+        - 可增加即時更新功能
+
+  details: |
+    **任務適配度（75/100）**
+    - 四支柱分析框架完整
+    - 待改進：增加國家覆蓋
+
+    **正確性（68/100）**
+    - 四象限分類清楚
+    - 待改進：不確定性說明
+
+    **資料治理（60/100）**
+    - 使用公開數據
+    - 待改進：增加 data-sources.md
+
+    **穩健性（60/100）**
+    - pitfalls 詳列風險
+    - 待改進：增加 failure-modes.md
+
+    **可維護性（65/100）**
+    - 參數定義完整
+    - 待改進：增加版本控制
+
+    **輸出可用性（62/100）**
+    - FAQ 解答核心概念
+    - 待改進：增加歷史對照
+
+  upgradeNotes:
+    targetBadge: 高級
+    requirements:
+      - metric: dataGovernance
+        currentScore: 60
+        targetScore: 80
+        suggestion: 增加 data-sources.md 與延遲說明
+      - metric: robustness
+        currentScore: 60
+        targetScore: 80
+        suggestion: 增加 failure-modes.md
+      - metric: correctness
+        currentScore: 68
+        targetScore: 80
+        suggestion: 增加不確定性與準則差異說明
 
 bestPractices:
   - title: 使用公開資料源

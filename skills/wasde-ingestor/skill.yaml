@@ -26,38 +26,115 @@ testQuestions:
       並回報 schema 漂移或資料更正。
 
 qualityScore:
-  overall: 70
-  badge: 白銀
+  overall: 44
+  badge: 中級
+  evaluatedAt: "2026-01-23"
+
   metrics:
-    architecture: 80
-    maintainability: 85
-    content: 95
-    community: 30
-    security: 100
-    compliance: 70
+    problemFit: 55
+    correctness: 45
+    dataGovernance: 42
+    robustness: 38
+    maintainability: 45
+    usability: 39
+
+  metricDetails:
+    problemFit:
+      score: 55
+      strengths:
+        - 涵蓋所有 WASDE 商品類別
+        - 模組化 router pattern 設計
+      improvements:
+        - Alpha 階段，功能未完善
+        - PDF 解析複雜且脆弱
+
+    correctness:
+      score: 45
+      strengths:
+        - testQuestions 有概念性 expectedResult
+        - 包含欄位映射說明
+      improvements:
+        - PDF 解析準確性難以驗證
+        - Alpha 階段缺少實際測試
+
+    dataGovernance:
+      score: 42
+      strengths:
+        - 使用 USDA 官方公開數據
+        - 有行銷年度說明
+      improvements:
+        - 缺少 data-sources.md 完整文檔
+        - PDF 格式變化風險高
+        - Schema drift 偵測未實作
+
+    robustness:
+      score: 38
+      strengths:
+        - pitfalls 詳列 PDF 佈局風險
+        - bestPractices 有 schema drift 建議
+      improvements:
+        - 缺少 failure-modes.md
+        - PDF 格式變化會導致完全失敗
+        - Alpha 階段穩定性不足
+
+    maintainability:
+      score: 45
+      strengths:
+        - 工作流程分離設計
+        - 商品參考文件獨立
+      improvements:
+        - 可增加 manifest.json 版本控制
+        - PDF 解析邏輯需持續維護
+
+    usability:
+      score: 39
+      strengths:
+        - FAQ 解答商品與行銷年度
+        - 包含數據來源說明
+      improvements:
+        - expectedResult 過於概念性
+        - 缺少實際輸出範例
+
   details: |
-    **架構（80/100）**
-    - ✅ 模組化 router pattern 設計
-    - ✅ 完整涵蓋所有 WASDE 商品類別
-    - ⚠️ Alpha 階段，需更多實際使用驗證
+    **任務適配度（55/100）**
+    - 涵蓋所有 WASDE 商品
+    - 待改進：Alpha 階段未完善
 
-    **可維護性（85/100）**
-    - ✅ 清晰的工作流程分離
-    - ✅ 商品參考文件獨立維護
+    **正確性（45/100）**
+    - 有概念性 expectedResult
+    - 待改進：PDF 解析驗證
 
-    **內容（95/100）**
-    - ✅ 涵蓋所有 WASDE 商品
-    - ✅ 詳細的欄位映射與驗證規則
+    **資料治理（42/100）**
+    - 使用 USDA 公開數據
+    - 待改進：PDF 格式風險
 
-    **社區（30/100）**
-    - ⚠️ 新技能，尚無社區貢獻
+    **穩健性（38/100）**
+    - pitfalls 詳列風險
+    - 待改進：Alpha 穩定性不足
 
-    **安全（100/100）**
-    - ✅ 僅讀取公開 USDA 數據
+    **可維護性（45/100）**
+    - 工作流程分離
+    - 待改進：PDF 解析維護
 
-    **規範符合性（70/100）**
-    - ✅ 遵循 Claude Code 規範
-    - ⚠️ Alpha 階段
+    **輸出可用性（39/100）**
+    - FAQ 解答概念
+    - 待改進：缺少實際範例
+
+  upgradeNotes:
+    targetBadge: 中高級
+    requirements:
+      - metric: robustness
+        currentScore: 38
+        targetScore: 60
+        suggestion: 完成 Alpha 階段測試與 failure-modes.md
+      - metric: correctness
+        currentScore: 45
+        targetScore: 65
+        suggestion: 增加 PDF 解析驗證與實際測試
+      - metric: usability
+        currentScore: 39
+        targetScore: 60
+        suggestion: 增加實際輸出範例
 
 bestPractices:
   - title: 等待 WASDE 正式發布

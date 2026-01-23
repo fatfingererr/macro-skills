@@ -54,41 +54,111 @@ testQuestions:
       3. 兩者不完全同質，不宜直接套用上一輪的經驗
 
 qualityScore:
-  overall: 70
-  badge: 白銀
+  overall: 71
+  badge: 中高級
+  evaluatedAt: "2026-01-23"
+
   metrics:
-    architecture: 80
-    maintainability: 75
-    content: 80
-    community: 10
-    security: 95
-    compliance: 85
+    problemFit: 78
+    correctness: 75
+    dataGovernance: 68
+    robustness: 65
+    maintainability: 72
+    usability: 68
+
+  metricDetails:
+    problemFit:
+      score: 78
+      strengths:
+        - 清晰的四象限模型框架
+        - 靈活的 X/Y 軸向定義
+        - 支持循環歷史比較
+      improvements:
+        - 可增加不適用情境說明
+        - 可增加模型限制描述
+
+    correctness:
+      score: 75
+      strengths:
+        - 方法論有完整說明
+        - testQuestions 有 expectedResult
+        - 投資時鐘邏輯清楚
+      improvements:
+        - 可增加更多驗證案例
+        - 可增加邊界條件測試
+
+    dataGovernance:
+      score: 68
+      strengths:
+        - 使用 FRED 免費公開數據
+        - 無需 API key
+      improvements:
+        - 缺少 data-sources.md 完整文檔
+        - 可增加數據更新頻率說明
+
+    robustness:
+      score: 65
+      strengths:
+        - pitfalls 詳列軸向錯誤風險
+        - bestPractices 有視窗選擇建議
+      improvements:
+        - 缺少 failure-modes.md
+        - 可增加數據缺失時的處理策略
+
+    maintainability:
+      score: 72
+      strengths:
+        - 參數定義完整
+        - 多資料來源支援
+      improvements:
+        - 可增加 manifest.json 版本控制
+        - 可增加資料頻率對齊說明
+
+    usability:
+      score: 68
+      strengths:
+        - FAQ 解答時鐘概念
+        - 輸出有象限與時鐘點位
+      improvements:
+        - 可增加 historical-episodes.md
+        - 可增加視覺化圖表輸出
+
   details: |
-    **架構（80/100）**
-    - 清晰的四象限模型
-    - 靈活的軸向定義
-    - 支持循環比較
+    **任務適配度（78/100）**
+    - 四象限模型與軸向定義清晰
+    - 待改進：增加不適用情境
 
-    **可維護性（75/100）**
+    **正確性（75/100）**
+    - 方法論完整
+    - 待改進：增加驗證案例
+
+    **資料治理（68/100）**
+    - 使用 FRED 免費數據
+    - 待改進：增加 data-sources.md
+
+    **穩健性（65/100）**
+    - pitfalls 詳列風險
+    - 待改進：增加 failure-modes.md
+
+    **可維護性（72/100）**
     - 參數定義完整
-    - 多資料來源支援
-    - 工作流程分離
+    - 待改進：增加版本控制
 
-    **內容（80/100）**
-    - 完整的方法論文檔
-    - 投資時鐘邏輯解析
-    - 實用的分析工具
+    **輸出可用性（68/100）**
+    - FAQ 解答核心概念
+    - 待改進：增加歷史對照
 
-    **社區（10/100）**
-    - 新技能，尚無社區貢獻
-
-    **安全（95/100）**
-    - 僅讀取公開經濟數據
-    - 無需 API key
-
-    **規範符合性（85/100）**
-    - 遵循 Claude Code 規範
-    - 完整的文件結構
+  upgradeNotes:
+    targetBadge: 高級
+    requirements:
+      - metric: dataGovernance
+        currentScore: 68
+        targetScore: 80
+        suggestion: 增加 data-sources.md 與數據頻率說明
+      - metric: robustness
+        currentScore: 65
+        targetScore: 80
+        suggestion: 增加 failure-modes.md 與降級處理
 
 bestPractices:
   - title: 確認軸向定義

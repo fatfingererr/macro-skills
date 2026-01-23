@@ -108,41 +108,110 @@ testQuestions:
       - 下圖：狀態條帶，綠色=RISK_ON(股票)，紅色=RISK_OFF(長債)
 
 qualityScore:
-  overall: 75
-  badge: 白銀
+  overall: 76
+  badge: 中高級
+  evaluatedAt: "2026-01-23"
+
   metrics:
-    architecture: 85
-    maintainability: 80
-    content: 85
-    community: 20
-    security: 95
-    compliance: 85
+    problemFit: 82
+    correctness: 80
+    dataGovernance: 72
+    robustness: 70
+    maintainability: 76
+    usability: 76
+
+  metricDetails:
+    problemFit:
+      score: 82
+      strengths:
+        - SKILL.md 有清晰的兩態切換邏輯
+        - 領先/同時指標分離設計
+        - 冰山/下沉事件判定框架
+      improvements:
+        - 可增加模型限制與不適用情境
+
+    correctness:
+      score: 80
+      strengths:
+        - methodology 有完整邏輯解析
+        - 回測工具可重現歷史績效
+        - testQuestions 有詳細 expectedResult
+      improvements:
+        - 使用公開替代數據，與原版可能略有差異
+
+    dataGovernance:
+      score: 72
+      strengths:
+        - 使用 FRED 免費公開數據
+        - 說明替代數據來源
+      improvements:
+        - 缺少 data-sources.md 完整文檔
+        - 原版使用專有數據，替代品需驗證
+
+    robustness:
+      score: 70
+      strengths:
+        - pitfalls 詳列過度擬合、延遲風險
+        - bestPractices 有確認期建議
+      improvements:
+        - 缺少 failure-modes.md
+        - 數據發布延遲處理需更明確
+
+    maintainability:
+      score: 76
+      strengths:
+        - 參數定義完整
+        - Hysteresis 防止來回切換
+      improvements:
+        - 可增加 manifest.json 版本控制
+
+    usability:
+      score: 76
+      strengths:
+        - FAQ 解答冰山/下沉事件概念
+        - 輸出有回測圖表與切換事件表
+      improvements:
+        - 可增加 historical-episodes.md
+        - 可增加即時狀態監控視覺化
+
   details: |
-    **架構（85/100）**
-    - 清晰的兩態切換邏輯
+    **任務適配度（82/100）**
+    - 兩態切換邏輯與事件判定框架清晰
     - 領先/同時指標分離設計
-    - 可配置的濾鏡機制
+    - 待改進：增加模型限制說明
 
-    **可維護性（80/100）**
+    **正確性（80/100）**
+    - 回測工具可重現歷史績效
+    - 使用公開替代數據
+    - 待改進：與原版數據差異需說明
+
+    **資料治理（72/100）**
+    - 使用 FRED 免費數據
+    - 待改進：增加 data-sources.md
+
+    **穩健性（70/100）**
+    - pitfalls 詳列風險
+    - 待改進：增加 failure-modes.md
+
+    **可維護性（76/100）**
     - 參數定義完整
-    - 多指標來源支援
-    - 工作流程分離
+    - 待改進：增加版本控制
 
-    **內容（85/100）**
-    - 完整的方法論文檔
-    - Zeberg 模型邏輯解析
-    - 實用的回測工具
+    **輸出可用性（76/100）**
+    - FAQ 解答核心概念
+    - 待改進：增加歷史對照與即時監控
 
-    **社區（20/100）**
-    - 新技能，尚無社區貢獻
-
-    **安全（95/100）**
-    - 僅讀取公開經濟數據
-    - 無需 API key
-
-    **規範符合性（85/100）**
-    - 遵循 Claude Code 規範
-    - 完整的文件結構
+  upgradeNotes:
+    targetBadge: 高級
+    requirements:
+      - metric: dataGovernance
+        currentScore: 72
+        targetScore: 80
+        suggestion: 增加 data-sources.md 與替代數據驗證
+      - metric: robustness
+        currentScore: 70
+        targetScore: 80
+        suggestion: 增加 failure-modes.md 與延遲處理
 
 bestPractices:
   - title: 領先指標要領先

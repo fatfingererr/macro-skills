@@ -231,41 +231,114 @@ testQuestions:
       3. 「持有」≠「會拋售」—需搭配政策約束、匯率動態、資金流向綜合判讀
 
 qualityScore:
-  overall: 70
-  badge: 白銀
+  overall: 78
+  badge: 中高級
+  evaluatedAt: "2026-01-23"
+
   metrics:
-    architecture: 80
-    maintainability: 75
-    content: 85
-    community: 10
-    security: 95
-    compliance: 80
+    problemFit: 82
+    correctness: 80
+    dataGovernance: 75
+    robustness: 72
+    maintainability: 78
+    usability: 81
+
+  metricDetails:
+    problemFit:
+      score: 82
+      strengths:
+        - SKILL.md 有清晰的三層分析架構
+        - testQuestions 涵蓋現況/壓測/外溢三大情境
+        - 輸入口徑說明詳細
+      improvements:
+        - 可增加不適用情境（如非日本債務市場）
+
+    correctness:
+      score: 80
+      strengths:
+        - 利息/稅收比公式清楚
+        - 壓測假設透明（pass_through 參數）
+        - testQuestions 有詳細 expectedResult
+      improvements:
+        - 可增加 examples/ 目錄存放 golden case
+
+    dataGovernance:
+      score: 75
+      strengths:
+        - 數據來源標註（MOF, FRED）
+        - 口徑說明詳細（純利息 vs 國債費）
+      improvements:
+        - 缺少 data-sources.md 完整文檔
+        - 可增加 fallback 數據來源
+
+    robustness:
+      score: 72
+      strengths:
+        - pitfalls 區段詳列口徑混淆風險
+        - 有多口徑輸出避免單一偏誤
+      improvements:
+        - 缺少 failure-modes.md
+        - 可增加數據缺失時的處理策略
+
+    maintainability:
+      score: 78
+      strengths:
+        - 參數定義完整
+        - 工作流程分離清晰
+      improvements:
+        - 可增加 manifest.json 版本控制
+
+    usability:
+      score: 81
+      strengths:
+        - FAQ 解答口徑/pass_through/風險分級問題
+        - about 區段有使用情境與核心價值
+        - 輸出有風險分級燈號（綠黃橙紅）
+      improvements:
+        - 可增加 historical-episodes.md 歷史對照
+
   details: |
-    **架構（80/100）**
-    - 清晰的三層分析架構（現況/壓測/外溢）
-    - 模組化腳本設計
-    - 多數據源支援
+    **任務適配度（82/100）**
+    - 三層分析架構清晰（現況/壓測/外溢）
+    - testQuestions 涵蓋主要使用情境
+    - 待改進：增加不適用情境說明
 
-    **可維護性（75/100）**
-    - 工作流程分離清晰
+    **正確性（80/100）**
+    - 利息/稅收比公式與口徑說明清楚
+    - 壓測假設透明
+    - 待改進：增加 examples/ golden case
+
+    **資料治理（75/100）**
+    - 數據來源有標註
+    - 待改進：增加 data-sources.md 與 fallback
+
+    **穩健性（72/100）**
+    - pitfalls 詳列風險
+    - 待改進：增加 failure-modes.md
+
+    **可維護性（78/100）**
     - 參數定義完整
-    - 口徑選擇可配置
+    - 待改進：增加版本控制
 
-    **內容（85/100）**
-    - 完整的方法論文檔
-    - 風險分級邏輯透明
-    - 敘事核對功能實用
+    **輸出可用性（81/100）**
+    - FAQ 完整、有風險分級燈號
+    - 待改進：增加歷史對照文檔
 
-    **社區（10/100）**
-    - 新技能，尚無社區貢獻
-
-    **安全（95/100）**
-    - 僅讀取公開經濟數據
-    - 無需 API key
-
-    **規範符合性（80/100）**
-    - 遵循 Claude Code 規範
-    - 完整的文件結構
+  upgradeNotes:
+    targetBadge: 高級
+    requirements:
+      - metric: dataGovernance
+        currentScore: 75
+        targetScore: 80
+        suggestion: 增加 data-sources.md 與 fallback 來源
+      - metric: robustness
+        currentScore: 72
+        targetScore: 80
+        suggestion: 增加 failure-modes.md 與數據缺失處理
+      - metric: maintainability
+        currentScore: 78
+        targetScore: 80
+        suggestion: 增加 manifest.json 版本控制
 
 bestPractices:
   - title: 明示口徑選擇

@@ -470,37 +470,113 @@ testQuestions:
       
 
 qualityScore:
-  overall: 70
-  badge: 白銀
+  overall: 73
+  badge: 中高級
+  evaluatedAt: "2026-01-23"
+
   metrics:
-    architecture: 80
-    maintainability: 75
-    content: 85
-    community: 20
-    security: 80
-    compliance: 75
+    problemFit: 78
+    correctness: 76
+    dataGovernance: 72
+    robustness: 68
+    maintainability: 70
+    usability: 74
+
+  metricDetails:
+    problemFit:
+      score: 78
+      strengths:
+        - 集中度指標定義完整（HHI/CR1/CR3/CR5）
+        - 數據口徑說明清晰
+        - 三層情境分析設計（完全執行/半成功/軟著陸）
+      improvements:
+        - 可增加其他金屬集中度分析支援
+
+    correctness:
+      score: 76
+      strengths:
+        - HHI 計算公式明確
+        - 交叉驗證設計（USGS vs S&P）
+        - testQuestions 有詳細 expectedResult
+      improvements:
+        - 可增加 examples/ golden case
+        - 歷史趨勢驗證可更完整
+
+    dataGovernance:
+      score: 72
+      strengths:
+        - 多層數據來源設計（Tier 0/1/2）
+        - 口徑陷阱說明詳細
+      improvements:
+        - 缺少 data-sources.md 完整文檔
+        - 付費數據源授權需注意
+
+    robustness:
+      score: 68
+      strengths:
+        - pitfalls 詳列單位混淆、口徑不一致風險
+        - bestPractices 有三層情境建議
+      improvements:
+        - 缺少 failure-modes.md
+        - 數據來源變動風險需處理
+
+    maintainability:
+      score: 70
+      strengths:
+        - Router pattern 分離職責
+        - 參數定義完整
+      improvements:
+        - 單位轉換邏輯需長期維護
+        - 可增加 manifest.json 版本控制
+
+    usability:
+      score: 74
+      strengths:
+        - FAQ 解答口徑差異、數據可靠度問題
+        - 輸出有風險矩陣與對沖建議
+        - about 區段有設計背景與關鍵洞察
+      improvements:
+        - 可增加 historical-episodes.md
+        - 可增加即時監控視覺化
+
   details: |
-    **架構（80/100）**
-    - Router pattern 正確分離職責
-    - 多層數據來源設計完善
+    **任務適配度（78/100）**
+    - 集中度指標與情境分析設計完整
+    - 口徑說明清晰
+    - 待改進：增加其他金屬支援
 
-    **可維護性（75/100）**
-    - 單位轉換邏輯需長期維護
-    - 資料來源可能變動
+    **正確性（76/100）**
+    - HHI 計算與交叉驗證設計合理
+    - testQuestions 有 expectedResult
+    - 待改進：增加 examples/ golden case
 
-    **內容（85/100）**
-    - 完整的集中度指標定義
-    - 清晰的數據口徑說明
+    **資料治理（72/100）**
+    - 多層數據來源設計
+    - 待改進：增加 data-sources.md
 
-    **社群（20/100）**
-    - 新建技能，尚無社群回饋
+    **穩健性（68/100）**
+    - pitfalls 詳列風險
+    - 待改進：增加 failure-modes.md
 
-    **安全（80/100）**
-    - 無敏感資料處理
-    - 外部 URL 需適當處理
+    **可維護性（70/100）**
+    - Router pattern 設計
+    - 待改進：單位轉換維護與版本控制
 
-    **合規（75/100）**
-    - 需注意付費數據源授權
+    **輸出可用性（74/100）**
+    - FAQ 解答核心問題、有風險矩陣
+    - 待改進：增加歷史對照
+
+  upgradeNotes:
+    targetBadge: 高級
+    requirements:
+      - metric: dataGovernance
+        currentScore: 72
+        targetScore: 80
+        suggestion: 增加 data-sources.md 與授權說明
+      - metric: robustness
+        currentScore: 68
+        targetScore: 80
+        suggestion: 增加 failure-modes.md 與數據來源變動處理
 
 bestPractices:
   - title: 口徑先行

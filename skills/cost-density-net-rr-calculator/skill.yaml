@@ -30,37 +30,114 @@ testQuestions:
       - 建議在回測中用 RR_net 替代 RR_g
 
 qualityScore:
-  overall: 75
-  badge: 白銀
+  overall: 37
+  badge: 初級
+  evaluatedAt: "2026-01-23"
+
   metrics:
-    architecture: 85
-    maintainability: 80
-    content: 90
-    community: 30
-    security: 100
-    compliance: 80
+    problemFit: 50
+    correctness: 40
+    dataGovernance: 30
+    robustness: 32
+    maintainability: 38
+    usability: 32
+
+  metricDetails:
+    problemFit:
+      score: 50
+      strengths:
+        - 數學公式推導完整
+        - 理論來源有學術文獻
+      improvements:
+        - Alpha 階段，功能未完善
+        - testQuestions 的 expectedResult 過於簡略
+
+    correctness:
+      score: 40
+      strengths:
+        - 有完整數學推導
+        - 包含實際案例（XAU/USD）
+      improvements:
+        - expectedResult 缺少實際計算輸出
+        - 公式驗證不足
+
+    dataGovernance:
+      score: 30
+      strengths:
+        - 純計算無外部數據依賴
+        - 參數定義清楚
+      improvements:
+        - 缺少 data-sources.md
+        - 實際交易成本數據來源不明
+
+    robustness:
+      score: 32
+      strengths:
+        - pitfalls 詳列單位混淆風險
+        - bestPractices 有單位一致性建議
+      improvements:
+        - 缺少 failure-modes.md
+        - Alpha 階段未經測試
+        - 輸入驗證不完整
+
+    maintainability:
+      score: 38
+      strengths:
+        - 工作流程分離設計
+        - 公式參考文件獨立
+      improvements:
+        - 可增加 manifest.json 版本控制
+        - Alpha 階段缺少腳本實作
+
+    usability:
+      score: 32
+      strengths:
+        - FAQ 解答核心概念
+        - 有理論來源說明
+      improvements:
+        - expectedResult 需完善
+        - 缺少實際使用範例
+
   details: |
-    **架構（85/100）**
-    - ✅ 模組化 router pattern 設計
-    - ✅ 清晰的公式與理論分離
-    - ⚠️ Alpha 階段
+    **任務適配度（50/100）**
+    - 數學公式推導完整
+    - 待改進：Alpha 階段未完善
 
-    **可維護性（80/100）**
-    - ✅ 工作流程分離（計算/掃描/分析）
-    - ✅ 公式參考文件獨立
+    **正確性（40/100）**
+    - 有數學推導
+    - 待改進：缺少計算輸出
 
-    **內容（90/100）**
-    - ✅ 完整的數學推導
-    - ✅ 實際案例（XAU/USD）
+    **資料治理（30/100）**
+    - 純計算無依賴
+    - 待改進：成本數據來源
 
-    **社區（30/100）**
-    - ⚠️ 新技能，尚無社區貢獻
+    **穩健性（32/100）**
+    - pitfalls 詳列風險
+    - 待改進：Alpha 未測試
 
-    **安全（100/100）**
-    - ✅ 純計算，無外部數據依賴
+    **可維護性（38/100）**
+    - 工作流程分離
+    - 待改進：缺少腳本
 
-    **規範符合性（80/100）**
-    - ✅ 遵循 Claude Code 規範
+    **輸出可用性（32/100）**
+    - FAQ 解答概念
+    - 待改進：缺少範例
+
+  upgradeNotes:
+    targetBadge: 中級
+    requirements:
+      - metric: correctness
+        currentScore: 40
+        targetScore: 55
+        suggestion: 完善 expectedResult 與計算輸出
+      - metric: robustness
+        currentScore: 32
+        targetScore: 50
+        suggestion: 完成 Alpha 階段測試
+      - metric: usability
+        currentScore: 32
+        targetScore: 50
+        suggestion: 增加實際使用範例
 
 bestPractices:
   - title: 確保單位一致性

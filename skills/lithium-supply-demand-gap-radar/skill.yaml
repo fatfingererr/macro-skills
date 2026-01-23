@@ -445,38 +445,116 @@ testQuestions:
       風險提示:
       當前技術面與基本面背離，需要密切監控供需 Balance Index 變化。若基本面持續惡化，Uptrend 可能是假突破。
 qualityScore:
-  overall: 65
-  badge: 白銀
+  overall: 68
+  badge: 中高級
+  evaluatedAt: "2026-01-23"
+
   metrics:
-    architecture: 80
-    maintainability: 70
-    content: 80
-    community: 20
-    security: 80
-    compliance: 70
+    problemFit: 76
+    correctness: 70
+    dataGovernance: 62
+    robustness: 65
+    maintainability: 68
+    usability: 67
+
+  metricDetails:
+    problemFit:
+      score: 76
+      strengths:
+        - 完整的供需分析框架
+        - 三層中介架構設計
+        - 多情境預測功能
+      improvements:
+        - 可增加不適用情境說明
+        - 模型假設需更明確
+
+    correctness:
+      score: 70
+      strengths:
+        - testQuestions 有詳細 expectedResult
+        - 含失效條件說明
+        - 週期階段判定邏輯清楚
+      improvements:
+        - 數據來源複雜，驗證較困難
+        - 可增加歷史回測驗證
+
+    dataGovernance:
+      score: 62
+      strengths:
+        - 多層級數據源設計
+        - 有 fallback 機制
+      improvements:
+        - 缺少 data-sources.md 完整文檔
+        - 付費數據源授權需說明
+        - 數據更新頻率不一致
+
+    robustness:
+      score: 65
+      strengths:
+        - pitfalls 詳列數據延遲風險
+        - bestPractices 有數據等級建議
+      improvements:
+        - 缺少 failure-modes.md
+        - 複雜度高，錯誤處理需加強
+
+    maintainability:
+      score: 68
+      strengths:
+        - Router pattern 分離職責
+        - 多數據源 fallback 設計
+      improvements:
+        - 可增加 manifest.json 版本控制
+        - 多數據源需長期維護
+
+    usability:
+      score: 67
+      strengths:
+        - FAQ 解答碳酸鋰/氫氧化鋰差異
+        - 輸出有視覺化圖表
+      improvements:
+        - 可增加 historical-episodes.md
+        - 可增加即時監控功能
+
   details: |
-    **架構（80/100）**
-    - Router pattern 正確分離職責
-    - 三層中介數據設計完善
+    **任務適配度（76/100）**
+    - 三層中介架構與供需框架完整
+    - 待改進：增加不適用情境
 
-    **可維護性（70/100）**
-    - 多數據源需長期維護
-    - 價格數據 fallback 邏輯需定期驗證
+    **正確性（70/100）**
+    - 週期階段判定邏輯清楚
+    - 待改進：增加回測驗證
 
-    **內容（80/100）**
-    - 完整的供需分析框架
-    - 清晰的價格型態定義
+    **資料治理（62/100）**
+    - 有多層級數據源設計
+    - 待改進：增加 data-sources.md
 
-    **社群（20/100）**
-    - 新建技能，尚無社群回饋
+    **穩健性（65/100）**
+    - pitfalls 詳列風險
+    - 待改進：增加 failure-modes.md
 
-    **安全（80/100）**
-    - 無敏感資料處理
-    - 外部 URL 需適當處理
+    **可維護性（68/100）**
+    - Router pattern 設計
+    - 待改進：增加版本控制
 
-    **合規（70/100）**
-    - 付費數據源授權需注意
-    - 價格數據抓取需遵守 ToS
+    **輸出可用性（67/100）**
+    - FAQ 解答核心問題
+    - 待改進：增加歷史對照
+
+  upgradeNotes:
+    targetBadge: 高級
+    requirements:
+      - metric: dataGovernance
+        currentScore: 62
+        targetScore: 80
+        suggestion: 增加 data-sources.md 與授權說明
+      - metric: robustness
+        currentScore: 65
+        targetScore: 80
+        suggestion: 增加 failure-modes.md 與錯誤處理
+      - metric: correctness
+        currentScore: 70
+        targetScore: 80
+        suggestion: 增加歷史回測驗證
 
 bestPractices:
   - title: 數據等級先決

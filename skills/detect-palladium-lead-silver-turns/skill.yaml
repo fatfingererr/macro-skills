@@ -86,41 +86,115 @@ testQuestions:
       3. 建議將「鈀金確認」作為白銀交易的過濾條件
 
 qualityScore:
-  overall: 70
-  badge: 白銀
+  overall: 60
+  badge: 中高級
+  evaluatedAt: "2026-01-23"
+
   metrics:
-    architecture: 80
-    maintainability: 75
-    content: 80
-    community: 20
-    security: 95
-    compliance: 80
+    problemFit: 68
+    correctness: 60
+    dataGovernance: 58
+    robustness: 55
+    maintainability: 60
+    usability: 59
+
+  metricDetails:
+    problemFit:
+      score: 68
+      strengths:
+        - 清晰的跨金屬確認邏輯
+        - 多種拐點偵測方法
+        - 可配置的參與度判定
+      improvements:
+        - 領先關係可能隨時間變化
+        - 可增加適用情境說明
+
+    correctness:
+      score: 60
+      strengths:
+        - 領先滯後分析有統計基礎
+        - testQuestions 有 expectedResult
+        - 失敗走勢判定規則明確
+      improvements:
+        - 領先關係穩定性需驗證
+        - 樣本數量可能不足
+
+    dataGovernance:
+      score: 58
+      strengths:
+        - 使用 Yahoo Finance 免費數據
+        - 有 FRED 宏觀濾鏡
+      improvements:
+        - 缺少 data-sources.md 完整文檔
+        - 可增加數據延遲說明
+
+    robustness:
+      score: 55
+      strengths:
+        - pitfalls 詳列確認窗口風險
+        - bestPractices 有多重確認建議
+      improvements:
+        - 缺少 failure-modes.md
+        - 領先關係失效偵測需加強
+
+    maintainability:
+      score: 60
+      strengths:
+        - 參數定義完整
+        - 工作流程分離
+      improvements:
+        - 可增加 manifest.json 版本控制
+        - 領先滯後參數需定期校驗
+
+    usability:
+      score: 59
+      strengths:
+        - FAQ 解答鈀金領先概念
+        - 輸出有可操作建議
+      improvements:
+        - 可增加 historical-episodes.md
+        - 可增加視覺化確認圖表
+
   details: |
-    **架構（80/100）**
-    - 清晰的跨金屬確認邏輯
-    - 多種拐點偵測方法
-    - 可配置的參與度判定
+    **任務適配度（68/100）**
+    - 跨金屬確認邏輯清晰
+    - 待改進：領先關係穩定性
 
-    **可維護性（75/100）**
+    **正確性（60/100）**
+    - 有統計基礎
+    - 待改進：樣本驗證
+
+    **資料治理（58/100）**
+    - 使用免費數據
+    - 待改進：增加 data-sources.md
+
+    **穩健性（55/100）**
+    - pitfalls 詳列風險
+    - 待改進：增加 failure-modes.md
+
+    **可維護性（60/100）**
     - 參數定義完整
-    - 多資料來源支援
-    - 工作流程分離
+    - 待改進：增加版本控制
 
-    **內容（80/100）**
-    - 領先滯後分析原理
-    - 失敗走勢判定規則
-    - 實用的交易建議
+    **輸出可用性（59/100）**
+    - FAQ 解答核心概念
+    - 待改進：增加歷史對照
 
-    **社區（20/100）**
-    - 新技能，尚無社區貢獻
-
-    **安全（95/100）**
-    - 僅讀取公開價格數據
-    - 無需 API key
-
-    **規範符合性（80/100）**
-    - 遵循 Claude Code 規範
-    - 完整的文件結構
+  upgradeNotes:
+    targetBadge: 高級
+    requirements:
+      - metric: robustness
+        currentScore: 55
+        targetScore: 80
+        suggestion: 增加 failure-modes.md 與領先關係失效偵測
+      - metric: correctness
+        currentScore: 60
+        targetScore: 80
+        suggestion: 增加領先關係穩定性驗證
+      - metric: dataGovernance
+        currentScore: 58
+        targetScore: 80
+        suggestion: 增加 data-sources.md
 
 bestPractices:
   - title: 使用足夠的回溯數據
