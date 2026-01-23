@@ -1,6 +1,6 @@
 {
   "name": "detect-freight-led-inflation-turn",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "displayName": "美國貨運概況判斷通膨趨勢",
   "description": "透過美國卡斯貨運指數 (CASS Freight Index) 的週期轉折，偵測美國通膨壓力是否進入放緩或反轉階段。用於判斷「通膨是否正在降溫」，並驗證市場對降息、通膨回落的宏觀敘事是否有實體經濟數據支撐。",
   "author": "Ricky Wang",
@@ -16,7 +16,7 @@
     "週期轉折",
     "滯脹"
   ],
-  "dataLevel": "free-nolimit",
+  "dataLevel": "free-limit",
   "dependencies": {
     "python": ">=3.8",
     "packages": [
