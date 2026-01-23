@@ -69,34 +69,60 @@ CASS Freight Index 由 Cass Information Systems 編制，追蹤北美地區的�
 
 <quick_start>
 
-**最快的方式：執行快速檢查**
+**最快的方式：使用 Chrome CDP 抓取數據**
 
+**Step 1：安裝依賴**
 ```bash
-cd skills/detect-freight-led-inflation-turn
-pip install pandas numpy requests selenium webdriver-manager  # 首次使用
-python scripts/freight_inflation_detector.py --quick
+pip install requests websocket-client pandas numpy
 ```
 
-輸出範例：
+**Step 2：啟動 Chrome 調試模式**
+```bash
+# Windows
+"C:\Program Files\Google\Chrome\Application\chrome.exe" ^
+  --remote-debugging-port=9222 ^
+  --remote-allow-origins=* ^
+  --user-data-dir="%USERPROFILE%\.chrome-debug-profile" ^
+  "https://www.macromicro.me/charts/46877/cass-freight-index"
+```
+
+**Step 3：等待頁面完全載入（圖表顯示），然後執行**
+```bash
+cd scripts
+python fetch_cass_freight.py --cdp
+```
+
+**Step 4：執行通膨訊號分析**
+```bash
+python freight_inflation_detector.py --quick
+```
+
+**Step 5：生成視覺化圖表**
+```bash
+python visualize_freight_cpi.py \
+  --cache cache/cass_freight_cdp.json \
+  --output ../../output/freight_cpi_$(date +%Y-%m-%d).png \
+  --start 1995-01-01
+```
+
+**輸出範例**：
+- JSON 分析結果：
 ```json
 {
   "signal": "inflation_easing",
   "confidence": "high",
-  "freight_yoy": -2.9,
-  "cycle_status": "new_cycle_low",
+  "freight_yoy": -7.46,
+  "cycle_status": "negative",
   "indicator": "shipments_yoy",
   "macro_implication": "通膨壓力正在放緩，未來 CPI 下行風險上升"
 }
 ```
+- 視覺化圖表：`output/freight_cpi_2026-01-23.png`
 
-**完整分析**：
+**備選方法（Selenium）**：
 ```bash
-python scripts/freight_inflation_detector.py --start 2010-01-01 --indicator shipments_yoy
-```
-
-**查看所有四個 CASS 指標**：
-```bash
-python scripts/fetch_cass_freight.py --cache-dir ./cache
+pip install selenium webdriver-manager
+python scripts/fetch_cass_freight.py --selenium --no-headless
 ```
 
 </quick_start>
@@ -140,7 +166,9 @@ detect-freight-led-inflation-turn/
 │   └── output-markdown.md             # Markdown 報告模板
 ├── scripts/
 │   ├── fetch_cass_freight.py          # MacroMicro CASS 爬蟲
-│   └── freight_inflation_detector.py  # 主分析腳本
+│   ├── fetch_via_cdp.py               # Chrome CDP 爬蟲模組
+│   ├── freight_inflation_detector.py  # 主分析腳本
+│   └── visualize_freight_cpi.py       # CASS vs CPI 領先性視覺化
 └── examples/
     └── sample_output.json             # 範例輸出
 ```
@@ -180,12 +208,42 @@ detect-freight-led-inflation-turn/
 </templates_index>
 
 <scripts_index>
-| Script                        | Command                      | Purpose            |
-|-------------------------------|------------------------------|--------------------|
-| freight_inflation_detector.py | `--quick`                    | 快速檢查最新訊號   |
-| freight_inflation_detector.py | `--start DATE --indicator X` | 完整分析           |
-| fetch_cass_freight.py         | `--cache-dir ./cache`        | 爬取 CASS 四個指標 |
+| Script                        | Command                            | Purpose                    |
+|-------------------------------|------------------------------------|----------------------------|
+| fetch_cass_freight.py         | `--cdp`                            | 使用 CDP 爬取（推薦）      |
+| fetch_cass_freight.py         | `--selenium --no-headless`         | 使用 Selenium 爬取（備選） |
+| freight_inflation_detector.py | `--quick`                          | 快速檢查最新訊號           |
+| freight_inflation_detector.py | `--start DATE --indicator X`       | 完整分析                   |
+| visualize_freight_cpi.py      | `--lead-months 6 --start DATE`     | 繪製 CASS vs CPI 領先圖    |
 </scripts_index>
+
+<visualization>
+
+**視覺化輸出：CASS vs CPI 領先性對比圖**
+
+核心特徵（參考 Bloomberg/Refinitiv 風格）：
+1. **CASS 6M Forward**：將 CASS Freight Index 向前移動 6 個月，直觀展示領先關係
+2. **雙軸對比**：CPI YoY（左軸藍線）vs CASS Shipments YoY（右軸灰線）
+3. **衰退區間標記**：NBER 官方衰退期以淺色陰影標示
+4. **Bloomberg 深色風格**：深藍背景、高對比度配色
+
+**快速繪圖**：
+```bash
+cd scripts
+python visualize_freight_cpi.py \
+  --cache cache/cass_freight_cdp.json \
+  --output ../../output/freight_cpi_YYYY-MM-DD.png \
+  --start 1995-01-01 \
+  --lead-months 6
+```
+
+**輸出路徑**：`output/freight_cpi_YYYY-MM-DD.png`（根目錄）
+
+**圖表解讀**：
+- 當 CASS（灰線）先行轉負/創新低，而 CPI（藍線）仍在高位 → 通膨放緩訊號
+- 當 CASS 與 CPI 走勢同步 → 領先關係暫時失效，需謹慎解讀
+
+</visualization>
 
 <input_schema>
 
@@ -252,6 +310,7 @@ detect-freight-led-inflation-turn/
 - [ ] 選定指標的 YoY 與週期狀態
 - [ ] 與 CPI 的領先對齊驗證
 - [ ] 通膨緩解訊號與信心水準
+- [ ] **CASS vs CPI 領先性對比圖**（output/freight_cpi_YYYY-MM-DD.png）
 - [ ] 可操作的宏觀解讀
 - [ ] 明確標註資料限制與假設
 </success_criteria>

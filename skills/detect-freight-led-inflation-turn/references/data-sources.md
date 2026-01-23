@@ -4,29 +4,96 @@
 **資料來源**：
 - **CASS Freight Index**：MacroMicro Highcharts 圖表（主要）
 - **CPI**：FRED（輔助驗證用）
+
+**推薦方法**：Chrome CDP（繞過 Cloudflare）
 </overview>
 
 <data_access_methods>
 
-<method name="macromicro_highcharts" recommended="true">
-**MacroMicro Highcharts 爬蟲（推薦）**
+<method name="chrome_cdp" recommended="true">
+**Chrome CDP 方法（推薦）**
 
+透過 Chrome DevTools Protocol 連接到已開啟的 Chrome 瀏覽器，完全繞過 Cloudflare 和反爬蟲偵測。
+
+**原理**：
 ```
-URL: https://en.macromicro.me/charts/46877/cass-freight-index
+┌─────────────────┐     WebSocket      ┌─────────────────┐
+│  Python Script  │ ◄────────────────► │  Chrome Browser │
+│  (CDP Client)   │    Port 9222       │  (你的 Profile) │
+└─────────────────┘                    └─────────────────┘
+        │                                      │
+        │ Runtime.evaluate()                   │
+        ▼                                      ▼
+   執行 JavaScript ──────────────────► 提取 Highcharts 數據
 ```
 
-**技術說明**：
-- 使用 Selenium + ChromeDriver
-- 等待 Highcharts 圖表完全渲染
-- 透過 JavaScript 提取 `Highcharts.charts` 物件中的數據
-- 帶防偵測配置（隨機 User-Agent、disable automation）
+**前置準備**：
+```bash
+# 安裝依賴
+pip install requests websocket-client pandas
+```
 
-**爬蟲配置**：
+**操作流程**：
+
+**Step 1：關閉所有 Chrome 視窗**
+
+**Step 2：啟動 Chrome（帶調試端口）**
+
+```bash
+# Windows
+"C:\Program Files\Google\Chrome\Application\chrome.exe" ^
+  --remote-debugging-port=9222 ^
+  --remote-allow-origins=* ^
+  --user-data-dir="%USERPROFILE%\.chrome-debug-profile" ^
+  "https://www.macromicro.me/charts/46877/cass-freight-index"
+```
+
+```bash
+# macOS
+/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
+  --remote-debugging-port=9222 \
+  --remote-allow-origins=* \
+  --user-data-dir="$HOME/.chrome-debug-profile" \
+  "https://www.macromicro.me/charts/46877/cass-freight-index"
+```
+
+**Step 3：等待頁面完全載入**（圖表顯示）
+
+**Step 4：執行爬蟲腳本**
+```bash
+cd scripts
+python fetch_cass_freight.py --cdp
+```
+
+**關鍵參數說明**：
+
+| 參數 | 說明 |
+|------|------|
+| `--remote-debugging-port=9222` | 開啟 CDP 調試端口 |
+| `--remote-allow-origins=*` | 允許所有來源連線（**必要**） |
+| `--user-data-dir=<path>` | 指定 profile 目錄（**必須非預設**） |
+
+**腳本位置**: `scripts/fetch_cass_freight.py`
+</method>
+
+<method name="selenium" recommended="false">
+**Selenium 方法（備選）**
+
+當 CDP 方法不可用時的備選方案。注意：**Cloudflare 經常會擋住 Selenium**。
+
+```bash
+# 安裝依賴
+pip install selenium webdriver-manager pandas
+
+# 執行（顯示瀏覽器視窗以便手動通過驗證）
+python scripts/fetch_cass_freight.py --selenium --no-headless
+```
+
+**配置**：
 ```python
-CASS_FREIGHT_URL = "https://en.macromicro.me/charts/46877/cass-freight-index"
+CASS_FREIGHT_URL = "https://www.macromicro.me/charts/46877/cass-freight-index"
 CHART_WAIT_SECONDS = 35  # 等待圖表渲染
 MAX_RETRIES = 3
-CACHE_MAX_AGE_HOURS = 12
 ```
 
 **腳本位置**: `scripts/fetch_cass_freight.py`
@@ -90,39 +157,65 @@ https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCSL
 
 **Highcharts 數據提取邏輯**
 
+MacroMicro 使用 Highcharts 渲染圖表，數據存儲在全域 `Highcharts.charts` 陣列中：
+
 ```javascript
-// 提取 Highcharts 圖表數據的 JavaScript
-if (typeof Highcharts === 'undefined') {
-    return {error: 'Highcharts not loaded', retry: true};
-}
+// 瀏覽器控制台中執行
+Highcharts.charts                    // 所有圖表實例
+Highcharts.charts[0].series          // 第一個圖表的所有 series
+Highcharts.charts[0].series[0].data  // 第一個 series 的數據點
+```
 
-var charts = Highcharts.charts.filter(c => c !== undefined && c !== null);
-var result = [];
-
-for (var i = 0; i < charts.length; i++) {
-    var chart = charts[i];
-    var chartInfo = {
-        title: chart.title ? chart.title.textStr : 'Chart ' + i,
-        series: []
-    };
-
-    for (var j = 0; j < chart.series.length; j++) {
-        var s = chart.series[j];
-        var seriesData = s.data.map(function(point) {
-            return {
-                x: point.x,
-                y: point.y,
-                date: point.x ? new Date(point.x).toISOString().split('T')[0] : null
-            };
-        });
-        chartInfo.series.push({
-            name: s.name,
-            data: seriesData
-        });
+**數據提取 JavaScript**：
+```javascript
+(function() {
+    if (typeof Highcharts === 'undefined' || !Highcharts.charts) {
+        return JSON.stringify({error: 'Highcharts not found'});
     }
-    result.push(chartInfo);
-}
-return result;
+
+    var charts = Highcharts.charts.filter(c => c !== undefined && c !== null);
+    var result = [];
+
+    for (var i = 0; i < charts.length; i++) {
+        var chart = charts[i];
+        var chartInfo = {
+            title: chart.title ? chart.title.textStr : 'Chart ' + i,
+            series: []
+        };
+
+        for (var j = 0; j < chart.series.length; j++) {
+            var s = chart.series[j];
+            var seriesData = [];
+
+            // 優先使用 xData/yData
+            if (s.xData && s.xData.length > 0) {
+                for (var k = 0; k < s.xData.length; k++) {
+                    seriesData.push({
+                        x: s.xData[k],
+                        y: s.yData[k],
+                        date: new Date(s.xData[k]).toISOString().split('T')[0]
+                    });
+                }
+            } else if (s.data && s.data.length > 0) {
+                seriesData = s.data.map(function(point) {
+                    return {
+                        x: point.x,
+                        y: point.y,
+                        date: point.x ? new Date(point.x).toISOString().split('T')[0] : null
+                    };
+                });
+            }
+
+            chartInfo.series.push({
+                name: s.name,
+                dataLength: seriesData.length,
+                data: seriesData
+            });
+        }
+        result.push(chartInfo);
+    }
+    return JSON.stringify(result);
+})()
 ```
 
 **Series 匹配關鍵字**：
@@ -150,46 +243,15 @@ CASS_SERIES_KEYWORDS = {
 
 **使用快取**：
 ```bash
-python scripts/fetch_cass_freight.py --cache-dir ./cache
+python scripts/fetch_cass_freight.py --cdp --cache-dir ./cache
 ```
 
 **強制更新**：
 ```bash
-python scripts/fetch_cass_freight.py --cache-dir ./cache --force-refresh
+python scripts/fetch_cass_freight.py --cdp --cache-dir ./cache --force-refresh
 ```
 
 </cache_strategy>
-
-<anti_detection>
-
-**防偵測配置**
-
-MacroMicro 可能會偵測自動化爬蟲，以下是防偵測設定：
-
-```python
-# Chrome Options
-chrome_options.add_argument('--disable-blink-features=AutomationControlled')
-chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
-chrome_options.add_experimental_option('useAutomationExtension', False)
-
-# 隨機 User-Agent
-USER_AGENTS = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36...',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36...',
-    ...
-]
-
-# 隨機延遲
-delay = random.uniform(1.0, 2.0)
-time.sleep(delay)
-```
-
-**注意事項**：
-- 不要頻繁爬取（建議間隔 12 小時以上）
-- 使用快取減少請求次數
-- 若遭封鎖，等待一段時間後重試
-
-</anti_detection>
 
 <update_schedule>
 
@@ -230,6 +292,34 @@ time.sleep(delay)
 
 </fallback_sources>
 
+<troubleshooting>
+
+**常見問題排解**
+
+**Q1: WebSocket 連線被拒絕 (403 Forbidden)**
+
+確認啟動 Chrome 時有加上 `--remote-allow-origins=*` 參數。
+
+**Q2: 無法連接到 Chrome 調試端口**
+
+1. 確保所有 Chrome 視窗都已關閉
+2. 確認使用了非預設的 `--user-data-dir`
+3. 檢查端口 9222 是否被佔用：`curl -s http://127.0.0.1:9222/json`
+
+**Q3: Highcharts not found**
+
+1. 確認頁面已完全載入（圖表已顯示）
+2. 在瀏覽器 Console 中執行 `typeof Highcharts` 確認
+3. 可能需要登入 MacroMicro 帳號
+
+**Q4: 被 Cloudflare 擋住**
+
+1. 使用 CDP 方法而非 Selenium
+2. 在 Chrome 中手動完成 Cloudflare 驗證
+3. 登入 MacroMicro 帳號後再執行
+
+</troubleshooting>
+
 <scripts_reference>
 
 **資料抓取腳本**
@@ -242,8 +332,12 @@ time.sleep(delay)
 **使用範例**：
 
 ```bash
-# 抓取 CASS 四個指標
-python scripts/fetch_cass_freight.py --cache-dir ./cache
+# 方法一：Chrome CDP（推薦）
+# 先啟動 Chrome 調試模式，載入目標頁面，然後：
+python scripts/fetch_cass_freight.py --cdp
+
+# 方法二：Selenium（備選）
+python scripts/fetch_cass_freight.py --selenium --no-headless
 
 # 快速檢查
 python scripts/freight_inflation_detector.py --quick
@@ -253,3 +347,12 @@ python scripts/freight_inflation_detector.py --start 2015-01-01 --indicator ship
 ```
 
 </scripts_reference>
+
+<related_guides>
+
+**相關指南**
+
+- [Chrome CDP 數據爬取 SOP](../../../thoughts/shared/guide/chrome-cdp-scraping-sop.md)
+- [MacroMicro Highcharts 爬蟲指南](../../../thoughts/shared/guide/macromicro-highcharts-crawler.md)
+
+</related_guides>
