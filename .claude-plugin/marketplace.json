@@ -64,6 +64,17 @@
       ]
     },
     {
+      "name": "wasde-ingestor",
+      "description": "抓取並解析 USDA（美國農業部）每月發布的 WASDE（世界農產品供需估計）報告，擷取所有主要商品（穀物、油籽、棉花、畜產品、糖）的供需平衡表。產出經標準化、具版本控管的資料集，作為即時預測的基準錨點。",
+      "version": "0.2.0",
+      "author": {
+        "name": "macro-skills"
+      },
+      "source": "./skills/wasde-ingestor",
+      "category": "nowcasting",
+      "tags": []
+    },
+    {
       "name": "us-cpi-pce-comparator",
       "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
       "version": "0.1.0",
@@ -80,17 +91,6 @@
         "權重差異",
         "FRED"
       ]
-    },
-    {
-      "name": "wasde-ingestor",
-      "description": "抓取並解析 USDA（美國農業部）每月發布的 WASDE（世界農產品供需估計）報告，擷取所有主要商品（穀物、油籽、棉花、畜產品、糖）的供需平衡表。產出經標準化、具版本控管的資料集，作為即時預測的基準錨點。",
-      "version": "0.2.0",
-      "author": {
-        "name": "macro-skills"
-      },
-      "source": "./skills/wasde-ingestor",
-      "category": "nowcasting",
-      "tags": []
     },
     {
       "name": "nickel-concentration-risk-analyzer",
@@ -129,24 +129,6 @@
       ]
     },
     {
-      "name": "lithium-supply-demand-gap-radar",
-      "description": "將鋰產業鏈（礦端 → 精煉化學品 → 電池與終端需求），整合為一套可運算的替代指標；再把這些指標映射到鋰主題 ETF（如 LIT）的成分暴露與長期價格走勢，形成可供決策的依據。 ",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/lithium-supply-demand-gap-radar",
-      "category": "commodity-sd",
-      "tags": [
-        "鋰",
-        "供需分析",
-        "ETF",
-        "LIT",
-        "原物料",
-        "電池"
-      ]
-    },
-    {
       "name": "list-china-today-macro-news",
       "description": "彙整今日中國宏觀經濟新聞消息，從華爾街日報、36氪等來源抓取並篩選宏觀相關新聞，輸出雜誌風格的新聞摘要。適用於交易/研究開盤前快速掌握中國宏觀動態。",
       "version": "0.3.0",
@@ -165,21 +147,21 @@
       ]
     },
     {
-      "name": "evaluate-exponential-trend-deviation-regimes",
-      "description": "計算資產價格相對長期指數成長趨勢線的偏離度，衡量當前是否處於歷史極端區間，並可選擇性地進行宏觀因子分析以判斷行情體質。",
+      "name": "lithium-supply-demand-gap-radar",
+      "description": "將鋰產業鏈（礦端 → 精煉化學品 → 電池與終端需求），整合為一套可運算的替代指標；再把這些指標映射到鋰主題 ETF（如 LIT）的成分暴露與長期價格走勢，形成可供決策的依據。 ",
       "version": "0.1.0",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/evaluate-exponential-trend-deviation-regimes",
-      "category": "business-cycles",
+      "source": "./skills/lithium-supply-demand-gap-radar",
+      "category": "commodity-sd",
       "tags": [
-        "趨勢",
-        "偏離度",
-        "歷史峰值",
-        "指數成長",
-        "技術分析",
-        "宏觀分析"
+        "鋰",
+        "供需分析",
+        "ETF",
+        "LIT",
+        "原物料",
+        "電池"
       ]
     },
     {
@@ -198,6 +180,24 @@
         "情緒指標",
         "異常偵測",
         "搜尋趨勢"
+      ]
+    },
+    {
+      "name": "evaluate-exponential-trend-deviation-regimes",
+      "description": "計算資產價格相對長期指數成長趨勢線的偏離度，衡量當前是否處於歷史極端區間，並可選擇性地進行宏觀因子分析以判斷行情體質。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/evaluate-exponential-trend-deviation-regimes",
+      "category": "business-cycles",
+      "tags": [
+        "趨勢",
+        "偏離度",
+        "歷史峰值",
+        "指數成長",
+        "技術分析",
+        "宏觀分析"
       ]
     },
     {
@@ -255,6 +255,24 @@
       ]
     },
     {
+      "name": "detect-freight-led-inflation-turn",
+      "description": "透過美國卡斯貨運指數 (CASS Freight Index) 的週期轉折，偵測美國通膨壓力是否進入放緩或反轉階段。用於判斷「通膨是否正在降溫」，並驗證市場對降息、通膨回落的宏觀敘事是否有實體經濟數據支撐。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-freight-led-inflation-turn",
+      "category": "inflation-analytics",
+      "tags": [
+        "卡斯貨運指數",
+        "貨運",
+        "企業運費",
+        "通貨膨脹",
+        "領先指標",
+        "CPI"
+      ]
+    },
+    {
       "name": "detect-atr-squeeze-regime",
       "description": "以 14 日指數平滑 ATR 偵測市場是否從秩序型趨勢轉為波動主導的擠壓（squeeze）行情，並輸出對技術位、停損、交易持有期的可行性評估。",
       "version": "0.1.0",
@@ -300,24 +318,6 @@
       "source": "./skills/cost-density-net-rr-calculator",
       "category": "indicator-monitoring",
       "tags": []
-    },
-    {
-      "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
-      "description": "從網路自動抓取礦業公司財務報表與營運揭露（產量、成本、資本支出），回算「礦業股/金屬本體比率」的基本面解釋與區間門檻（如 1.2/1.7），並輸出可重現的估值拆解（成本因子 / 槓桿因子 / 倍數因子 / 稀釋因子）。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/backsolve-miner-vs-metal-ratio-with-fundamentals",
-      "category": "commodity-sd",
-      "tags": [
-        "礦業股",
-        "基本面",
-        "AISC",
-        "槓桿",
-        "倍數",
-        "稀釋"
-      ]
     },
     {
       "name": "analyze-silver-miner-metal-ratio",
@@ -371,6 +371,24 @@
         "金融環境",
         "資產配置",
         "象限分析"
+      ]
+    },
+    {
+      "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
+      "description": "從網路自動抓取礦業公司財務報表與營運揭露（產量、成本、資本支出），回算「礦業股/金屬本體比率」的基本面解釋與區間門檻（如 1.2/1.7），並輸出可重現的估值拆解（成本因子 / 槓桿因子 / 倍數因子 / 稀釋因子）。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/backsolve-miner-vs-metal-ratio-with-fundamentals",
+      "category": "commodity-sd",
+      "tags": [
+        "礦業股",
+        "基本面",
+        "AISC",
+        "槓桿",
+        "倍數",
+        "稀釋"
       ]
     },
     {
