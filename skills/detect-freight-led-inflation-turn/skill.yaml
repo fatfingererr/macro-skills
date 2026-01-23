@@ -9,152 +9,251 @@ featured: false
 installCount: 0
 
 testQuestions:
-  - question: '目前貨運量是否顯示通膨放緩訊號？'
+  - question: '目前美國貨運量是否顯示通膨放緩訊號？'
+    imagePath: images/cass-freight-yoy-cpi-2026-01-23.png
     expectedResult: |
-      此分析器會：
-      1. 從 MacroMicro 抓取 CASS Freight Index 四個指標
-      2. 分析 Shipments YoY（主要指標）的週期狀態
-      3. 偵測是否為週期新低或年增率轉負
-      4. 與 CPI YoY 進行領先對齊分析
-      5. 輸出通膨緩解訊號與信心水準
+      根據 CASS Freight Index 數據（截至 2025 年 12 月）與視覺化分析：  
+      
+      ---
+      關鍵數據
+      
+      ┌───────────────────────┬────────┬────────────────────────────┐
+      │         指標          │  數值  │            狀態            │
+      ├───────────────────────┼────────┼────────────────────────────┤
+      │ CASS Shipments YoY    │ -7.46% │ 深度負值，連續多月 < 0     │
+      ├───────────────────────┼────────┼────────────────────────────┤
+      │ CASS Expenditures YoY │ -0.60% │ 同步轉負                   │
+      ├───────────────────────┼────────┼────────────────────────────┤
+      │ US CPI YoY            │ 2.65%  │ 仍在正值但已從 9% 高峰回落 │
+      └───────────────────────┴────────┴────────────────────────────┘
+      
+      ---
+      圖表（freight_cpi_2026-01-23.png）展示 CASS 6M forward 與 CPI 的疊加：
+      
+      - 灰線（CASS）突出到 2026 年中：最新數據 -7.46% 顯示在 2026-06 位置
+      - 藍線（CPI）在 2025-12 結束：目前 2.65%
+      - 歷史驗證：2008、2020 年兩線走勢高度吻合，確認 6 個月領先關係成立
+      
+      ---
+      訊號判讀
+      ┌────────────┬──────────────────────────────────────┐
+      │    項目    │                 評估                 │
+      ├────────────┼──────────────────────────────────────┤
+      │ 訊號       │ Inflation Easing（通膨放緩）         │
+      ├────────────┼──────────────────────────────────────┤
+      │ 信心水準   │ High                                 │
+      ├────────────┼──────────────────────────────────────┤
+      │ 週期位置   │ 處於 24 個月低位區間                 │
+      ├────────────┼──────────────────────────────────────┤
+      │ 雙指標驗證 │ Shipments 與 Expenditures 同時為負 ✓ │
+      └────────────┴──────────────────────────────────────┘
+      
+      ---
+      宏觀意涵
 
-      輸出範例：
-      - signal: inflation_easing
-      - confidence: high
-      - freight_yoy: -2.9%
-      - cycle_status: new_cycle_low
-      - macro_implication: 通膨壓力正在放緩
-      - all_indicators: 四個 CASS 指標概覽
+      1. CASS 領先 CPI 約 6 個月 — 歷史關係穩定
+      2. 目前 CASS 深度負值（-7.46%）反映終端需求疲軟
+      3. 預期 2026 年 Q1-Q2：CPI 將持續放緩，可能降至 2% 以下
+      4. 政策面：支持 Fed 維持或轉向寬鬆政策的市場預期
 
-  - question: '貨運量為什麼能預測通膨走勢？'
+  - question: '美國貨運量為什麼能預測通膨走勢？'
     expectedResult: |
-      解釋 CASS Freight Index 與通膨的領先關係：
+      貨運量預測通膨的傳導機制      
 
-      1. **需求傳導鏈**：
-         - CASS 追蹤北美地區的卡車和鐵路貨運
-         - 出貨量下降 → 終端需求減弱 → 定價能力下降
+        貨運量下降
+          ↓
+        終端需求減弱（商品賣不動） 
+          ↓
+        庫存累積、補庫動能下降
+          ↓
+      企業定價能力下降（不敢漲價）
+          ↓
+      CPI 增速放緩
 
-      2. **領先性來源**：
-         - 貨運是經濟活動的「先行者」
-         - 通常領先 CPI 約 4-6 個月
+      ---
+      核心邏輯
 
-      3. **訊號判讀**：
-         - Shipments YoY 轉負 + 創週期新低 = 通膨緩解訊號
-         - Expenditures YoY 可交叉驗證
-         - 這是 disinflation 而非 deflation
+      1. 貨運 = 實體經濟的「先行者」
+        - 商品從工廠到消費者，必須先經過運輸
+        - CASS 追蹤的是「即將被消費」的商品量
+
+      2. 時間差產生領先性
+        - 貨運發生在最終銷售之前
+        - 庫存調整週期約 3-6 個月
+        - CPI 統計本身有 2-4 週滯後
+        
+      3. 需求 → 定價能力
+        - 運量高 → 需求強 → 企業敢漲價 → CPI 上升
+        - 運量低 → 需求弱 → 企業不敢漲價 → CPI 下降
+
+      ---
+      歷史驗證
+
+      ┌───────────────┬───────────────┬───────────────────────────┐
+      │     時期      │ CASS 先行訊號 │         CPI 跟隨          │
+      ├───────────────┼───────────────┼───────────────────────────┤
+      │ 2008 金融危機 │ CASS 先跌     │ CPI 6 個月後跟跌          │
+      ├───────────────┼───────────────┼───────────────────────────┤
+      │ 2020 疫情後   │ CASS 先飆升   │ CPI 6 個月後飆升至 9%     │
+      ├───────────────┼───────────────┼───────────────────────────┤
+      │ 2025 現在     │ CASS -7.46%   │ CPI 預計 2026 H1 持續下降 │
+      └───────────────┴───────────────┴───────────────────────────┘
+
+      ---
+      為什麼是 6 個月？
+
+      - 補庫週期：企業從感知需求變化到調整訂單約 2-3 個月
+      - 價格傳導：成本變化反映到終端售價約 2-3 個月
+      - 統計滯後：CPI 數據發布比實際消費滯後約 1 個月
 
 qualityScore:
-  overall: 60
+  overall: 65
   badge: 白銀
   evaluatedAt: "2026-01-23"
 
   metrics:
-    problemFit: 70
-    correctness: 65
-    dataGovernance: 60
-    robustness: 55
-    maintainability: 55
-    usability: 60
+    problemFit: 75
+    correctness: 70
+    dataGovernance: 55
+    robustness: 50
+    maintainability: 65
+    usability: 70
 
   metricDetails:
     problemFit:
-      score: 70
+      score: 75
       strengths:
-        - 清晰的問題定義：貨運量領先通膨
-        - 三層訊號架構設計完整
-        - 輸入參數定義明確
+        - 問題定義精準：「偵測通膨是否正在降溫」
+        - 有完整的 workflows（analyze.md + quick-check.md）
+        - input-schema 清晰無歧義，所有參數有明確說明
+        - 三層訊號架構（Freight Status → Lead Alignment → Signal Assessment）設計完整
       improvements:
-        - 可增加更多替代數據源
-        - 可增加不同地區的適用說明
+        - SKILL.md 缺少明確的「不適用情境」section（僅在 methodology 提及方法限制）
+        - 缺資料分支處理可更系統化（目前僅在 troubleshooting）
+        - 可增加不同市場的適用性說明
 
     correctness:
-      score: 65
+      score: 70
       strengths:
-        - 方法論有學術依據
-        - 週期偵測邏輯清晰
-        - 有 YoY 計算公式
+        - 有完整的 methodology.md 說明 CASS 與 CPI 領先關係
+        - 週期偵測邏輯清晰（YoY < 0, new_cycle_low）
+        - 有 historical-episodes.md 驗證方法論（2008, 2015, 2020, 2022）
+        - 有 examples/sample_output.json 作為範例
       improvements:
-        - 缺少回測驗證結果
-        - 可增加更多 golden case
+        - methodology 缺乏明確的數學公式（如 rolling window 精確定義）
+        - 無法確認腳本是否能產生一致輸出（缺少自動化回測驗證）
+        - 可增加更多 golden case（目前僅 1 個範例）
 
     dataGovernance:
-      score: 60
+      score: 55
       strengths:
-        - 使用 FRED 免費數據
-        - 有完整的 Series ID 對照表
-        - 無需 API key
+        - data-sources.md 完整記錄來源（MacroMicro + FRED）
+        - 有 fallback 替代方案（TSI, TRUCKD11）
+        - 有快取機制（12 小時有效期）
+        - 更新頻率與延遲有明確標註
       improvements:
-        - 需增加 fallback 來源
-        - 數據更新延遲需說明
+        - 缺少獨立的 cross-validate.md 交叉驗證流程
+        - 無 explore_*.py 數據探索腳本
+        - MacroMicro 爬蟲的授權不明確
+        - fetch scripts 可能缺少完整的 metadata（timestamp, hash/etag）
+        - 多來源比對僅提及但未實作
 
     robustness:
-      score: 55
+      score: 50
       strengths:
-        - 有多個貨運指標可選
-        - 參數可配置
+        - 有 troubleshooting section 說明常見問題
+        - 有快取策略避免重複請求
+        - 有多個 CASS 指標可選擇
       improvements:
-        - 需增加錯誤處理機制
-        - 缺少 failure-modes.md
+        - 缺少獨立的 failure-modes.md
+        - 缺值處理策略不明確（drop/ffill/interpolate）
+        - 極端值處理不確定
+        - 錯誤邊界處理（try-except）不清楚
+        - 無明確的降級輸出機制
+        - 部分 fetch 機制（重試、限流、超時）需確認
 
     maintainability:
-      score: 55
+      score: 65
       strengths:
-        - 參數定義完整
-        - 模組化腳本設計
+        - 有 manifest.json 含 semantic version（0.1.0）
+        - dependencies 完整（python, pandas, numpy, requests, selenium）
+        - templates/ 結構穩定（output-json.md + output-markdown.md）
+        - 無文件漂移（無重複定義）
+        - 模組化腳本設計（fetch, analyze, visualize 分離）
       improvements:
-        - 可增加版本控制說明
-        - 需實作完整腳本
+        - 部分參數可能分散（需集中到 CONFIG 區）
+        - 初版，實際維護性需長期觀察
+        - 可增加更詳細的版本更新記錄
 
     usability:
-      score: 60
+      score: 70
       strengths:
-        - FAQ 解答核心問題
-        - 有歷史案例對照
-        - 輸出格式清晰
+        - output-markdown.md 有完整的 TL;DR + 依據 + 風險 + 下一步
+        - output-json.md 有 status + confidence + reasons + artifacts
+        - 有豐富的 historical-episodes.md（4 個歷史案例）
+        - 有 visualize_freight_cpi.py 生成 CASS vs CPI 領先性對比圖
+        - 有詳細的解讀說明與交易含義
       improvements:
-        - 可增加視覺化輸出
-        - testQuestions 可更豐富
+        - 無專門的 backtest/compare 回測功能
+        - 視覺化腳本的使用說明可更詳細
 
   details: |
-    **任務適配度（70/100）**
-    - 問題定義清晰：貨運量領先通膨
-    - 待改進：增加更多數據源選項
+    **任務適配度（75/100）— 良好**
+    - 問題定義精準，工作流完整
+    - 待改進：明確「不適用情境」、系統化缺資料分支
 
-    **正確性（65/100）**
-    - 方法論有依據
-    - 待改進：增加回測驗證
+    **正確性（70/100）— 中等偏高**
+    - 方法論清晰，有歷史案例驗證
+    - 待改進：增加數學公式、自動化回測、更多 golden case
 
-    **資料治理（60/100）**
-    - 使用 FRED 免費數據
-    - 待改進：增加 fallback 來源
+    **資料治理（55/100）— 待改進**
+    - 來源記錄完整，有 fallback
+    - 待改進：增加 cross-validate.md、explore_*.py、授權說明、metadata 追溯
 
-    **穩健性（55/100）**
-    - 參數可配置
-    - 待改進：增加錯誤處理
+    **穩健性（50/100）— 待改進**
+    - 有基本的 troubleshooting
+    - 待改進：增加 failure-modes.md、明確缺值/極端值/錯誤處理、降級機制
 
-    **可維護性（55/100）**
-    - 參數定義完整
-    - 待改進：完善腳本實作
+    **可維護性（65/100）— 中等**
+    - 版本管理、依賴清單完整，結構良好
+    - 待改進：集中參數配置、長期維護驗證
 
-    **輸出可用性（60/100）**
-    - 輸出格式清晰
-    - 待改進：增加視覺化
+    **輸出可用性（70/100）— 良好**
+    - 輸出完整可用，有歷史對照與視覺化
+    - 待改進：增加回測功能
 
   upgradeNotes:
     targetBadge: 黃金
     requirements:
-      - metric: correctness
-        currentScore: 65
-        targetScore: 75
-        suggestion: 增加回測驗證與更多 golden case
-      - metric: robustness
+      - metric: dataGovernance
         currentScore: 55
         targetScore: 70
-        suggestion: 增加 failure-modes.md 與錯誤處理
-      - metric: dataGovernance
-        currentScore: 60
+        suggestion: |
+          1. 新增 workflows/cross-validate.md（多來源比對流程）
+          2. 新增 scripts/explore_cass_data.py（數據探索）
+          3. 完善 fetch scripts 的 metadata 輸出（timestamp, hash, version）
+          4. 澄清 MacroMicro 爬蟲的授權問題
+      - metric: robustness
+        currentScore: 50
         targetScore: 70
-        suggestion: 增加 fallback 數據源
+        suggestion: |
+          1. 新增 references/failure-modes.md
+          2. 在 scripts 中明確缺值處理策略（drop/ffill/interpolate）
+          3. 增加錯誤邊界處理（try-except with logging）
+          4. 實作降級輸出機制（部分結果可用）
+      - metric: correctness
+        currentScore: 70
+        targetScore: 80
+        suggestion: |
+          1. methodology.md 增加數學公式（LaTeX 或等效）
+          2. 實作自動化回測腳本（scripts/backtest.py）
+          3. 增加更多 golden case（至少 3 個）
+      - metric: usability
+        currentScore: 70
+        targetScore: 80
+        suggestion: |
+          1. 新增 scripts/backtest.py（歷史回測功能）
+          2. 完善 visualize 腳本的使用說明
 
 bestPractices:
   - title: 使用多個貨運指標交叉驗證
