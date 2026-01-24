@@ -1,0 +1,139 @@
+# 銅供應集中度風險分析配置模板
+# =================================
+#
+# 複製此檔案並修改參數以自訂分析
+
+# 時間範圍
+# --------
+start_year: 1970
+end_year: 2023
+
+# 基本設定
+# --------
+commodity: "copper"
+top_n_producers: 12
+
+# 集中度分析
+# ----------
+concentration_metric: "HHI"  # HHI | CR4 | CR8
+
+# 重點國家
+focus_countries:
+  - Chile
+  - Peru
+  - Democratic Republic of Congo
+  - China
+  - United States
+  - Russia
+  - Australia
+  - Mexico
+  - Kazakhstan
+  - Canada
+
+# 智利趨勢分析
+# ------------
+structural_break: true
+rolling_window: 10  # 滾動趨勢視窗（年）
+
+# 品位模式：
+# - none: 不分析品位
+# - country_proxy: 用產量趨勢推斷（預設）
+# - mine_level: 使用礦場級數據（需額外配置）
+ore_grade_mode: "country_proxy"
+
+# 替代依賴度分析
+# --------------
+replacement_countries:
+  - Peru
+  - Democratic Republic of Congo
+
+# 執行係數（考慮政治/社會風險）
+execution_multipliers:
+  Peru: 0.8
+  DRC: 0.7
+
+# 情境分析
+# --------
+demand_scenarios:
+  - name: "slowdown"
+    demand_cagr: 0.015
+    horizon_years: 10
+
+  - name: "base"
+    demand_cagr: 0.03
+    horizon_years: 10
+
+  - name: "electrification"
+    demand_cagr: 0.05
+    horizon_years: 10
+
+# 供應約束
+supply_lead_time_years: 10  # 新礦開發週期
+
+# 地緣風險
+# --------
+# 模式：
+# - none: 不分析地緣風險
+# - gdelt: 使用 GDELT 事件資料（預設）
+# - news_count: 使用新聞計數代理
+# - fixed: 使用固定風險評級
+geopolitics_mode: "gdelt"
+
+# GDELT 查詢設定
+gdelt_config:
+  lookback_months: 12
+  keywords:
+    - "mining conflict"
+    - "mining strike"
+    - "mining protest"
+    - "mining policy"
+
+# 固定風險評級（當 geopolitics_mode: fixed）
+fixed_risk_ratings:
+  Chile:
+    z_score: 0.3
+    risk_level: "低"
+  Peru:
+    z_score: 1.5
+    risk_level: "中高"
+  DRC:
+    z_score: 2.0
+    risk_level: "高"
+
+# 輸出設定
+# --------
+output_format: "markdown"  # markdown | json
+output_dir: "output/"
+include_charts: true
+chart_format: "png"  # png | svg | html
+
+# 快取設定
+# --------
+cache_enabled: true
+cache_dir: "data/cache/"
+cache_ttl_days: 7
+
+# 數據來源
+# --------
+data_sources:
+  primary:
+    - name: "OWID"
+      url: "https://raw.githubusercontent.com/owid/owid-datasets/master/datasets/Copper%20mine%20production%20(USGS%20%26%20BGS)/Copper%20mine%20production%20(USGS%20%26%20BGS).csv"
+      tier: 0
+
+  validation:
+    - name: "USGS"
+      url: "https://www.usgs.gov/centers/national-minerals-information-center/copper-statistics-and-information"
+      tier: 0
+
+  geopolitics:
+    - name: "GDELT"
+      url: "https://api.gdeltproject.org/api/v2/doc/doc"
+      tier: 3
+
+# 日誌設定
+# --------
+logging:
+  level: "INFO"  # DEBUG | INFO | WARNING | ERROR
+  file: "copper_analysis.log"
+  console: true

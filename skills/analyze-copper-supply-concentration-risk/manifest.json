@@ -1,0 +1,119 @@
+{
+  "name": "analyze-copper-supply-concentration-risk",
+  "version": "0.1.0",
+  "displayName": "分析銅供應集中度風險",
+  "description": "用公開資料量化「銅供應是否過度集中、主要產地是否結構性衰退、替代增量是否依賴少數國家」，並輸出可行的中期供應風險結論與情境推演。",
+  "author": "Ricky Wang",
+  "license": "MIT",
+  "category": "commodity-sd",
+  "tags": [
+    "銅",
+    "供給集中度",
+    "原物料",
+    "採礦",
+    "地緣政治",
+    "情境分析",
+    "智利",
+    "秘魯",
+    "剛果金",
+    "OWID",
+    "USGS"
+  ],
+  "dataLevel": "free-nolimit",
+  "dependencies": {
+    "python": ">=3.9",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "requests>=2.28.0",
+      "statsmodels>=0.14.0"
+    ],
+    "optional": [
+      "ruptures>=1.1.0",
+      "matplotlib>=3.5.0",
+      "plotly>=5.0.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/copper_pipeline.py"
+  },
+  "workflows": [
+    {
+      "id": "analyze-concentration",
+      "name": "集中度分析",
+      "description": "計算銅供應集中度指標（HHI, CR4, CR8）",
+      "file": "workflows/analyze-concentration.md"
+    },
+    {
+      "id": "analyze-chile-trend",
+      "name": "智利趨勢分析",
+      "description": "分析智利產量結構性趨勢與斷點",
+      "file": "workflows/analyze-chile-trend.md"
+    },
+    {
+      "id": "analyze-replacement",
+      "name": "替代依賴度分析",
+      "description": "評估秘魯與DRC替代依賴度",
+      "file": "workflows/analyze-replacement.md"
+    },
+    {
+      "id": "scenario-analysis",
+      "name": "情境分析",
+      "description": "供需缺口與系統風險情境模擬",
+      "file": "workflows/scenario-analysis.md"
+    },
+    {
+      "id": "full-report",
+      "name": "完整報告",
+      "description": "五命題完整分析報告",
+      "file": "workflows/full-report.md"
+    },
+    {
+      "id": "ingest-data",
+      "name": "數據擷取",
+      "description": "從各來源擷取銅供應數據",
+      "file": "workflows/ingest-data.md"
+    }
+  ],
+  "references": [
+    "references/data-sources.md",
+    "references/concentration-metrics.md",
+    "references/chile-supply-dynamics.md",
+    "references/replacement-countries.md",
+    "references/geopolitics-risk.md",
+    "references/failure-modes.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md",
+    "templates/config.yaml"
+  ],
+  "examples": [
+    "examples/concentration_analysis.json",
+    "examples/full_report.md"
+  ],
+  "dataSources": [
+    {
+      "name": "OWID Minerals",
+      "type": "primary",
+      "tier": 0,
+      "url": "https://ourworldindata.org/minerals",
+      "description": "全球與各國 mine production（銅金屬含量），免費、長序列（1900年起）"
+    },
+    {
+      "name": "USGS MCS",
+      "type": "primary",
+      "tier": 0,
+      "url": "https://www.usgs.gov/centers/national-minerals-information-center/copper-statistics-and-information",
+      "description": "每年全球與主要國家 mine production，官方口徑"
+    },
+    {
+      "name": "GDELT",
+      "type": "secondary",
+      "tier": 3,
+      "url": "https://www.gdeltproject.org/",
+      "description": "地緣政治事件數據，用於計算風險指數"
+    }
+  ]
+}

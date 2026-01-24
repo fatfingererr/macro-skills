@@ -1,0 +1,293 @@
+# 前端展示專用（元資料從 manifest.json 讀取）
+displayName: 分析銅供應集中度風險
+emoji: "🔶"
+authorUrl: https://github.com/fatfingererr/macro-skills
+
+tools:
+  - claude-code
+
+featured: false
+installCount: 0
+
+testQuestions:
+  - question: '分析 1970-2023 年全球銅供應的國家集中度'
+    expectedResult: |
+      ## 銅供應「集中 + 失速 + 依賴」快速檢核（1970-2023）
+
+      ### 1) 供應是否高度集中？
+      - 最新年度 HHI：0.182（較 10 年前 0.175 上升）
+      - 前四大產國份額（CR4）：56.2%
+      - 智利份額：26.8%（高於多數年份分位數 75%）
+
+      **含義**：供應更像「少數國家的系統性依賴」，不是分散式供應鏈。
+
+      ### 2) 智利是「儲量大但供應不安全」嗎？
+      - 智利產量近 10 年趨勢斜率：-45,000 t/年
+      - 峰值回撤：12.3%
+      - 結構斷點：2016年
+
+      **含義**：如果產量進入結構性停滯/下滑，單看儲量會高估供應安全。
+
+      ### 3) 世界是否被迫依賴秘魯與 DRC 擴產？
+      - 秘魯近 10 年新增量：520,000 t
+      - DRC 近 10 年新增量：610,000 t
+      - 替代依賴度（兩國新增 / 智利下滑）：0.88
+
+      **含義**：若 < 1，兩國擴產不足補位；若 ≈1，仍需考慮兩國風險與執行難度。
+
+      ### 數據來源
+      - OWID Minerals Explorer
+      - USGS Copper Statistics
+
+  - question: '智利銅產量是否出現結構性衰退？'
+    expectedResult: |
+      ## 智利銅產量結構性趨勢分析
+
+      ### 關鍵指標
+      | 指標 | 數值 | 解讀 |
+      |------|------|------|
+      | 峰值年份 | 2018 | 達到 5.83 Mt |
+      | 2023 年產量 | 5.26 Mt | 較峰值下滑 9.8% |
+      | 近 10 年斜率 | -47,000 t/年 | 負向趨勢 |
+      | 結構斷點 | 2016-2017 | 由升轉平/降 |
+
+      ### 判定
+      - slope < 0 ✓
+      - structural_break detected ✓
+      - drawdown > 10% ✓
+
+      **結論**：智利銅產量已進入結構性衰退期。
+
+      ### 成因分析（country_proxy 模式）
+      1. **品位下滑**：主要礦區平均品位從 1990s 的 1.5% 降至現在 0.6-0.8%
+      2. **水資源限制**：北部沙漠地區採礦用水成本上升
+      3. **老礦區枯竭**：Escondida、Chuquicamata 等老礦產量遞減
+
+      ### 風險提示
+      - 儲量排名全球第一 ≠ 產量能持續增長
+      - 需要挖掘更多礦石才能維持同樣產出
+
+  - question: '如果需求以年化 3% 成長，10 年後供需缺口多大？'
+    expectedResult: |
+      ## 供需缺口情境分析
+
+      ### 情境假設
+      - 需求 CAGR：3.0%
+      - 預測期限：10 年
+      - 供應反應時間：10 年（新礦場開發週期）
+
+      ### 需求預測
+      | 年份 | 需求量 (Mt) | 年增量 |
+      |------|-------------|--------|
+      | 2023 (基準) | 22.0 | - |
+      | 2028 | 25.5 | +3.5 Mt |
+      | 2033 | 29.6 | +7.6 Mt |
+
+      ### 供應約束
+      - 現有產能可擴建量：+2.0 Mt
+      - 在建項目釋放量：+1.5 Mt
+      - 智利預期減產：-0.8 Mt
+      - **淨可行增量**：+2.7 Mt
+
+      ### 缺口計算
+      - 10 年後供需缺口：7.6 - 2.7 = **4.9 Mt**
+      - 佔 2023 年產量比例：22.3%
+
+      ### 含義
+      供應鏈反應慢，短期價格上漲不等於短期供給彈性。
+      缺口需要在 2025-2028 年間決策投資才能在 2033 前填補。
+
+qualityScore:
+  overall: 70
+  badge: 白銀
+  evaluatedAt: "2026-01-24"
+
+  metrics:
+    problemFit: 80
+    correctness: 72
+    dataGovernance: 70
+    robustness: 65
+    maintainability: 70
+    usability: 73
+
+  metricDetails:
+    problemFit:
+      score: 80
+      strengths:
+        - 五命題框架完整對應市場常見敘事
+        - 輸入參數設計涵蓋多種分析需求
+        - 多 workflow 設計支持漸進式分析
+      improvements:
+        - 可增加 mine-level 品位數據支援
+
+    correctness:
+      score: 72
+      strengths:
+        - HHI/CR4/CR8 計算公式明確
+        - 結構斷點偵測方法論清晰
+        - replacement_ratio 定義合理
+      improvements:
+        - 需增加 examples/ golden case
+        - 地緣風險指數計算需更多驗證
+
+    dataGovernance:
+      score: 70
+      strengths:
+        - OWID + USGS 雙來源設計
+        - 數據分層策略明確（Tier 0-3）
+      improvements:
+        - GDELT 整合需實際測試
+        - 需增加 data-sources.md 完整文檔
+
+    robustness:
+      score: 65
+      strengths:
+        - 口徑先行原則降低混淆風險
+        - 數據來源有 fallback 設計
+      improvements:
+        - 需增加 failure-modes.md
+        - 缺值處理策略需更明確
+
+    maintainability:
+      score: 70
+      strengths:
+        - Router pattern 分離職責
+        - 參數定義完整
+      improvements:
+        - 需增加 version 更新日誌
+        - 單元測試覆蓋需提升
+
+    usability:
+      score: 73
+      strengths:
+        - 輸出模板包含 TL;DR 與依據
+        - 五命題對應五組問答
+      improvements:
+        - 可增加歷史事件對照
+        - 可增加即時監控儀表板
+
+  details: |
+    **任務適配度（80/100）**
+    - 五命題框架對應市場敘事
+    - 多 workflow 支持漸進分析
+    - 待改進：增加 mine-level 支援
+
+    **正確性（72/100）**
+    - 集中度與斷點計算方法明確
+    - 待改進：增加 examples/ golden case
+
+    **資料治理（70/100）**
+    - OWID + USGS 雙來源設計
+    - 待改進：增加 data-sources.md
+
+    **穩健性（65/100）**
+    - 口徑先行降低混淆
+    - 待改進：增加 failure-modes.md
+
+    **可維護性（70/100）**
+    - Router pattern 設計
+    - 待改進：增加單元測試
+
+    **輸出可用性（73/100）**
+    - 五命題對應五組問答
+    - 待改進：增加歷史對照
+
+  upgradeNotes:
+    targetBadge: 黃金
+    requirements:
+      - metric: robustness
+        currentScore: 65
+        targetScore: 75
+        suggestion: 增加 failure-modes.md 與缺值處理
+      - metric: correctness
+        currentScore: 72
+        targetScore: 80
+        suggestion: 增加 examples/ golden case 與回歸測試
+
+bestPractices:
+  - title: 口徑先行
+    description: 分析前務必確認數據口徑（mined/refined/reserves），避免將儲量與產量混淆
+  - title: 敘事轉指標
+    description: 任何市場說法（如「智利衰退」）必須對應量化指標（斜率、斷點、回撤）
+  - title: 替代依賴度
+    description: 計算 replacement_ratio 時考慮執行風險，ratio ≈ 1 不代表安全
+  - title: 供應慣性
+    description: 使用 10 年 lead time 約束評估供應反應，避免過度樂觀
+
+pitfalls:
+  - title: 儲量幻覺
+    description: 將儲量排名等同於供應安全
+    consequence: 智利儲量第一但產量可能下滑，高估供應穩定性
+  - title: 單一指標
+    description: 只看 HHI 不看趨勢變化
+    consequence: 錯過集中度正在惡化的動態訊號
+  - title: 忽略品位
+    description: 不考慮礦石品位下滑對產量的影響
+    consequence: 低估維持產量所需的資源投入
+  - title: 地緣風險低估
+    description: 將地緣政治視為短期事件而非結構性風險
+    consequence: 對秘魯罷工、DRC 衝突等慢變量準備不足
+
+faq:
+  - question: 為什麼用 HHI 而不是 CR4？
+    answer: |
+      HHI 對份額差異更敏感。例如：
+      - 4 國各 25% → CR4=100%, HHI=2500
+      - 1 國 70% + 3 國各 10% → CR4=100%, HHI=5200
+
+      HHI 能區分「均勻分佈」與「一國獨大」的風險差異。
+
+  - question: 智利產量下滑是暫時還是結構性的？
+    answer: |
+      本 Skill 使用三指標判定：
+      1. 趨勢斜率（近 N 年是否持續負向）
+      2. 結構斷點（是否有明顯轉折年）
+      3. 峰值回撤（從高點跌了多少）
+
+      三項均為負面 → 結構性衰退
+      只有斜率負向 → 可能是週期性調整
+
+  - question: GDELT 地緣風險指數可靠嗎？
+    answer: |
+      GDELT 是公開事件資料庫，優點是免費且覆蓋廣。
+      局限性：
+      - 新聞導向，可能放大短期事件
+      - 需要設計合適的篩選關鍵字
+
+      建議作為輔助參考，非決策唯一依據。
+
+  - question: 如何驗證數據準確性？
+    answer: |
+      使用雙來源交叉驗證：
+      1. OWID Minerals 作為 baseline
+      2. USGS MCS 作為官方口徑驗證
+      3. 差異 > 5% 時標記並說明可能原因
+
+about:
+  repository: https://github.com/fatfingererr/macro-skills
+  branch: main
+  additionalInfo: |
+    ## 設計背景
+
+    此技能源於對「銅供應風險被低估」這類敘事的量化驗證需求。
+    常見說法包括：
+    - 「只有 10-12 國有顯著產量」
+    - 「智利像銅礦的 OPEC」
+    - 「品位下滑導致成本上升」
+    - 「未來只能依賴秘魯和剛果金」
+
+    本 Skill 將這些敘事轉化為可驗證的指標與情境分析。
+
+    ## 關鍵洞察
+
+    1. **集中度確實高**：前 4-5 國控制超過 60% 產量
+    2. **智利趨勢轉向**：2016-2018 後產量增長停滯
+    3. **替代依賴風險**：秘魯勞工問題、DRC 政治不穩定
+    4. **供應反應慢**：新礦開發週期 10-15 年
+
+    ## 使用場景
+
+    - 投資者評估銅礦股的地緣風險
+    - 分析師驗證市場流行敘事
+    - 策略師設計供應鏈多元化方案
+    - 研究者建立銅市場結構性分析框架

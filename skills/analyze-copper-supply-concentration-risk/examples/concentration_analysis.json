@@ -1,0 +1,112 @@
+{
+  "commodity": "copper",
+  "analysis_type": "concentration",
+  "generated_at": "2026-01-24T10:30:00Z",
+  "period": {
+    "start_year": 1970,
+    "end_year": 2023
+  },
+  "concentration": {
+    "metric": "HHI",
+    "hhi_latest": 1820,
+    "hhi_10y_ago": 1750,
+    "hhi_trend": "上升",
+    "cr4_latest": 0.562,
+    "cr8_latest": 0.734,
+    "market_structure": "中等集中 (Moderately Concentrated)"
+  },
+  "chile_analysis": {
+    "share_latest": 0.268,
+    "share_peak": 0.342,
+    "peak_year": 2003,
+    "percentile": 75
+  },
+  "top_producers": [
+    {
+      "rank": 1,
+      "country": "Chile",
+      "production_mt": 5.26,
+      "share": 0.268,
+      "cumulative_share": 0.268
+    },
+    {
+      "rank": 2,
+      "country": "Peru",
+      "production_mt": 2.0,
+      "share": 0.102,
+      "cumulative_share": 0.370
+    },
+    {
+      "rank": 3,
+      "country": "Democratic Republic of Congo",
+      "production_mt": 1.86,
+      "share": 0.095,
+      "cumulative_share": 0.465
+    },
+    {
+      "rank": 4,
+      "country": "China",
+      "production_mt": 1.70,
+      "share": 0.087,
+      "cumulative_share": 0.552
+    },
+    {
+      "rank": 5,
+      "country": "United States",
+      "production_mt": 1.10,
+      "share": 0.056,
+      "cumulative_share": 0.608
+    },
+    {
+      "rank": 6,
+      "country": "Russia",
+      "production_mt": 0.82,
+      "share": 0.042,
+      "cumulative_share": 0.650
+    },
+    {
+      "rank": 7,
+      "country": "Australia",
+      "production_mt": 0.78,
+      "share": 0.040,
+      "cumulative_share": 0.690
+    },
+    {
+      "rank": 8,
+      "country": "Indonesia",
+      "production_mt": 0.72,
+      "share": 0.037,
+      "cumulative_share": 0.727
+    }
+  ],
+  "timeseries": [
+    {"year": 2014, "hhi": 1720, "cr4": 0.540, "chile_share": 0.295},
+    {"year": 2015, "hhi": 1730, "cr4": 0.545, "chile_share": 0.290},
+    {"year": 2016, "hhi": 1745, "cr4": 0.550, "chile_share": 0.285},
+    {"year": 2017, "hhi": 1760, "cr4": 0.552, "chile_share": 0.280},
+    {"year": 2018, "hhi": 1775, "cr4": 0.555, "chile_share": 0.278},
+    {"year": 2019, "hhi": 1785, "cr4": 0.555, "chile_share": 0.275},
+    {"year": 2020, "hhi": 1790, "cr4": 0.558, "chile_share": 0.272},
+    {"year": 2021, "hhi": 1800, "cr4": 0.560, "chile_share": 0.270},
+    {"year": 2022, "hhi": 1810, "cr4": 0.561, "chile_share": 0.269},
+    {"year": 2023, "hhi": 1820, "cr4": 0.562, "chile_share": 0.268}
+  ],
+  "trend_analysis": {
+    "hhi_change_10y": 100,
+    "hhi_change_pct": 0.058,
+    "chile_share_change_10y": -0.027,
+    "interpretation": "市場集中度緩慢上升，但智利份額持續下滑，DRC 份額快速增加"
+  },
+  "data_sources": [
+    {
+      "name": "OWID Minerals",
+      "tier": 0,
+      "confidence": 0.9
+    }
+  ],
+  "unit": "t_Cu_content",
+  "notes": [
+    "所有產量數據為 mined copper content（非 refined）",
+    "HHI 範圍 0-10000，>2500 為高集中"
+  ]
+}
