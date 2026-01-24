@@ -75,24 +75,6 @@
       "tags": []
     },
     {
-      "name": "nickel-concentration-risk-analyzer",
-      "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
-      "version": "0.1.1",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/nickel-concentration-risk-analyzer",
-      "category": "event-scenario",
-      "tags": [
-        "鎳",
-        "供給集中度",
-        "原物料",
-        "採礦",
-        "地緣政治",
-        "情境分析"
-      ]
-    },
-    {
       "name": "us-cpi-pce-comparator",
       "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
       "version": "0.1.0",
@@ -108,6 +90,24 @@
         "Fed",
         "權重差異",
         "FRED"
+      ]
+    },
+    {
+      "name": "nickel-concentration-risk-analyzer",
+      "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
+      "version": "0.1.1",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/nickel-concentration-risk-analyzer",
+      "category": "event-scenario",
+      "tags": [
+        "鎳",
+        "供給集中度",
+        "原物料",
+        "採礦",
+        "地緣政治",
+        "情境分析"
       ]
     },
     {
@@ -255,24 +255,6 @@
       ]
     },
     {
-      "name": "detect-freight-led-inflation-turn",
-      "description": "透過美國卡斯貨運指數 (CASS Freight Index) 的週期轉折，偵測美國通膨壓力是否進入放緩或反轉階段。用於判斷「通膨是否正在降溫」，並驗證市場對降息、通膨回落的宏觀敘事是否有實體經濟數據支撐。",
-      "version": "0.1.1",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/detect-freight-led-inflation-turn",
-      "category": "inflation-analytics",
-      "tags": [
-        "卡斯貨運指數",
-        "貨運",
-        "企業運費",
-        "通貨膨脹",
-        "領先指標",
-        "CPI"
-      ]
-    },
-    {
       "name": "detect-atr-squeeze-regime",
       "description": "以 14 日指數平滑 ATR 偵測市場是否從秩序型趨勢轉為波動主導的擠壓（squeeze）行情，並輸出對技術位、停損、交易持有期的可行性評估。",
       "version": "0.1.0",
@@ -306,6 +288,24 @@
         "債務動能",
         "通貨膨脹",
         "人口老化"
+      ]
+    },
+    {
+      "name": "detect-freight-led-inflation-turn",
+      "description": "透過美國卡斯貨運指數 (CASS Freight Index) 的週期轉折，偵測美國通膨壓力是否進入放緩或反轉階段。用於判斷「通膨是否正在降溫」，並驗證市場對降息、通膨回落的宏觀敘事是否有實體經濟數據支撐。",
+      "version": "0.1.1",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-freight-led-inflation-turn",
+      "category": "inflation-analytics",
+      "tags": [
+        "卡斯貨運指數",
+        "貨運",
+        "企業運費",
+        "通貨膨脹",
+        "領先指標",
+        "CPI"
       ]
     },
     {
@@ -374,21 +374,21 @@
       ]
     },
     {
-      "name": "analyze-move-risk-gauges-leadlag",
-      "description": "用公開市場數據檢查「利率波動率（MOVE）是否對利率事件（如 JGB 殖利率變動）不恐慌，並且是否領先帶動 VIX / 信用利差走低」",
-      "version": "0.1.0",
+      "name": "analyze-japan-debt-service-tax-burden",
+      "description": "以日本公債殖利率變化為觸發，量化「政府利息支出 / 稅收」負擔（含情境壓力測試），並判斷是否進入債務利息螺旋風險區。",
+      "version": "0.1.1",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/analyze-move-risk-gauges-leadlag",
+      "source": "./skills/analyze-japan-debt-service-tax-burden",
       "category": "interest-rates",
       "tags": [
-        "利率波動率",
-        "MOVE",
-        "VIX",
-        "信用利差",
-        "領先落後",
-        "事件分析"
+        "日本",
+        "國債",
+        "債務",
+        "利息支出",
+        "稅收",
+        "壓力測試"
       ]
     },
     {
@@ -428,21 +428,39 @@
       ]
     },
     {
-      "name": "analyze-japan-debt-service-tax-burden",
-      "description": "以日本公債殖利率變化為觸發，量化「政府利息支出 / 稅收」負擔（含情境壓力測試），並判斷是否進入債務利息螺旋風險區。",
-      "version": "0.1.1",
+      "name": "analyze-copper-supply-concentration-risk",
+      "description": "用公開資料量化「銅供應是否過度集中、主要產地是否結構性衰退、替代增量是否依賴少數國家」，並輸出可行的中期供應風險結論與情境推演。",
+      "version": "0.1.0",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/analyze-japan-debt-service-tax-burden",
+      "source": "./skills/analyze-copper-supply-concentration-risk",
+      "category": "commodity-sd",
+      "tags": [
+        "銅",
+        "供給集中度",
+        "原物料",
+        "採礦",
+        "地緣政治",
+        "情境分析"
+      ]
+    },
+    {
+      "name": "analyze-move-risk-gauges-leadlag",
+      "description": "用公開市場數據檢查「利率波動率（MOVE）是否對利率事件（如 JGB 殖利率變動）不恐慌，並且是否領先帶動 VIX / 信用利差走低」",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-move-risk-gauges-leadlag",
       "category": "interest-rates",
       "tags": [
-        "日本",
-        "國債",
-        "債務",
-        "利息支出",
-        "稅收",
-        "壓力測試"
+        "利率波動率",
+        "MOVE",
+        "VIX",
+        "信用利差",
+        "領先落後",
+        "事件分析"
       ]
     },
     {
