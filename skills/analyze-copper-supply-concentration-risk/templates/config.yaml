@@ -115,16 +115,13 @@ cache_ttl_days: 7
 
 # 數據來源
 # --------
+# 本技能僅使用 MacroMicro (WBMS) 作為產量數據的唯一主要來源
 data_sources:
   primary:
-    - name: "OWID"
-      url: "https://raw.githubusercontent.com/owid/owid-datasets/master/datasets/Copper%20mine%20production%20(USGS%20%26%20BGS)/Copper%20mine%20production%20(USGS%20%26%20BGS).csv"
+    - name: "MacroMicro"
+      url: "https://en.macromicro.me/charts/91500/wbms-copper-mine-production-total-world"
       tier: 0
-
-  validation:
-    - name: "USGS"
-      url: "https://www.usgs.gov/centers/national-minerals-information-center/copper-statistics-and-information"
-      tier: 0
+      description: "WBMS 銅礦產量（唯一主要來源）"
 
   geopolitics:
     - name: "GDELT"
