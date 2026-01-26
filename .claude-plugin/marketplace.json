@@ -75,24 +75,6 @@
       "tags": []
     },
     {
-      "name": "nickel-concentration-risk-analyzer",
-      "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
-      "version": "0.1.1",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/nickel-concentration-risk-analyzer",
-      "category": "event-scenario",
-      "tags": [
-        "鎳",
-        "供給集中度",
-        "原物料",
-        "採礦",
-        "地緣政治",
-        "情境分析"
-      ]
-    },
-    {
       "name": "us-cpi-pce-comparator",
       "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
       "version": "0.1.0",
@@ -108,6 +90,24 @@
         "Fed",
         "權重差異",
         "FRED"
+      ]
+    },
+    {
+      "name": "nickel-concentration-risk-analyzer",
+      "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
+      "version": "0.1.1",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/nickel-concentration-risk-analyzer",
+      "category": "event-scenario",
+      "tags": [
+        "鎳",
+        "供給集中度",
+        "原物料",
+        "採礦",
+        "地緣政治",
+        "情境分析"
       ]
     },
     {
@@ -129,24 +129,6 @@
       ]
     },
     {
-      "name": "monitor-etf-holdings-drawdown-risk",
-      "description": "偵測「商品價格上漲、但對應實物 ETF/信託持倉卻下滑」的背離現象，並用多指標交叉驗證，評估是否存在實物供給緊張/交割壓力風險",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/monitor-etf-holdings-drawdown-risk",
-      "category": "indicator-monitoring",
-      "tags": [
-        "ETF",
-        "持倉監控",
-        "背離分析",
-        "實物短缺",
-        "白銀",
-        "黃金"
-      ]
-    },
-    {
       "name": "list-china-today-macro-news",
       "description": "彙整今日中國宏觀經濟新聞消息，從華爾街日報、36氪等來源抓取並篩選宏觀相關新聞，輸出雜誌風格的新聞摘要。適用於交易/研究開盤前快速掌握中國宏觀動態。",
       "version": "0.3.0",
@@ -162,6 +144,24 @@
         "華爾街日報",
         "央行",
         "利率"
+      ]
+    },
+    {
+      "name": "monitor-etf-holdings-drawdown-risk",
+      "description": "偵測「商品價格上漲、但對應實物 ETF/信託持倉卻下滑」的背離現象，並用多指標交叉驗證，評估是否存在實物供給緊張/交割壓力風險",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/monitor-etf-holdings-drawdown-risk",
+      "category": "indicator-monitoring",
+      "tags": [
+        "ETF",
+        "持倉監控",
+        "背離分析",
+        "實物短缺",
+        "白銀",
+        "黃金"
       ]
     },
     {
@@ -201,24 +201,6 @@
       ]
     },
     {
-      "name": "detect-us-equity-valuation-percentile-extreme",
-      "description": "把多個股票估值指標統一轉成在過去百年歷史中的分位數，再合成一個總分，判斷目前是否處於歷史極端高估區間，並用歷史類比（如 1929、1965、1999）給出風險解讀",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/detect-us-equity-valuation-percentile-extreme",
-      "category": "indicator-monitoring",
-      "tags": [
-        "估值",
-        "分位數",
-        "CAPE",
-        "本益比",
-        "巴菲特指標",
-        "GDP"
-      ]
-    },
-    {
       "name": "detect-shanghai-silver-stock-drain",
       "description": "以公開交易所庫存資料為核心，量化上海白銀庫存耗盡的方向、速度與加速度，並將其轉成可交易的供給緊縮訊號",
       "version": "0.1.0",
@@ -234,6 +216,24 @@
         "上海期交所",
         "供給緊縮",
         "耗盡訊號"
+      ]
+    },
+    {
+      "name": "detect-us-equity-valuation-percentile-extreme",
+      "description": "把多個股票估值指標統一轉成在過去百年歷史中的分位數，再合成一個總分，判斷目前是否處於歷史極端高估區間，並用歷史類比（如 1929、1965、1999）給出風險解讀",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-us-equity-valuation-percentile-extreme",
+      "category": "indicator-monitoring",
+      "tags": [
+        "估值",
+        "分位數",
+        "CAPE",
+        "本益比",
+        "巴菲特指標",
+        "GDP"
       ]
     },
     {
@@ -309,35 +309,6 @@
       ]
     },
     {
-      "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
-      "description": "從網路自動抓取礦業公司財務報表與營運揭露（產量、成本、資本支出），回算「礦業股/金屬本體比率」的基本面解釋與區間門檻（如 1.2/1.7），並輸出可重現的估值拆解（成本因子 / 槓桿因子 / 倍數因子 / 稀釋因子）。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/backsolve-miner-vs-metal-ratio-with-fundamentals",
-      "category": "commodity-sd",
-      "tags": [
-        "礦業股",
-        "基本面",
-        "AISC",
-        "槓桿",
-        "倍數",
-        "稀釋"
-      ]
-    },
-    {
-      "name": "cost-density-net-rr-calculator",
-      "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
-      "version": "0.1.0",
-      "author": {
-        "name": "macro-skills"
-      },
-      "source": "./skills/cost-density-net-rr-calculator",
-      "category": "indicator-monitoring",
-      "tags": []
-    },
-    {
       "name": "demographic-fiscal-trap-analyzer",
       "description": "分析人口老化、債務動態、官僚膨脹與通膨稀釋交互作用下的「財政陷阱」風險，量化各國/地區的財政脆弱度並識別潛在的貨幣稀釋路徑",
       "version": "0.1.0",
@@ -356,21 +327,32 @@
       ]
     },
     {
-      "name": "analyze-us-bank-credit-deposit-decoupling",
-      "description": "分析銀行貸款與存款之間的「信貸創造脫鉤」現象，用以辨識聯準會緊縮政策在銀行體系內部的真實傳導效果。",
-      "version": "0.1.1",
+      "name": "cost-density-net-rr-calculator",
+      "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
+      "version": "0.1.0",
+      "author": {
+        "name": "macro-skills"
+      },
+      "source": "./skills/cost-density-net-rr-calculator",
+      "category": "indicator-monitoring",
+      "tags": []
+    },
+    {
+      "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
+      "description": "從網路自動抓取礦業公司財務報表與營運揭露（產量、成本、資本支出），回算「礦業股/金屬本體比率」的基本面解釋與區間門檻（如 1.2/1.7），並輸出可重現的估值拆解（成本因子 / 槓桿因子 / 倍數因子 / 稀釋因子）。",
+      "version": "0.1.0",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/analyze-us-bank-credit-deposit-decoupling",
-      "category": "credit-risk",
+      "source": "./skills/backsolve-miner-vs-metal-ratio-with-fundamentals",
+      "category": "commodity-sd",
       "tags": [
-        "QT",
-        "聯準會",
-        "銀行信貸",
-        "存款",
-        "RRP",
-        "隱性緊縮"
+        "礦業股",
+        "基本面",
+        "AISC",
+        "槓桿",
+        "倍數",
+        "稀釋"
       ]
     },
     {
@@ -389,6 +371,24 @@
         "SILJ",
         "相對估值",
         "分位數"
+      ]
+    },
+    {
+      "name": "analyze-us-bank-credit-deposit-decoupling",
+      "description": "分析銀行貸款與存款之間的「信貸創造脫鉤」現象，用以辨識聯準會緊縮政策在銀行體系內部的真實傳導效果。",
+      "version": "0.1.1",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-us-bank-credit-deposit-decoupling",
+      "category": "credit-risk",
+      "tags": [
+        "QT",
+        "聯準會",
+        "銀行信貸",
+        "存款",
+        "RRP",
+        "隱性緊縮"
       ]
     },
     {
@@ -464,24 +464,6 @@
       ]
     },
     {
-      "name": "analyze-copper-inventory-rebuild-signal",
-      "description": "用「庫存快速回補」作為短期警戒訊號，評估銅價是否接近短線高點，同時給出一個「長期是否偏便宜」的歷史分位數判讀。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/analyze-copper-inventory-rebuild-signal",
-      "category": "commodity-sd",
-      "tags": [
-        "銅",
-        "庫存",
-        "SHFE",
-        "COMEX",
-        "期貨",
-        "技術分析"
-      ]
-    },
-    {
       "name": "analyze-high-unemployment-high-gdp-growth-fiscal-deficit-scenarios",
       "description": "在「失業率走高／勞動市場轉弱」但「名目或實質 GDP 仍維持高位（或仍在成長）」的情境下，依據歷史關聯估算美國財政赤字占 GDP（Deficit/GDP）可能擴張的區間，並生成對長天期美債（長久期 UST）供給/利率風險的情境解讀。",
       "version": "0.1.0",
@@ -533,6 +515,24 @@
         "中國利率",
         "關卡突破",
         "回補分析"
+      ]
+    },
+    {
+      "name": "analyze-copper-inventory-rebuild-signal",
+      "description": "用「庫存快速回補」作為短期警戒訊號，評估銅價是否接近短線高點，同時給出一個「長期是否偏便宜」的歷史分位數判讀。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-copper-inventory-rebuild-signal",
+      "category": "commodity-sd",
+      "tags": [
+        "銅",
+        "庫存",
+        "SHFE",
+        "COMEX",
+        "期貨",
+        "技術分析"
       ]
     }
   ]
