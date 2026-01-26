@@ -620,16 +620,16 @@ def detect_palladium_lead_silver_turns(
         events.append(
             {
                 "ts": ag_turn["ts"].isoformat() if hasattr(ag_turn["ts"], "isoformat") else str(ag_turn["ts"]),
-                "idx": ag_turn["idx"],
+                "idx": int(ag_turn["idx"]),
                 "turn": ag_turn["type"],
-                "ag_price": ag_turn["price"],
-                "confirmed": confirmed,
-                "confirmation_lag_bars": conf_lag,
+                "ag_price": float(ag_turn["price"]),
+                "confirmed": bool(confirmed),
+                "confirmation_lag_bars": int(conf_lag) if conf_lag is not None else None,
                 "pd_turn_ts": pd_turn_ts,
-                "pd_turn_price": pd_turn_price,
-                "participation_ok": part_ok,
-                "participation_score": round(part_score, 3),
-                "failed_move": failed,
+                "pd_turn_price": float(pd_turn_price) if pd_turn_price is not None else None,
+                "participation_ok": bool(part_ok),
+                "participation_score": round(float(part_score), 3),
+                "failed_move": bool(failed),
             }
         )
 
