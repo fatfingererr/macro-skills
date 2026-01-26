@@ -83,17 +83,33 @@ python scripts/palladium_lead_silver.py --quick
 
 ## Step 4: 生成視覺化（可選）
 
-如需圖表：
+### 4.1 Bloomberg 風格圖表（推薦）
 
 ```bash
-pip install matplotlib  # 首次使用
+pip install matplotlib yfinance  # 首次使用
+python scripts/plot_bloomberg_style.py \
+  --input result.json \
+  --output output/palladium_silver_{date}.png
+```
+
+特色：
+- Bloomberg 專業配色（深色背景）
+- 雙軸價格疊加（白銀橙紅、鈀金橙黃）
+- 拐點標記（綠色=已確認、紅色=未確認）
+- 最新事件醒目標註
+- 滾動確認率趨勢圖
+- 統計面板與行情解讀
+
+### 4.2 傳統三合一圖表
+
+```bash
 python scripts/plot_palladium_silver.py \
   --silver {silver_symbol} \
   --palladium {palladium_symbol} \
   --output output/
 ```
 
-輸出圖表包含：
+包含：
 - 價格疊加與拐點標記
 - 確認/未確認分布
 - 滾動相關係數

@@ -108,13 +108,27 @@ python scripts/palladium_lead_silver.py --silver SI=F --palladium PA=F --quick
 python scripts/palladium_lead_silver.py --silver SI=F --palladium PA=F --timeframe 1h --lookback 1000 --output result.json
 ```
 
-**生成視覺化圖表**：
+**生成 Bloomberg 風格視覺化圖表**（推薦）：
 ```bash
-pip install matplotlib  # 首次使用
+pip install matplotlib yfinance  # 首次使用
+python scripts/plot_bloomberg_style.py --input result.json --output output/palladium_silver_2026-01-26.png
+```
+
+圖表特色：
+- **Bloomberg 專業配色**：深色背景、橙紅色白銀線、橙黃色鈀金線
+- **背景色帶標記**：綠色背景 = 已確認拐點區域，紅色背景 = 未確認拐點區域（不擋住走勢線）
+- **最新事件標註**：醒目標示最新拐點的確認狀態與價格
+- **Pd/Ag 價格比率圖**：顯示鈀金對白銀的相對價格變化，含 20 期均線
+- **滾動確認率**：動態顯示確認邏輯的有效性趨勢
+- **統計面板**：確認率、失敗率、總拐點數等關鍵指標
+- **行情解讀**：當前狀態評估與可操作建議
+
+**傳統三合一圖表**（技術分析向）：
+```bash
 python scripts/plot_palladium_silver.py --silver SI=F --palladium PA=F --output output/
 ```
 
-圖表包含：
+包含：
 - 銀/鈀價格疊加與拐點標記
 - 確認/未確認事件分布
 - 滾動相關係數時間序列
@@ -166,7 +180,8 @@ detect-palladium-lead-silver-turns/
 │   └── output-markdown.md             # Markdown 報告模板
 ├── scripts/
 │   ├── palladium_lead_silver.py       # 主偵測腳本
-│   └── plot_palladium_silver.py       # 視覺化圖表腳本
+│   ├── plot_bloomberg_style.py        # Bloomberg 風格視覺化（推薦）
+│   └── plot_palladium_silver.py       # 傳統三合一圖表
 └── examples/
     └── silver-palladium-2024.json     # 範例輸出
 ```
@@ -211,7 +226,8 @@ detect-palladium-lead-silver-turns/
 |--------------------------|--------------------------------------------------|------------------|
 | palladium_lead_silver.py | `--silver SI=F --palladium PA=F --quick`         | 快速檢查當前狀態 |
 | palladium_lead_silver.py | `--silver SI=F --palladium PA=F --lookback 1000` | 完整歷史分析     |
-| plot_palladium_silver.py | `--silver SI=F --palladium PA=F --output dir/`   | 生成視覺化圖表   |
+| plot_bloomberg_style.py  | `--input result.json --output output/chart.png`  | Bloomberg 風格圖表（推薦） |
+| plot_palladium_silver.py | `--silver SI=F --palladium PA=F --output dir/`   | 傳統三合一圖表   |
 </scripts_index>
 
 <input_schema_summary>
