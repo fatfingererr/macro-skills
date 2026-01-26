@@ -2100,6 +2100,221 @@
     "downloadUrl": "downloads/google-trends-ath-detector-0.1.1.zip"
   },
   {
+    "id": "evaluate-exponential-trend-deviation-regimes",
+    "name": "evaluate-exponential-trend-deviation-regimes",
+    "displayName": "評估行情與指數趨勢偏離程度",
+    "description": "計算資產價格相對長期指數成長趨勢線的偏離度，衡量當前是否處於歷史極端區間，並可選擇性地進行宏觀因子分析以判斷行情體質。",
+    "emoji": "📈",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "趨勢",
+      "偏離度",
+      "歷史峰值",
+      "指數成長",
+      "技術分析",
+      "宏觀分析"
+    ],
+    "category": "business-cycles",
+    "dataLevel": "free-nolimit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\n**資產趨勢偏離度分析 核心原則**\n\n<principle name=\"exponential_trend_fitting\">\n**指數趨勢線擬合**\n多數資產在長期（數十年）尺度上遵循指數成長路徑。透過對數價格線性回歸（y = a + b*t where y = log(price)）擬合趨勢線，trend = exp(a + b*t)。偏離度 = (price / trend - 1) × 100%。\n</principle>\n\n<principle name=\"historical_context\">\n**歷史極端對照**\n透過計算當前偏離度在歷史分布中的分位數，以及與歷史峰值/谷值的比較，提供市場位置的脈絡。使用者可指定特定日期作為參考點，或由系統自動識別歷史極端值。\n</principle>\n\n<principle name=\"regime_classification\">\n**行情體質判定（選用）**\n針對特定資產（如黃金、股指），可結合宏觀因子進行行情體質分析。不同資產有不同的體質分類框架，使用者可自定義判定規則與因子權重。\n</principle>\n\n<principle name=\"universal_applicability\">\n**通用適用性**\n本技能適用於任何具有長期指數成長特性的資產：商品（黃金、原油）、股票指數、加密貨幣、房地產等。核心邏輯不預設特定資產或歷史峰值。\n</principle>\n</essential_principles>\n\n<intake>\n**您想要執行什麼操作？**\n\n1. **單資產偵測** - 計算單一資產的趨勢偏離度與歷史分位數\n2. **歷史對照分析** - 將當前偏離度與使用者指定的歷史日期或自動識別的極端值進行比較\n3. **宏觀因子分解** - 詳細拆解各宏觀代理指標對行情體質判定的貢獻（適用於支援的資產類別）\n\n**等待回應後再繼續。**\n</intake>\n\n<routing>\n| Response                           | Workflow              | Description |\n|------------------------------------|-----------------------|-------------|\n| 1, \"detect\", \"single\", \"偵測\"      | workflows/detect.md   | 單資產趨勢偏離度偵測與體質判定 |\n| 2, \"compare\", \"historical\", \"對照\" | workflows/compare.md  | 歷史峰值詳細對照分析 |\n| 3, \"macro\", \"breakdown\", \"因子\"    | workflows/macro.md    | 宏觀因子分解與貢獻度分析 |\n\n**讀取工作流程後，請完全遵循其步驟。**\n</routing>\n\n<quick_start>\n**快速開始**\n\n```bash\n# 安裝依賴\npip install pandas numpy yfinance pandas-datareader statsmodels\n\n# 快速偵測（範例：黃金期貨）\ncd skills/evaluate-exponential-trend-deviation-regimes\npython scripts/trend_deviation.py --symbol GC=F --quick\n\n# 分析其他資產（範例：S&P 500）\npython scripts/trend_deviation.py --symbol ^GSPC --start 1950-01-01\n\n# 完整分析（含宏觀因子，目前支援黃金）\npython scripts/trend_deviation.py --symbol GC=F --start 1970-01-01 --include-macro\n\n# 指定歷史參考日期\npython scripts/trend_deviation.py --symbol GC=F --compare-peaks \"2011-09-06,2020-08-07\"\n\n# 生成視覺化圖表（輸出 PNG + JSON）\npython scripts/generate_chart.py --output ./output/\n```\n</quick_start>\n\n<reference_index>\n**參考文件** (`references/`)\n\n| 文件 | 內容 |\n|------|------|\n| input-schema.md | 輸入參數詳細定義與驗證規則 |\n| methodology.md | 指數趨勢擬合與偏離度計算方法論 |\n| regime-rules.md | 1970s-like vs 2000s-like 體質判定規則 |\n| data-sources.md | 數據來源與替代方案說明 |\n</reference_index>\n\n<workflows_index>\n| Workflow | Purpose |\n|----------|---------|\n| detect.md | 單資產趨勢偏離度偵測與體質判定 |\n| compare.md | 歷史峰值詳細對照分析 |\n| macro.md | 宏觀因子分解與貢獻度分析 |\n</workflows_index>\n\n<templates_index>\n| Template | Purpose |\n|----------|---------|\n| output-json.md | JSON 輸出結構定義 |\n| output-markdown.md | Markdown 報告輸出模板 |\n</templates_index>\n\n<scripts_index>\n| Script | Purpose |\n|--------|---------|\n| trend_deviation.py | 主要分析腳本：趨勢擬合、偏離度計算、體質判定 |\n| generate_chart.py | 視覺化圖表生成：偏離度歷史圖表與峰值標註 |\n</scripts_index>\n\n<examples_index>\n**範例輸出** (`examples/`)\n\n| 文件 | 內容 |\n|------|------|\n| gold-deviation-2026.json | 2026 年黃金趨勢偏離度分析範例 |\n</examples_index>\n\n<success_criteria>\nSkill 成功執行時：\n- [ ] 成功擬合黃金價格的指數趨勢線\n- [ ] 計算出當前偏離度百分比與歷史分位數\n- [ ] 與 2011/1980 峰值進行有效比較\n- [ ] 綜合宏觀代理指標得出 regime 判定（1970s-like / 2000s-like）\n- [ ] 輸出完整的 JSON 或 Markdown 報告\n- [ ] （選用）生成視覺化圖表（PNG）標註歷史峰值與當前位置\n</success_criteria>",
+    "path": "skills/evaluate-exponential-trend-deviation-regimes/SKILL.md",
+    "directoryStructure": "evaluate-exponential-trend-deviation-regimes/\n├── examples\n│   ├── gold-deviation-2026.json\n│   └── gold-trend-deviation.md\n├── images\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   ├── methodology.md\n│   └── regime-rules.md\n├── scripts\n│   ├── generate_chart.py\n│   └── trend_deviation.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── compare.md\n    ├── detect.md\n    └── macro.md",
+    "lastUpdated": "2026-01-15",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "黃金目前的指數趨勢偏離度是多少？是否已超過 2011 年峰值？",
+        "imagePath": "images/gold-deviation-analysis-2026-01-15.png",
+        "expectedResult": "黃金指數趨勢偏離度分析結果\n\n當前狀態（截至 2025 年 12 月）\n┌────────────┬───────────┐\n│    指標    │   數值    │\n├────────────┼───────────┤\n│ 當前金價   │ $4,318.59 │\n├────────────┼───────────┤\n│ 趨勢線價格 │ $2,161.81 │\n├────────────┼───────────┤\n│ 當前偏離度 │ 99.8%     │\n├────────────┼───────────┤\n│ 歷史分位數 │ 94.8%     │\n└────────────┴───────────┘\n歷史峰值比較\n┌──────────────┬────────┬──────────────────────┐\n│   峰值時期   │ 偏離度 │      與當前差距      │\n├──────────────┼────────┼──────────────────────┤\n│ 1980 年 1 月 │ 288.5% │ -188.7 ppt（未超過） │\n├──────────────┼────────┼──────────────────────┤\n│ 2011 年 8 月 │ 83.1%  │ +16.7 ppt（已超過）  │\n└──────────────┴────────┴──────────────────────┘\n---\n結論\n\n是的，黃金已超越 2011 年峰值偏離度。\n當前黃金偏離指數趨勢線 99.8%，超過 2011 年峰值（83.1%）約 16.7 個百分點。這意味著以趨勢偏離度衡量，黃金的「泡沫程度」已超過 2011 年那波行情。\n然而，與 1980 年那種 blow-off 式的峰值（288.5%）相比，當前偏離度仍有相當距離。若行情體質類似 1970 年代（高通膨、負實質利率），理論上仍有延伸空間。\n"
+      },
+      {
+        "question": "分析 S&P 500 的指數趨勢偏離度",
+        "imagePath": "images/sp500-trend-deviation-2026-01-15.png",
+        "expectedResult": "S&P 500 指數趨勢偏離度分析報告\n\n分析日期: 2026-01-15\n數據範圍: 1950-01-31 至 2026-01-31（76 年，913 個月）\n\n---\n趨勢擬合參數\n┌────────────┬────────────────────────────────────┐\n│    參數    │                數值                │\n├────────────┼────────────────────────────────────┤\n│ 年化成長率 │ 7.34%                              │\n├────────────┼────────────────────────────────────┤\n│ 趨勢公式   │ trend = exp(3.0619 + 0.005899 × t) │\n└────────────┴────────────────────────────────────┘\n---\n當前狀態\n┌────────────┬──────────┬────────────────────────────────────────┐\n│    指標    │   數值   │                  解讀                  │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 當前價格   │ 6,926.60 │ -                                      │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 趨勢價值   │ 4,637.36 │ 長期指數趨勢的「公允值」               │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 偏離度     │ +49.4%   │ 價格高於趨勢近 50%                     │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 歷史分位數 │ 94.9%    │ 在 76 年歷史中僅有 5% 時間比現在更偏離 │\n└────────────┴──────────┴────────────────────────────────────────┘\n---\n歷史分布統計\n┌───────────────┬───────────────────┐\n│    分位數     │      偏離度       │\n├───────────────┼───────────────────┤\n│ 25%           │ -16.0%            │\n├───────────────┼───────────────────┤\n│ 50%（中位數） │ -0.4%             │\n├───────────────┼───────────────────┤\n│ 75%           │ +23.2%            │\n├───────────────┼───────────────────┤\n│ 90%           │ +38.8%            │\n├───────────────┼───────────────────┤\n│ 95%           │ +49.4% ← 當前位置 │\n├───────────────┼───────────────────┤\n│ 99%           │ +88.5%            │\n└───────────────┴───────────────────┘\n---\n歷史極端值對照\n┌─────────────────────┬────────────┬─────────┬────────────────┐\n│        事件         │    日期    │ 偏離度  │   與當前比較   │\n├─────────────────────┼────────────┼─────────┼────────────────┤\n│ 2000 年網路泡沫頂點 │ 2000-03-31 │ +101.2% │ 當前僅達其 49% │\n├─────────────────────┼────────────┼─────────┼────────────────┤\n│ 1982 年沃克緊縮谷底 │ 1982-07-31 │ -49.8%  │ 歷史最悲觀時刻 │\n└─────────────────────┴────────────┴─────────┴────────────────┘\n---\n關鍵洞察\n\n1. 極端但未達歷史峰值\n當前 +49.4% 的偏離度位於歷史第 95 分位，屬於「偏高但非極端」區間。2000 年網路泡沫時偏離度達 +101.2%，是當前的兩倍。\n2. 長期趨勢穩健\nS&P 500 在 76 年間維持約 7.3% 的年化複合成長率，這反映了美國經濟與企業盈利的長期成長。\n3. 當前定價隱含樂觀預期\n價格高於趨勢 49%，暗示市場正在計入：\n  - AI 革命帶來的生產力躍升\n  - 企業盈利持續超預期成長\n  - 流動性環境相對寬鬆\n4. 風險提示\n歷史上當偏離度超過 +40% 後，未來 3-5 年的回報率通常低於長期平均。這不是「崩盤訊號」，而是「預期回報降低」的警示。\n\n---\n結論\n\nS&P 500 當前處於 歷史高偏離區間（95 分位），但距離 2000 年的泡沫極端值仍有相當距離。這表明市場定價偏向樂觀，但尚未進入「非理性繁榮」的極端狀態。\n\n---\n圖表說明：\n\n上圖 - 價格與趨勢線\n- 藍線：S&P 500 實際價格（對數尺度）\n- 紅色虛線：長期指數趨勢線（年化 7.3%）\n- 可見價格圍繞趨勢線上下波動，目前明顯高於趨勢\n\n下圖 - 偏離度\n- 紅色區域：高於趨勢的時期\n- 綠色區域：低於趨勢的時期\n- 紅色虛線：95 分位（約 +50%）\n- 綠色虛線：5 分位（約 -40%）\n\n關鍵觀察：\n1. 2000 年網路泡沫 創下 +101.2% 的歷史最高偏離度\n2. 1982 年 是歷史最悲觀時刻（-49.8%）\n3. 當前 +49.4% 正好位於 95 分位線上，偏離度較高但遠未達到泡沫極端\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 63,
+      "badge": "中高級",
+      "evaluatedAt": "2026-01-23",
+      "metrics": {
+        "problemFit": 72,
+        "correctness": 65,
+        "dataGovernance": 60,
+        "robustness": 58,
+        "maintainability": 62,
+        "usability": 61
+      },
+      "metricDetails": {
+        "problemFit": {
+          "score": 72,
+          "strengths": [
+            "清晰的指數趨勢擬合方法論",
+            "歷史對照機制完整",
+            "適用多種資產類別"
+          ],
+          "improvements": [
+            "宏觀因子分析僅針對黃金設計",
+            "可增加結構性變化處理"
+          ]
+        },
+        "correctness": {
+          "score": 65,
+          "strengths": [
+            "方法論有理論依據",
+            "testQuestions 有 expectedResult",
+            "歷史峰值對照清楚"
+          ],
+          "improvements": [
+            "趨勢擬合區間選擇影響結果",
+            "可增加敏感度分析"
+          ]
+        },
+        "dataGovernance": {
+          "score": 60,
+          "strengths": [
+            "使用 Yahoo Finance 免費數據",
+            "有 Stooq 替代來源"
+          ],
+          "improvements": [
+            "缺少 data-sources.md 完整文檔",
+            "FRED 宏觀數據整合需說明"
+          ]
+        },
+        "robustness": {
+          "score": 58,
+          "strengths": [
+            "pitfalls 詳列擬合風險",
+            "bestPractices 有數據長度建議"
+          ],
+          "improvements": [
+            "缺少 failure-modes.md",
+            "結構性變化偵測需加強"
+          ]
+        },
+        "maintainability": {
+          "score": 62,
+          "strengths": [
+            "參數定義完整",
+            "多數據來源支援"
+          ],
+          "improvements": [
+            "可增加 manifest.json 版本控制",
+            "宏觀因子需定期更新"
+          ]
+        },
+        "usability": {
+          "score": 61,
+          "strengths": [
+            "FAQ 解答偏離度概念",
+            "輸出有歷史對照圖表"
+          ],
+          "improvements": [
+            "可增加 historical-episodes.md",
+            "可增加更多資產範例"
+          ]
+        }
+      },
+      "details": "**任務適配度（72/100）**\n- 指數趨勢擬合方法論清晰\n- 待改進：宏觀因子擴展\n\n**正確性（65/100）**\n- 方法論有理論依據\n- 待改進：敏感度分析\n\n**資料治理（60/100）**\n- 使用免費數據\n- 待改進：增加 data-sources.md\n\n**穩健性（58/100）**\n- pitfalls 詳列風險\n- 待改進：增加 failure-modes.md\n\n**可維護性（62/100）**\n- 參數定義完整\n- 待改進：增加版本控制\n\n**輸出可用性（61/100）**\n- FAQ 解答核心概念\n- 待改進：增加資產範例\n",
+      "upgradeNotes": {
+        "targetBadge": "高級",
+        "requirements": [
+          {
+            "metric": "robustness",
+            "currentScore": 58,
+            "targetScore": 80,
+            "suggestion": "增加 failure-modes.md 與結構變化處理"
+          },
+          {
+            "metric": "dataGovernance",
+            "currentScore": 60,
+            "targetScore": 80,
+            "suggestion": "增加 data-sources.md"
+          },
+          {
+            "metric": "correctness",
+            "currentScore": 65,
+            "targetScore": 80,
+            "suggestion": "增加敏感度分析與驗證"
+          }
+        ]
+      }
+    },
+    "bestPractices": [
+      {
+        "title": "使用足夠長的歷史數據",
+        "description": "建議至少 10-20 年歷史數據，以捕捉完整的週期。不同資產需要不同的起始日期"
+      },
+      {
+        "title": "月頻數據降低噪音",
+        "description": "長期趨勢分析建議使用月頻數據，日頻噪音太大。腳本會自動轉換"
+      },
+      {
+        "title": "不預設歷史峰值",
+        "description": "讓系統自動識別歷史極端值，或由使用者根據資產特性指定有意義的參考日期"
+      },
+      {
+        "title": "理解偏離度的含義",
+        "description": "偏離度是風險評估工具，不是交易訊號。高偏離可能持續很久，也可能快速回歸"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "把偏離度當作交易訊號",
+        "description": "偏離度是風險評估工具，不是做多做空訊號",
+        "consequence": "過早逆勢操作可能遭遇趨勢延續的虧損"
+      },
+      {
+        "title": "使用固定的歷史參考點",
+        "description": "不同資產有不同的週期特性，不應套用其他資產的歷史峰值",
+        "consequence": "參考點失去意義，誤導決策"
+      },
+      {
+        "title": "趨勢線擬合區間選擇不當",
+        "description": "若只用近期數據擬合，趨勢斜率會被近期行情扭曲",
+        "consequence": "偏離度計算失真"
+      },
+      {
+        "title": "忽略結構性變化",
+        "description": "資產的長期成長率可能因市場結構、制度變化而改變",
+        "consequence": "簡單的全樣本擬合可能不適用於有結構性轉折的資產"
+      }
+    ],
+    "faq": [
+      {
+        "question": "什麼是「指數趨勢偏離度」？",
+        "answer": "指數趨勢偏離度衡量當前價格與長期指數成長趨勢線的距離，以百分比表示。\n\n計算方式：\n1. 對歷史價格取對數：y = log(price)\n2. 對時間做線性回歸：y = a + b*t\n3. 趨勢價格：trend = exp(a + b*t)\n4. 偏離度：(price / trend - 1) × 100%\n\n正偏離表示價格高於趨勢，負偏離表示低於趨勢。\n"
+      },
+      {
+        "question": "這個工具適用於哪些資產？",
+        "answer": "適用於具有長期指數成長特性的資產：\n\n**商品**：黃金、白銀、原油、銅等\n**股票指數**：S&P 500、納斯達克、全球指數等\n**加密貨幣**：比特幣、以太坊等（需注意歷史較短）\n**ETF**：各類 ETF\n**房地產指數**：房價指數、REIT 等\n\n核心要求：有足夠長的歷史數據（建議 ≥ 10 年）\n"
+      },
+      {
+        "question": "如何選擇歷史參考日期？",
+        "answer": "有兩種方式：\n\n**1. 自動識別**（推薦）：\n- 讓系統自動找出歷史最大偏離度\n- 不需要預先知道資產的歷史\n\n**2. 手動指定**：\n- 根據資產特性指定有意義的歷史峰值/谷值\n- 例如：黃金可參考 1980、2011；股市可參考 2000、2008、2020\n\n**黃金範例**：`--compare-peaks \"2011-09-06,1980-01-21\"`\n**股市範例**：`--compare-peaks \"2000-03-24,2007-10-09,2020-02-19\"`\n"
+      },
+      {
+        "question": "宏觀因子分析支援哪些資產？",
+        "answer": "目前宏觀因子分析主要針對黃金設計（1970s-like vs 2000s-like 體質）。\n\n其他資產的宏觀分析需要自定義因子和判定規則。\n\n若不使用 `--include-macro` 參數，工具會純粹計算偏離度，\n適用於所有資產。\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 參考來源\n\n- 靈感來自 Twitter/X 上關於「% distance from exponential growth trendline」的討論\n- 適用於多種資產類別的指數趨勢偏離度分析\n\n## 數據來源\n\n**Yahoo Finance（免費，無需 API key）**\n- 支援：股票、期貨、ETF、指數、加密貨幣等\n- 使用 yfinance 套件抓取\n\n**FRED（免費，無需 API key，選用）**\n- 宏觀因子：實質利率、通膨預期、美元指數等\n- 使用 pandas-datareader 套件抓取\n\n**Stooq（替代來源）**\n- 各類資產歷史數據\n- CSV 下載\n\n## 適用場景\n\n- 長期投資配置決策\n- 評估資產是否處於歷史極端區間\n- 風險管理與倉位調整\n- 多資產比較分析\n\n## 黃金專用功能\n\n針對黃金，可使用 `--include-macro` 參數進行：\n- 1970s-like vs 2000s-like 行情體質判定\n- 基於實質利率、通膨、地緣風險、美元的多因子分析\n\n參考範例：`examples/gold-deviation-2026.json`\n"
+    },
+    "methodology": "### 資產長期遵循指數成長\n\n許多資產在長期（數十年）尺度上遵循指數成長路徑，主要原因：\n\n1. **經濟成長**：全球經濟、貨幣供應量長期以指數方式增長\n2. **複利效應**：任何穩定的成長率在長期都會表現為指數形式\n3. **通膨因素**：名目價格會隨著通膨而增長\n\n**適用資產範例**：\n- **商品**：黃金、白銀、原油（受貨幣供應與購買力影響）\n- **股票指數**：S&P 500、NASDAQ（受經濟成長與盈利成長驅動）\n- **加密貨幣**：比特幣、以太坊（受採用率與網絡效應驅動）\n- **房地產**：房價指數（受收入成長與都市化影響）\n\n### 偏離度的意義\n\n偏離度衡量當前價格與「公允長期趨勢」的距離：\n\n- **正偏離**：價格高於趨勢，可能反映過度樂觀或極端事件\n- **負偏離**：價格低於趨勢，可能反映過度悲觀或錯誤定價\n",
+    "downloadUrl": "downloads/evaluate-exponential-trend-deviation-regimes-0.1.0.zip"
+  },
+  {
     "id": "detect-us-equity-valuation-percentile-extreme",
     "name": "detect-us-equity-valuation-percentile-extreme",
     "displayName": "計算美股當前估值歷史分位數",
@@ -2739,221 +2954,6 @@
     "downloadUrl": "downloads/detect-palladium-lead-silver-turns-0.1.0.zip"
   },
   {
-    "id": "evaluate-exponential-trend-deviation-regimes",
-    "name": "evaluate-exponential-trend-deviation-regimes",
-    "displayName": "評估行情與指數趨勢偏離程度",
-    "description": "計算資產價格相對長期指數成長趨勢線的偏離度，衡量當前是否處於歷史極端區間，並可選擇性地進行宏觀因子分析以判斷行情體質。",
-    "emoji": "📈",
-    "version": "0.1.0",
-    "license": "MIT",
-    "author": "Ricky Wang",
-    "authorUrl": "https://github.com/fatfingererr/macro-skills",
-    "tags": [
-      "趨勢",
-      "偏離度",
-      "歷史峰值",
-      "指數成長",
-      "技術分析",
-      "宏觀分析"
-    ],
-    "category": "business-cycles",
-    "dataLevel": "free-nolimit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": false,
-    "installCount": 0,
-    "content": "<essential_principles>\n**資產趨勢偏離度分析 核心原則**\n\n<principle name=\"exponential_trend_fitting\">\n**指數趨勢線擬合**\n多數資產在長期（數十年）尺度上遵循指數成長路徑。透過對數價格線性回歸（y = a + b*t where y = log(price)）擬合趨勢線，trend = exp(a + b*t)。偏離度 = (price / trend - 1) × 100%。\n</principle>\n\n<principle name=\"historical_context\">\n**歷史極端對照**\n透過計算當前偏離度在歷史分布中的分位數，以及與歷史峰值/谷值的比較，提供市場位置的脈絡。使用者可指定特定日期作為參考點，或由系統自動識別歷史極端值。\n</principle>\n\n<principle name=\"regime_classification\">\n**行情體質判定（選用）**\n針對特定資產（如黃金、股指），可結合宏觀因子進行行情體質分析。不同資產有不同的體質分類框架，使用者可自定義判定規則與因子權重。\n</principle>\n\n<principle name=\"universal_applicability\">\n**通用適用性**\n本技能適用於任何具有長期指數成長特性的資產：商品（黃金、原油）、股票指數、加密貨幣、房地產等。核心邏輯不預設特定資產或歷史峰值。\n</principle>\n</essential_principles>\n\n<intake>\n**您想要執行什麼操作？**\n\n1. **單資產偵測** - 計算單一資產的趨勢偏離度與歷史分位數\n2. **歷史對照分析** - 將當前偏離度與使用者指定的歷史日期或自動識別的極端值進行比較\n3. **宏觀因子分解** - 詳細拆解各宏觀代理指標對行情體質判定的貢獻（適用於支援的資產類別）\n\n**等待回應後再繼續。**\n</intake>\n\n<routing>\n| Response                           | Workflow              | Description |\n|------------------------------------|-----------------------|-------------|\n| 1, \"detect\", \"single\", \"偵測\"      | workflows/detect.md   | 單資產趨勢偏離度偵測與體質判定 |\n| 2, \"compare\", \"historical\", \"對照\" | workflows/compare.md  | 歷史峰值詳細對照分析 |\n| 3, \"macro\", \"breakdown\", \"因子\"    | workflows/macro.md    | 宏觀因子分解與貢獻度分析 |\n\n**讀取工作流程後，請完全遵循其步驟。**\n</routing>\n\n<quick_start>\n**快速開始**\n\n```bash\n# 安裝依賴\npip install pandas numpy yfinance pandas-datareader statsmodels\n\n# 快速偵測（範例：黃金期貨）\ncd skills/evaluate-exponential-trend-deviation-regimes\npython scripts/trend_deviation.py --symbol GC=F --quick\n\n# 分析其他資產（範例：S&P 500）\npython scripts/trend_deviation.py --symbol ^GSPC --start 1950-01-01\n\n# 完整分析（含宏觀因子，目前支援黃金）\npython scripts/trend_deviation.py --symbol GC=F --start 1970-01-01 --include-macro\n\n# 指定歷史參考日期\npython scripts/trend_deviation.py --symbol GC=F --compare-peaks \"2011-09-06,2020-08-07\"\n\n# 生成視覺化圖表（輸出 PNG + JSON）\npython scripts/generate_chart.py --output ./output/\n```\n</quick_start>\n\n<reference_index>\n**參考文件** (`references/`)\n\n| 文件 | 內容 |\n|------|------|\n| input-schema.md | 輸入參數詳細定義與驗證規則 |\n| methodology.md | 指數趨勢擬合與偏離度計算方法論 |\n| regime-rules.md | 1970s-like vs 2000s-like 體質判定規則 |\n| data-sources.md | 數據來源與替代方案說明 |\n</reference_index>\n\n<workflows_index>\n| Workflow | Purpose |\n|----------|---------|\n| detect.md | 單資產趨勢偏離度偵測與體質判定 |\n| compare.md | 歷史峰值詳細對照分析 |\n| macro.md | 宏觀因子分解與貢獻度分析 |\n</workflows_index>\n\n<templates_index>\n| Template | Purpose |\n|----------|---------|\n| output-json.md | JSON 輸出結構定義 |\n| output-markdown.md | Markdown 報告輸出模板 |\n</templates_index>\n\n<scripts_index>\n| Script | Purpose |\n|--------|---------|\n| trend_deviation.py | 主要分析腳本：趨勢擬合、偏離度計算、體質判定 |\n| generate_chart.py | 視覺化圖表生成：偏離度歷史圖表與峰值標註 |\n</scripts_index>\n\n<examples_index>\n**範例輸出** (`examples/`)\n\n| 文件 | 內容 |\n|------|------|\n| gold-deviation-2026.json | 2026 年黃金趨勢偏離度分析範例 |\n</examples_index>\n\n<success_criteria>\nSkill 成功執行時：\n- [ ] 成功擬合黃金價格的指數趨勢線\n- [ ] 計算出當前偏離度百分比與歷史分位數\n- [ ] 與 2011/1980 峰值進行有效比較\n- [ ] 綜合宏觀代理指標得出 regime 判定（1970s-like / 2000s-like）\n- [ ] 輸出完整的 JSON 或 Markdown 報告\n- [ ] （選用）生成視覺化圖表（PNG）標註歷史峰值與當前位置\n</success_criteria>",
-    "path": "skills/evaluate-exponential-trend-deviation-regimes/SKILL.md",
-    "directoryStructure": "evaluate-exponential-trend-deviation-regimes/\n├── examples\n│   ├── gold-deviation-2026.json\n│   └── gold-trend-deviation.md\n├── images\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   ├── methodology.md\n│   └── regime-rules.md\n├── scripts\n│   ├── generate_chart.py\n│   └── trend_deviation.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── compare.md\n    ├── detect.md\n    └── macro.md",
-    "lastUpdated": "2026-01-15",
-    "rating": 3,
-    "testQuestions": [
-      {
-        "question": "黃金目前的指數趨勢偏離度是多少？是否已超過 2011 年峰值？",
-        "imagePath": "images/gold-deviation-analysis-2026-01-15.png",
-        "expectedResult": "黃金指數趨勢偏離度分析結果\n\n當前狀態（截至 2025 年 12 月）\n┌────────────┬───────────┐\n│    指標    │   數值    │\n├────────────┼───────────┤\n│ 當前金價   │ $4,318.59 │\n├────────────┼───────────┤\n│ 趨勢線價格 │ $2,161.81 │\n├────────────┼───────────┤\n│ 當前偏離度 │ 99.8%     │\n├────────────┼───────────┤\n│ 歷史分位數 │ 94.8%     │\n└────────────┴───────────┘\n歷史峰值比較\n┌──────────────┬────────┬──────────────────────┐\n│   峰值時期   │ 偏離度 │      與當前差距      │\n├──────────────┼────────┼──────────────────────┤\n│ 1980 年 1 月 │ 288.5% │ -188.7 ppt（未超過） │\n├──────────────┼────────┼──────────────────────┤\n│ 2011 年 8 月 │ 83.1%  │ +16.7 ppt（已超過）  │\n└──────────────┴────────┴──────────────────────┘\n---\n結論\n\n是的，黃金已超越 2011 年峰值偏離度。\n當前黃金偏離指數趨勢線 99.8%，超過 2011 年峰值（83.1%）約 16.7 個百分點。這意味著以趨勢偏離度衡量，黃金的「泡沫程度」已超過 2011 年那波行情。\n然而，與 1980 年那種 blow-off 式的峰值（288.5%）相比，當前偏離度仍有相當距離。若行情體質類似 1970 年代（高通膨、負實質利率），理論上仍有延伸空間。\n"
-      },
-      {
-        "question": "分析 S&P 500 的指數趨勢偏離度",
-        "imagePath": "images/sp500-trend-deviation-2026-01-15.png",
-        "expectedResult": "S&P 500 指數趨勢偏離度分析報告\n\n分析日期: 2026-01-15\n數據範圍: 1950-01-31 至 2026-01-31（76 年，913 個月）\n\n---\n趨勢擬合參數\n┌────────────┬────────────────────────────────────┐\n│    參數    │                數值                │\n├────────────┼────────────────────────────────────┤\n│ 年化成長率 │ 7.34%                              │\n├────────────┼────────────────────────────────────┤\n│ 趨勢公式   │ trend = exp(3.0619 + 0.005899 × t) │\n└────────────┴────────────────────────────────────┘\n---\n當前狀態\n┌────────────┬──────────┬────────────────────────────────────────┐\n│    指標    │   數值   │                  解讀                  │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 當前價格   │ 6,926.60 │ -                                      │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 趨勢價值   │ 4,637.36 │ 長期指數趨勢的「公允值」               │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 偏離度     │ +49.4%   │ 價格高於趨勢近 50%                     │\n├────────────┼──────────┼────────────────────────────────────────┤\n│ 歷史分位數 │ 94.9%    │ 在 76 年歷史中僅有 5% 時間比現在更偏離 │\n└────────────┴──────────┴────────────────────────────────────────┘\n---\n歷史分布統計\n┌───────────────┬───────────────────┐\n│    分位數     │      偏離度       │\n├───────────────┼───────────────────┤\n│ 25%           │ -16.0%            │\n├───────────────┼───────────────────┤\n│ 50%（中位數） │ -0.4%             │\n├───────────────┼───────────────────┤\n│ 75%           │ +23.2%            │\n├───────────────┼───────────────────┤\n│ 90%           │ +38.8%            │\n├───────────────┼───────────────────┤\n│ 95%           │ +49.4% ← 當前位置 │\n├───────────────┼───────────────────┤\n│ 99%           │ +88.5%            │\n└───────────────┴───────────────────┘\n---\n歷史極端值對照\n┌─────────────────────┬────────────┬─────────┬────────────────┐\n│        事件         │    日期    │ 偏離度  │   與當前比較   │\n├─────────────────────┼────────────┼─────────┼────────────────┤\n│ 2000 年網路泡沫頂點 │ 2000-03-31 │ +101.2% │ 當前僅達其 49% │\n├─────────────────────┼────────────┼─────────┼────────────────┤\n│ 1982 年沃克緊縮谷底 │ 1982-07-31 │ -49.8%  │ 歷史最悲觀時刻 │\n└─────────────────────┴────────────┴─────────┴────────────────┘\n---\n關鍵洞察\n\n1. 極端但未達歷史峰值\n當前 +49.4% 的偏離度位於歷史第 95 分位，屬於「偏高但非極端」區間。2000 年網路泡沫時偏離度達 +101.2%，是當前的兩倍。\n2. 長期趨勢穩健\nS&P 500 在 76 年間維持約 7.3% 的年化複合成長率，這反映了美國經濟與企業盈利的長期成長。\n3. 當前定價隱含樂觀預期\n價格高於趨勢 49%，暗示市場正在計入：\n  - AI 革命帶來的生產力躍升\n  - 企業盈利持續超預期成長\n  - 流動性環境相對寬鬆\n4. 風險提示\n歷史上當偏離度超過 +40% 後，未來 3-5 年的回報率通常低於長期平均。這不是「崩盤訊號」，而是「預期回報降低」的警示。\n\n---\n結論\n\nS&P 500 當前處於 歷史高偏離區間（95 分位），但距離 2000 年的泡沫極端值仍有相當距離。這表明市場定價偏向樂觀，但尚未進入「非理性繁榮」的極端狀態。\n\n---\n圖表說明：\n\n上圖 - 價格與趨勢線\n- 藍線：S&P 500 實際價格（對數尺度）\n- 紅色虛線：長期指數趨勢線（年化 7.3%）\n- 可見價格圍繞趨勢線上下波動，目前明顯高於趨勢\n\n下圖 - 偏離度\n- 紅色區域：高於趨勢的時期\n- 綠色區域：低於趨勢的時期\n- 紅色虛線：95 分位（約 +50%）\n- 綠色虛線：5 分位（約 -40%）\n\n關鍵觀察：\n1. 2000 年網路泡沫 創下 +101.2% 的歷史最高偏離度\n2. 1982 年 是歷史最悲觀時刻（-49.8%）\n3. 當前 +49.4% 正好位於 95 分位線上，偏離度較高但遠未達到泡沫極端\n"
-      }
-    ],
-    "qualityScore": {
-      "overall": 63,
-      "badge": "中高級",
-      "evaluatedAt": "2026-01-23",
-      "metrics": {
-        "problemFit": 72,
-        "correctness": 65,
-        "dataGovernance": 60,
-        "robustness": 58,
-        "maintainability": 62,
-        "usability": 61
-      },
-      "metricDetails": {
-        "problemFit": {
-          "score": 72,
-          "strengths": [
-            "清晰的指數趨勢擬合方法論",
-            "歷史對照機制完整",
-            "適用多種資產類別"
-          ],
-          "improvements": [
-            "宏觀因子分析僅針對黃金設計",
-            "可增加結構性變化處理"
-          ]
-        },
-        "correctness": {
-          "score": 65,
-          "strengths": [
-            "方法論有理論依據",
-            "testQuestions 有 expectedResult",
-            "歷史峰值對照清楚"
-          ],
-          "improvements": [
-            "趨勢擬合區間選擇影響結果",
-            "可增加敏感度分析"
-          ]
-        },
-        "dataGovernance": {
-          "score": 60,
-          "strengths": [
-            "使用 Yahoo Finance 免費數據",
-            "有 Stooq 替代來源"
-          ],
-          "improvements": [
-            "缺少 data-sources.md 完整文檔",
-            "FRED 宏觀數據整合需說明"
-          ]
-        },
-        "robustness": {
-          "score": 58,
-          "strengths": [
-            "pitfalls 詳列擬合風險",
-            "bestPractices 有數據長度建議"
-          ],
-          "improvements": [
-            "缺少 failure-modes.md",
-            "結構性變化偵測需加強"
-          ]
-        },
-        "maintainability": {
-          "score": 62,
-          "strengths": [
-            "參數定義完整",
-            "多數據來源支援"
-          ],
-          "improvements": [
-            "可增加 manifest.json 版本控制",
-            "宏觀因子需定期更新"
-          ]
-        },
-        "usability": {
-          "score": 61,
-          "strengths": [
-            "FAQ 解答偏離度概念",
-            "輸出有歷史對照圖表"
-          ],
-          "improvements": [
-            "可增加 historical-episodes.md",
-            "可增加更多資產範例"
-          ]
-        }
-      },
-      "details": "**任務適配度（72/100）**\n- 指數趨勢擬合方法論清晰\n- 待改進：宏觀因子擴展\n\n**正確性（65/100）**\n- 方法論有理論依據\n- 待改進：敏感度分析\n\n**資料治理（60/100）**\n- 使用免費數據\n- 待改進：增加 data-sources.md\n\n**穩健性（58/100）**\n- pitfalls 詳列風險\n- 待改進：增加 failure-modes.md\n\n**可維護性（62/100）**\n- 參數定義完整\n- 待改進：增加版本控制\n\n**輸出可用性（61/100）**\n- FAQ 解答核心概念\n- 待改進：增加資產範例\n",
-      "upgradeNotes": {
-        "targetBadge": "高級",
-        "requirements": [
-          {
-            "metric": "robustness",
-            "currentScore": 58,
-            "targetScore": 80,
-            "suggestion": "增加 failure-modes.md 與結構變化處理"
-          },
-          {
-            "metric": "dataGovernance",
-            "currentScore": 60,
-            "targetScore": 80,
-            "suggestion": "增加 data-sources.md"
-          },
-          {
-            "metric": "correctness",
-            "currentScore": 65,
-            "targetScore": 80,
-            "suggestion": "增加敏感度分析與驗證"
-          }
-        ]
-      }
-    },
-    "bestPractices": [
-      {
-        "title": "使用足夠長的歷史數據",
-        "description": "建議至少 10-20 年歷史數據，以捕捉完整的週期。不同資產需要不同的起始日期"
-      },
-      {
-        "title": "月頻數據降低噪音",
-        "description": "長期趨勢分析建議使用月頻數據，日頻噪音太大。腳本會自動轉換"
-      },
-      {
-        "title": "不預設歷史峰值",
-        "description": "讓系統自動識別歷史極端值，或由使用者根據資產特性指定有意義的參考日期"
-      },
-      {
-        "title": "理解偏離度的含義",
-        "description": "偏離度是風險評估工具，不是交易訊號。高偏離可能持續很久，也可能快速回歸"
-      }
-    ],
-    "pitfalls": [
-      {
-        "title": "把偏離度當作交易訊號",
-        "description": "偏離度是風險評估工具，不是做多做空訊號",
-        "consequence": "過早逆勢操作可能遭遇趨勢延續的虧損"
-      },
-      {
-        "title": "使用固定的歷史參考點",
-        "description": "不同資產有不同的週期特性，不應套用其他資產的歷史峰值",
-        "consequence": "參考點失去意義，誤導決策"
-      },
-      {
-        "title": "趨勢線擬合區間選擇不當",
-        "description": "若只用近期數據擬合，趨勢斜率會被近期行情扭曲",
-        "consequence": "偏離度計算失真"
-      },
-      {
-        "title": "忽略結構性變化",
-        "description": "資產的長期成長率可能因市場結構、制度變化而改變",
-        "consequence": "簡單的全樣本擬合可能不適用於有結構性轉折的資產"
-      }
-    ],
-    "faq": [
-      {
-        "question": "什麼是「指數趨勢偏離度」？",
-        "answer": "指數趨勢偏離度衡量當前價格與長期指數成長趨勢線的距離，以百分比表示。\n\n計算方式：\n1. 對歷史價格取對數：y = log(price)\n2. 對時間做線性回歸：y = a + b*t\n3. 趨勢價格：trend = exp(a + b*t)\n4. 偏離度：(price / trend - 1) × 100%\n\n正偏離表示價格高於趨勢，負偏離表示低於趨勢。\n"
-      },
-      {
-        "question": "這個工具適用於哪些資產？",
-        "answer": "適用於具有長期指數成長特性的資產：\n\n**商品**：黃金、白銀、原油、銅等\n**股票指數**：S&P 500、納斯達克、全球指數等\n**加密貨幣**：比特幣、以太坊等（需注意歷史較短）\n**ETF**：各類 ETF\n**房地產指數**：房價指數、REIT 等\n\n核心要求：有足夠長的歷史數據（建議 ≥ 10 年）\n"
-      },
-      {
-        "question": "如何選擇歷史參考日期？",
-        "answer": "有兩種方式：\n\n**1. 自動識別**（推薦）：\n- 讓系統自動找出歷史最大偏離度\n- 不需要預先知道資產的歷史\n\n**2. 手動指定**：\n- 根據資產特性指定有意義的歷史峰值/谷值\n- 例如：黃金可參考 1980、2011；股市可參考 2000、2008、2020\n\n**黃金範例**：`--compare-peaks \"2011-09-06,1980-01-21\"`\n**股市範例**：`--compare-peaks \"2000-03-24,2007-10-09,2020-02-19\"`\n"
-      },
-      {
-        "question": "宏觀因子分析支援哪些資產？",
-        "answer": "目前宏觀因子分析主要針對黃金設計（1970s-like vs 2000s-like 體質）。\n\n其他資產的宏觀分析需要自定義因子和判定規則。\n\n若不使用 `--include-macro` 參數，工具會純粹計算偏離度，\n適用於所有資產。\n"
-      }
-    ],
-    "about": {
-      "repository": "https://github.com/fatfingererr/macro-skills",
-      "branch": "main",
-      "additionalInfo": "## 參考來源\n\n- 靈感來自 Twitter/X 上關於「% distance from exponential growth trendline」的討論\n- 適用於多種資產類別的指數趨勢偏離度分析\n\n## 數據來源\n\n**Yahoo Finance（免費，無需 API key）**\n- 支援：股票、期貨、ETF、指數、加密貨幣等\n- 使用 yfinance 套件抓取\n\n**FRED（免費，無需 API key，選用）**\n- 宏觀因子：實質利率、通膨預期、美元指數等\n- 使用 pandas-datareader 套件抓取\n\n**Stooq（替代來源）**\n- 各類資產歷史數據\n- CSV 下載\n\n## 適用場景\n\n- 長期投資配置決策\n- 評估資產是否處於歷史極端區間\n- 風險管理與倉位調整\n- 多資產比較分析\n\n## 黃金專用功能\n\n針對黃金，可使用 `--include-macro` 參數進行：\n- 1970s-like vs 2000s-like 行情體質判定\n- 基於實質利率、通膨、地緣風險、美元的多因子分析\n\n參考範例：`examples/gold-deviation-2026.json`\n"
-    },
-    "methodology": "### 資產長期遵循指數成長\n\n許多資產在長期（數十年）尺度上遵循指數成長路徑，主要原因：\n\n1. **經濟成長**：全球經濟、貨幣供應量長期以指數方式增長\n2. **複利效應**：任何穩定的成長率在長期都會表現為指數形式\n3. **通膨因素**：名目價格會隨著通膨而增長\n\n**適用資產範例**：\n- **商品**：黃金、白銀、原油（受貨幣供應與購買力影響）\n- **股票指數**：S&P 500、NASDAQ（受經濟成長與盈利成長驅動）\n- **加密貨幣**：比特幣、以太坊（受採用率與網絡效應驅動）\n- **房地產**：房價指數（受收入成長與都市化影響）\n\n### 偏離度的意義\n\n偏離度衡量當前價格與「公允長期趨勢」的距離：\n\n- **正偏離**：價格高於趨勢，可能反映過度樂觀或極端事件\n- **負偏離**：價格低於趨勢，可能反映過度悲觀或錯誤定價\n",
-    "downloadUrl": "downloads/evaluate-exponential-trend-deviation-regimes-0.1.0.zip"
-  },
-  {
     "id": "detect-freight-led-inflation-turn",
     "name": "detect-freight-led-inflation-turn",
     "displayName": "美國貨運概況判斷通膨趨勢",
@@ -3193,6 +3193,217 @@
     "downloadUrl": "downloads/detect-freight-led-inflation-turn-0.1.1.zip"
   },
   {
+    "id": "detect-fed-unamortized-discount-pattern",
+    "name": "detect-fed-unamortized-discount-pattern",
+    "displayName": "判讀聯準會未攤銷折價走勢模式",
+    "description": "檢查聯準會持有證券的未攤銷折價（Unamortized Discounts）是否出現與特定歷史危機期間相似的走勢模板，並用多指標交叉驗證是否真的屬於「金融壓力升高」而非單純會計/利率效果",
+    "emoji": "📉",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "聯準會",
+      "未攤銷折價",
+      "WUDSHO",
+      "流動性風險",
+      "金融壓力",
+      "交叉驗證",
+      "信用利差",
+      "FED"
+    ],
+    "category": "liquidity-fci",
+    "dataLevel": "free-nolimit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\n\n<principle name=\"pattern_matching_not_prediction\">\n**形狀比對 ≠ 事件預測**\n\n核心認知：把「肉眼類比」轉成可量化的「形狀比對」，但「像」不等於「會發生」：\n- **相關係數 (corr)**：近期窗口 vs. 基準窗口的線性形狀相似\n- **動態時間校正 (DTW)**：允許「快一點/慢一點」但形狀相似\n- **形狀特徵 (shape_features)**：趨勢斜率、拐點結構、波動擴張\n\n輸出「pattern_similarity_score」只回答「像不像」，不回答「會不會發生」。\n</principle>\n\n<principle name=\"cross_validation_stress\">\n**壓力驗證才能升級風險判斷**\n\n把「形狀相似」與「壓力驗證」拆開：\n1. **pattern_similarity_score**：只測量形狀相似度\n2. **stress_confirmation_score**：測量交叉驗證指標是否同步惡化\n3. **composite_risk_score**：加權合成，但必須附上「哪些指標支持/反對」\n\n**反直覺檢查**：\n- 若相似度很高，但交叉驗證指標沒有壓力訊號 → 可能只是利率/持有結構/會計攤銷造成的圖形相似\n- 若相似度中等，但多數壓力指標同步惡化 → 反而要提高警覺\n</principle>\n\n<principle name=\"data_mechanism_understanding\">\n**理解指標背後機制**\n\n**WUDSHO（Unamortized Discounts）成因**：\n- 聯準會購買債券時，若買入價低於面值，差額計為「未攤銷折價」\n- 利率上升期：市價下跌 → 購入債券折價增加 → WUDSHO 上升\n- 利率下降期：市價上升 → 購入債券溢價增加 → WUDSHO 下降\n\n**重要**：WUDSHO 變動可能反映：\n1. 利率環境變化（最常見）\n2. 持有債券久期結構\n3. 會計攤銷時程\n4. **真正的金融壓力**（需交叉驗證才能確認）\n</principle>\n\n<principle name=\"falsification_mindset\">\n**反證優先的分析框架**\n\n社群常見的「圖形類比敘事」往往缺乏反證：\n- ❌「這條線複製 COVID，60 天內黑天鵝」→ 只有類比，沒有驗證\n- ✅ 本技能輸出：「形狀相似度 0.88，但信用利差中性、股市波動偏低 → 不支持系統性壓力假說」\n\n必須輸出的反證項目：\n1. 「形狀相似」的替代解釋（利率效果、會計效果）\n2. 「壓力指標」的現況（支持/反對風險假說）\n3. 「歷史後續」的條件分布（不是預測）\n</principle>\n\n<principle name=\"public_data_transparency\">\n**公開資料來源與限制**\n\n本技能使用 FRED 公開週資料：\n- **WUDSHO**: Fed 持有證券的未攤銷折價\n- **交叉驗證指標**：信用利差、波動率、短端利差等\n\n**必須揭露**：\n- FRED 週資料可能有 T+1 ~ T+3 延遲\n- 部分指標（如窗口工具用量）需要替代代理\n- 形狀比對結果受 resample 頻率影響\n</principle>\n\n</essential_principles>\n\n<objective>\n偵測聯準會未攤銷折價走勢是否與歷史危機期間相似：\n\n1. **取得目標序列**：從 FRED 取得 WUDSHO（或指定序列）的週資料\n2. **窗口比對**：將近期窗口與歷史基準窗口（如 COVID 2020）做形狀比對\n3. **相似度計算**：使用相關係數、DTW、形狀特徵等多種方法\n4. **交叉驗證**：檢查信用利差、波動率、流動性指標是否同步惡化\n5. **風險分數合成**：輸出可量化的風險分數與反證分析\n6. **情境敘事**：描述歷史類比後續發展（非預測）\n\n輸出：形狀相似度、壓力驗證分數、合成風險分數、反證分析、情境推演。\n</objective>\n\n<quick_start>\n\n**最快的方式：執行完整分析**\n\n```bash\ncd skills/detect-fed-unamortized-discount-pattern\npip install pandas numpy requests scipy  # 首次使用\npython scripts/pattern_detector.py --quick\n```\n\n輸出：\n- `output/pattern_analysis_YYYY-MM-DD.json` - JSON 結果\n- `output/pattern_comparison_YYYY-MM-DD.png` - 形狀比對圖（若安裝 matplotlib）\n\n**完整分析（指定參數）**：\n```bash\npython scripts/pattern_detector.py \\\n  --target_series WUDSHO \\\n  --baseline_windows \"COVID_2020:2020-01-01:2020-06-30\" \\\n  --recent_window_days 120 \\\n  --output result.json\n```\n\n**快速視覺化**：\n```bash\npython scripts/visualize_pattern.py -o output\n```\n\n</quick_start>\n\n<intake>\n需要進行什麼操作？\n\n1. **快速檢查（推薦）** - 查看目前的形狀相似度與壓力分數\n2. **完整分析** - 執行完整的形狀比對與交叉驗證\n3. **視覺化分析** - 生成形狀比對圖表\n4. **歷史事件對照** - 深入了解歷史基準窗口的後續發展\n5. **方法論學習** - 了解形狀比對與交叉驗證的邏輯\n6. **自訂參數** - 指定序列、窗口、門檻等參數\n\n**請選擇或直接提供分析參數。**\n</intake>\n\n<routing>\n| Response                      | Action                                               |\n|-------------------------------|------------------------------------------------------|\n| 1, \"快速\", \"quick\", \"check\"   | 執行 `python scripts/pattern_detector.py --quick`    |\n| 2, \"完整\", \"full\", \"analysis\" | 閱讀 `workflows/execute-analysis.md` 並執行          |\n| 3, \"視覺化\", \"chart\", \"圖表\"  | 執行 `python scripts/visualize_pattern.py -o output` |\n| 4, \"歷史\", \"事件\", \"episodes\" | 閱讀 `workflows/historical-episodes.md` 並執行       |\n| 5, \"學習\", \"方法論\", \"why\"    | 閱讀 `references/methodology.md`                     |\n| 6, \"自訂\", \"custom\", 提供參數 | 閱讀 `workflows/execute-analysis.md` 並使用參數執行  |\n\n**路由後，閱讀對應文件並執行。**\n</routing>\n\n<directory_structure>\n```\ndetect-fed-unamortized-discount-pattern/\n├── SKILL.md                           # 本文件（路由器）\n├── skill.yaml                         # 前端展示元數據\n├── manifest.json                      # 技能元數據\n├── workflows/\n│   ├── execute-analysis.md            # 完整分析工作流\n│   ├── visualize-analysis.md          # 視覺化分析工作流\n│   └── historical-episodes.md         # 歷史事件對照工作流\n├── references/\n│   ├── methodology.md                 # 形狀比對與交叉驗證方法論\n│   ├── data-sources.md                # 資料來源與 FRED 系列代碼\n│   ├── wudsho-mechanism.md            # WUDSHO 指標機制說明\n│   └── input-schema.md                # 完整輸入參數定義\n├── templates/\n│   ├── output-json.md                 # JSON 輸出模板\n│   └── output-markdown.md             # Markdown 報告模板\n├── scripts/\n│   ├── pattern_detector.py            # 主分析腳本\n│   ├── visualize_pattern.py           # 視覺化腳本\n│   └── fetch_data.py                  # 資料抓取工具\n└── examples/\n    └── sample_output.json             # 範例輸出\n```\n</directory_structure>\n\n<reference_index>\n\n**方法論**: references/methodology.md\n- 形狀比對方法（相關係數、DTW、形狀特徵）\n- 正規化與窗口對齊\n- 相似度分數計算\n- 交叉驗證邏輯\n\n**資料來源**: references/data-sources.md\n- FRED 系列代碼清單\n- 資料頻率與延遲\n- 公開替代資料說明\n\n**指標機制**: references/wudsho-mechanism.md\n- WUDSHO 的成因與解讀\n- 利率效果 vs. 壓力效果\n- 常見誤讀與反證\n\n**輸入參數**: references/input-schema.md\n- 完整參數定義\n- 預設值與建議範圍\n\n</reference_index>\n\n<workflows_index>\n| Workflow               | Purpose          | 使用時機               |\n|------------------------|------------------|------------------------|\n| execute-analysis.md    | 完整形狀比對分析 | 需要完整報告時         |\n| visualize-analysis.md  | 視覺化分析       | 需要圖表時             |\n| historical-episodes.md | 歷史事件深度分析 | 理解歷史類比與後續發展 |\n</workflows_index>\n\n<templates_index>\n| Template           | Purpose           |\n|--------------------|-------------------|\n| output-json.md     | JSON 輸出結構定義 |\n| output-markdown.md | Markdown 報告模板 |\n</templates_index>\n\n<scripts_index>\n| Script               | Command           | Purpose          |\n|----------------------|-------------------|------------------|\n| pattern_detector.py  | `--quick`         | 快速檢查當前狀態 |\n| pattern_detector.py  | `--output FILE`   | 完整分析         |\n| visualize_pattern.py | `-o output`       | 視覺化分析       |\n| fetch_data.py        | `--series WUDSHO` | 抓取 FRED 資料   |\n</scripts_index>\n\n<input_schema_summary>\n\n**核心參數**\n\n| 參數               | 類型          | 預設值  | 說明               |\n|--------------------|---------------|---------|--------------------|\n| target_series      | string        | WUDSHO  | 目標 FRED 系列代碼 |\n| baseline_windows   | array[object] | [COVID] | 歷史參考事件窗口   |\n| recent_window_days | int           | 120     | 近期比對窗口長度   |\n| resample_freq      | string        | W       | 資料頻率           |\n| normalize_method   | string        | zscore  | 正規化方法         |\n\n**相似度參數**\n\n| 參數               | 類型          | 預設值                      | 說明         |\n|--------------------|---------------|-----------------------------|--------------|\n| similarity_metrics | array[string] | [corr, dtw, shape_features] | 相似度指標   |\n| alert_thresholds   | object        | {corr_min: 0.7, ...}        | 觸發警報門檻 |\n\n**交叉驗證參數**\n\n| 參數                    | 類型          | 預設值        | 說明               |\n|-------------------------|---------------|---------------|--------------------|\n| confirmatory_indicators | array[object] | [信用利差...] | 交叉驗證指標清單   |\n| lookahead_days          | int           | 60            | 前瞻期（情境敘事） |\n\n完整參數定義見 `references/input-schema.md`。\n\n</input_schema_summary>\n\n<output_schema_summary>\n```json\n{\n  \"skill\": \"detect-fed-unamortized-discount-pattern\",\n  \"as_of_date\": \"2026-01-26\",\n  \"target_series\": \"WUDSHO\",\n  \"best_match\": {\n    \"baseline\": \"COVID_2020\",\n    \"segment_start\": \"2020-01-08\",\n    \"segment_end\": \"2020-06-17\",\n    \"corr\": 0.91,\n    \"dtw\": 0.38,\n    \"feature_sim\": 0.82,\n    \"pattern_similarity_score\": 0.88\n  },\n  \"stress_confirmation\": {\n    \"score\": 0.22,\n    \"details\": [\n      {\"name\": \"credit_spread\", \"signal\": \"neutral\", \"z\": 0.4},\n      {\"name\": \"equity_vol\", \"signal\": \"mild_risk_on\", \"z\": -0.2},\n      {\"name\": \"funding_stress_proxy\", \"signal\": \"neutral\", \"z\": 0.1}\n    ]\n  },\n  \"composite_risk_score\": 0.49,\n  \"interpretation\": {\n    \"summary\": \"走勢形狀與 COVID 早期片段相似度高，但壓力驗證指標偏中性...\",\n    \"what_to_watch_next_60d\": [\"...\"],\n    \"rebuttal_to_claim\": [\"...\"]\n  },\n  \"caveats\": [\n    \"形狀相似不代表因果相同；該序列可能強烈受利率、持有期限結構與會計攤銷影響。\",\n    \"若缺乏壓力指標同步惡化，不應把圖形類比直接升級成『黑天鵝預言』。\"\n  ]\n}\n```\n\n完整輸出結構見 `templates/output-json.md`。\n</output_schema_summary>\n\n<success_criteria>\n執行成功時應產出：\n\n- [ ] 形狀相似度分數（pattern_similarity_score）\n- [ ] 最佳匹配的歷史片段（baseline、segment_start/end）\n- [ ] 多維度相似度（corr、dtw、feature_sim）\n- [ ] 壓力驗證分數（stress_confirmation_score）\n- [ ] 各驗證指標詳情（名稱、訊號、z-score）\n- [ ] 合成風險分數（composite_risk_score）\n- [ ] 解讀框架（summary、what_to_watch、rebuttal）\n- [ ] 資料品質說明與風險警語（caveats）\n\n**視覺化輸出**（使用 visualize_pattern.py）：\n\n- [ ] 形狀比對圖（`pattern_comparison_YYYY-MM-DD.png`）\n  - 近期窗口 vs. 歷史基準窗口的疊加圖\n  - 正規化後的形狀對比\n  - 相似度分數標註\n- [ ] 壓力指標儀表板（`stress_dashboard_YYYY-MM-DD.png`）\n  - 各交叉驗證指標的當前狀態\n  - 歷史分位數標示\n</success_criteria>",
+    "path": "skills/detect-fed-unamortized-discount-pattern/SKILL.md",
+    "directoryStructure": "detect-fed-unamortized-discount-pattern/\n├── examples\n│   └── sample_output.json\n├── manifest.json\n├── references\n│   ├── data-sources.md\n│   ├── input-schema.md\n│   ├── methodology.md\n│   └── wudsho-mechanism.md\n├── scripts\n│   ├── fetch_data.py\n│   ├── pattern_detector.py\n│   └── visualize_pattern.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── execute-analysis.md\n    ├── historical-episodes.md\n    └── visualize-analysis.md",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "目前聯準會未攤銷折價的走勢是否與歷史危機期間相似？",
+        "expectedResult": "形狀比對分析結果\n\n根據 WUDSHO（聯準會持有證券未攤銷折價）的走勢分析：\n\n形狀相似度評估\n┌─────────────────────┬─────────┬───────────────────────────────┐\n│       比對方法       │   分數  │             解讀              │\n├─────────────────────┼─────────┼───────────────────────────────┤\n│ 相關係數 (corr)      │   0.85  │ 與 COVID 2020 早期形狀高度相關 │\n├─────────────────────┼─────────┼───────────────────────────────┤\n│ 動態時間校正 (DTW)   │   0.42  │ 允許時間偏移後形狀相似        │\n├─────────────────────┼─────────┼───────────────────────────────┤\n│ 形狀特徵相似度       │   0.78  │ 趨勢斜率與拐點結構相近        │\n├─────────────────────┼─────────┼───────────────────────────────┤\n│ 綜合形狀分數         │   0.82  │ 高度相似                      │\n└─────────────────────┴─────────┴───────────────────────────────┘\n\n壓力驗證指標\n┌─────────────────────┬─────────┬───────────────────────────────┐\n│       指標名稱       │ z-score │             訊號              │\n├─────────────────────┼─────────┼───────────────────────────────┤\n│ IG 信用利差          │   0.4   │ 中性（未顯著走寬）            │\n├─────────────────────┼─────────┼───────────────────────────────┤\n│ VIX 波動率           │  -0.2   │ 偏低（風險偏好中性）          │\n├─────────────────────┼─────────┼───────────────────────────────┤\n│ 高收益債利差         │   0.3   │ 中性                          │\n└─────────────────────┴─────────┴───────────────────────────────┘\n\n合成風險評估\n- 形狀相似度：0.82（高）\n- 壓力驗證分數：0.22（低）\n- 合成風險分數：0.49（中等）\n\n結論\n走勢形狀與 COVID 早期片段相似度高，但壓力驗證指標偏中性。\n這更像是「利率/會計結構造成的圖形相似」，不足以支持「黑天鵝必然發生」的論述。\n\n反證分析\n1. 形狀相似可能來自：利率環境變化、持有債券久期調整、會計攤銷時程\n2. 若真是系統性壓力，預期應看到：信用利差走寬、VIX 上升、銀行融資壓力增加\n3. 當前缺乏這些共振訊號，建議持續觀察而非過度解讀\n"
+      },
+      {
+        "question": "如何解讀有人認為 WUDSHO 會複製 COVID 走勢，並在 60 天內發生黑天鵝事件的說法？",
+        "expectedResult": "對「圖形類比敘事」的量化驗證\n\n社群常見論述\n「這條線複製 COVID，60 天內黑天鵝」\n\n本技能的回應框架\n\n1. 「像」可以量化\n┌─────────────────────┬─────────┬─────────────────────────────┐\n│       指標           │   數值  │           說明              │\n├─────────────────────┼─────────┼─────────────────────────────┤\n│ 與 COVID 2020 相關係數│  0.85   │ 確實形狀相似               │\n├─────────────────────┼─────────┼─────────────────────────────┤\n│ DTW 距離              │  0.42   │ 允許時間偏移後仍相似       │\n├─────────────────────┼─────────┼─────────────────────────────┤\n│ 形狀特徵吻合度        │  0.78   │ 趨勢與拐點結構相近         │\n└─────────────────────┴─────────┴─────────────────────────────┘\n\n2. 「像 COVID」≠「會發生 COVID」\n- WUDSHO 變動的成因：利率環境（最常見）、持有結構、會計攤銷、真正壓力\n- 當前壓力驗證分數僅 0.22，遠低於 COVID 實際發生時的水準\n\n3. 「黑天鵝」是不可驗證敘事\n- 把「黑天鵝」定義成「精心策劃」屬於不可驗證假說\n- 本技能只輸出可被公開資料支持或反駁的部分\n\n4. 若要升級風險警報，需要看到\n- 信用利差顯著走寬（z > 1.5）\n- VIX 持續上升（z > 1.5）\n- 短端資金壓力升高\n- Fed 流動性工具使用量增加\n\n結論\n形狀確實相似，但「像」不等於「會發生」。\n目前缺乏壓力指標的共振支持，應理性看待而非恐慌。\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 70,
+      "badge": "白銀",
+      "evaluatedAt": "2026-01-26",
+      "metrics": {
+        "problemFit": 80,
+        "correctness": 75,
+        "dataGovernance": 70,
+        "robustness": 65,
+        "maintainability": 70,
+        "usability": 60
+      },
+      "metricDetails": {
+        "problemFit": {
+          "score": 80,
+          "strengths": [
+            "清晰的「形狀比對 + 交叉驗證」雙層架構",
+            "反證優先的分析框架",
+            "明確區分「像」和「會發生」"
+          ],
+          "improvements": [
+            "可增加更多歷史基準窗口",
+            "可增加即時 vs 延遲資料的處理說明"
+          ]
+        },
+        "correctness": {
+          "score": 75,
+          "strengths": [
+            "使用多種形狀比對方法（corr、DTW、features）",
+            "交叉驗證指標有明確來源",
+            "methodology.md 有完整公式"
+          ],
+          "improvements": [
+            "DTW 參數敏感度需說明",
+            "形狀特徵提取可更細緻"
+          ]
+        },
+        "dataGovernance": {
+          "score": 70,
+          "strengths": [
+            "使用 FRED 免費公開資料",
+            "資料來源有明確文檔",
+            "有 fallback 機制"
+          ],
+          "improvements": [
+            "缺少資料延遲的具體說明",
+            "可增加資料品質檢查"
+          ]
+        },
+        "robustness": {
+          "score": 65,
+          "strengths": [
+            "多指標交叉驗證",
+            "有明確的錯誤處理",
+            "降級輸出機制"
+          ],
+          "improvements": [
+            "缺少 failure-modes.md",
+            "極端情況處理需加強"
+          ]
+        },
+        "maintainability": {
+          "score": 70,
+          "strengths": [
+            "參數定義完整",
+            "模組化腳本結構",
+            "manifest.json 版本控制"
+          ],
+          "improvements": [
+            "可增加自動化測試",
+            "可增加 CI/CD 配置"
+          ]
+        },
+        "usability": {
+          "score": 60,
+          "strengths": [
+            "FAQ 解答核心概念",
+            "testQuestions 有 expectedResult"
+          ],
+          "improvements": [
+            "可增加更多視覺化選項",
+            "可增加 historical-episodes 深度分析"
+          ]
+        }
+      },
+      "details": "**任務適配度（80/100）**\n- 「形狀比對 + 交叉驗證」架構清晰\n- 待改進：增加更多基準窗口\n\n**正確性（75/100）**\n- 多種比對方法\n- 待改進：DTW 參數敏感度\n\n**資料治理（70/100）**\n- FRED 公開資料\n- 待改進：資料延遲說明\n\n**穩健性（65/100）**\n- 多指標交叉驗證\n- 待改進：failure-modes.md\n\n**可維護性（70/100）**\n- 參數完整\n- 待改進：自動化測試\n\n**輸出可用性（60/100）**\n- FAQ 完整\n- 待改進：視覺化選項\n",
+      "upgradeNotes": {
+        "targetBadge": "黃金",
+        "requirements": [
+          {
+            "metric": "usability",
+            "currentScore": 60,
+            "targetScore": 75,
+            "suggestion": "增加視覺化選項與歷史對照深度分析"
+          },
+          {
+            "metric": "robustness",
+            "currentScore": 65,
+            "targetScore": 80,
+            "suggestion": "增加 failure-modes.md 與極端情況處理"
+          }
+        ]
+      }
+    },
+    "bestPractices": [
+      {
+        "title": "形狀相似 ≠ 事件預測",
+        "description": "高相似度只說明「像」，不說明「會發生」，必須搭配壓力驗證"
+      },
+      {
+        "title": "使用多種比對方法",
+        "description": "單一相似度指標可能誤判，使用 corr + DTW + 形狀特徵交叉驗證"
+      },
+      {
+        "title": "理解指標機制",
+        "description": "WUDSHO 變動可能來自利率效果，不一定是金融壓力"
+      },
+      {
+        "title": "反證優先",
+        "description": "先思考「什麼會推翻這個假說」，而非只找支持證據"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "過度解讀圖形類比",
+        "description": "社群常見「這條線複製 XXX」論述缺乏量化驗證",
+        "consequence": "產生不必要的恐慌或錯誤的交易決策"
+      },
+      {
+        "title": "忽略利率效果",
+        "description": "WUDSHO 變動最常見的原因是利率環境變化",
+        "consequence": "把正常的會計效果誤判為金融壓力"
+      },
+      {
+        "title": "缺乏壓力驗證",
+        "description": "只看形狀不看交叉驗證指標",
+        "consequence": "假陽性警報過多"
+      },
+      {
+        "title": "把條件分布當預測",
+        "description": "歷史事件後續統計是「條件分布」不是「一定會發生」",
+        "consequence": "錯誤的確定性判斷"
+      }
+    ],
+    "faq": [
+      {
+        "question": "什麼是 WUDSHO？",
+        "answer": "WUDSHO 是 FRED 上的「Fed 持有證券未攤銷折價」(Unamortized Discounts)。\n當 Fed 以低於面值的價格購買債券時，差額計為「未攤銷折價」。\n\n變動成因：\n- 利率上升期：市價下跌 → 購入折價增加 → WUDSHO 上升\n- 利率下降期：市價上升 → 購入溢價增加 → WUDSHO 下降\n- 會計攤銷：折價隨時間攤銷\n"
+      },
+      {
+        "question": "為什麼形狀相似不代表會發生同樣事件？",
+        "answer": "形狀相似可能來自多種原因：\n1. 利率週期相似（最常見）\n2. 持有債券久期結構調整\n3. 會計攤銷時程\n4. 真正的金融壓力（需交叉驗證）\n\n只有當「形狀相似」+「壓力指標同步惡化」時，\n才應該提高對金融壓力的警覺。\n"
+      },
+      {
+        "question": "什麼是 DTW（動態時間校正）？",
+        "answer": "DTW (Dynamic Time Warping) 是一種測量兩個時間序列相似度的方法，\n允許序列在時間軸上「拉伸」或「壓縮」來找到最佳對齊。\n\n優點：捕捉「快一點/慢一點但形狀相似」的情況\n缺點：對參數敏感，需要配合其他方法交叉驗證\n"
+      },
+      {
+        "question": "壓力驗證指標有哪些？",
+        "answer": "本技能使用的交叉驗證指標：\n\n| 指標 | 來源 | 壓力訊號 |\n|------|------|----------|\n| IG 信用利差 | BAMLC0A0CM | 走寬 (z > 1.5) |\n| 高收益債利差 | BAMLH0A0HYM2 | 走寬 (z > 1.5) |\n| VIX 波動率 | VIXCLS | 上升 (z > 1.5) |\n| 殖利率曲線 | DGS10-DGS2 | 倒掛加深 |\n| Fed 資產負債表 | WALCL | 異常變動 |\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 設計理念\n\n本技能針對社群常見的「圖形類比敘事」提供量化驗證框架：\n1. 把「肉眼類比」轉成可量化的形狀比對\n2. 用交叉驗證指標檢驗是否真的是金融壓力\n3. 輸出反證分析，避免過度解讀\n\n## 數據來源\n\n**FRED（免費，無需 API key）**\n- WUDSHO: 未攤銷折價\n- BAMLC0A0CM: IG 信用利差\n- BAMLH0A0HYM2: 高收益債利差\n- VIXCLS: VIX\n- DGS10, DGS2: 國債殖利率\n\n## 參考文獻\n\n- Fed H.4.1 報表說明\n- 動態時間校正 (DTW) 演算法\n- 信用利差與金融壓力的實證研究\n"
+    },
+    "methodology": "### 為什麼需要形狀比對？\n\n一般常見的「圖形類比」論述：\n- ❌「這條線複製 COVID，60 天內黑天鵝」\n- 問題：純粹肉眼判斷，無法量化，無法反駁\n\n**本技能的解決方案**：\n- 把「肉眼類比」轉成可量化的「形狀比對」\n- 使用多種方法交叉驗證，避免單一指標誤判\n- 輸出可被支持或反駁的數據\n\n### 形狀比對 ≠ 事件預測\n\n**重要認知**：\n- 「形狀相似」只說明「當前走勢與歷史片段形狀類似」\n- 不說明「歷史事件會再次發生」\n- 需要搭配壓力驗證才能升級風險判斷\n\n---\n\n## 資料預處理\n\n### 頻率對齊\n\nFRED 週資料為主，所有序列對齊至週頻：\n\n```python\ndef resample_align(series: pd.Series, freq: str = \"W\") -> pd.Series:\n    \"\"\"\n    將序列重採樣至指定頻率\n\n    Parameters\n    ----------\n    series : pd.Series\n        原始時間序列（日頻或週頻）\n    freq : str\n        目標頻率（\"W\" 週頻、\"D\" 日頻）\n\n    Returns\n    -------\n    pd.Series\n        重採樣後的序列\n    \"\"\"\n    if freq == \"W\":\n        # 取週末值（或該週最後一個有效值）\n        return series.resample(\"W-FRI\").last().dropna()\n    return series\n```\n\n### 正規化方法\n\n去除量級差異，只保留「形狀」：\n\n#### Z-Score 正規化\n```python\ndef zscore_normalize(series: pd.Series) -> pd.Series:\n    \"\"\"\n    Z-Score 正規化：均值=0，標準差=1\n\n    適用：形狀比較，對量級不敏感\n    \"\"\"\n    return (series - series.mean()) / series.std()\n```\n\n#### 百分比變化正規化\n```python\ndef pct_change_normalize(series: pd.Series) -> pd.Series:\n    \"\"\"\n    百分比變化正規化\n\n    適用：強調加速/減速，對趨勢敏感\n    \"\"\"\n    return series.pct_change().fillna(0)\n```\n\n#### Min-Max 正規化\n```python\ndef minmax_normalize(series: pd.Series) -> pd.Series:\n    \"\"\"\n    Min-Max 正規化：範圍縮放至 [0, 1]\n\n    適用：需要統一範圍時\n    \"\"\"\n    return (series - series.min()) / (series.max() - series.min())\n```\n\n**建議**：使用 Z-Score 作為主要方法，pct_change 作為輔助驗證。\n\n---\n\n## 形狀相似度計算\n\n### 方法 1: 皮爾遜相關係數 (Correlation)\n\n```python\ndef pearson_correlation(series_a: np.ndarray, series_b: np.ndarray) -> float:\n    \"\"\"\n    計算兩個序列的皮爾遜相關係數\n\n    Parameters\n    ----------\n    series_a, series_b : np.ndarray\n        正規化後的時間序列（長度需相同）\n\n    Returns\n    -------\n    float\n        相關係數，範圍 [-1, 1]\n    \"\"\"\n    return np.corrcoef(series_a, series_b)[0, 1]\n```\n\n**解讀**：\n| 相關係數  | 解讀                       |\n|-----------|----------------------------|\n| > 0.8     | 高度正相關（形狀非常相似） |\n| 0.5 ~ 0.8 | 中度正相關（形狀相似）     |\n| 0.3 ~ 0.5 | 弱正相關（部分相似）       |\n| < 0.3     | 無顯著相關（形狀不相似）   |\n\n**優點**：\n- 計算簡單快速\n- 直觀易懂\n\n**缺點**：\n- 假設線性關係\n- 對時間偏移敏感（快一點/慢一點會降低相關）\n\n### 方法 2: 動態時間校正 (DTW)\n\n```python\nfrom scipy.spatial.distance import euclidean\nfrom fastdtw import fastdtw\n\ndef dtw_distance(series_a: np.ndarray, series_b: np.ndarray) -> float:\n    \"\"\"\n    計算兩個序列的 DTW 距離\n\n    Parameters\n    ----------\n    series_a, series_b : np.ndarray\n        正規化後的時間序列（長度可不同）\n\n    Returns\n    -------\n    float\n        DTW 距離，範圍 [0, ∞)，越小越相似\n    \"\"\"\n    distance, path = fastdtw(series_a, series_b, dist=euclidean)\n    # 正規化：除以序列長度\n    return distance / max(len(series_a), len(series_b))\n```\n\n**解讀**：\n| DTW 距離（正規化後） | 解讀     |\n|----------------------|----------|\n| < 0.3                | 高度相似 |\n| 0.3 ~ 0.8            | 中度相似 |\n| 0.8 ~ 1.5            | 弱相似   |\n| > 1.5                | 不相似   |\n\n**優點**：\n- 允許時間軸「拉伸/壓縮」\n- 捕捉「快一點/慢一點但形狀相似」的情況\n\n**缺點**：\n- 計算量較大\n- 對參數敏感\n- 可能過度對齊（把不相似的強行對齊）\n\n### 方法 3: 形狀特徵相似度\n\n提取結構化特徵，計算特徵向量的相似度：\n\n```python\ndef extract_shape_features(series: np.ndarray) -> dict:\n    \"\"\"\n    提取形狀特徵\n\n    Returns\n    -------\n    dict\n        特徵字典\n    \"\"\"\n    n = len(series)\n    x = np.arange(n)\n\n    # 1. 趨勢斜率（線性回歸）\n    slope, intercept = np.polyfit(x, series, 1)\n\n    # 2. 波動度（標準差）\n    volatility = np.std(series)\n\n    # 3. 偏度（形狀不對稱性）\n    from scipy.stats import skew\n    skewness = skew(series)\n\n    # 4. 峰谷數量\n    from scipy.signal import find_peaks\n    peaks, _ = find_peaks(series)\n    troughs, _ = find_peaks(-series)\n    n_peaks = len(peaks)\n    n_troughs = len(troughs)\n\n    # 5. 首尾變化率\n    start_to_end = (series[-1] - series[0]) / (abs(series[0]) + 1e-8)\n\n    return {\n        \"slope\": slope,\n        \"volatility\": volatility,\n        \"skewness\": skewness,\n        \"n_peaks\": n_peaks,\n        \"n_troughs\": n_troughs,\n        \"start_to_end\": start_to_end\n    }\n\n\ndef feature_similarity(feat_a: dict, feat_b: dict) -> float:\n    \"\"\"\n    計算特徵向量的餘弦相似度\n    \"\"\"\n    keys = feat_a.keys()\n    vec_a = np.array([feat_a[k] for k in keys])\n    vec_b = np.array([feat_b[k] for k in keys])\n\n    # 正規化\n    vec_a = vec_a / (np.linalg.norm(vec_a) + 1e-8)\n    vec_b = vec_b / (np.linalg.norm(vec_b) + 1e-8)\n\n    # 餘弦相似度\n    return float(np.dot(vec_a, vec_b))\n```\n\n**優點**：\n- 捕捉結構性特徵（趨勢、拐點）\n- 對局部噪音較不敏感\n\n**缺點**：\n- 特徵選擇需要領域知識\n- 可能遺漏某些形狀特性\n\n### 綜合相似度分數\n\n```python\ndef combine_similarity(\n    corr: float,\n    dtw_dist: float,\n    feature_sim: float,\n    weights: tuple = (0.4, 0.3, 0.3)\n) -> float:\n    \"\"\"\n    合成綜合相似度分數\n\n    Parameters\n    ----------\n    corr : float\n        相關係數 [-1, 1]\n    dtw_dist : float\n        DTW 距離（正規化後）[0, ∞)\n    feature_sim : float\n        特徵相似度 [0, 1]\n    weights : tuple\n        權重 (corr, dtw, feature)\n\n    Returns\n    -------\n    float\n        綜合相似度分數 [0, 1]\n    \"\"\"\n    # 轉換至 [0, 1] 範圍\n    corr_score = (corr + 1) / 2  # [-1, 1] -> [0, 1]\n    dtw_score = max(0, 1 - dtw_dist / 2)  # 假設 dtw > 2 為不相似\n    feat_score = max(0, feature_sim)  # 已經在 [0, 1]\n\n    w_corr, w_dtw, w_feat = weights\n    return w_corr * corr_score + w_dtw * dtw_score + w_feat * feat_score\n```\n\n---\n\n## 交叉驗證邏輯\n\n### 為什麼需要交叉驗證？\n\n**WUDSHO 變動的可能成因**：\n1. **利率環境變化**（最常見）\n2. **持有債券久期結構調整**\n3. **會計攤銷時程**\n4. **真正的金融壓力**\n\n只有第 4 種需要提高警覺，但形狀比對無法區分。\n\n**解決方案**：用其他壓力指標交叉驗證。\n\n### 壓力驗證計算\n\n```python\ndef calculate_stress_score(\n    indicator_data: pd.Series,\n    indicator_config: dict,\n    lookback_days: int = 252\n) -> dict:\n    \"\"\"\n    計算單一指標的壓力分數\n\n    Parameters\n    ----------\n    indicator_data : pd.Series\n        指標資料\n    indicator_config : dict\n        指標配置（包含 stress_threshold）\n    lookback_days : int\n        歷史回望期（計算 z-score 用）\n\n    Returns\n    -------\n    dict\n        包含 z-score、signal、score\n    \"\"\"\n    recent = indicator_data.iloc[-1]\n    historical = indicator_data.iloc[-lookback_days:-1]\n\n    mean = historical.mean()\n    std = historical.std()\n    z = (recent - mean) / (std + 1e-8)\n\n    threshold = indicator_config.get(\"stress_threshold\", 1.5)\n\n    # 信用利差、波動率：上升為壓力\n    # 殖利率曲線：倒掛（負值）為壓力\n    if indicator_config.get(\"name\") == \"yield_curve\":\n        signal = \"stress\" if z < -threshold else \"neutral\"\n        score = max(0, -z / threshold) if z < 0 else 0\n    else:\n        signal = \"stress\" if z > threshold else \"neutral\"\n        score = max(0, z / threshold) if z > 0 else 0\n\n    return {\n        \"z\": float(z),\n        \"signal\": signal,\n        \"score\": min(1.0, score)\n    }\n```\n\n### 合成壓力分數\n\n```python\ndef aggregate_stress_scores(\n    indicator_results: list,\n    indicator_configs: list\n) -> dict:\n    \"\"\"\n    合成所有指標的壓力分數\n\n    Returns\n    -------\n    dict\n        包含 score（加權平均）和 details\n    \"\"\"\n    total_weight = 0\n    weighted_score = 0\n    details = []\n\n    for result, config in zip(indicator_results, indicator_configs):\n        weight = config.get(\"weight\", 1.0)\n        weighted_score += weight * result[\"score\"]\n        total_weight += weight\n        details.append({\n            \"name\": config[\"name\"],\n            \"signal\": result[\"signal\"],\n            \"z\": result[\"z\"]\n        })\n\n    return {\n        \"score\": weighted_score / total_weight if total_weight > 0 else 0,\n        \"details\": details\n    }\n```\n\n---\n\n## 合成風險分數\n\n```python\ndef calculate_composite_risk(\n    pattern_score: float,\n    stress_score: float,\n    pattern_weight: float = 0.6,\n    stress_weight: float = 0.4\n) -> float:\n    \"\"\"\n    合成最終風險分數\n\n    Parameters\n    ----------\n    pattern_score : float\n        形狀相似度分數 [0, 1]\n    stress_score : float\n        壓力驗證分數 [0, 1]\n    pattern_weight : float\n        形狀權重\n    stress_weight : float\n        壓力權重\n\n    Returns\n    -------\n    float\n        合成風險分數 [0, 1]\n    \"\"\"\n    return pattern_weight * pattern_score + stress_weight * stress_score\n```\n\n### 解讀框架\n\n| 合成風險分數 | 解讀                             | 建議行動               |\n|--------------|----------------------------------|------------------------|\n| > 0.7        | 高風險：形狀相似且壓力驗證支持   | 提高警覺，考慮防禦配置 |\n| 0.5 ~ 0.7    | 中高風險：形狀相似，壓力開始出現 | 持續觀察，準備應對方案 |\n| 0.3 ~ 0.5    | 中風險：形狀相似但壓力中性       | 可能是利率/會計效果    |\n| < 0.3        | 低風險：形狀不相似或壓力反對     | 圖形類比不成立         |\n\n---\n\n## 方法論限制\n\n1. **歷史不代表未來**：形狀相似不代表後續發展相同\n2. **樣本有限**：極端事件只有 3-4 次，統計推論受限\n3. **參數敏感**：DTW 和特徵提取對參數敏感\n4. **時效性**：FRED 週資料有 T+1 ~ T+3 延遲\n5. **因果謬誤**：相關不等於因果\n\n---\n\n## 參考文獻\n\n- Berndt, D.J., & Clifford, J. (1994). \"Using Dynamic Time Warping to Find Patterns in Time Series\"\n- Ratanamahatana, C.A., & Keogh, E. (2004). \"Making Time-series Classification More Accurate Using Learned Constraints\"\n- Fed H.4.1 Release Documentation\n",
+    "downloadUrl": "downloads/detect-fed-unamortized-discount-pattern-0.1.0.zip"
+  },
+  {
     "id": "detect-atr-squeeze-regime",
     "name": "detect-atr-squeeze-regime",
     "displayName": "波動擠壓行情偵測",
@@ -3409,6 +3620,228 @@
     "downloadUrl": "downloads/detect-atr-squeeze-regime-0.1.0.zip"
   },
   {
+    "id": "demographic-fiscal-trap-analyzer",
+    "name": "demographic-fiscal-trap-analyzer",
+    "displayName": "分析人口財政陷阱",
+    "description": "分析人口老化、債務動態、官僚膨脹與通膨稀釋交互作用下的「財政陷阱」風險，量化各國/地區的財政脆弱度並識別潛在的貨幣稀釋路徑",
+    "emoji": "🏛️",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "macro-skills",
+    "authorUrl": "https://github.com/macro-skills",
+    "tags": [
+      "人口",
+      "人口結構",
+      "財政政策",
+      "債務動能",
+      "通貨膨脹",
+      "人口老化",
+      "撫養比",
+      "金融抑制"
+    ],
+    "category": "policy-modeling",
+    "dataLevel": "free-nolimit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\r\n\r\n<principle name=\"fiscal_trap_definition\">\r\n**財政陷阱定義**\r\n\r\n「人口-財政陷阱」(Demographic-Fiscal Trap) 是指：當高齡化撫養比持續攀升、政府債務/GDP 居高不下、官僚體系低效膨脹、且名義成長無法覆蓋利息支出時，政府傾向透過「金融抑制」(financial repression) 或「通膨稀釋」(inflation erosion) 來削減實質負債。\r\n\r\n此陷阱的核心特徵：\r\n1. **人口結構剛性**：老年撫養比上升是不可逆的長期趨勢\r\n2. **債務自我強化**：r > g 時債務比率自動膨脹\r\n3. **政治阻力**：削減福利支出的政治成本極高\r\n4. **貨幣出口**：當財政改革無路可走，貨幣稀釋成為「最小阻力路徑」\r\n</principle>\r\n\r\n<principle name=\"four_pillar_framework\">\r\n**四支柱分析架構**\r\n\r\n本技能採用四維度評分框架：\r\n\r\n| 支柱                      | 權重(預設) | 核心指標                    |\r\n|---------------------------|------------|-----------------------------|\r\n| 老化壓力 (Aging Pressure) | 35%        | 老年撫養比水準 + 10年斜率   |\r\n| 債務動態 (Debt Dynamics)  | 35%        | 債務/GDP + 5年斜率 + (r-g)  |\r\n| 官僚膨脹 (Bloat Index)    | 15%        | 政府消費/GDP + 政府支出/GDP |\r\n| 成長拖累 (Growth Drag)    | 15%        | 名義GDP成長率（負向計分）   |\r\n\r\n最終 `fiscal_trap_score` = Σ(權重 × z-score) 加權總和\r\n</principle>\r\n\r\n<principle name=\"inflation_incentive\">\r\n**通膨激勵指數**\r\n\r\n通膨激勵指數 (Inflation Incentive Score) 衡量政府選擇「通膨稀釋」路徑的動機強度：\r\n\r\n```\r\ninflation_incentive =\r\n    0.40 × zscore(debt_level)           # 高債務 → 強動機\r\n  + 0.20 × zscore(r - g)                # r > g → 難以自然去槓桿\r\n  + 0.20 × zscore(neg_real_rate_share)  # 負實質利率持續 → 已在執行\r\n  + 0.20 × zscore(bloat_index)          # 高官僚膨脹 → 難以削減支出\r\n```\r\n\r\n當此指數 > 1.5 時，表示該經濟體有強烈動機維持負實質利率環境。\r\n</principle>\r\n\r\n<principle name=\"data_hierarchy\">\r\n**資料來源層級**\r\n\r\n本技能採用公開可重現的資料源：\r\n\r\n| 資料類型       | 首選來源        | 次選來源          | API/下載方式 |\r\n|----------------|-----------------|-------------------|--------------|\r\n| 撫養比         | World Bank WDI  | UN WPP            | API / CSV    |\r\n| 政府債務       | IMF WEO         | World Bank        | API / CSV    |\r\n| 政府支出       | IMF GFS         | World Bank        | API / CSV    |\r\n| 健康支出       | WHO GHED        | World Bank        | API / CSV    |\r\n| 名義GDP成長    | World Bank      | IMF WEO           | API          |\r\n| CPI通膨        | World Bank      | IMF               | API          |\r\n| 10年公債殖利率 | OECD / 各國央行 | Trading Economics | API / 爬蟲   |\r\n\r\n所有指標均可透過 `wbdata`、`imfpy` 或直接 API 取得。\r\n</principle>\r\n\r\n<principle name=\"zscore_normalization\">\r\n**Z-Score 標準化**\r\n\r\n為使跨國比較有意義，所有原始指標均轉換為 z-score：\r\n\r\n```python\r\nzscore(x) = (x - μ_cross_section) / σ_cross_section\r\n```\r\n\r\n其中 μ 和 σ 為同期跨國截面統計量。\r\n\r\n這使得：\r\n- z > 1.5 → 顯著高於平均（警戒）\r\n- z > 2.0 → 極端值（紅燈）\r\n- z < -1.0 → 顯著優於平均\r\n</principle>\r\n\r\n<principle name=\"quadrant_classification\">\r\n**象限分類系統**\r\n\r\n根據 Aging Pressure 和 Debt Dynamics 兩主軸，將經濟體分為四象限：\r\n\r\n| 象限         | 老化壓力 | 債務動態 | 典型國家           | 政策空間         |\r\n|--------------|----------|----------|--------------------|------------------|\r\n| Q1: 雙高危機 | 高 (>1)  | 高 (>1)  | 日本、義大利、希臘 | 極窄             |\r\n| Q2: 老化主導 | 高 (>1)  | 低 (<1)  | 德國、南韓         | 中等（債務可用） |\r\n| Q3: 債務主導 | 低 (<1)  | 高 (>1)  | 美國、巴西         | 中等（人口紅利） |\r\n| Q4: 相對健康 | 低 (<1)  | 低 (<1)  | 印度、印尼         | 寬廣             |\r\n\r\nQ1 象限國家最可能進入「財政陷阱」並選擇通膨稀釋路徑。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n本技能的目標是：\r\n\r\n1. **量化財政脆弱度**：計算各國/地區的 `fiscal_trap_score` 與 `inflation_incentive_score`\r\n2. **識別結構風險**：透過四支柱分解，診斷哪個維度貢獻最大風險\r\n3. **象限定位**：將經濟體歸類至四象限，判斷其政策空間\r\n4. **趨勢預警**：利用撫養比預測至 2050 年，前瞻性評估陷阱演化\r\n5. **跨國比較**：支援多國並排比較，識別相對風險排序\r\n</objective>\r\n\r\n<quick_start>\r\n## 快速開始\r\n\r\n**單一國家分析**\r\n```\r\n請分析日本的人口財政陷阱風險，使用 2010-2023 年資料，預測至 2050 年\r\n```\r\n\r\n**多國比較**\r\n```\r\n比較 G7 國家的財政陷阱分數，並按通膨激勵指數排序\r\n```\r\n\r\n**自訂權重**\r\n```\r\n分析台灣的財政陷阱，使用自訂權重：老化 40%、債務 40%、膨脹 10%、成長 10%\r\n```\r\n</quick_start>\r\n\r\n<parameters>\r\n## 參數說明\r\n\r\n| 參數                  | 型別         | 必填 | 預設值                                                        | 說明                                          |\r\n|-----------------------|--------------|------|---------------------------------------------------------------|-----------------------------------------------|\r\n| entities              | list[string] | 是   | -                                                             | 國家/地區代碼 (ISO3 或區域如 OECD, EU, WORLD) |\r\n| start_year            | int          | 是   | -                                                             | 歷史資料起始年                                |\r\n| end_year              | int          | 是   | -                                                             | 歷史資料結束年（通常=最近一年）               |\r\n| forecast_end_year     | int          | 否   | 2050                                                          | 撫養比預測結束年                              |\r\n| dependency_components | list[string] | 否   | [\"old_age\",\"youth\",\"total\"]                                   | 撫養比分解項目                                |\r\n| fiscal_modules        | list[string] | 否   | [\"debt\",\"spending\",\"health\"]                                  | 啟用的財政模組                                |\r\n| bureaucracy_proxies   | list[string] | 否   | [\"gov_wage_bill\",\"public_employment_share\",\"gov_consumption\"] | 官僚膨脹代理指標                              |\r\n| inflation_channel     | string       | 否   | \"real_rates\"                                                  | 通膨路徑分析方式                              |\r\n| weights               | dict         | 否   | {\"aging\":0.35,\"debt\":0.35,\"bloat\":0.15,\"growth_drag\":0.15}    | 各支柱權重                                    |\r\n</parameters>\r\n\r\n<workflows_overview>\r\n## 可用工作流\r\n\r\n1. **full-analysis.md** - 完整分析：執行所有模組並產出綜合報告\r\n2. **debt-dynamics.md** - 債務動態專題：深入分析 r-g 缺口與債務軌跡\r\n3. **aging-projection.md** - 老化投影：撫養比預測與財政壓力前瞻\r\n4. **cross-country.md** - 跨國比較：多國並排評分與排名\r\n5. **inflation-path.md** - 通膨路徑：分析負實質利率持續性與貨幣稀釋動機\r\n</workflows_overview>\r\n\r\n<interpretation_guide>\r\n## 結果解讀指南\r\n\r\n### Fiscal Trap Score 解讀\r\n| 分數區間 | 風險等級 | 建議關注                           |\r\n|----------|----------|------------------------------------|\r\n| < 0      | 低風險   | 財政健全，政策空間充裕             |\r\n| 0 - 1    | 中等風險 | 需監控特定支柱惡化                 |\r\n| 1 - 2    | 高風險   | 結構性問題顯著，改革窗口收窄       |\r\n| > 2      | 極高風險 | 財政陷阱風險極高，通膨稀釋概率上升 |\r\n\r\n### Inflation Incentive Score 解讀\r\n| 分數區間  | 政策傾向     | 對資產配置意涵     |\r\n|-----------|--------------|--------------------|\r\n| < 0.5     | 正統財政     | 名義債券相對安全   |\r\n| 0.5 - 1.5 | 溫和金融抑制 | 實質報酬承壓       |\r\n| > 1.5     | 強烈稀釋動機 | 應考慮通膨保值資產 |\r\n</interpretation_guide>\r\n\r\n<execution_examples>\r\n## 執行案例：日本人口-財政陷阱分析 (2010-2023)\r\n\r\n**分析指令**\r\n```\r\n請分析日本的人口財政陷阱風險，使用 2010-2023 年資料，預測至 2050 年\r\n```\r\n\r\n### 核心發現\r\n\r\n**綜合評分結果**\r\n- **Fiscal Trap Score**: 2.03 (CRITICAL > 2.0 閾值)\r\n- **Inflation Incentive Score**: 2.38 (極高 > 1.5 閾值)\r\n- **象限分類**: Q1 - 雙高危機 (HighAging & HighDebt)\r\n- **OECD排名**: #1 (風險最高國家)\r\n\r\n**四支柱詳細評分**\r\n\r\n| 支柱     | Z-Score | 權重 | 貢獻 | 全球排名 | 風險等級 |\r\n|----------|---------|------|------|----------|----------|\r\n| 老化壓力 | 2.40    | 35%  | 0.84 | #1       | ★★★★★    |\r\n| 債務動態 | 2.45    | 35%  | 0.86 | #1       | ★★★★★    |\r\n| 官僚膨脹 | 1.09    | 15%  | 0.16 | #15      | ★★☆☆☆    |\r\n| 成長拖累 | 1.10    | 15%  | 0.17 | #33      | ★★☆☆☆    |\r\n\r\n### 關鍵指標概覽 (2010→2023)\r\n\r\n```\r\n老年撫養比:      35.5% → 48.5%      (全球最高，加速中)\r\n政府債務/GDP:   215.8% → 262.5%     (全球最高，超可持續邊界)\r\n實質利率:        -2.5% (2023)        (金融抑制制度化)\r\n名義GDP成長:     1.5%平均           (全球最低)\r\n利息支出:        3.2% GDP (2023)    (2050年預測達8%+)\r\n```\r\n\r\n### 陷阱自我強化機制\r\n\r\n```\r\n老化 → 社保支出↑ → 赤字↑ → 債務↑ → 利息↑ → 赤字更↑\r\n              ↓(無法切斷)↓\r\n         整個迴圈傳統財政改革無法化解\r\n```\r\n\r\n### 未來場景預測\r\n\r\n| 場景     | 概率 | 特徵                          | 影響               |\r\n|----------|------|-------------------------------|--------------------|\r\n| 通膨加速 | 70%  | 名義GDP成長4-5%，央行允許通膨 | 日圓貶值15-25%     |\r\n| 利率衝擊 | 20%  | YCC崩潰，實質利率正常化       | 債務比率爆炸性增長 |\r\n| 改革突破 | 10%  | 社保根本性改革，移民開放      | 極低政治可能性     |\r\n\r\n### 資產配置建議 (日本投資者)\r\n\r\n**推薦**\r\n- 30% 美國股票 (美元走強+實質利率正值)\r\n- 20% 美國債券 (3-4% yield vs JGB -2.5%)\r\n- 15% 新興市場 (成長性，日圓對沖)\r\n- 10% 黃金 (通膨對沖)\r\n- 10% 日本不動產 (東京/一線，通膨受益)\r\n- 15% 現金/替代資產\r\n\r\n**應避免**\r\n- ✗ 純JGB持有 (年實質報酬 -2.5%)\r\n- ✗ 地方房地產 (人口衰退中)\r\n- ✗ 日圓堆積 (購買力侵蝕)\r\n\r\n### 生成成果物\r\n\r\n分析完成後自動生成以下文檔：\r\n\r\n1. **結構化JSON** - 完整數據與計算過程\r\n2. **技術報告** - 49KB 詳細分析文檔\r\n3. **執行摘要** - 5-10分鐘快速掌握\r\n4. **可視化圖表** (5張)\r\n   - 01_four_pillars_20260119.png - 四支柱評分分解\r\n   - 02_time_series_20260119.png - 2010-2023年時間序列\r\n   - 03_projections_20260119.png - 2024-2050年投影\r\n   - 04_asset_allocation_20260119.png - 資產配置建議\r\n   - 05_risk_scorecard_20260119.png - 風險評分卡\r\n\r\n### 監測指標 (投資決策參考)\r\n\r\n| 指標        | 當前值 | 警戒線     | 含義         |\r\n|-------------|--------|------------|--------------|\r\n| CPI通膨     | 3.3%   | >4%持續3年 | 通膨稀釋確認 |\r\n| 10y殖利率   | 0.8%   | >1.5%      | YCC漸進解除  |\r\n| JPY/USD     | 160    | >180       | 日圓貶值信號 |\r\n| BoJ債券持有 | 52%    | <45%       | 正常化信號   |\r\n\r\n</execution_examples>",
+    "path": "skills/demographic-fiscal-trap-analyzer/SKILL.md",
+    "directoryStructure": "demographic-fiscal-trap-analyzer/\n├── examples\n│   ├── g7-comparison-2023.json\n│   └── japan-full-analysis.json\n├── manifest.json\n├── references\n│   ├── data-sources.md\n│   ├── indicator-codes.md\n│   ├── input-schema.md\n│   └── methodology.md\n├── scripts\n│   ├── fiscal_trap_analyzer.py\n│   ├── README.md\n│   └── visualize_combined.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── aging-projection.md\n    ├── cross-country.md\n    ├── debt-dynamics.md\n    ├── full-analysis.md\n    └── inflation-path.md",
+    "lastUpdated": "2026-01-19",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "請分析日本的人口財政陷阱風險，使用 2010-2023 年資料",
+        "imagePath": "images/Japan-demographic-fiscal-trap-combined-2026-01-19.png",
+        "expectedResult": "完成！我已為您進行了完整的日本人口財政陷阱分析。以下是核心發現：\n\n日本風險評估 - 臨界狀態\n┌───────────────────────────┬───────────────┬────────────────────┐\n│           指標            │     數值      │        評級        │\n├───────────────────────────┼───────────────┼────────────────────┤\n│ Fiscal Trap Score         │ 2.03          │ ★★★★★ 極高風險     │\n├───────────────────────────┼───────────────┼────────────────────┤\n│ Inflation Incentive Score │ 2.38          │ 強烈通膨稀釋動機   │\n├───────────────────────────┼───────────────┼────────────────────┤\n│ 象限分類                  │ Q1 (雙高危機) │ 日本、義大利、希臘 │\n├───────────────────────────┼───────────────┼────────────────────┤\n│ 全球排名                  │ #1            │ 風險最高           │\n└───────────────────────────┴───────────────┴────────────────────┘\n四支柱分解\n┌──────────┬─────────┬──────────┬────────────┐\n│   支柱   │ Z-Score │ 全球排名 │  風險評級  │\n├──────────┼─────────┼──────────┼────────────┤\n│ 老化壓力 │ 2.40    │ #1       │ ⭐⭐⭐⭐⭐ │\n├──────────┼─────────┼──────────┼────────────┤\n│ 債務動態 │ 2.45    │ #1       │ ⭐⭐⭐⭐⭐ │\n├──────────┼─────────┼──────────┼────────────┤\n│ 官僚膨脹 │ 1.09    │ #15      │ ⭐⭐       │\n├──────────┼─────────┼──────────┼────────────┤\n│ 成長拖累 │ 1.10    │ #33      │ ⭐⭐       │\n└──────────┴─────────┴──────────┴────────────┘\n關鍵數據（2010→2023）\n\n老年撫養比:      35.5% → 48.5% (全球最高，加速中)\n政府債務/GDP:    215.8% → 262.5% (全球最高，超可持續邊界)\n實質利率:        -2.5% (2023年，金融抑制常態化)\n名義GDP成長:     1.5%平均 (全球最低，人口衰退 -1.5%)\n利息支出:        3.2% GDP (預測2050年達8%+)\n\n陷阱自我強化機制\n\n老化 → 社保支出↑ → 赤字↑ → 債務↑ → 利息↑ → 赤字更↑\n    ↓(無法切斷)↓\n  整個迴圈傳統財政改革無法化解\n\n通膨稀釋路徑（70% 概率）\n\n- 2024-2030年：YCC漸進調整，名義成長微升至2-3%\n- 2030-2040年：通膨加速至3.5-4.5%，日圓貶值15-25%\n- 代價：進口成本上升、儲蓄購買力喪失\n\n資產配置建議（日本投資者）\n\n30% 美國股票    (美元走強+實質利率正值)\n20% 美國債券    (3-4% vs JGB -2.5%)\n15% 新興市場    (成長性，日圓對沖)\n10% 黃金        (通膨對沖)\n10% 日本不動產  (東京/一線，通膨受益)\n15% 現金/替代\n\n應避免：純JGB持有(年實質報酬-2.5%)、地方房產(人口衰退)、日圓堆積\n\n政策空間\n\n- 老年人(60+)已佔選民>50% → 政治上無法削支\n- 稅收已占GDP 35%+ → 難以增稅\n- 結論：傳統財政改革已無通道，通膨稀釋成必然選擇\n\n---\n已為您生成4份綜合文檔（共116KB），涵蓋完整技術報告、執行摘要、結構化JSON數據，包括2010-2023年歷史分析與2024-2050年前瞻預測。\n"
+      },
+      {
+        "question": "分析台灣 2010-2023 的老化壓力與債務動態",
+        "imagePath": "images/Taiwan-demographic-fiscal-trap-combined-2026-01-19.png",
+        "expectedResult": "✅ 台灣人口-財政陷阱分析完成！\n\n---\n核心結論\n\n財政陷阱評分: -0.02 (低風險 ✓)\n區域排名: 4/6 (東亞優等生)\n象限分類: Q4 相對健康\n通膨稀釋動機: -0.35 (低動機 ✓)\n\n一句話總結: 台灣財政狀況在東亞屬於優等生，但面臨快速老化的中長期挑戰，需在未來 15-20 年內完成退休金改革。\n\n---\n四支柱評分\n\n┌────────────────────────────────────────┐\n│  支柱          評分    排名    評估     │\n├────────────────────────────────────────┤\n│  老化壓力      0.73    3/6     ⚠️ 中高 │\n│  債務動態     -0.55    2/6     ✓ 優秀  │\n│  官僚膨脹     -0.20    3/6     ✓ 良好  │\n│  成長拖累     -0.36    2/6     ✓ 優秀  │\n└────────────────────────────────────────┘\n\n---\n區域比較\n\n財政陷阱評分排名 (低分 = 低風險):\n\n1. 日本      1.58  🔴 高風險\n2. 南韓      0.22\n3. 印尼      0.13\n4. 台灣     -0.02  ✓ 低風險 ← 您在這裡\n5. 泰國     -0.15\n6. 中國     -0.30  ✓ 最低風險\n\n---\n關鍵發現\n\n✓ 優勢\n\n- 債務水平低: 35-40% GDP vs 日本 262.5%\n- 外匯存底: $5,500億 (全球第五)\n- 科技領先: 台積電全球領導地位\n- 財政紀律: 公共債務法限制生效\n\n⚠️ 挑戰\n\n- 快速老化: 生育率 0.87 (全球最低)\n- 勞保缺口: 11兆台幣，2028-2032 破產風險\n- 移民保守: 人口補充不足\n- 地緣風險: 防衛支出壓力上升\n\n---\n生成文件\n\n📊 結構化數據\n\n- ✓ asia_demographic_fiscal_trap_2010-2023_structured.json (3.5 KB)\n- ✓ taiwan_demographic_fiscal_trap_2010-2023_structured.json (1.8 KB)\n\n📝 分析報告\n\n- ✓ taiwan_demographic_fiscal_trap_2010-2023_analysis.md (11 KB)\n  - 完整技術分析\n  - 四支柱詳解\n  - 區域比較\n  - 2050 年預測\n  - 政策建議\n\n📋 執行摘要\n\n- ✓ EXECUTIVE_SUMMARY_TW.md (4.8 KB)\n  - 5 分鐘快速閱讀\n  - 核心數字\n  - SWOT 分析\n  - 投資建議\n\n📈 可視化圖表\n\n- ✓ Taiwan_Demographic_Fiscal_Trap_Combined_ZH_20260119.png (839 KB)\n  - 20×14 英吋高清圖表\n  - 10 個關鍵視圖\n  - 中文標籤\n- ✓ Taiwan_Demographic_Fiscal_Trap_Combined_ZH_20260119.pdf (132 KB)\n  - PDF 列印版本\n\n📦 完整總結\n\n- ✓ TAIWAN_ANALYSIS_COMPLETION_20260119.md (9.8 KB)\n  - 完整總結文檔\n\n---\n投資建議 (台灣投資者)\n\n基於低風險評分和低通膨稀釋動機:\n\n推薦配置:\n├─ 台股          35-40%  (科技優勢)\n├─ 美股          20-25%  (全球分散)\n├─ 台債          15-20%  (低通膨環境)\n├─ 海外債券      10-15%\n├─ 不動產        5-10%   (通膨對沖)\n├─ 黃金/另類     5-10%   (地緣對沖)\n└─ 現金          5-10%\n\n應避免:\n❌ 過度集中台灣資產\n❌ 長天期零息債券\n❌ 高槓桿房地產\n\n---\n政策建議優先順序\n\n🔴 立即 (2024-2025)\n\n1. 退休金改革: 延長退休年齡至 67 歲\n2. 勞保基金: 注資或改革，避免破產\n\n⚠️ 3 年內 (2026-2027)\n\n3. 長照保險: 建立完善體系\n4. 財政緩衝: 維持債務 <40% GDP\n\n💡 5 年內 (2028-2030)\n\n5. 移民政策: 年淨流入 5-10 萬人\n6. 生育支持: 目標生育率 1.2\n\n---\n分析完成！ 所有文檔已保存至 output/ 目錄。\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 65,
+      "badge": "中高級",
+      "evaluatedAt": "2026-01-23",
+      "metrics": {
+        "problemFit": 75,
+        "correctness": 68,
+        "dataGovernance": 60,
+        "robustness": 60,
+        "maintainability": 65,
+        "usability": 62
+      },
+      "metricDetails": {
+        "problemFit": {
+          "score": 75,
+          "strengths": [
+            "完整的四支柱分析框架",
+            "Z-score 標準化跨國比較",
+            "通膨激勵指數設計"
+          ],
+          "improvements": [
+            "可增加更多國家覆蓋",
+            "可增加模型限制說明"
+          ]
+        },
+        "correctness": {
+          "score": 68,
+          "strengths": [
+            "testQuestions 有詳細 expectedResult",
+            "四象限分類邏輯清楚",
+            "含投資建議與政策建議"
+          ],
+          "improvements": [
+            "跨國會計準則差異需說明",
+            "長期預測不確定性需強調"
+          ]
+        },
+        "dataGovernance": {
+          "score": 60,
+          "strengths": [
+            "使用 World Bank、IMF 公開數據",
+            "有分層數據回退機制"
+          ],
+          "improvements": [
+            "缺少 data-sources.md 完整文檔",
+            "數據延遲 1-2 年需說明"
+          ]
+        },
+        "robustness": {
+          "score": 60,
+          "strengths": [
+            "pitfalls 詳列數據延遲風險",
+            "bestPractices 有權重調整說明"
+          ],
+          "improvements": [
+            "缺少 failure-modes.md",
+            "殖利率數據缺失處理需加強"
+          ]
+        },
+        "maintainability": {
+          "score": 65,
+          "strengths": [
+            "參數定義完整",
+            "權重可調整設計"
+          ],
+          "improvements": [
+            "可增加 manifest.json 版本控制",
+            "數據更新流程需文檔化"
+          ]
+        },
+        "usability": {
+          "score": 62,
+          "strengths": [
+            "FAQ 解答 z-score 與象限概念",
+            "輸出有資產配置建議"
+          ],
+          "improvements": [
+            "可增加 historical-episodes.md",
+            "可增加即時更新功能"
+          ]
+        }
+      },
+      "details": "**任務適配度（75/100）**\n- 四支柱分析框架完整\n- 待改進：增加國家覆蓋\n\n**正確性（68/100）**\n- 四象限分類清楚\n- 待改進：不確定性說明\n\n**資料治理（60/100）**\n- 使用公開數據\n- 待改進：增加 data-sources.md\n\n**穩健性（60/100）**\n- pitfalls 詳列風險\n- 待改進：增加 failure-modes.md\n\n**可維護性（65/100）**\n- 參數定義完整\n- 待改進：增加版本控制\n\n**輸出可用性（62/100）**\n- FAQ 解答核心概念\n- 待改進：增加歷史對照\n",
+      "upgradeNotes": {
+        "targetBadge": "高級",
+        "requirements": [
+          {
+            "metric": "dataGovernance",
+            "currentScore": 60,
+            "targetScore": 80,
+            "suggestion": "增加 data-sources.md 與延遲說明"
+          },
+          {
+            "metric": "robustness",
+            "currentScore": 60,
+            "targetScore": 80,
+            "suggestion": "增加 failure-modes.md"
+          },
+          {
+            "metric": "correctness",
+            "currentScore": 68,
+            "targetScore": 80,
+            "suggestion": "增加不確定性與準則差異說明"
+          }
+        ]
+      }
+    },
+    "bestPractices": [
+      {
+        "title": "使用公開資料源",
+        "description": "本技能僅使用 World Bank、IMF、WHO 等公開免費資料，確保可重現性"
+      },
+      {
+        "title": "Z-Score 標準化",
+        "description": "所有原始指標轉換為跨國截面 z-score，使不同量級的指標可加總比較"
+      },
+      {
+        "title": "權重可調整",
+        "description": "四支柱權重可依使用者需求調整，支援不同分析視角"
+      },
+      {
+        "title": "分層資料回退",
+        "description": "若首選資料源缺失，自動回退至次選來源（如 World Bank → IMF）"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "資料延遲",
+        "description": "公開資料通常延遲 1-2 年，最新資料可能缺失",
+        "consequence": "分析結果可能未反映最新情況"
+      },
+      {
+        "title": "跨國比較限制",
+        "description": "不同國家的會計準則和定義可能有差異",
+        "consequence": "某些指標的跨國比較需謹慎解讀"
+      },
+      {
+        "title": "殖利率資料可用性",
+        "description": "部分新興市場缺乏長期公債殖利率資料",
+        "consequence": "r-g 計算可能需使用政策利率替代"
+      },
+      {
+        "title": "預測不確定性",
+        "description": "撫養比預測至 2050 年存在高度不確定性",
+        "consequence": "長期預測應視為情境分析而非精確預測"
+      }
+    ],
+    "faq": [
+      {
+        "question": "為什麼使用 z-score 而非原始值？",
+        "answer": "z-score 將不同量級的指標（如撫養比 0.3 vs 債務比 200%）標準化為可比較的單位。\nz > 1.5 表示該指標顯著高於跨國平均，z > 2.0 表示極端值。\n"
+      },
+      {
+        "question": "如何解讀「通膨激勵指數」？",
+        "answer": "該指數衡量政府選擇「通膨稀釋」路徑的動機強度。當債務高、r > g、且已有負實質利率歷史時，\n政府有強烈動機維持金融抑制政策，對債券投資者的實質報酬構成壓力。\n"
+      },
+      {
+        "question": "四象限分類如何決定？",
+        "answer": "以 Aging Pressure 和 Debt Dynamics 兩個 z-score 為軸，z > 1 為「高」，z < 1 為「低」。\nQ1 (高老化+高債務) 風險最高，Q4 (低老化+低債務) 政策空間最大。\n"
+      },
+      {
+        "question": "哪些國家最可能陷入財政陷阱？",
+        "answer": "典型高風險國家包括：日本（超高債務+超高老化）、義大利（高債務+高老化+低成長）、\n希臘（債務遺留問題）、部分南歐國家。\n"
+      },
+      {
+        "question": "這個技能可以用於投資決策嗎？",
+        "answer": "本技能提供結構性分析框架，可作為宏觀配置的輔助參考。高通膨激勵指數的國家\n可能不利於持有名義債券，但有利於實質資產（如通膨連結債、商品、不動產）。\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/macro-skills/demographic-fiscal-trap-analyzer",
+      "branch": "main",
+      "lastUpdated": "2025-01-19",
+      "maintainer": "macro-skills-team"
+    },
+    "methodology": "### 1. 財政陷阱理論\r\n「人口-財政陷阱」建立在以下經濟學原理之上：\r\n\r\n#### 1.1 債務動態方程式\r\n標準政府債務動態：\r\n\r\n```\r\nd(t) = d(t-1) × (1 + r) / (1 + g) + pb(t)\r\n```\r\n\r\n簡化為：\r\n```\r\nΔd ≈ (r - g) × d + pb\r\n```\r\n\r\n其中：\r\n- d = 債務/GDP 比率\r\n- r = 名義利率（債務成本）\r\n- g = 名義 GDP 成長率\r\n- pb = 基本財政餘額/GDP（= 支出 - 收入 - 利息）\r\n\r\n**核心洞察**：當 r > g 且 pb ≥ 0 時，債務比率將自動膨脹，形成「雪球效應」。\r\n\r\n#### 1.2 老化的財政影響\r\n人口老化透過兩個管道影響財政：\r\n\r\n**支出端**：\r\n- 養老金支出：與老年人口規模正相關\r\n- 健康支出：老年人均醫療支出為年輕人的 3-5 倍\r\n- 長照支出：隨 80+ 人口增加而急升\r\n\r\n**收入端**：\r\n- 勞動人口縮減 → 所得稅基萎縮\r\n- 消費結構改變 → 消費稅稅基變化\r\n- 企業投資下降 → 企業稅收減少\r\n\r\n#### 1.3 金融抑制理論\r\nReinhart & Sbrancia (2015) 定義金融抑制為：\r\n> 政府透過人為壓低利率、強制銀行持有國債、資本管制等手段，將債務成本轉嫁給儲蓄者。\r\n\r\n當財政改革政治成本過高，金融抑制成為「最小阻力路徑」：\r\n- 負實質利率侵蝕債務實質價值\r\n- 對儲蓄者的隱性課稅\r\n- 避免名義違約的政治代價\r\n\r\n---\r\n\r\n## 分析框架\r\n\r\n### 2. 四支柱評分系統\r\n\r\n本技能採用四維度評分架構，各支柱設計如下：\r\n\r\n#### 2.1 老化壓力 (Aging Pressure)\r\n\r\n**定義**：衡量人口老化對財政的壓力程度\r\n\r\n**計算公式**：\r\n```python\r\naging_level = old_age_dependency_ratio[end_year]  # 65+/15-64\r\naging_slope = linear_regression_slope(old_age_dependency[end_year-10:end_year])\r\n\r\naging_pressure = 0.5 × zscore(aging_level) + 0.5 × zscore(aging_slope)\r\n```\r\n\r\n**權重配置邏輯**：\r\n- 水準 (50%)：當前老化程度決定即期財政壓力\r\n- 斜率 (50%)：趨勢決定未來壓力演化速度\r\n\r\n**資料來源**：\r\n- 首選：World Bank WDI (SP.POP.DPND.OL)\r\n- 次選：UN World Population Prospects\r\n\r\n#### 2.2 債務動態 (Debt Dynamics)\r\n\r\n**定義**：衡量政府債務的可持續性與演化趨勢\r\n\r\n**計算公式**：\r\n```python\r\ndebt_level = debt_to_gdp[end_year]\r\ndebt_slope = linear_regression_slope(debt_to_gdp[end_year-5:end_year])\r\nr_minus_g = nominal_yield_10y[end_year] - nominal_gdp_growth[end_year]\r\n\r\ndebt_dynamics = (\r\n    0.50 × zscore(debt_level) +\r\n    0.30 × zscore(debt_slope) +\r\n    0.20 × zscore(r_minus_g)\r\n)\r\n```\r\n\r\n**權重配置邏輯**：\r\n- 水準 (50%)：高債務水準本身即為風險\r\n- 斜率 (30%)：上升趨勢顯示問題惡化中\r\n- r-g (20%)：決定債務自動演化方向\r\n\r\n**資料來源**：\r\n- 債務：IMF WEO (GGXWDG_NGDP) 或 World Bank (GC.DOD.TOTL.GD.ZS)\r\n- 利率：OECD (IRLT) 或各國央行\r\n- 成長：World Bank (NY.GDP.MKTP.KD.ZG) + CPI 推算名義成長\r\n\r\n#### 2.3 官僚膨脹 (Bloat Index)\r\n\r\n**定義**：衡量政府支出的規模與效率\r\n\r\n**計算公式**：\r\n```python\r\ngov_consumption = government_consumption_to_gdp[end_year]\r\ngov_expenditure = government_expenditure_to_gdp[end_year]\r\n\r\nbloat_index = 0.6 × zscore(gov_consumption) + 0.4 × zscore(gov_expenditure)\r\n```\r\n\r\n**權重配置邏輯**：\r\n- 政府消費 (60%)：直接反映官僚體系規模\r\n- 總支出 (40%)：包含移轉性支出的整體規模\r\n\r\n**延伸指標**（若資料可用）：\r\n- 公部門薪資佔 GDP 比例\r\n- 公務員人數佔就業人口比例\r\n- 政府採購效率指數\r\n\r\n**資料來源**：\r\n- World Bank WDI (NE.CON.GOVT.ZS, GC.XPN.TOTL.GD.ZS)\r\n- IMF Government Finance Statistics\r\n\r\n#### 2.4 成長拖累 (Growth Drag)\r\n\r\n**定義**：低成長對財政可持續性的負面影響\r\n\r\n**計算公式**：\r\n```python\r\nnominal_growth = nominal_gdp_growth[end_year]\r\ngrowth_drag = zscore(-nominal_growth)  # 負向：低成長 = 高拖累\r\n```\r\n\r\n**邏輯**：\r\n- 低成長 → r-g 缺口擴大 → 債務自動膨脹\r\n- 低成長 → 稅基萎縮 → 財政收入下降\r\n- 低成長 → 政治壓力 → 更難削減支出\r\n\r\n---\r\n\r\n### 3. Z-Score 標準化\r\n\r\n#### 3.1 標準化公式\r\n```python\r\nzscore(x) = (x - μ) / σ\r\n```\r\n\r\n其中 μ 和 σ 為**跨國截面**統計量（非時間序列）。\r\n\r\n#### 3.2 截面選擇\r\n根據分析目的選擇截面群組：\r\n- 全球比較：使用全部可用國家\r\n- OECD 比較：僅使用 OECD 成員國\r\n- 區域比較：使用特定區域國家\r\n\r\n#### 3.3 解讀標準\r\n| Z-Score    | 解讀         | 風險等級 |\r\n|------------|--------------|----------|\r\n| > 2.0      | 極端高於平均 | 紅燈     |\r\n| 1.5 - 2.0  | 顯著高於平均 | 橙燈     |\r\n| 0.5 - 1.5  | 略高於平均   | 黃燈     |\r\n| -0.5 - 0.5 | 接近平均     | 綠燈     |\r\n| < -0.5     | 低於平均     | 優良     |\r\n\r\n---\r\n\r\n### 4. 象限分類\r\n\r\n#### 4.1 雙軸定義\r\n- **X 軸**：Aging Pressure (z-score)\r\n- **Y 軸**：Debt Dynamics (z-score)\r\n- **閾值**：z = 1.0 作為高/低分界\r\n\r\n#### 4.2 四象限意涵\r\n\r\n| 象限 | 老化 | 債務 | 特徵                   | 典型國家      |\r\n|------|------|------|------------------------|---------------|\r\n| Q1   | 高   | 高   | 雙重壓力，政策空間極窄 | JPN, ITA, GRC |\r\n| Q2   | 高   | 低   | 老化主導，債務尚有空間 | DEU, KOR      |\r\n| Q3   | 低   | 高   | 債務主導，人口紅利尚存 | USA, BRA      |\r\n| Q4   | 低   | 低   | 相對健康，政策空間寬廣 | IND, IDN      |\r\n\r\n---\r\n\r\n### 5. 通膨激勵指數\r\n\r\n#### 5.1 理論基礎\r\n當以下條件成立，政府有強烈動機選擇「通膨稀釋」路徑：\r\n1. 債務水準高 → 稀釋效益大\r\n2. r > g → 難以透過成長去槓桿\r\n3. 支出剛性高 → 難以削減開支\r\n4. 已有負實質利率歷史 → 路徑依賴\r\n\r\n#### 5.2 計算公式\r\n```python\r\ninflation_incentive = (\r\n    0.40 × zscore(debt_level) +\r\n    0.20 × zscore(r_minus_g) +\r\n    0.20 × zscore(neg_real_rate_share_5y) +\r\n    0.20 × zscore(bloat_index)\r\n)\r\n```\r\n\r\n#### 5.3 解讀\r\n| 分數      | 政策傾向     | 投資意涵           |\r\n|-----------|--------------|--------------------|\r\n| < 0.5     | 正統財政     | 名義債券相對安全   |\r\n| 0.5 - 1.5 | 溫和金融抑制 | 實質報酬承壓       |\r\n| > 1.5     | 強烈稀釋動機 | 應持有通膨保值資產 |\r\n\r\n---\r\n\r\n## 參考文獻\r\n\r\n1. Reinhart, C. M., & Sbrancia, M. B. (2015). \"The Liquidation of Government Debt.\" *Economic Policy*, 30(82), 291-333.\r\n\r\n2. Blanchard, O. (2019). \"Public Debt and Low Interest Rates.\" *American Economic Review*, 109(4), 1197-1229.\r\n\r\n3. IMF (2023). *Fiscal Monitor: Climate Crossroads*. International Monetary Fund.\r\n\r\n4. OECD (2021). *Pensions at a Glance 2021*. OECD Publishing.\r\n\r\n5. UN DESA (2022). *World Population Prospects 2022*. United Nations.\r\n",
+    "downloadUrl": "downloads/demographic-fiscal-trap-analyzer-0.1.0.zip"
+  },
+  {
     "id": "cost-density-net-rr-calculator",
     "name": "cost-density-net-rr-calculator",
     "displayName": "計算成本密度淨風報比",
@@ -3606,243 +4039,6 @@
       "additionalInfo": "## 理論來源\n\n基於 Sergei Sukhov 的論文：\n\"Geometry of Advantage Decay: A Quantitative Model for Risk-Reward\nDegradation in High-Friction Trading Environments\"\n\n## 相關文獻\n\n- Kyle (1985): Continuous Auctions and Insider Trading\n- Glosten & Milgrom (1985): Bid-ask spread models\n- Easley & O'Hara (1987): Price, trade size, and information\n"
     },
     "downloadUrl": "downloads/cost-density-net-rr-calculator-0.1.0.zip"
-  },
-  {
-    "id": "backsolve-miner-vs-metal-ratio-with-fundamentals",
-    "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
-    "displayName": "拆解礦業股對金屬價格比率的基本面",
-    "description": "從網路自動抓取礦業公司財務報表與營運揭露（產量、成本、資本支出），回算「礦業股/金屬本體比率」的基本面解釋與區間門檻（如 1.2/1.7），並輸出可重現的估值拆解（成本因子 / 槓桿因子 / 倍數因子 / 稀釋因子）。",
-    "emoji": "🔎",
-    "version": "0.1.0",
-    "license": "MIT",
-    "author": "Ricky Wang",
-    "authorUrl": "https://github.com/fatfingererr/macro-skills",
-    "tags": [
-      "礦業股",
-      "基本面",
-      "AISC",
-      "槓桿",
-      "倍數",
-      "稀釋",
-      "財報分析",
-      "估值",
-      "白銀",
-      "黃金",
-      "SEC",
-      "EDGAR"
-    ],
-    "category": "commodity-sd",
-    "dataLevel": "free-limit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": false,
-    "installCount": 0,
-    "content": "<essential_principles>\r\n\r\n<principle name=\"ratio_decomposition\">\r\n**比率拆解核心公式**\r\n\r\n礦業股/金屬價格比率可分解為四大基本面因子：\r\n\r\n```\r\nR_t ≈ K × M_t × (1-L_t) × C_t × D_t\r\n```\r\n\r\n其中：\r\n- **K**: 校準常數（由觀測值估計）\r\n- **M_t**: 倍數因子（EV/EBITDA）\r\n- **(1-L_t)**: 槓桿因子（1 - NetDebt/EV）\r\n- **C_t**: 成本因子（1 - AISC/S_t）\r\n- **D_t**: 稀釋因子（Shares_base / Shares_t）\r\n\r\n此拆解讓「比率變動」有可歸因的量化解釋。\r\n</principle>\r\n\r\n<principle name=\"aisc_extraction\">\r\n**AISC 抽取優先順序**\r\n\r\n全維持成本（AISC）是礦業股估值的核心驅動：\r\n\r\n| 優先級 | 來源            | 方法                                        |\r\n|--------|-----------------|---------------------------------------------|\r\n| 1      | MD&A / 財報附註 | 關鍵字抽取：「AISC」「all-in sustaining」   |\r\n| 2      | 年報簡報 PDF    | 解析表格：$/oz 或 $/ounce                   |\r\n| 3      | Proxy 回算      | (OpCost + SustCapex + G&A - Byproduct) / Oz |\r\n\r\n當直接揭露不可得時，以 proxy 回算補缺；記錄 `aisc_method` 以標註來源。\r\n</principle>\r\n\r\n<principle name=\"backsolve_logic\">\r\n**反推邏輯（Backsolve）**\r\n\r\n目標：給定目標比率 R*（如歷史頂部 1.7），反推需要哪些因子條件。\r\n\r\n**單因子反推**：假設其他因子不變，只調整單一因子\r\n\r\n```\r\nM* = M_now × (R*/R_now)         # 需要的倍數\r\n(1-L*) = (1-L_now) × (R*/R_now) # 需要的去槓桿\r\nC* = C_now × (R*/R_now)         # 需要的成本改善 → 反推 AISC*\r\nD* = D_now × (R*/R_now)         # 需要的稀釋折扣\r\n```\r\n\r\n**雙因子組合**：以網格列舉可行組合（如倍數 +20% + 白銀 -15%）。\r\n</principle>\r\n\r\n<principle name=\"event_study\">\r\n**事件研究方法**\r\n\r\n識別「比率落入底部分位」的歷史事件，回看事件當期的四大因子狀態：\r\n\r\n1. **AISC 是否上升**：成本壓力\r\n2. **NetDebt/EV 是否惡化**：槓桿壓力\r\n3. **EV/EBITDA 是否壓縮**：倍數壓力\r\n4. **Shares 是否上升**：稀釋壓力\r\n\r\n排名「哪個因子貢獻最大」，識別驅動底部的主因。\r\n</principle>\r\n\r\n<principle name=\"data_priority\">\r\n**數據來源優先順序**\r\n\r\n遵循「結構化優先」原則：\r\n\r\n1. **SEC XBRL (10-K/10-Q)**：直接取欄位（債務、現金、股數、CFO、Capex）\r\n2. **SEDAR+ (加拿大)**：銀礦公司常在加拿大上市\r\n3. **公司 IR 年報/MD&A**：補齊 AISC、產量等非標準欄位\r\n4. **ETF Holdings**：官方 CSV 或 SEC N-PORT\r\n\r\n抓取時使用 Selenium 模擬人類行為，避免被封鎖。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n實作「礦業股/金屬價格比率」基本面回算系統：\r\n\r\n1. **數據整合**：抓取價格、ETF 持股、財務報表、營運揭露\r\n2. **因子計算**：計算 AISC、槓桿、倍數、稀釋四大因子\r\n3. **比率拆解**：建立 R_t ≈ K × M × (1-L) × C × D 近似式\r\n4. **門檻反推**：給定目標比率，反推需要的因子組合\r\n5. **事件研究**：歷史底部事件的因子驅動分析\r\n6. **輸出報告**：結構化 JSON 與可讀 Markdown\r\n\r\n目標用戶：看到 SIL/白銀比率極端時，想用「真實財報」驗證驅動因素。\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：使用預設參數分析**\r\n\r\n```bash\r\ncd skills/backsolve-miner-vs-metal-ratio-with-fundamentals\r\npip install pandas numpy yfinance matplotlib  # 首次使用\r\npython scripts/fundamental_analyzer.py --quick\r\n```\r\n\r\n**完整分析（含財報抓取）**\r\n\r\n```bash\r\npython scripts/fundamental_analyzer.py \\\r\n  --metal-symbol SI=F \\\r\n  --miner-universe etf:SIL \\\r\n  --region-profile us_sec \\\r\n  --start-date 2015-01-01 \\\r\n  --output result.json\r\n```\r\n\r\n**生成視覺化儀表板**\r\n\r\n```bash\r\npython scripts/visualize_factors.py --quick --output output/\r\n# 輸出: output/sil_silver_factor_analysis_YYYY-MM-DD.png\r\n```\r\n\r\n視覺化儀表板包含四個面板：\r\n1. **比率時間序列**：歷史走勢 + 分位數區間（底部/頂部）\r\n2. **因子雷達圖**：四大因子健康度一覽\r\n3. **因子評分長條圖**：成本、槓桿、倍數、稀釋各項評分\r\n4. **情境熱力圖**：倍數擴張 × 白銀變動的組合分析\r\n\r\n**共同上漲情境模擬**\r\n\r\n```bash\r\npython scripts/scenario_path_simulator.py --quick --output output/\r\n# 輸出: output/scenario_path_YYYY-MM-DD.png + return_heatmap_YYYY-MM-DD.png\r\n```\r\n\r\n核心公式：**礦業股漲幅 = (1 + 銀價漲幅) × (R₁/R₀) - 1**\r\n\r\n自訂參數：\r\n```bash\r\npython scripts/scenario_path_simulator.py \\\r\n  --silver-monthly 5 \\      # 銀價每月漲幅 5%\r\n  --ratio-start 1.10 \\      # 比率起點\r\n  --ratio-end 1.20 \\        # 比率終點\r\n  --months 6 \\              # 模擬 6 個月\r\n  --heatmap                 # 同時生成熱力圖\r\n```\r\n\r\n**輸出範例**：\r\n\r\n```json\r\n{\r\n  \"now\": {\r\n    \"metal_price\": 94.4,\r\n    \"miner_price\": 103.4,\r\n    \"ratio\": 1.13,\r\n    \"ratio_percentile\": 0.111\r\n  },\r\n  \"thresholds\": {\r\n    \"bottom_ratio\": 1.20,\r\n    \"top_ratio\": 1.70,\r\n    \"median_ratio\": 1.51\r\n  },\r\n  \"fundamentals_weighted\": {\r\n    \"aisc_usd_per_oz\": 28.0,\r\n    \"net_debt_to_ev\": 0.25,\r\n    \"ev_to_ebitda\": 6.4,\r\n    \"shares_yoy_change\": 0.12\r\n  },\r\n  \"factors_now\": {\r\n    \"cost_factor_C\": 0.7034,\r\n    \"leverage_factor_1_minus_L\": 0.75,\r\n    \"multiple_M\": 6.4,\r\n    \"dilution_discount_D\": 0.89\r\n  },\r\n  \"backsolve_to_top\": {\r\n    \"multiple_only_need\": 9.1,\r\n    \"deleverage_only_need_1_minus_L\": 1.12,\r\n    \"cost_only_implied_aisc\": 15.6,\r\n    \"dilution_only_need_D\": 1.26\r\n  }\r\n}\r\n```\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼操作？\r\n\r\n1. **快速分析** - 使用預設參數（SIL / SI=F）計算當前因子狀態\r\n2. **完整分析** - 抓取財報、計算因子、反推門檻\r\n3. **因子拆解** - 深入了解四大因子的計算邏輯\r\n4. **門檻反推** - 給定目標比率，計算需要的因子組合\r\n5. **事件研究** - 歷史底部事件的因子驅動排名\r\n6. **方法論學習** - 了解回算邏輯與數據來源\r\n7. **視覺化** - 生成四面板儀表板圖表\r\n8. **共同上漲情境** - 模擬銀價與礦業股同漲時的比例關係與路徑\r\n\r\n**請選擇或直接提供分析參數。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                       | Action                                                         |\r\n|--------------------------------|----------------------------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"分析\"     | 執行 `python scripts/fundamental_analyzer.py --quick`          |\r\n| 2, \"完整\", \"full\", \"財報\"      | 閱讀 `workflows/analyze.md` 並執行                             |\r\n| 3, \"因子\", \"factor\", \"拆解\"    | 閱讀 `references/fundamental-factors.md`                       |\r\n| 4, \"反推\", \"backsolve\", \"門檻\" | 閱讀 `references/backsolve-math.md` 並執行反推分析             |\r\n| 5, \"事件\", \"event\", \"底部\"     | 閱讀 `workflows/analyze.md` 並聚焦事件研究                     |\r\n| 6, \"學習\", \"方法論\", \"why\"     | 閱讀 `references/fundamental-factors.md` + `backsolve-math.md` |\r\n| 7, \"視覺化\", \"圖\", \"chart\"     | 執行 `python scripts/visualize_factors.py --quick`             |\r\n| 8, \"共同上漲\", \"情境\", \"路徑\"  | 執行 `python scripts/scenario_path_simulator.py --quick`       |\r\n| \"比例關係\", \"漲幅\", \"要漲多少\" | 執行 `python scripts/scenario_path_simulator.py --quick`       |\r\n| 提供參數 (如 ETF/金屬代理)     | 閱讀 `workflows/analyze.md` 並使用參數執行                     |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\nbacksolve-miner-vs-metal-ratio-with-fundamentals/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── manifest.json                      # 技能元數據\r\n├── workflows/\r\n│   ├── analyze.md                     # 完整分析工作流\r\n│   └── data-fetch.md                  # 數據抓取工作流\r\n├── references/\r\n│   ├── input-schema.md                # 完整輸入參數定義\r\n│   ├── data-sources.md                # 數據來源說明\r\n│   ├── fundamental-factors.md         # 四大因子計算邏輯\r\n│   └── backsolve-math.md              # 反推數學公式\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n├── scripts/\r\n│   ├── fundamental_analyzer.py        # 主計算腳本\r\n│   ├── visualize_factors.py           # 視覺化儀表板腳本\r\n│   └── scenario_path_simulator.py     # 共同上漲情境模擬器\r\n└── examples/\r\n    └── sample-output.json             # 範例輸出\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**輸入參數**: references/input-schema.md\r\n- 完整參數定義\r\n- 預設值與建議範圍\r\n- 各方法選項說明\r\n\r\n**數據來源**: references/data-sources.md\r\n- 價格數據（yfinance / stooq / alphavantage）\r\n- 財報數據（SEC EDGAR / SEDAR+ / 公司 IR）\r\n- ETF 持股（官方 CSV / N-PORT / 手動 URL）\r\n\r\n**因子計算**: references/fundamental-factors.md\r\n- AISC 成本因子\r\n- 槓桿因子\r\n- 倍數因子\r\n- 稀釋因子\r\n\r\n**反推數學**: references/backsolve-math.md\r\n- 單因子反推公式\r\n- 雙因子組合網格\r\n- 校準常數估計\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow      | Purpose  | 使用時機                    |\r\n|---------------|----------|-----------------------------|\r\n| analyze.md    | 完整分析 | 需要抓取財報並計算因子      |\r\n| data-fetch.md | 數據抓取 | 了解如何抓取 ETF 持股與財報 |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構定義 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script                     | Command                              | Purpose                    |\r\n|----------------------------|--------------------------------------|----------------------------|\r\n| fundamental_analyzer.py    | `--quick`                            | 快速分析 SIL/SI=F          |\r\n| fundamental_analyzer.py    | `--miner-universe etf:SILJ`          | 自訂礦業股 ETF             |\r\n| fundamental_analyzer.py    | `--backsolve-target 1.7`             | 指定反推目標比率           |\r\n| fundamental_analyzer.py    | `--event-study --min-separation 180` | 執行事件研究               |\r\n| visualize_factors.py       | `--quick --output output/`           | 生成四面板視覺化儀表板     |\r\n| visualize_factors.py       | `--input result.json`                | 從 JSON 結果生成圖表       |\r\n| scenario_path_simulator.py | `--quick`                            | 共同上漲情境路徑模擬       |\r\n| scenario_path_simulator.py | `--silver-monthly 5 --months 6`      | 自訂銀價月漲幅與模擬月數   |\r\n| scenario_path_simulator.py | `--ratio-start 1.10 --ratio-end 1.20`| 自訂比率起終點             |\r\n| scenario_path_simulator.py | `--heatmap`                          | 同時生成收益率熱力圖       |\r\n</scripts_index>\r\n\r\n<input_schema_summary>\r\n\r\n**核心參數**\r\n\r\n| 參數                 | 類型   | 預設值  | 說明                                    |\r\n|----------------------|--------|---------|-----------------------------------------|\r\n| metal_symbol         | string | SI=F    | 金屬價格代碼（SI=F 白銀、GC=F 黃金）    |\r\n| miner_universe       | object | etf:SIL | 礦業股/ETF 定義                         |\r\n| region_profile       | string | us_sec  | 監管與揭露來源（us_sec / canada_sedar） |\r\n| time_range.start     | string | 5 年前  | 分析起點（YYYY-MM-DD）                  |\r\n| time_range.end       | string | today   | 分析終點                                |\r\n| time_range.frequency | string | weekly  | 取樣頻率（daily/weekly/monthly）        |\r\n\r\n**因子方法選擇**\r\n\r\n| 參數                         | 類型   | 預設值              | 說明          |\r\n|------------------------------|--------|---------------------|---------------|\r\n| fundamental_methods.aisc     | string | hybrid              | AISC 抽取方法 |\r\n| fundamental_methods.leverage | string | net_debt_to_ev      | 槓桿計算方法  |\r\n| fundamental_methods.multiple | string | ev_to_ebitda        | 倍數計算方法  |\r\n| fundamental_methods.dilution | string | weighted_avg_shares | 稀釋計算方法  |\r\n\r\n**分位門檻**\r\n\r\n| 參數                    | 類型  | 預設值 | 說明           |\r\n|-------------------------|-------|--------|----------------|\r\n| ratio_thresholds.bottom | float | 0.20   | 底部分位數門檻 |\r\n| ratio_thresholds.top    | float | 0.80   | 頂部分位數門檻 |\r\n\r\n完整參數定義見 `references/input-schema.md`。\r\n\r\n</input_schema_summary>\r\n\r\n<output_schema_summary>\r\n```json\r\n{\r\n  \"skill\": \"backsolve_miner_vs_metal_ratio_with_fundamentals\",\r\n  \"inputs\": {\r\n    \"metal_symbol\": \"SI=F\",\r\n    \"miner_universe\": {\"type\": \"etf_holdings\", \"etf_ticker\": \"SIL\"},\r\n    \"region_profile\": \"us_sec\"\r\n  },\r\n  \"now\": {\r\n    \"metal_price\": 94.4,\r\n    \"miner_price\": 103.4,\r\n    \"ratio\": 1.13,\r\n    \"ratio_percentile\": 0.111\r\n  },\r\n  \"thresholds\": {\r\n    \"bottom_ratio\": 1.20,\r\n    \"top_ratio\": 1.70,\r\n    \"median_ratio\": 1.51\r\n  },\r\n  \"fundamentals_weighted\": {\r\n    \"aisc_usd_per_oz\": 28.0,\r\n    \"net_debt_to_ev\": 0.25,\r\n    \"ev_to_ebitda\": 6.4,\r\n    \"shares_yoy_change\": 0.12\r\n  },\r\n  \"factors_now\": {\r\n    \"cost_factor_C\": 0.7034,\r\n    \"leverage_factor_1_minus_L\": 0.75,\r\n    \"multiple_M\": 6.4,\r\n    \"dilution_discount_D\": 0.89\r\n  },\r\n  \"backsolve_to_top\": {\r\n    \"multiple_only_need\": 9.1,\r\n    \"deleverage_only_need_1_minus_L\": 1.12,\r\n    \"cost_only_implied_aisc\": 15.6,\r\n    \"dilution_only_need_D\": 1.26,\r\n    \"two_factor_grid_examples\": [\r\n      {\"multiple_up\": 1.20, \"metal_down\": -0.15, \"hits_top\": true},\r\n      {\"deleverage\": -0.10, \"multiple_up\": 1.15, \"hits_top\": true}\r\n    ]\r\n  },\r\n  \"event_study\": {\r\n    \"bottom_events\": [\r\n      {\r\n        \"date\": \"2026-01-02\",\r\n        \"ratio\": 1.13,\r\n        \"aisc\": 29.1,\r\n        \"net_debt_to_ev\": 0.27,\r\n        \"ev_to_ebitda\": 5.8,\r\n        \"shares_yoy\": 0.14,\r\n        \"dominant_driver\": \"multiple_compression\"\r\n      }\r\n    ]\r\n  },\r\n  \"summary\": \"比率處於歷史底部，主要驅動為倍數壓縮...\",\r\n  \"notes\": [\r\n    \"AISC 使用 hybrid 方法回算，部分公司為 proxy 值\",\r\n    \"建議交叉驗證：COT 持倉、ETF 流量、美元/實質利率\"\r\n  ]\r\n}\r\n```\r\n\r\n完整輸出結構見 `templates/output-json.md`。\r\n</output_schema_summary>\r\n\r\n<success_criteria>\r\n執行成功時應產出：\r\n\r\n- [ ] 當前比率與歷史分位數\r\n- [ ] 四大基本面因子（AISC、槓桿、倍數、稀釋）\r\n- [ ] 權重加總後的組合因子\r\n- [ ] 門檻反推結果（單因子 + 雙因子組合）\r\n- [ ] 歷史底部事件的因子驅動排名\r\n- [ ] 結果輸出為指定格式（JSON 或 Markdown）\r\n- [ ] 數據來源與方法標註（aisc_method 等）\r\n- [ ] 風險提示與後續研究建議\r\n- [ ] 視覺化儀表板（PNG 格式，檔名含日期）\r\n</success_criteria>",
-    "path": "skills/backsolve-miner-vs-metal-ratio-with-fundamentals/SKILL.md",
-    "directoryStructure": "backsolve-miner-vs-metal-ratio-with-fundamentals/\n├── examples\n│   └── sample-output.json\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── backsolve-math.md\n│   ├── data-sources.md\n│   ├── fundamental-factors.md\n│   └── input-schema.md\n├── scripts\n│   ├── fundamental_analyzer.py\n│   ├── scenario_path_simulator.py\n│   ├── visualize_factors.py\n│   └── __pycache__\n│       └── fundamental_analyzer.cpython-312.pyc\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    └── data-fetch.md",
-    "lastUpdated": "2026-01-21",
-    "rating": 3,
-    "testQuestions": [
-      {
-        "question": "分析目前 SIL 對白銀比率處於底部的原因，是成本上升、槓桿壓力、倍數壓縮還是股權稀釋？",
-        "expectedResult": "根據分析結果，讓我整理 SIL 對白銀比率處於底部的原因分析：\n\n---                                                                                                                                                                                           SIL/白銀比率底部原因分析\n                                                                                                                                                                                            \n當前狀態\n┌──────────┬───────────┬───────────────────────────────────┐\n│   指標   │   數值    │               解讀                │\n├──────────┼───────────┼───────────────────────────────────┤\n│ 比率     │ 1.103     │ 處於歷史 25.6% 分位數（低位區間） │\n├──────────┼───────────┼───────────────────────────────────┤\n│ 白銀價格 │ $30.17/oz │ 近 5 年高位                       │\n├──────────┼───────────┼───────────────────────────────────┤\n│ SIL 價格 │ $33.28    │ 未同步跟上金屬漲幅                │\n└──────────┴───────────┴───────────────────────────────────┘\n四大因子拆解\n\nR_t ≈ K × M × (1-L) × C × D\n┌────────────────┬────────┬─────────────┬────────────────────────────────────────┐\n│      因子      │ 當前值 │    狀態     │              對比率的影響              │\n├────────────────┼────────┼─────────────┼────────────────────────────────────────┤\n│ 成本因子 C     │ 0.74   │ ✅ 健康     │ AISC $24.4/oz vs 白銀 $30+，毛利空間大 │\n├────────────────┼────────┼─────────────┼────────────────────────────────────────┤\n│ 槓桿因子 (1-L) │ 0.96   │ ✅ 健康     │ NetDebt/EV 僅 3.5%，槓桿極低           │\n├────────────────┼────────┼─────────────┼────────────────────────────────────────┤\n│ 倍數因子 M     │ 7.2x   │ ⚠️ 壓縮     │ 歷史中位約 8-9x，目前偏低              │\n├────────────────┼────────┼─────────────┼────────────────────────────────────────┤\n│ 稀釋因子 D     │ 0.94   │ ⚠️ 輕微拖累 │ YoY 股數增加 6.6%                      │\n└────────────────┴────────┴─────────────┴────────────────────────────────────────┘\n---\n主要驅動因素排名\n\n1️⃣ 倍數壓縮（EV/EBITDA）— 主因                                                                                                                                                             \n\n\n當前 EV/EBITDA 7.2x 低於歷史合理區間 8-9x。要回到歷史 80% 分位（比率 1.48），需要倍數擴張至 9.65x (+34%)。\n\n倍數壓縮的原因：\n- 市場對銀礦股的風險溢價上升\n- 貴金屬礦業股普遍不被追捧\n- 資金偏好實物白銀 ETF 而非礦業股\n\n2️⃣ 股權稀釋 — 次要因素                                                                                                                                                                     \n\n\n加權平均股數 YoY 增加 6.6%，D 因子為 0.94。\n\n各公司稀釋情況：\n┌─────────────────────┬──────────┬────────────┐\n│        公司         │ 股數 YoY │    影響    │\n├─────────────────────┼──────────┼────────────┤\n│ CDE (Coeur)         │ +13.3%   │ 稀釋最嚴重 │\n├─────────────────────┼──────────┼────────────┤\n│ EXK (Endeavour)     │ +9.1%    │ 稀釋較高   │\n├─────────────────────┼──────────┼────────────┤\n│ AG (First Majestic) │ +7.7%    │ 稀釋中等   │\n└─────────────────────┴──────────┴────────────┘\n礦業公司在熊市融資存活，牛市來時股東被稀釋。\n\n3️⃣ 成本因子 — 非主因                                                                                                                                                                       \n\n\nAISC $24.4/oz vs 白銀 $30+，成本因子 C = 0.74 非常健康。\n- 反推：若要靠成本改善回到頂部，需 AISC 降至 $0.65/oz（不可能）\n- 結論：成本不是問題\n\n4️⃣ 槓桿因子 — 非主因                                                                                                                                                                       \n\n\nNetDebt/EV 僅 3.5%，(1-L) = 0.96 接近無槓桿。\n- MAG Silver 甚至是淨現金（NetDebt/EV = -14%）\n- 結論：槓桿不是問題\n\n---\n歷史底部事件\n\n過去 5 年出現 4 次底部（比率 ≤ 1.09）：\n┌─────────┬───────┬──────────────────────────┐\n│  日期   │ 比率  │           背景           │\n├─────────┼───────┼──────────────────────────┤\n│ 2023-06 │ 1.076 │ 白銀橫盤，礦業股持續走弱 │\n├─────────┼───────┼──────────────────────────┤\n│ 2024-01 │ 1.072 │ 市場不信任貴金屬反彈     │\n├─────────┼───────┼──────────────────────────┤\n│ 2024-07 │ 1.083 │ 白銀快速上漲，礦業股落後 │\n├─────────┼───────┼──────────────────────────┤\n│ 2025-01 │ 1.063 │ 白銀創新高，礦業股跟不上 │\n└─────────┴───────┴──────────────────────────┘\n規律：當白銀快速上漲時，礦業股估值倍數反而被壓縮（市場認為漲勢不可持續）。\n\n---\n結論\n┌─────────────┬────────────────┬─────────────────────────────┐\n│    因素     │ 是否為底部原因 │            說明             │\n├─────────────┼────────────────┼─────────────────────────────┤\n│ ❌ 成本上升 │ 否             │ AISC 健康，毛利空間充裕     │\n├─────────────┼────────────────┼─────────────────────────────┤\n│ ❌ 槓桿壓力 │ 否             │ 淨負債極低，財務穩健        │\n├─────────────┼────────────────┼─────────────────────────────┤\n│ ✅ 倍數壓縮 │ 主因           │ EV/EBITDA 7.2x 低於歷史均值 │\n├─────────────┼────────────────┼─────────────────────────────┤\n│ ⚠️ 股權稀釋 │ 次要           │ 平均稀釋 6.6% 造成拖累      │\n└─────────────┴────────────────┴─────────────────────────────┘\n核心結論：SIL/白銀比率處於底部，不是礦業公司經營惡化，而是市場給予的估值倍數壓縮。基本面（成本、槓桿）實際上非常健康，這形成一個「估值落差」的機會。\n\n---\n回到中位數所需條件\n┌────────────┬──────────────────────────────────┬─────────┐\n│    情境    │             所需變化             │ 可行性  │\n├────────────┼──────────────────────────────────┼─────────┤\n│ 純倍數擴張 │ EV/EBITDA 7.2x → 8.0x (+11%)     │ ✅ 可行 │\n├────────────┼──────────────────────────────────┼─────────┤\n│ 純稀釋改善 │ D: 0.94 → 1.04 (需回購 10% 股份) │ 🔶 困難 │\n├────────────┼──────────────────────────────────┼─────────┤\n│ 組合情境   │ 倍數 +15% + 白銀 -5%             │ ✅ 可行 │\n└────────────┴──────────────────────────────────┴─────────┘\n"
-      },
-      {
-        "question": "如果 SIL/白銀比率要回到歷史頂部 1.7，需要什麼條件？",
-        "expectedResult": "門檻反推分析：回到頂部比率 1.7\n\n當前狀態\n┌───────────────────────┬──────────────┐\n│         指標          │     數值     │\n├───────────────────────┼──────────────┤\n│ 當前比率              │ 1.13         │\n├───────────────────────┼──────────────┤\n│ 目標比率（頂部）      │ 1.70         │\n├───────────────────────┼──────────────┤\n│ 需要的倍數           │ 1.50x        │\n└───────────────────────┴──────────────┘\n\n單因子反推\n┌───────────────────────┬──────────────────────────────────┐\n│       假設條件        │           需要的調整             │\n├───────────────────────┼──────────────────────────────────┤\n│ 只靠倍數擴張          │ EV/EBITDA 從 6.4x 升至 9.6x      │\n├───────────────────────┼──────────────────────────────────┤\n│ 只靠去槓桿            │ NetDebt/EV 從 25% 降至 0%        │\n├───────────────────────┼──────────────────────────────────┤\n│ 只靠成本改善          │ AISC 從 $28 降至 $16/oz          │\n├───────────────────────┼──────────────────────────────────┤\n│ 只靠減少稀釋          │ 股數需減少 33%（不現實）         │\n└───────────────────────┴──────────────────────────────────┘\n\n雙因子組合\n┌───────────────────────┬──────────────┬──────────────┬────────────────┐\n│         組合          │   倍數調整   │   其他調整   │   是否達標     │\n├───────────────────────┼──────────────┼──────────────┼────────────────┤\n│ 倍數 + 白銀回調       │ EV/EBITDA +20% │ 白銀 -20%    │ ✓              │\n├───────────────────────┼──────────────┼──────────────┼────────────────┤\n│ 倍數 + 去槓桿         │ EV/EBITDA +15% │ Debt -15%    │ ✓              │\n├───────────────────────┼──────────────┼──────────────┼────────────────┤\n│ 成本 + 倍數           │ AISC -$5/oz   │ EV/EBITDA +10% │ ✓              │\n└───────────────────────┴──────────────┴──────────────┴────────────────┘\n\n結論：回到頂部需要多個因子同時改善，單靠倍數擴張需要 50%，較難實現。\n"
-      },
-      {
-        "question": "歷史上比率落入底部時，哪個因子是主要驅動？",
-        "imagePath": "images/sil-silver-factor-analysis-2026-01-21.png",
-        "expectedResult": "歷史底部事件的因子驅動分析\n\n偵測到 5 次底部區間事件\n┌─────┬────────────┬──────────────────────────────────────┐\n│  #  │    日期    │           主要驅動因子               │\n├─────┼────────────┼──────────────────────────────────────┤\n│ 1   │ 2015-08-07 │ 倍數壓縮（商品熊市末期）             │\n├─────┼────────────┼──────────────────────────────────────┤\n│ 2   │ 2020-03-20 │ 槓桿惡化 + 倍數壓縮（COVID 危機）    │\n├─────┼────────────┼──────────────────────────────────────┤\n│ 3   │ 2022-09-02 │ 成本上升（通膨推高 AISC）            │\n├─────┼────────────┼──────────────────────────────────────┤\n│ 4   │ 2024-06-28 │ 股權稀釋 + 倍數壓縮                  │\n├─────┼────────────┼──────────────────────────────────────┤\n│ 5   │ 2026-01-02 │ 倍數壓縮（當前）                     │\n└─────┴────────────┴──────────────────────────────────────┘\n\n因子驅動統計\n┌─────────────────┬──────────────┬──────────────────────────────────┐\n│      因子       │  出現次數    │             說明                 │\n├─────────────────┼──────────────┼──────────────────────────────────┤\n│ 倍數壓縮        │ 5/5 (100%)   │ 最常見的底部驅動因素             │\n├─────────────────┼──────────────┼──────────────────────────────────┤\n│ 成本上升        │ 2/5 (40%)    │ 通膨環境下較常見                 │\n├─────────────────┼──────────────┼──────────────────────────────────┤\n│ 槓桿惡化        │ 2/5 (40%)    │ 危機時期較常見                   │\n├─────────────────┼──────────────┼──────────────────────────────────┤\n│ 股權稀釋        │ 2/5 (40%)    │ 熊市末期礦企增發融資             │\n└─────────────────┴──────────────┴──────────────────────────────────┘\n\n結論：倍數壓縮是歷史上最常見的底部驅動因素，通常伴隨 1-2 個次要因子。\n\n生成圖表\n\n輸出: output/sil_silver_factor_analysis_2026-01-21.png\n┌──────┬───────────────────────────────────────────┐\n│ 面板 │                   內容                    │\n├──────┼───────────────────────────────────────────┤\n│ 左上 │ 比率歷史走勢 (當前 1.10, 26% 分位)        │\n├──────┼───────────────────────────────────────────┤\n│ 右上 │ 四大因子雷達圖                            │\n├──────┼───────────────────────────────────────────┤\n│ 左下 │ 因子評分 (成本74, 槓桿96, 倍數97, 稀釋94) │\n├──────┼───────────────────────────────────────────┤\n│ 右下 │ 情境熱力圖 (達到1.48需1.34x)              │\n└──────┴───────────────────────────────────────────┘\n"
-      },
-      {
-        "question": "銀礦股和銀價共同上漲時，且比率維持在 1.00–1.20 時：礦業股要漲多少？銀價要漲多少？",
-        "imagePath": "images/backsolve-miner-vs-metal-ratio-with-fundamentals-sil-scenario-path-2026-01-21.png",
-        "expectedResult": "共同上漲情境分析\n\n核心公式\n┌─────────────────────────────────────────────────────────────┐\n│ 礦業股漲幅 = (1 + 銀價漲幅) × (R₁/R₀) - 1                   │\n│ 近似公式：礦業股漲幅 ≈ 銀價漲幅 + 比率變動幅度              │\n└─────────────────────────────────────────────────────────────┘\n\n快速對照表（R₀=1.103）\n\n   銀價漲幅    |   R₁=1.00    |   R₁=1.10    |   R₁=1.20\n-------------------------------------------------------\n   +5%     |   -4.8%     |   +4.7%     |  +14.2%     |\n   +10%    |   -0.3%     |   +9.7%     |  +19.7%     |\n   +15%    |   +4.3%     |  +14.7%     |  +25.1%     |\n   +20%    |   +8.8%     |  +19.7%     |  +30.6%     |\n   +25%    |  +13.3%     |  +24.7%     |  +36.0%     |\n   +30%    |  +17.9%     |  +29.6%     |  +41.4%     |\n\n直覺讀法\n- 比率維持不變 → 礦業股漲幅 ≈ 銀價漲幅\n- 比率上修（→1.20）→ 礦業股明顯跑贏銀價\n- 比率下修（→1.00）→ 礦業股落後，甚至可能銀漲但礦不漲\n\n路徑表範例（銀價月漲 5%，比率 1.10 → 1.20）\n┌───────┬────────────┬───────┬────────────┬────────────┬────────────┐\n│ 月份  │ 銀價 $/oz  │ 比率  │ 礦業股 $   │ 銀價累積   │ 礦業股累積 │\n├───────┼────────────┼───────┼────────────┼────────────┼────────────┤\n│ M0    │ 30.17      │ 1.103 │ 33.28      │ 0.0%       │ 0.0%       │\n├───────┼────────────┼───────┼────────────┼────────────┼────────────┤\n│ M1    │ 31.68      │ 1.10  │ 34.85      │ +5.0%      │ +4.7%      │\n├───────┼────────────┼───────┼────────────┼────────────┼────────────┤\n│ M3    │ 34.93      │ 1.14  │ 39.82      │ +15.8%     │ +19.6%     │\n├───────┼────────────┼───────┼────────────┼────────────┼────────────┤\n│ M6    │ 40.43      │ 1.20  │ 48.52      │ +34.0%     │ +45.8%     │\n└───────┴────────────┴───────┴────────────┴────────────┴────────────┘\n\n結論\n- 6 個月累積：銀價 +34%，礦業股 +46%\n- 超額收益 +11.8% 來自比率上修（估值追趕）\n- 因為比率從 1.10 → 1.20，礦業股月漲幅約 6.8%（高於銀價 5%）\n\n輸出圖表\n- 路徑圖：output/scenario-path-2026-01-21.png\n- 熱力圖：output/return-heatmap-2026-01-21.png\n"
-      },
-      {
-        "question": "假設銀價每月漲 5%，銀礦股價對銀價比率從 1.10 緩慢升到 1.20，幫我畫出 6 個月的路徑圖",
-        "imagePath": "images/backsolve-miner-vs-metal-ratio-with-fundamentals-return-heatmap-2026-01-21.png",
-        "expectedResult": "執行: python scripts/scenario_path_simulator.py --quick --output output/\n\n生成圖表\n- 路徑圖：output/scenario-path-2026-01-21.png（雙軸：價格 + 比率）\n- 熱力圖：output/return-heatmap-2026-01-21.png（銀價漲幅 × 比率組合）\n"
-      }
-    ],
-    "qualityScore": {
-      "overall": 66,
-      "badge": "中高級",
-      "evaluatedAt": "2026-01-23",
-      "metrics": {
-        "problemFit": 75,
-        "correctness": 70,
-        "dataGovernance": 58,
-        "robustness": 62,
-        "maintainability": 65,
-        "usability": 66
-      },
-      "metricDetails": {
-        "problemFit": {
-          "score": 75,
-          "strengths": [
-            "完整的四因子拆解框架",
-            "清晰的反推數學公式",
-            "門檻反推功能實用"
-          ],
-          "improvements": [
-            "可增加不適用情境說明",
-            "單因子歸因為極端情境需強調"
-          ]
-        },
-        "correctness": {
-          "score": 70,
-          "strengths": [
-            "方法論文檔完整",
-            "testQuestions 有詳細 expectedResult",
-            "含歷史底部事件因子分析"
-          ],
-          "improvements": [
-            "Proxy AISC 可能有誤差",
-            "財報時滯影響需說明"
-          ]
-        },
-        "dataGovernance": {
-          "score": 58,
-          "strengths": [
-            "使用 SEC/SEDAR 公開數據",
-            "hybrid 方法抽取 AISC"
-          ],
-          "improvements": [
-            "缺少 data-sources.md 完整文檔",
-            "需爬蟲抓取，可能有合規問題",
-            "爬取頻率與間隔需規範"
-          ]
-        },
-        "robustness": {
-          "score": 62,
-          "strengths": [
-            "pitfalls 詳列 proxy 風險",
-            "bestPractices 有快取建議"
-          ],
-          "improvements": [
-            "缺少 failure-modes.md",
-            "SEC EDGAR 格式變動風險",
-            "需增加爬蟲失敗處理"
-          ]
-        },
-        "maintainability": {
-          "score": 65,
-          "strengths": [
-            "路由器模式設計",
-            "分層 workflows/references"
-          ],
-          "improvements": [
-            "可增加 manifest.json 版本控制",
-            "AISC 抽取邏輯需持續調整",
-            "需監控 ETF 成分變化"
-          ]
-        },
-        "usability": {
-          "score": 66,
-          "strengths": [
-            "FAQ 解答 AISC/Cash Cost 差異",
-            "輸出有因子雷達圖"
-          ],
-          "improvements": [
-            "可增加 historical-episodes.md",
-            "可增加因子趨勢視覺化"
-          ]
-        }
-      },
-      "details": "**任務適配度（75/100）**\n- 四因子拆解與反推公式清晰\n- 待改進：增加不適用情境\n\n**正確性（70/100）**\n- 方法論完整\n- 待改進：Proxy AISC 誤差說明\n\n**資料治理（58/100）**\n- 使用公開財報數據\n- 待改進：增加爬蟲規範說明\n\n**穩健性（62/100）**\n- pitfalls 詳列風險\n- 待改進：增加 failure-modes.md\n\n**可維護性（65/100）**\n- 路由器模式設計\n- 待改進：增加版本控制\n\n**輸出可用性（66/100）**\n- FAQ 解答核心概念\n- 待改進：增加歷史對照\n",
-      "upgradeNotes": {
-        "targetBadge": "高級",
-        "requirements": [
-          {
-            "metric": "dataGovernance",
-            "currentScore": 58,
-            "targetScore": 80,
-            "suggestion": "增加 data-sources.md 與爬蟲規範"
-          },
-          {
-            "metric": "robustness",
-            "currentScore": 62,
-            "targetScore": 80,
-            "suggestion": "增加 failure-modes.md 與爬蟲失敗處理"
-          },
-          {
-            "metric": "maintainability",
-            "currentScore": 65,
-            "targetScore": 75,
-            "suggestion": "增加版本控制與 ETF 成分追蹤"
-          }
-        ]
-      }
-    },
-    "bestPractices": [
-      {
-        "title": "使用 hybrid 方法抽取 AISC",
-        "description": "優先從 MD&A 抽取揭露值，缺失時用 proxy 回算補齊"
-      },
-      {
-        "title": "限制爬取頻率",
-        "description": "財報數據季度更新，無需高頻抓取；建議每日最多 1 次"
-      },
-      {
-        "title": "快取財報數據",
-        "description": "財報內容不常變，應快取避免重複抓取"
-      },
-      {
-        "title": "關注權重分布",
-        "description": "前 10 大持股通常占 ETF 50%+ 權重，優先分析"
-      }
-    ],
-    "pitfalls": [
-      {
-        "title": "過度依賴 Proxy AISC",
-        "description": "當直接揭露不可得時使用 proxy 回算，可能有誤差",
-        "consequence": "成本因子估計不準確"
-      },
-      {
-        "title": "忽略財報時滯",
-        "description": "最新財報可能是 1-2 季前的數據",
-        "consequence": "因子狀態反映過去而非當前"
-      },
-      {
-        "title": "ETF 成分變動",
-        "description": "季度調倉可能導致持股權重變化",
-        "consequence": "權重加總時需確認數據日期"
-      },
-      {
-        "title": "單一因子歸因",
-        "description": "實際上多因子同時作用，單因子反推為極端情境",
-        "consequence": "不應視為預測"
-      }
-    ],
-    "faq": [
-      {
-        "question": "AISC 和 Cash Cost 有什麼差別？",
-        "answer": "- **Cash Cost**：直接營運成本（採礦、加工）\n- **AISC (All-In Sustaining Cost)**：Cash Cost + 維持性資本支出 + G&A - 副產品抵減\n\nAISC 更能反映礦企的「全成本」，是估值的關鍵驅動。\n"
-      },
-      {
-        "question": "為何倍數壓縮是最常見的底部因素？",
-        "answer": "礦業股是「高 Beta」資產，市場風險偏好下降時首先被拋售：\n- 流動性收緊 → 資金撤離風險資產\n- 商品悲觀預期 → 獲利預估下調\n- 結果：EV/EBITDA 壓縮\n\n這通常是「情緒面」而非「基本面」驅動。\n"
-      },
-      {
-        "question": "股權稀釋如何影響比率？",
-        "answer": "礦業公司常透過增發融資：\n- 股本增加 → 每股價值稀釋\n- 即使總市值不變，股價也會下跌\n- 結果：比率下降\n\n稀釋因子 D = Shares_base / Shares_now，D < 1 表示有稀釋。\n"
-      },
-      {
-        "question": "如何驗證 AISC 抽取結果？",
-        "answer": "1. 交叉比對年報簡報（通常有表格）\n2. 查看產業報告（如 World Silver Survey）\n3. 比較同業數值（PAAS、AG、HL 等）\n4. 檢查 aisc_method 標註是否為 proxy\n"
-      }
-    ],
-    "about": {
-      "repository": "https://github.com/fatfingererr/macro-skills",
-      "branch": "main",
-      "additionalInfo": "## 使用場景\n\n1. **驗證比率訊號**：當看到「礦業股/金屬價格比率在底部」時，用財報驗證驅動因素\n2. **因子歸因**：識別成本、槓桿、倍數、稀釋哪個是主因\n3. **門檻反推**：量化「回到頂部」需要的條件\n4. **事件研究**：歷史底部的因子驅動模式\n\n## 與 analyze-silver-miner-metal-ratio 的差異\n\n| 項目                     | 本技能                       | 比率分析技能              |\n|--------------------------|------------------------------|---------------------------|\n| 核心輸入                 | 財報數據 + 價格              | 價格數據                  |\n| 因子拆解                 | 四大因子（AISC/槓桿/倍數/稀釋） | 無                        |\n| 門檻反推                 | 基於因子的反推               | 基於價格的反推            |\n| 數據抓取                 | 需要爬蟲抓取財報             | 僅 yfinance               |\n| 適用場景                 | 深度基本面驗證               | 快速比率篩選              |\n\n## 預設代理\n\n**礦業股**：SIL (Global X Silver Miners ETF)\n**白銀**：SI=F (COMEX 白銀期貨)\n"
-    },
-    "methodology": "\r\n當你看到「礦業股（或礦業 ETF）相對金屬本體」的比率（例如 **SIL／白銀**）落在歷史極端（底部或頂部），市場常見的解釋會停在一句話：  \r\n> 「礦業股太便宜了／礦業股太貴了」\r\n\r\n但這句話不夠。因為礦業股的價格不是只跟金屬價格走，它還受 **成本、負債、估值倍數、股本稀釋**影響。  \r\n所以這個 Skill 的目標是：**把比率的變動拆成可驗證的財務原因**，而且用「公司申報的財報與營運揭露」去回算，不靠感覺。\r\n\r\n---\r\n\r\n## 核心原理：把「比率」拆成四個可量化因子\r\n我們觀察的比率是：\r\n\r\n- **比率 = 礦業股價格 ÷ 金屬價格**  \r\n  例如：`SIL 價格 ÷ 白銀價格`\r\n\r\n這個比率為什麼會上去或下來？Skill 會用財報把原因拆成四類：\r\n\r\n### 1) 成本因子：每盎司成本（例如全維持成本）相對金屬價格\r\n- 若金屬價格很高，但公司成本也跟著上升，**獲利不一定變好**  \r\n- Skill 會從公司揭露或財報文本中抓取「每盎司成本」與「產量」，必要時用財報科目做近似回算  \r\n- 結果是回答：  \r\n  **比率低，是不是因為成本上升把利潤吃掉？**\r\n\r\n### 2) 槓桿因子：負債與現金結構（資產負債表）\r\n- 負債高、現金少的公司，即使金屬漲，市場也會更保守  \r\n- Skill 會用財報計算「淨負債」並結合市值推估企業整體價值  \r\n- 結果是回答：  \r\n  **比率低，是不是因為槓桿風險折價？**\r\n\r\n### 3) 倍數因子：市場願意給的估值倍數\r\n- 即使獲利上升，市場仍可能用更低倍數定價（例如因為政策風險、項目不確定、景氣循環）  \r\n- Skill 會用財報推估獲利能力，再對照市場估值，得到「倍數」的高低  \r\n- 結果是回答：  \r\n  **比率低，是不是因為估值倍數被壓縮？**\r\n\r\n### 4) 稀釋因子：股本增加（每股價值被稀釋）\r\n- 礦業很常見「增資、可轉債、併購發股」  \r\n- 即使公司總獲利增加，如果股本膨脹得更快，每股價值反而上不去  \r\n- Skill 會追蹤股數變化，回算稀釋對比率的影響  \r\n- 結果是回答：  \r\n  **比率低，是不是因為股本稀釋把每股漲幅抵消？**\r\n\r\n---\r\n\r\n## 用 SIL／白銀案例示範：我們會怎麼做\r\n你目前的觀察重點是：\r\n\r\n- **SIL／白銀比率在歷史底部區**\r\n- 同時 **白銀價格處於歷史高位**\r\n- 形成「比率低 + 金屬高」的背離組合\r\n\r\n### 第一步：用市場數據確認「這是極端」\r\n- 把過去十多年每日的 `SIL／白銀` 比率做分位數\r\n- 確認當前落在底部區（例如低於 20% 分位）\r\n\r\n### 第二步：抓「SIL 主要成分股」的財報資料（真實回算）\r\n- 取權重最大的公司（例如前 10 大）  \r\n- 對每家公司抓：\r\n  1) 每盎司成本（能抓就抓，抓不到就用財報回算近似）\r\n  2) 負債與現金（淨負債）\r\n  3) 現金流與資本支出（是否被維持性支出吃掉）\r\n  4) 股本變化（是否持續稀釋）\r\n\r\n### 第三步：把「比率低」拆成四個可能原因，逐一量化\r\nSkill 會輸出像這樣的結論架構（每一項都對應到實際數據）：\r\n\r\n- **成本面**：如果多數公司每盎司成本上升明顯 → 比率低可能是合理折價  \r\n- **槓桿面**：若淨負債偏高、再融資壓力大 → 市場會壓低估值  \r\n- **倍數面**：若市場把倍數壓得很低 → 可能是情緒或風險溢酬在主導  \r\n- **稀釋面**：若股數增加快 → 即使銀價高，每股漲幅也會被稀釋抵消\r\n\r\n### 第四步：做你要的「回到 1.7」或「回到 1.2」的真實回算\r\n這是 Skill 最實用的一段：  \r\n它不是只算「礦業股要漲多少、白銀要跌多少」，而是會同時回答：\r\n\r\n- **如果要回到頂部區（例如 1.7）**\r\n  - 需要：倍數回升到什麼水平？  \r\n  - 或：淨負債要降到什麼程度？  \r\n  - 或：成本要改善到什麼程度？  \r\n  - 或：稀釋要停止到什麼程度？\r\n\r\n這個 Skill 的精髓是：  \r\n**先用分位數找出比率極端，再用財報把極端拆解成成本、槓桿、倍數、稀釋四種可驗證的原因，最後回算要回到頂部或中位數需要哪些“真實財務條件”。**",
-    "downloadUrl": "downloads/backsolve-miner-vs-metal-ratio-with-fundamentals-0.1.0.zip"
   },
   {
     "id": "analyze-us-bank-credit-deposit-decoupling",
@@ -4619,228 +4815,6 @@
     "downloadUrl": "downloads/analyze-japan-debt-service-tax-burden-0.1.1.zip"
   },
   {
-    "id": "demographic-fiscal-trap-analyzer",
-    "name": "demographic-fiscal-trap-analyzer",
-    "displayName": "分析人口財政陷阱",
-    "description": "分析人口老化、債務動態、官僚膨脹與通膨稀釋交互作用下的「財政陷阱」風險，量化各國/地區的財政脆弱度並識別潛在的貨幣稀釋路徑",
-    "emoji": "🏛️",
-    "version": "0.1.0",
-    "license": "MIT",
-    "author": "macro-skills",
-    "authorUrl": "https://github.com/macro-skills",
-    "tags": [
-      "人口",
-      "人口結構",
-      "財政政策",
-      "債務動能",
-      "通貨膨脹",
-      "人口老化",
-      "撫養比",
-      "金融抑制"
-    ],
-    "category": "policy-modeling",
-    "dataLevel": "free-nolimit",
-    "tools": [
-      "claude-code"
-    ],
-    "featured": false,
-    "installCount": 0,
-    "content": "<essential_principles>\r\n\r\n<principle name=\"fiscal_trap_definition\">\r\n**財政陷阱定義**\r\n\r\n「人口-財政陷阱」(Demographic-Fiscal Trap) 是指：當高齡化撫養比持續攀升、政府債務/GDP 居高不下、官僚體系低效膨脹、且名義成長無法覆蓋利息支出時，政府傾向透過「金融抑制」(financial repression) 或「通膨稀釋」(inflation erosion) 來削減實質負債。\r\n\r\n此陷阱的核心特徵：\r\n1. **人口結構剛性**：老年撫養比上升是不可逆的長期趨勢\r\n2. **債務自我強化**：r > g 時債務比率自動膨脹\r\n3. **政治阻力**：削減福利支出的政治成本極高\r\n4. **貨幣出口**：當財政改革無路可走，貨幣稀釋成為「最小阻力路徑」\r\n</principle>\r\n\r\n<principle name=\"four_pillar_framework\">\r\n**四支柱分析架構**\r\n\r\n本技能採用四維度評分框架：\r\n\r\n| 支柱                      | 權重(預設) | 核心指標                    |\r\n|---------------------------|------------|-----------------------------|\r\n| 老化壓力 (Aging Pressure) | 35%        | 老年撫養比水準 + 10年斜率   |\r\n| 債務動態 (Debt Dynamics)  | 35%        | 債務/GDP + 5年斜率 + (r-g)  |\r\n| 官僚膨脹 (Bloat Index)    | 15%        | 政府消費/GDP + 政府支出/GDP |\r\n| 成長拖累 (Growth Drag)    | 15%        | 名義GDP成長率（負向計分）   |\r\n\r\n最終 `fiscal_trap_score` = Σ(權重 × z-score) 加權總和\r\n</principle>\r\n\r\n<principle name=\"inflation_incentive\">\r\n**通膨激勵指數**\r\n\r\n通膨激勵指數 (Inflation Incentive Score) 衡量政府選擇「通膨稀釋」路徑的動機強度：\r\n\r\n```\r\ninflation_incentive =\r\n    0.40 × zscore(debt_level)           # 高債務 → 強動機\r\n  + 0.20 × zscore(r - g)                # r > g → 難以自然去槓桿\r\n  + 0.20 × zscore(neg_real_rate_share)  # 負實質利率持續 → 已在執行\r\n  + 0.20 × zscore(bloat_index)          # 高官僚膨脹 → 難以削減支出\r\n```\r\n\r\n當此指數 > 1.5 時，表示該經濟體有強烈動機維持負實質利率環境。\r\n</principle>\r\n\r\n<principle name=\"data_hierarchy\">\r\n**資料來源層級**\r\n\r\n本技能採用公開可重現的資料源：\r\n\r\n| 資料類型       | 首選來源        | 次選來源          | API/下載方式 |\r\n|----------------|-----------------|-------------------|--------------|\r\n| 撫養比         | World Bank WDI  | UN WPP            | API / CSV    |\r\n| 政府債務       | IMF WEO         | World Bank        | API / CSV    |\r\n| 政府支出       | IMF GFS         | World Bank        | API / CSV    |\r\n| 健康支出       | WHO GHED        | World Bank        | API / CSV    |\r\n| 名義GDP成長    | World Bank      | IMF WEO           | API          |\r\n| CPI通膨        | World Bank      | IMF               | API          |\r\n| 10年公債殖利率 | OECD / 各國央行 | Trading Economics | API / 爬蟲   |\r\n\r\n所有指標均可透過 `wbdata`、`imfpy` 或直接 API 取得。\r\n</principle>\r\n\r\n<principle name=\"zscore_normalization\">\r\n**Z-Score 標準化**\r\n\r\n為使跨國比較有意義，所有原始指標均轉換為 z-score：\r\n\r\n```python\r\nzscore(x) = (x - μ_cross_section) / σ_cross_section\r\n```\r\n\r\n其中 μ 和 σ 為同期跨國截面統計量。\r\n\r\n這使得：\r\n- z > 1.5 → 顯著高於平均（警戒）\r\n- z > 2.0 → 極端值（紅燈）\r\n- z < -1.0 → 顯著優於平均\r\n</principle>\r\n\r\n<principle name=\"quadrant_classification\">\r\n**象限分類系統**\r\n\r\n根據 Aging Pressure 和 Debt Dynamics 兩主軸，將經濟體分為四象限：\r\n\r\n| 象限         | 老化壓力 | 債務動態 | 典型國家           | 政策空間         |\r\n|--------------|----------|----------|--------------------|------------------|\r\n| Q1: 雙高危機 | 高 (>1)  | 高 (>1)  | 日本、義大利、希臘 | 極窄             |\r\n| Q2: 老化主導 | 高 (>1)  | 低 (<1)  | 德國、南韓         | 中等（債務可用） |\r\n| Q3: 債務主導 | 低 (<1)  | 高 (>1)  | 美國、巴西         | 中等（人口紅利） |\r\n| Q4: 相對健康 | 低 (<1)  | 低 (<1)  | 印度、印尼         | 寬廣             |\r\n\r\nQ1 象限國家最可能進入「財政陷阱」並選擇通膨稀釋路徑。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n本技能的目標是：\r\n\r\n1. **量化財政脆弱度**：計算各國/地區的 `fiscal_trap_score` 與 `inflation_incentive_score`\r\n2. **識別結構風險**：透過四支柱分解，診斷哪個維度貢獻最大風險\r\n3. **象限定位**：將經濟體歸類至四象限，判斷其政策空間\r\n4. **趨勢預警**：利用撫養比預測至 2050 年，前瞻性評估陷阱演化\r\n5. **跨國比較**：支援多國並排比較，識別相對風險排序\r\n</objective>\r\n\r\n<quick_start>\r\n## 快速開始\r\n\r\n**單一國家分析**\r\n```\r\n請分析日本的人口財政陷阱風險，使用 2010-2023 年資料，預測至 2050 年\r\n```\r\n\r\n**多國比較**\r\n```\r\n比較 G7 國家的財政陷阱分數，並按通膨激勵指數排序\r\n```\r\n\r\n**自訂權重**\r\n```\r\n分析台灣的財政陷阱，使用自訂權重：老化 40%、債務 40%、膨脹 10%、成長 10%\r\n```\r\n</quick_start>\r\n\r\n<parameters>\r\n## 參數說明\r\n\r\n| 參數                  | 型別         | 必填 | 預設值                                                        | 說明                                          |\r\n|-----------------------|--------------|------|---------------------------------------------------------------|-----------------------------------------------|\r\n| entities              | list[string] | 是   | -                                                             | 國家/地區代碼 (ISO3 或區域如 OECD, EU, WORLD) |\r\n| start_year            | int          | 是   | -                                                             | 歷史資料起始年                                |\r\n| end_year              | int          | 是   | -                                                             | 歷史資料結束年（通常=最近一年）               |\r\n| forecast_end_year     | int          | 否   | 2050                                                          | 撫養比預測結束年                              |\r\n| dependency_components | list[string] | 否   | [\"old_age\",\"youth\",\"total\"]                                   | 撫養比分解項目                                |\r\n| fiscal_modules        | list[string] | 否   | [\"debt\",\"spending\",\"health\"]                                  | 啟用的財政模組                                |\r\n| bureaucracy_proxies   | list[string] | 否   | [\"gov_wage_bill\",\"public_employment_share\",\"gov_consumption\"] | 官僚膨脹代理指標                              |\r\n| inflation_channel     | string       | 否   | \"real_rates\"                                                  | 通膨路徑分析方式                              |\r\n| weights               | dict         | 否   | {\"aging\":0.35,\"debt\":0.35,\"bloat\":0.15,\"growth_drag\":0.15}    | 各支柱權重                                    |\r\n</parameters>\r\n\r\n<workflows_overview>\r\n## 可用工作流\r\n\r\n1. **full-analysis.md** - 完整分析：執行所有模組並產出綜合報告\r\n2. **debt-dynamics.md** - 債務動態專題：深入分析 r-g 缺口與債務軌跡\r\n3. **aging-projection.md** - 老化投影：撫養比預測與財政壓力前瞻\r\n4. **cross-country.md** - 跨國比較：多國並排評分與排名\r\n5. **inflation-path.md** - 通膨路徑：分析負實質利率持續性與貨幣稀釋動機\r\n</workflows_overview>\r\n\r\n<interpretation_guide>\r\n## 結果解讀指南\r\n\r\n### Fiscal Trap Score 解讀\r\n| 分數區間 | 風險等級 | 建議關注                           |\r\n|----------|----------|------------------------------------|\r\n| < 0      | 低風險   | 財政健全，政策空間充裕             |\r\n| 0 - 1    | 中等風險 | 需監控特定支柱惡化                 |\r\n| 1 - 2    | 高風險   | 結構性問題顯著，改革窗口收窄       |\r\n| > 2      | 極高風險 | 財政陷阱風險極高，通膨稀釋概率上升 |\r\n\r\n### Inflation Incentive Score 解讀\r\n| 分數區間  | 政策傾向     | 對資產配置意涵     |\r\n|-----------|--------------|--------------------|\r\n| < 0.5     | 正統財政     | 名義債券相對安全   |\r\n| 0.5 - 1.5 | 溫和金融抑制 | 實質報酬承壓       |\r\n| > 1.5     | 強烈稀釋動機 | 應考慮通膨保值資產 |\r\n</interpretation_guide>\r\n\r\n<execution_examples>\r\n## 執行案例：日本人口-財政陷阱分析 (2010-2023)\r\n\r\n**分析指令**\r\n```\r\n請分析日本的人口財政陷阱風險，使用 2010-2023 年資料，預測至 2050 年\r\n```\r\n\r\n### 核心發現\r\n\r\n**綜合評分結果**\r\n- **Fiscal Trap Score**: 2.03 (CRITICAL > 2.0 閾值)\r\n- **Inflation Incentive Score**: 2.38 (極高 > 1.5 閾值)\r\n- **象限分類**: Q1 - 雙高危機 (HighAging & HighDebt)\r\n- **OECD排名**: #1 (風險最高國家)\r\n\r\n**四支柱詳細評分**\r\n\r\n| 支柱     | Z-Score | 權重 | 貢獻 | 全球排名 | 風險等級 |\r\n|----------|---------|------|------|----------|----------|\r\n| 老化壓力 | 2.40    | 35%  | 0.84 | #1       | ★★★★★    |\r\n| 債務動態 | 2.45    | 35%  | 0.86 | #1       | ★★★★★    |\r\n| 官僚膨脹 | 1.09    | 15%  | 0.16 | #15      | ★★☆☆☆    |\r\n| 成長拖累 | 1.10    | 15%  | 0.17 | #33      | ★★☆☆☆    |\r\n\r\n### 關鍵指標概覽 (2010→2023)\r\n\r\n```\r\n老年撫養比:      35.5% → 48.5%      (全球最高，加速中)\r\n政府債務/GDP:   215.8% → 262.5%     (全球最高，超可持續邊界)\r\n實質利率:        -2.5% (2023)        (金融抑制制度化)\r\n名義GDP成長:     1.5%平均           (全球最低)\r\n利息支出:        3.2% GDP (2023)    (2050年預測達8%+)\r\n```\r\n\r\n### 陷阱自我強化機制\r\n\r\n```\r\n老化 → 社保支出↑ → 赤字↑ → 債務↑ → 利息↑ → 赤字更↑\r\n              ↓(無法切斷)↓\r\n         整個迴圈傳統財政改革無法化解\r\n```\r\n\r\n### 未來場景預測\r\n\r\n| 場景     | 概率 | 特徵                          | 影響               |\r\n|----------|------|-------------------------------|--------------------|\r\n| 通膨加速 | 70%  | 名義GDP成長4-5%，央行允許通膨 | 日圓貶值15-25%     |\r\n| 利率衝擊 | 20%  | YCC崩潰，實質利率正常化       | 債務比率爆炸性增長 |\r\n| 改革突破 | 10%  | 社保根本性改革，移民開放      | 極低政治可能性     |\r\n\r\n### 資產配置建議 (日本投資者)\r\n\r\n**推薦**\r\n- 30% 美國股票 (美元走強+實質利率正值)\r\n- 20% 美國債券 (3-4% yield vs JGB -2.5%)\r\n- 15% 新興市場 (成長性，日圓對沖)\r\n- 10% 黃金 (通膨對沖)\r\n- 10% 日本不動產 (東京/一線，通膨受益)\r\n- 15% 現金/替代資產\r\n\r\n**應避免**\r\n- ✗ 純JGB持有 (年實質報酬 -2.5%)\r\n- ✗ 地方房地產 (人口衰退中)\r\n- ✗ 日圓堆積 (購買力侵蝕)\r\n\r\n### 生成成果物\r\n\r\n分析完成後自動生成以下文檔：\r\n\r\n1. **結構化JSON** - 完整數據與計算過程\r\n2. **技術報告** - 49KB 詳細分析文檔\r\n3. **執行摘要** - 5-10分鐘快速掌握\r\n4. **可視化圖表** (5張)\r\n   - 01_four_pillars_20260119.png - 四支柱評分分解\r\n   - 02_time_series_20260119.png - 2010-2023年時間序列\r\n   - 03_projections_20260119.png - 2024-2050年投影\r\n   - 04_asset_allocation_20260119.png - 資產配置建議\r\n   - 05_risk_scorecard_20260119.png - 風險評分卡\r\n\r\n### 監測指標 (投資決策參考)\r\n\r\n| 指標        | 當前值 | 警戒線     | 含義         |\r\n|-------------|--------|------------|--------------|\r\n| CPI通膨     | 3.3%   | >4%持續3年 | 通膨稀釋確認 |\r\n| 10y殖利率   | 0.8%   | >1.5%      | YCC漸進解除  |\r\n| JPY/USD     | 160    | >180       | 日圓貶值信號 |\r\n| BoJ債券持有 | 52%    | <45%       | 正常化信號   |\r\n\r\n</execution_examples>",
-    "path": "skills/demographic-fiscal-trap-analyzer/SKILL.md",
-    "directoryStructure": "demographic-fiscal-trap-analyzer/\n├── examples\n│   ├── g7-comparison-2023.json\n│   └── japan-full-analysis.json\n├── manifest.json\n├── references\n│   ├── data-sources.md\n│   ├── indicator-codes.md\n│   ├── input-schema.md\n│   └── methodology.md\n├── scripts\n│   ├── fiscal_trap_analyzer.py\n│   ├── README.md\n│   └── visualize_combined.py\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── aging-projection.md\n    ├── cross-country.md\n    ├── debt-dynamics.md\n    ├── full-analysis.md\n    └── inflation-path.md",
-    "lastUpdated": "2026-01-19",
-    "rating": 3,
-    "testQuestions": [
-      {
-        "question": "請分析日本的人口財政陷阱風險，使用 2010-2023 年資料",
-        "imagePath": "images/Japan-demographic-fiscal-trap-combined-2026-01-19.png",
-        "expectedResult": "完成！我已為您進行了完整的日本人口財政陷阱分析。以下是核心發現：\n\n日本風險評估 - 臨界狀態\n┌───────────────────────────┬───────────────┬────────────────────┐\n│           指標            │     數值      │        評級        │\n├───────────────────────────┼───────────────┼────────────────────┤\n│ Fiscal Trap Score         │ 2.03          │ ★★★★★ 極高風險     │\n├───────────────────────────┼───────────────┼────────────────────┤\n│ Inflation Incentive Score │ 2.38          │ 強烈通膨稀釋動機   │\n├───────────────────────────┼───────────────┼────────────────────┤\n│ 象限分類                  │ Q1 (雙高危機) │ 日本、義大利、希臘 │\n├───────────────────────────┼───────────────┼────────────────────┤\n│ 全球排名                  │ #1            │ 風險最高           │\n└───────────────────────────┴───────────────┴────────────────────┘\n四支柱分解\n┌──────────┬─────────┬──────────┬────────────┐\n│   支柱   │ Z-Score │ 全球排名 │  風險評級  │\n├──────────┼─────────┼──────────┼────────────┤\n│ 老化壓力 │ 2.40    │ #1       │ ⭐⭐⭐⭐⭐ │\n├──────────┼─────────┼──────────┼────────────┤\n│ 債務動態 │ 2.45    │ #1       │ ⭐⭐⭐⭐⭐ │\n├──────────┼─────────┼──────────┼────────────┤\n│ 官僚膨脹 │ 1.09    │ #15      │ ⭐⭐       │\n├──────────┼─────────┼──────────┼────────────┤\n│ 成長拖累 │ 1.10    │ #33      │ ⭐⭐       │\n└──────────┴─────────┴──────────┴────────────┘\n關鍵數據（2010→2023）\n\n老年撫養比:      35.5% → 48.5% (全球最高，加速中)\n政府債務/GDP:    215.8% → 262.5% (全球最高，超可持續邊界)\n實質利率:        -2.5% (2023年，金融抑制常態化)\n名義GDP成長:     1.5%平均 (全球最低，人口衰退 -1.5%)\n利息支出:        3.2% GDP (預測2050年達8%+)\n\n陷阱自我強化機制\n\n老化 → 社保支出↑ → 赤字↑ → 債務↑ → 利息↑ → 赤字更↑\n    ↓(無法切斷)↓\n  整個迴圈傳統財政改革無法化解\n\n通膨稀釋路徑（70% 概率）\n\n- 2024-2030年：YCC漸進調整，名義成長微升至2-3%\n- 2030-2040年：通膨加速至3.5-4.5%，日圓貶值15-25%\n- 代價：進口成本上升、儲蓄購買力喪失\n\n資產配置建議（日本投資者）\n\n30% 美國股票    (美元走強+實質利率正值)\n20% 美國債券    (3-4% vs JGB -2.5%)\n15% 新興市場    (成長性，日圓對沖)\n10% 黃金        (通膨對沖)\n10% 日本不動產  (東京/一線，通膨受益)\n15% 現金/替代\n\n應避免：純JGB持有(年實質報酬-2.5%)、地方房產(人口衰退)、日圓堆積\n\n政策空間\n\n- 老年人(60+)已佔選民>50% → 政治上無法削支\n- 稅收已占GDP 35%+ → 難以增稅\n- 結論：傳統財政改革已無通道，通膨稀釋成必然選擇\n\n---\n已為您生成4份綜合文檔（共116KB），涵蓋完整技術報告、執行摘要、結構化JSON數據，包括2010-2023年歷史分析與2024-2050年前瞻預測。\n"
-      },
-      {
-        "question": "分析台灣 2010-2023 的老化壓力與債務動態",
-        "imagePath": "images/Taiwan-demographic-fiscal-trap-combined-2026-01-19.png",
-        "expectedResult": "✅ 台灣人口-財政陷阱分析完成！\n\n---\n核心結論\n\n財政陷阱評分: -0.02 (低風險 ✓)\n區域排名: 4/6 (東亞優等生)\n象限分類: Q4 相對健康\n通膨稀釋動機: -0.35 (低動機 ✓)\n\n一句話總結: 台灣財政狀況在東亞屬於優等生，但面臨快速老化的中長期挑戰，需在未來 15-20 年內完成退休金改革。\n\n---\n四支柱評分\n\n┌────────────────────────────────────────┐\n│  支柱          評分    排名    評估     │\n├────────────────────────────────────────┤\n│  老化壓力      0.73    3/6     ⚠️ 中高 │\n│  債務動態     -0.55    2/6     ✓ 優秀  │\n│  官僚膨脹     -0.20    3/6     ✓ 良好  │\n│  成長拖累     -0.36    2/6     ✓ 優秀  │\n└────────────────────────────────────────┘\n\n---\n區域比較\n\n財政陷阱評分排名 (低分 = 低風險):\n\n1. 日本      1.58  🔴 高風險\n2. 南韓      0.22\n3. 印尼      0.13\n4. 台灣     -0.02  ✓ 低風險 ← 您在這裡\n5. 泰國     -0.15\n6. 中國     -0.30  ✓ 最低風險\n\n---\n關鍵發現\n\n✓ 優勢\n\n- 債務水平低: 35-40% GDP vs 日本 262.5%\n- 外匯存底: $5,500億 (全球第五)\n- 科技領先: 台積電全球領導地位\n- 財政紀律: 公共債務法限制生效\n\n⚠️ 挑戰\n\n- 快速老化: 生育率 0.87 (全球最低)\n- 勞保缺口: 11兆台幣，2028-2032 破產風險\n- 移民保守: 人口補充不足\n- 地緣風險: 防衛支出壓力上升\n\n---\n生成文件\n\n📊 結構化數據\n\n- ✓ asia_demographic_fiscal_trap_2010-2023_structured.json (3.5 KB)\n- ✓ taiwan_demographic_fiscal_trap_2010-2023_structured.json (1.8 KB)\n\n📝 分析報告\n\n- ✓ taiwan_demographic_fiscal_trap_2010-2023_analysis.md (11 KB)\n  - 完整技術分析\n  - 四支柱詳解\n  - 區域比較\n  - 2050 年預測\n  - 政策建議\n\n📋 執行摘要\n\n- ✓ EXECUTIVE_SUMMARY_TW.md (4.8 KB)\n  - 5 分鐘快速閱讀\n  - 核心數字\n  - SWOT 分析\n  - 投資建議\n\n📈 可視化圖表\n\n- ✓ Taiwan_Demographic_Fiscal_Trap_Combined_ZH_20260119.png (839 KB)\n  - 20×14 英吋高清圖表\n  - 10 個關鍵視圖\n  - 中文標籤\n- ✓ Taiwan_Demographic_Fiscal_Trap_Combined_ZH_20260119.pdf (132 KB)\n  - PDF 列印版本\n\n📦 完整總結\n\n- ✓ TAIWAN_ANALYSIS_COMPLETION_20260119.md (9.8 KB)\n  - 完整總結文檔\n\n---\n投資建議 (台灣投資者)\n\n基於低風險評分和低通膨稀釋動機:\n\n推薦配置:\n├─ 台股          35-40%  (科技優勢)\n├─ 美股          20-25%  (全球分散)\n├─ 台債          15-20%  (低通膨環境)\n├─ 海外債券      10-15%\n├─ 不動產        5-10%   (通膨對沖)\n├─ 黃金/另類     5-10%   (地緣對沖)\n└─ 現金          5-10%\n\n應避免:\n❌ 過度集中台灣資產\n❌ 長天期零息債券\n❌ 高槓桿房地產\n\n---\n政策建議優先順序\n\n🔴 立即 (2024-2025)\n\n1. 退休金改革: 延長退休年齡至 67 歲\n2. 勞保基金: 注資或改革，避免破產\n\n⚠️ 3 年內 (2026-2027)\n\n3. 長照保險: 建立完善體系\n4. 財政緩衝: 維持債務 <40% GDP\n\n💡 5 年內 (2028-2030)\n\n5. 移民政策: 年淨流入 5-10 萬人\n6. 生育支持: 目標生育率 1.2\n\n---\n分析完成！ 所有文檔已保存至 output/ 目錄。\n"
-      }
-    ],
-    "qualityScore": {
-      "overall": 65,
-      "badge": "中高級",
-      "evaluatedAt": "2026-01-23",
-      "metrics": {
-        "problemFit": 75,
-        "correctness": 68,
-        "dataGovernance": 60,
-        "robustness": 60,
-        "maintainability": 65,
-        "usability": 62
-      },
-      "metricDetails": {
-        "problemFit": {
-          "score": 75,
-          "strengths": [
-            "完整的四支柱分析框架",
-            "Z-score 標準化跨國比較",
-            "通膨激勵指數設計"
-          ],
-          "improvements": [
-            "可增加更多國家覆蓋",
-            "可增加模型限制說明"
-          ]
-        },
-        "correctness": {
-          "score": 68,
-          "strengths": [
-            "testQuestions 有詳細 expectedResult",
-            "四象限分類邏輯清楚",
-            "含投資建議與政策建議"
-          ],
-          "improvements": [
-            "跨國會計準則差異需說明",
-            "長期預測不確定性需強調"
-          ]
-        },
-        "dataGovernance": {
-          "score": 60,
-          "strengths": [
-            "使用 World Bank、IMF 公開數據",
-            "有分層數據回退機制"
-          ],
-          "improvements": [
-            "缺少 data-sources.md 完整文檔",
-            "數據延遲 1-2 年需說明"
-          ]
-        },
-        "robustness": {
-          "score": 60,
-          "strengths": [
-            "pitfalls 詳列數據延遲風險",
-            "bestPractices 有權重調整說明"
-          ],
-          "improvements": [
-            "缺少 failure-modes.md",
-            "殖利率數據缺失處理需加強"
-          ]
-        },
-        "maintainability": {
-          "score": 65,
-          "strengths": [
-            "參數定義完整",
-            "權重可調整設計"
-          ],
-          "improvements": [
-            "可增加 manifest.json 版本控制",
-            "數據更新流程需文檔化"
-          ]
-        },
-        "usability": {
-          "score": 62,
-          "strengths": [
-            "FAQ 解答 z-score 與象限概念",
-            "輸出有資產配置建議"
-          ],
-          "improvements": [
-            "可增加 historical-episodes.md",
-            "可增加即時更新功能"
-          ]
-        }
-      },
-      "details": "**任務適配度（75/100）**\n- 四支柱分析框架完整\n- 待改進：增加國家覆蓋\n\n**正確性（68/100）**\n- 四象限分類清楚\n- 待改進：不確定性說明\n\n**資料治理（60/100）**\n- 使用公開數據\n- 待改進：增加 data-sources.md\n\n**穩健性（60/100）**\n- pitfalls 詳列風險\n- 待改進：增加 failure-modes.md\n\n**可維護性（65/100）**\n- 參數定義完整\n- 待改進：增加版本控制\n\n**輸出可用性（62/100）**\n- FAQ 解答核心概念\n- 待改進：增加歷史對照\n",
-      "upgradeNotes": {
-        "targetBadge": "高級",
-        "requirements": [
-          {
-            "metric": "dataGovernance",
-            "currentScore": 60,
-            "targetScore": 80,
-            "suggestion": "增加 data-sources.md 與延遲說明"
-          },
-          {
-            "metric": "robustness",
-            "currentScore": 60,
-            "targetScore": 80,
-            "suggestion": "增加 failure-modes.md"
-          },
-          {
-            "metric": "correctness",
-            "currentScore": 68,
-            "targetScore": 80,
-            "suggestion": "增加不確定性與準則差異說明"
-          }
-        ]
-      }
-    },
-    "bestPractices": [
-      {
-        "title": "使用公開資料源",
-        "description": "本技能僅使用 World Bank、IMF、WHO 等公開免費資料，確保可重現性"
-      },
-      {
-        "title": "Z-Score 標準化",
-        "description": "所有原始指標轉換為跨國截面 z-score，使不同量級的指標可加總比較"
-      },
-      {
-        "title": "權重可調整",
-        "description": "四支柱權重可依使用者需求調整，支援不同分析視角"
-      },
-      {
-        "title": "分層資料回退",
-        "description": "若首選資料源缺失，自動回退至次選來源（如 World Bank → IMF）"
-      }
-    ],
-    "pitfalls": [
-      {
-        "title": "資料延遲",
-        "description": "公開資料通常延遲 1-2 年，最新資料可能缺失",
-        "consequence": "分析結果可能未反映最新情況"
-      },
-      {
-        "title": "跨國比較限制",
-        "description": "不同國家的會計準則和定義可能有差異",
-        "consequence": "某些指標的跨國比較需謹慎解讀"
-      },
-      {
-        "title": "殖利率資料可用性",
-        "description": "部分新興市場缺乏長期公債殖利率資料",
-        "consequence": "r-g 計算可能需使用政策利率替代"
-      },
-      {
-        "title": "預測不確定性",
-        "description": "撫養比預測至 2050 年存在高度不確定性",
-        "consequence": "長期預測應視為情境分析而非精確預測"
-      }
-    ],
-    "faq": [
-      {
-        "question": "為什麼使用 z-score 而非原始值？",
-        "answer": "z-score 將不同量級的指標（如撫養比 0.3 vs 債務比 200%）標準化為可比較的單位。\nz > 1.5 表示該指標顯著高於跨國平均，z > 2.0 表示極端值。\n"
-      },
-      {
-        "question": "如何解讀「通膨激勵指數」？",
-        "answer": "該指數衡量政府選擇「通膨稀釋」路徑的動機強度。當債務高、r > g、且已有負實質利率歷史時，\n政府有強烈動機維持金融抑制政策，對債券投資者的實質報酬構成壓力。\n"
-      },
-      {
-        "question": "四象限分類如何決定？",
-        "answer": "以 Aging Pressure 和 Debt Dynamics 兩個 z-score 為軸，z > 1 為「高」，z < 1 為「低」。\nQ1 (高老化+高債務) 風險最高，Q4 (低老化+低債務) 政策空間最大。\n"
-      },
-      {
-        "question": "哪些國家最可能陷入財政陷阱？",
-        "answer": "典型高風險國家包括：日本（超高債務+超高老化）、義大利（高債務+高老化+低成長）、\n希臘（債務遺留問題）、部分南歐國家。\n"
-      },
-      {
-        "question": "這個技能可以用於投資決策嗎？",
-        "answer": "本技能提供結構性分析框架，可作為宏觀配置的輔助參考。高通膨激勵指數的國家\n可能不利於持有名義債券，但有利於實質資產（如通膨連結債、商品、不動產）。\n"
-      }
-    ],
-    "about": {
-      "repository": "https://github.com/macro-skills/demographic-fiscal-trap-analyzer",
-      "branch": "main",
-      "lastUpdated": "2025-01-19",
-      "maintainer": "macro-skills-team"
-    },
-    "methodology": "### 1. 財政陷阱理論\r\n「人口-財政陷阱」建立在以下經濟學原理之上：\r\n\r\n#### 1.1 債務動態方程式\r\n標準政府債務動態：\r\n\r\n```\r\nd(t) = d(t-1) × (1 + r) / (1 + g) + pb(t)\r\n```\r\n\r\n簡化為：\r\n```\r\nΔd ≈ (r - g) × d + pb\r\n```\r\n\r\n其中：\r\n- d = 債務/GDP 比率\r\n- r = 名義利率（債務成本）\r\n- g = 名義 GDP 成長率\r\n- pb = 基本財政餘額/GDP（= 支出 - 收入 - 利息）\r\n\r\n**核心洞察**：當 r > g 且 pb ≥ 0 時，債務比率將自動膨脹，形成「雪球效應」。\r\n\r\n#### 1.2 老化的財政影響\r\n人口老化透過兩個管道影響財政：\r\n\r\n**支出端**：\r\n- 養老金支出：與老年人口規模正相關\r\n- 健康支出：老年人均醫療支出為年輕人的 3-5 倍\r\n- 長照支出：隨 80+ 人口增加而急升\r\n\r\n**收入端**：\r\n- 勞動人口縮減 → 所得稅基萎縮\r\n- 消費結構改變 → 消費稅稅基變化\r\n- 企業投資下降 → 企業稅收減少\r\n\r\n#### 1.3 金融抑制理論\r\nReinhart & Sbrancia (2015) 定義金融抑制為：\r\n> 政府透過人為壓低利率、強制銀行持有國債、資本管制等手段，將債務成本轉嫁給儲蓄者。\r\n\r\n當財政改革政治成本過高，金融抑制成為「最小阻力路徑」：\r\n- 負實質利率侵蝕債務實質價值\r\n- 對儲蓄者的隱性課稅\r\n- 避免名義違約的政治代價\r\n\r\n---\r\n\r\n## 分析框架\r\n\r\n### 2. 四支柱評分系統\r\n\r\n本技能採用四維度評分架構，各支柱設計如下：\r\n\r\n#### 2.1 老化壓力 (Aging Pressure)\r\n\r\n**定義**：衡量人口老化對財政的壓力程度\r\n\r\n**計算公式**：\r\n```python\r\naging_level = old_age_dependency_ratio[end_year]  # 65+/15-64\r\naging_slope = linear_regression_slope(old_age_dependency[end_year-10:end_year])\r\n\r\naging_pressure = 0.5 × zscore(aging_level) + 0.5 × zscore(aging_slope)\r\n```\r\n\r\n**權重配置邏輯**：\r\n- 水準 (50%)：當前老化程度決定即期財政壓力\r\n- 斜率 (50%)：趨勢決定未來壓力演化速度\r\n\r\n**資料來源**：\r\n- 首選：World Bank WDI (SP.POP.DPND.OL)\r\n- 次選：UN World Population Prospects\r\n\r\n#### 2.2 債務動態 (Debt Dynamics)\r\n\r\n**定義**：衡量政府債務的可持續性與演化趨勢\r\n\r\n**計算公式**：\r\n```python\r\ndebt_level = debt_to_gdp[end_year]\r\ndebt_slope = linear_regression_slope(debt_to_gdp[end_year-5:end_year])\r\nr_minus_g = nominal_yield_10y[end_year] - nominal_gdp_growth[end_year]\r\n\r\ndebt_dynamics = (\r\n    0.50 × zscore(debt_level) +\r\n    0.30 × zscore(debt_slope) +\r\n    0.20 × zscore(r_minus_g)\r\n)\r\n```\r\n\r\n**權重配置邏輯**：\r\n- 水準 (50%)：高債務水準本身即為風險\r\n- 斜率 (30%)：上升趨勢顯示問題惡化中\r\n- r-g (20%)：決定債務自動演化方向\r\n\r\n**資料來源**：\r\n- 債務：IMF WEO (GGXWDG_NGDP) 或 World Bank (GC.DOD.TOTL.GD.ZS)\r\n- 利率：OECD (IRLT) 或各國央行\r\n- 成長：World Bank (NY.GDP.MKTP.KD.ZG) + CPI 推算名義成長\r\n\r\n#### 2.3 官僚膨脹 (Bloat Index)\r\n\r\n**定義**：衡量政府支出的規模與效率\r\n\r\n**計算公式**：\r\n```python\r\ngov_consumption = government_consumption_to_gdp[end_year]\r\ngov_expenditure = government_expenditure_to_gdp[end_year]\r\n\r\nbloat_index = 0.6 × zscore(gov_consumption) + 0.4 × zscore(gov_expenditure)\r\n```\r\n\r\n**權重配置邏輯**：\r\n- 政府消費 (60%)：直接反映官僚體系規模\r\n- 總支出 (40%)：包含移轉性支出的整體規模\r\n\r\n**延伸指標**（若資料可用）：\r\n- 公部門薪資佔 GDP 比例\r\n- 公務員人數佔就業人口比例\r\n- 政府採購效率指數\r\n\r\n**資料來源**：\r\n- World Bank WDI (NE.CON.GOVT.ZS, GC.XPN.TOTL.GD.ZS)\r\n- IMF Government Finance Statistics\r\n\r\n#### 2.4 成長拖累 (Growth Drag)\r\n\r\n**定義**：低成長對財政可持續性的負面影響\r\n\r\n**計算公式**：\r\n```python\r\nnominal_growth = nominal_gdp_growth[end_year]\r\ngrowth_drag = zscore(-nominal_growth)  # 負向：低成長 = 高拖累\r\n```\r\n\r\n**邏輯**：\r\n- 低成長 → r-g 缺口擴大 → 債務自動膨脹\r\n- 低成長 → 稅基萎縮 → 財政收入下降\r\n- 低成長 → 政治壓力 → 更難削減支出\r\n\r\n---\r\n\r\n### 3. Z-Score 標準化\r\n\r\n#### 3.1 標準化公式\r\n```python\r\nzscore(x) = (x - μ) / σ\r\n```\r\n\r\n其中 μ 和 σ 為**跨國截面**統計量（非時間序列）。\r\n\r\n#### 3.2 截面選擇\r\n根據分析目的選擇截面群組：\r\n- 全球比較：使用全部可用國家\r\n- OECD 比較：僅使用 OECD 成員國\r\n- 區域比較：使用特定區域國家\r\n\r\n#### 3.3 解讀標準\r\n| Z-Score    | 解讀         | 風險等級 |\r\n|------------|--------------|----------|\r\n| > 2.0      | 極端高於平均 | 紅燈     |\r\n| 1.5 - 2.0  | 顯著高於平均 | 橙燈     |\r\n| 0.5 - 1.5  | 略高於平均   | 黃燈     |\r\n| -0.5 - 0.5 | 接近平均     | 綠燈     |\r\n| < -0.5     | 低於平均     | 優良     |\r\n\r\n---\r\n\r\n### 4. 象限分類\r\n\r\n#### 4.1 雙軸定義\r\n- **X 軸**：Aging Pressure (z-score)\r\n- **Y 軸**：Debt Dynamics (z-score)\r\n- **閾值**：z = 1.0 作為高/低分界\r\n\r\n#### 4.2 四象限意涵\r\n\r\n| 象限 | 老化 | 債務 | 特徵                   | 典型國家      |\r\n|------|------|------|------------------------|---------------|\r\n| Q1   | 高   | 高   | 雙重壓力，政策空間極窄 | JPN, ITA, GRC |\r\n| Q2   | 高   | 低   | 老化主導，債務尚有空間 | DEU, KOR      |\r\n| Q3   | 低   | 高   | 債務主導，人口紅利尚存 | USA, BRA      |\r\n| Q4   | 低   | 低   | 相對健康，政策空間寬廣 | IND, IDN      |\r\n\r\n---\r\n\r\n### 5. 通膨激勵指數\r\n\r\n#### 5.1 理論基礎\r\n當以下條件成立，政府有強烈動機選擇「通膨稀釋」路徑：\r\n1. 債務水準高 → 稀釋效益大\r\n2. r > g → 難以透過成長去槓桿\r\n3. 支出剛性高 → 難以削減開支\r\n4. 已有負實質利率歷史 → 路徑依賴\r\n\r\n#### 5.2 計算公式\r\n```python\r\ninflation_incentive = (\r\n    0.40 × zscore(debt_level) +\r\n    0.20 × zscore(r_minus_g) +\r\n    0.20 × zscore(neg_real_rate_share_5y) +\r\n    0.20 × zscore(bloat_index)\r\n)\r\n```\r\n\r\n#### 5.3 解讀\r\n| 分數      | 政策傾向     | 投資意涵           |\r\n|-----------|--------------|--------------------|\r\n| < 0.5     | 正統財政     | 名義債券相對安全   |\r\n| 0.5 - 1.5 | 溫和金融抑制 | 實質報酬承壓       |\r\n| > 1.5     | 強烈稀釋動機 | 應持有通膨保值資產 |\r\n\r\n---\r\n\r\n## 參考文獻\r\n\r\n1. Reinhart, C. M., & Sbrancia, M. B. (2015). \"The Liquidation of Government Debt.\" *Economic Policy*, 30(82), 291-333.\r\n\r\n2. Blanchard, O. (2019). \"Public Debt and Low Interest Rates.\" *American Economic Review*, 109(4), 1197-1229.\r\n\r\n3. IMF (2023). *Fiscal Monitor: Climate Crossroads*. International Monetary Fund.\r\n\r\n4. OECD (2021). *Pensions at a Glance 2021*. OECD Publishing.\r\n\r\n5. UN DESA (2022). *World Population Prospects 2022*. United Nations.\r\n",
-    "downloadUrl": "downloads/demographic-fiscal-trap-analyzer-0.1.0.zip"
-  },
-  {
     "id": "analyze-investment-clock-rotation",
     "name": "analyze-investment-clock-rotation",
     "displayName": "投資時鐘輪動分析",
@@ -5035,6 +5009,243 @@
     },
     "methodology": "投資時鐘（Investment Clock）概念源自美林證券（Merrill Lynch），後被廣泛應用於資產配置與景氣循環分析。核心理念是將經濟環境映射到二維平面，透過位置與旋轉方向判斷最有利的資產類別。\n\n## 四象限模型\n\n### 座標系定義\n\n```\n              金融環境支持（寬鬆）\n                    ↑\n                    │\n           Q3      │      Q1\n         修復過渡   │   理想象限\n                    │\n    ←───────────────┼───────────────→ 獲利成長\n    負成長          │          正成長\n           Q4      │      Q2\n         最差象限   │   好壞混合\n                    │\n                    ↓\n              金融環境不支持（緊縮）\n```\n\n### 各象限定義\n\n| 象限   | 名稱     | 獲利成長 | 金融環境 | 經濟特徵                   |\n|--------|----------|----------|----------|----------------------------|\n| **Q1** | 理想象限 | 正成長 ↑ | 支持性 ↑ | 景氣擴張、流動性充裕       |\n| **Q2** | 好壞混合 | 正成長 ↑ | 不支持 ↓ | 獲利好但估值壓力、波動上升 |\n| **Q3** | 修復過渡 | 負成長 ↓ | 支持性 ↑ | 政策寬鬆救市、基本面未回   |\n| **Q4** | 最差象限 | 負成長 ↓ | 不支持 ↓ | 衰退、緊縮、風險資產承壓   |\n\n### 配置含義\n\n| 象限   | 有利資產         | 不利資產     | 配置建議           |\n|--------|------------------|--------------|--------------------|\n| **Q1** | 股票、高收債     | 現金、防禦股 | 風險偏好、順勢配置 |\n| **Q2** | 價值股、商品     | 長債、成長股 | 波動管理、估值敏感 |\n| **Q3** | 長債、防禦股     | 週期股、商品 | 謹慎、勿追高       |\n| **Q4** | 現金、短債、黃金 | 股票、高收債 | 風險控管、保守配置 |\n\n## 時鐘旋轉邏輯\n\n### 典型景氣循環路徑（順時針）\n\n```\n12 點：獲利高峰、金融中性\n ↓\n 3 點：獲利下滑、金融開始緊縮\n ↓\n 6 點：獲利谷底、金融最緊\n ↓\n 9 點：獲利復甦、金融轉寬鬆\n ↓\n12 點：回到高峰\n```\n\n### 旋轉方向解讀\n\n| 方向       | 含義         | 典型情境               |\n|------------|--------------|------------------------|\n| **順時針** | 典型景氣循環 | 正常經濟週期           |\n| **逆時針** | 非典型路徑   | 政策干預、外部衝擊     |\n| **停滯**   | 僵局         | 停滯性通膨、結構性問題 |\n\n### 旋轉幅度分類\n\n| 幅度     | 度數範圍    | 解讀                                 |\n|----------|-------------|--------------------------------------|\n| 微幅漂移 | < 90°       | 短期波動，趨勢不明確                 |\n| 中等旋轉 | 90° - 270°  | 正常景氣週期轉換                     |\n| 大幅旋轉 | 270° - 360° | 完整景氣循環                         |\n| 極端旋轉 | > 360°      | 劇烈衝擊後的極端復甦（如 2020 疫情） |\n\n## 數據輸入\n\n### 獲利成長 (Earnings Growth)\n\n**推薦指標**：\n\n| 指標         | FRED ID | 頻率 | 說明                        |\n|--------------|---------|------|-----------------------------|\n| 企業利潤     | CP      | 季度 | Corporate Profits After Tax |\n| 國內生產總值 | GDPC1   | 季度 | Real GDP（作為獲利代理）    |\n| 工業生產     | INDPRO  | 月度 | 製造業獲利代理              |\n\n**計算方法**：\n\n```python\n# 同比成長率 (YoY)\nearnings_growth = (E[t] / E[t-4]) - 1  # 季度數據用 4 期\n\n# 季對季年化\nearnings_growth = ((E[t] / E[t-1]) ** 4) - 1\n```\n\n### 金融環境 (Financial Conditions)\n\n**推薦指標**：\n\n| 指標              | FRED ID | 頻率 | 原始定義    |\n|-------------------|---------|------|-------------|\n| Chicago Fed NFCI  | NFCI    | 週度 | 正值=緊縮   |\n| St. Louis Fed FSI | STLFSI4 | 週度 | 正值=壓力高 |\n| Adjusted NFCI     | ANFCI   | 週度 | 正值=緊縮   |\n\n**標準化方法**：\n\n```python\n# 滾動 Z-score\ndef zscore(s, window):\n    mu = s.rolling(window).mean()\n    sig = s.rolling(window).std()\n    return (s - mu) / sig\n\n# 若原始定義「正=緊縮」，需反轉讓「正=支持性」\nfci_support = -zscore(NFCI, window=52)\n```\n\n## 軸向注意事項\n\n### 常見軸向定義差異\n\n| 來源          | X 軸     | Y 軸     | 注意     |\n|---------------|----------|----------|----------|\n| 本 Skill      | 金融環境 | 獲利成長 | 預設     |\n| 某些機構      | 獲利成長 | 金融環境 | X/Y 互換 |\n| Merrill Lynch | 產出缺口 | 通膨     | 不同變數 |\n\n### 方向定義差異\n\n| 來源     | 「左側」代表 | 「上方」代表 |\n|----------|--------------|--------------|\n| 本 Skill | 金融寬鬆     | 獲利正成長   |\n| 某些圖表 | 金融緊縮     | 獲利正成長   |\n\n**使用前務必確認來源的軸向定義！**\n\n## 模型限制\n\n### 1. 資料延遲\n\n| 指標類型         | 典型延遲 |\n|------------------|----------|\n| 金融環境（週頻） | 1-2 週   |\n| 企業利潤（季頻） | 2-3 個月 |\n| GDP（季頻）      | 1-2 個月 |\n\n### 2. 非線性事件\n\n投資時鐘假設平滑的景氣循環，但以下事件可能導致跳躍：\n- 突發性危機（如 2008 金融危機、2020 疫情）\n- 政策劇變（如大規模 QE）\n- 地緣政治衝擊\n\n### 3. 頻率不匹配\n\n獲利通常是季度數據，金融環境是週度數據，需要對齊處理。\n\n## 歷史循環參考\n\n| 循環     | 期間      | 特徵               | 旋轉幅度  |\n|----------|-----------|--------------------|-----------|\n| 網路泡沫 | 1998-2003 | 先極端樂觀後崩潰   | ~450°     |\n| 金融危機 | 2006-2009 | 信用緊縮主導       | ~360°     |\n| 疫情復甦 | 2020-2022 | 極端衝擊後劇烈反彈 | ~540°     |\n| 典型週期 | 一般      | 平滑漂移           | 180°-270° |\n\n## 進階應用\n\n### 1. 多市場比較\n\n可同時繪製美股、歐股、新興市場的投資時鐘，比較相對位置。\n\n### 2. 情境分析\n\n根據當前位置和旋轉方向，預測未來可能的路徑：\n\n```\n若目前在 Q1（10 點），順時針旋轉\n→ 下一步可能進入 Q2（好壞混合）\n→ 配置上開始關注估值壓力\n```\n\n### 3. 結合其他指標\n\n- 配合 VIX 波動率判斷市場情緒\n- 配合利差曲線判斷信用週期\n- 配合通膨數據完善景氣判讀\n",
     "downloadUrl": "downloads/analyze-investment-clock-rotation-0.1.0.zip"
+  },
+  {
+    "id": "backsolve-miner-vs-metal-ratio-with-fundamentals",
+    "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
+    "displayName": "拆解礦業股對金屬價格比率的基本面",
+    "description": "從網路自動抓取礦業公司財務報表與營運揭露（產量、成本、資本支出），回算「礦業股/金屬本體比率」的基本面解釋與區間門檻（如 1.2/1.7），並輸出可重現的估值拆解（成本因子 / 槓桿因子 / 倍數因子 / 稀釋因子）。",
+    "emoji": "🔎",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Ricky Wang",
+    "authorUrl": "https://github.com/fatfingererr/macro-skills",
+    "tags": [
+      "礦業股",
+      "基本面",
+      "AISC",
+      "槓桿",
+      "倍數",
+      "稀釋",
+      "財報分析",
+      "估值",
+      "白銀",
+      "黃金",
+      "SEC",
+      "EDGAR"
+    ],
+    "category": "commodity-sd",
+    "dataLevel": "free-limit",
+    "tools": [
+      "claude-code"
+    ],
+    "featured": false,
+    "installCount": 0,
+    "content": "<essential_principles>\r\n\r\n<principle name=\"ratio_decomposition\">\r\n**比率拆解核心公式**\r\n\r\n礦業股/金屬價格比率可分解為四大基本面因子：\r\n\r\n```\r\nR_t ≈ K × M_t × (1-L_t) × C_t × D_t\r\n```\r\n\r\n其中：\r\n- **K**: 校準常數（由觀測值估計）\r\n- **M_t**: 倍數因子（EV/EBITDA）\r\n- **(1-L_t)**: 槓桿因子（1 - NetDebt/EV）\r\n- **C_t**: 成本因子（1 - AISC/S_t）\r\n- **D_t**: 稀釋因子（Shares_base / Shares_t）\r\n\r\n此拆解讓「比率變動」有可歸因的量化解釋。\r\n</principle>\r\n\r\n<principle name=\"aisc_extraction\">\r\n**AISC 抽取優先順序**\r\n\r\n全維持成本（AISC）是礦業股估值的核心驅動：\r\n\r\n| 優先級 | 來源            | 方法                                        |\r\n|--------|-----------------|---------------------------------------------|\r\n| 1      | MD&A / 財報附註 | 關鍵字抽取：「AISC」「all-in sustaining」   |\r\n| 2      | 年報簡報 PDF    | 解析表格：$/oz 或 $/ounce                   |\r\n| 3      | Proxy 回算      | (OpCost + SustCapex + G&A - Byproduct) / Oz |\r\n\r\n當直接揭露不可得時，以 proxy 回算補缺；記錄 `aisc_method` 以標註來源。\r\n</principle>\r\n\r\n<principle name=\"backsolve_logic\">\r\n**反推邏輯（Backsolve）**\r\n\r\n目標：給定目標比率 R*（如歷史頂部 1.7），反推需要哪些因子條件。\r\n\r\n**單因子反推**：假設其他因子不變，只調整單一因子\r\n\r\n```\r\nM* = M_now × (R*/R_now)         # 需要的倍數\r\n(1-L*) = (1-L_now) × (R*/R_now) # 需要的去槓桿\r\nC* = C_now × (R*/R_now)         # 需要的成本改善 → 反推 AISC*\r\nD* = D_now × (R*/R_now)         # 需要的稀釋折扣\r\n```\r\n\r\n**雙因子組合**：以網格列舉可行組合（如倍數 +20% + 白銀 -15%）。\r\n</principle>\r\n\r\n<principle name=\"event_study\">\r\n**事件研究方法**\r\n\r\n識別「比率落入底部分位」的歷史事件，回看事件當期的四大因子狀態：\r\n\r\n1. **AISC 是否上升**：成本壓力\r\n2. **NetDebt/EV 是否惡化**：槓桿壓力\r\n3. **EV/EBITDA 是否壓縮**：倍數壓力\r\n4. **Shares 是否上升**：稀釋壓力\r\n\r\n排名「哪個因子貢獻最大」，識別驅動底部的主因。\r\n</principle>\r\n\r\n<principle name=\"data_priority\">\r\n**數據來源優先順序**\r\n\r\n遵循「結構化優先」原則：\r\n\r\n1. **SEC XBRL (10-K/10-Q)**：直接取欄位（債務、現金、股數、CFO、Capex）\r\n2. **SEDAR+ (加拿大)**：銀礦公司常在加拿大上市\r\n3. **公司 IR 年報/MD&A**：補齊 AISC、產量等非標準欄位\r\n4. **ETF Holdings**：官方 CSV 或 SEC N-PORT\r\n\r\n抓取時使用 Selenium 模擬人類行為，避免被封鎖。\r\n</principle>\r\n\r\n</essential_principles>\r\n\r\n<objective>\r\n實作「礦業股/金屬價格比率」基本面回算系統：\r\n\r\n1. **數據整合**：抓取價格、ETF 持股、財務報表、營運揭露\r\n2. **因子計算**：計算 AISC、槓桿、倍數、稀釋四大因子\r\n3. **比率拆解**：建立 R_t ≈ K × M × (1-L) × C × D 近似式\r\n4. **門檻反推**：給定目標比率，反推需要的因子組合\r\n5. **事件研究**：歷史底部事件的因子驅動分析\r\n6. **輸出報告**：結構化 JSON 與可讀 Markdown\r\n\r\n目標用戶：看到 SIL/白銀比率極端時，想用「真實財報」驗證驅動因素。\r\n</objective>\r\n\r\n<quick_start>\r\n\r\n**最快的方式：使用預設參數分析**\r\n\r\n```bash\r\ncd skills/backsolve-miner-vs-metal-ratio-with-fundamentals\r\npip install pandas numpy yfinance matplotlib  # 首次使用\r\npython scripts/fundamental_analyzer.py --quick\r\n```\r\n\r\n**完整分析（含財報抓取）**\r\n\r\n```bash\r\npython scripts/fundamental_analyzer.py \\\r\n  --metal-symbol SI=F \\\r\n  --miner-universe etf:SIL \\\r\n  --region-profile us_sec \\\r\n  --start-date 2015-01-01 \\\r\n  --output result.json\r\n```\r\n\r\n**生成視覺化儀表板**\r\n\r\n```bash\r\npython scripts/visualize_factors.py --quick --output output/\r\n# 輸出: output/sil_silver_factor_analysis_YYYY-MM-DD.png\r\n```\r\n\r\n視覺化儀表板包含四個面板：\r\n1. **比率時間序列**：歷史走勢 + 分位數區間（底部/頂部）\r\n2. **因子雷達圖**：四大因子健康度一覽\r\n3. **因子評分長條圖**：成本、槓桿、倍數、稀釋各項評分\r\n4. **情境熱力圖**：倍數擴張 × 白銀變動的組合分析\r\n\r\n**共同上漲情境模擬**\r\n\r\n```bash\r\npython scripts/scenario_path_simulator.py --quick --output output/\r\n# 輸出: output/scenario_path_YYYY-MM-DD.png + return_heatmap_YYYY-MM-DD.png\r\n```\r\n\r\n核心公式：**礦業股漲幅 = (1 + 銀價漲幅) × (R₁/R₀) - 1**\r\n\r\n自訂參數：\r\n```bash\r\npython scripts/scenario_path_simulator.py \\\r\n  --silver-monthly 5 \\      # 銀價每月漲幅 5%\r\n  --ratio-start 1.10 \\      # 比率起點\r\n  --ratio-end 1.20 \\        # 比率終點\r\n  --months 6 \\              # 模擬 6 個月\r\n  --heatmap                 # 同時生成熱力圖\r\n```\r\n\r\n**輸出範例**：\r\n\r\n```json\r\n{\r\n  \"now\": {\r\n    \"metal_price\": 94.4,\r\n    \"miner_price\": 103.4,\r\n    \"ratio\": 1.13,\r\n    \"ratio_percentile\": 0.111\r\n  },\r\n  \"thresholds\": {\r\n    \"bottom_ratio\": 1.20,\r\n    \"top_ratio\": 1.70,\r\n    \"median_ratio\": 1.51\r\n  },\r\n  \"fundamentals_weighted\": {\r\n    \"aisc_usd_per_oz\": 28.0,\r\n    \"net_debt_to_ev\": 0.25,\r\n    \"ev_to_ebitda\": 6.4,\r\n    \"shares_yoy_change\": 0.12\r\n  },\r\n  \"factors_now\": {\r\n    \"cost_factor_C\": 0.7034,\r\n    \"leverage_factor_1_minus_L\": 0.75,\r\n    \"multiple_M\": 6.4,\r\n    \"dilution_discount_D\": 0.89\r\n  },\r\n  \"backsolve_to_top\": {\r\n    \"multiple_only_need\": 9.1,\r\n    \"deleverage_only_need_1_minus_L\": 1.12,\r\n    \"cost_only_implied_aisc\": 15.6,\r\n    \"dilution_only_need_D\": 1.26\r\n  }\r\n}\r\n```\r\n\r\n</quick_start>\r\n\r\n<intake>\r\n需要進行什麼操作？\r\n\r\n1. **快速分析** - 使用預設參數（SIL / SI=F）計算當前因子狀態\r\n2. **完整分析** - 抓取財報、計算因子、反推門檻\r\n3. **因子拆解** - 深入了解四大因子的計算邏輯\r\n4. **門檻反推** - 給定目標比率，計算需要的因子組合\r\n5. **事件研究** - 歷史底部事件的因子驅動排名\r\n6. **方法論學習** - 了解回算邏輯與數據來源\r\n7. **視覺化** - 生成四面板儀表板圖表\r\n8. **共同上漲情境** - 模擬銀價與礦業股同漲時的比例關係與路徑\r\n\r\n**請選擇或直接提供分析參數。**\r\n</intake>\r\n\r\n<routing>\r\n| Response                       | Action                                                         |\r\n|--------------------------------|----------------------------------------------------------------|\r\n| 1, \"快速\", \"quick\", \"分析\"     | 執行 `python scripts/fundamental_analyzer.py --quick`          |\r\n| 2, \"完整\", \"full\", \"財報\"      | 閱讀 `workflows/analyze.md` 並執行                             |\r\n| 3, \"因子\", \"factor\", \"拆解\"    | 閱讀 `references/fundamental-factors.md`                       |\r\n| 4, \"反推\", \"backsolve\", \"門檻\" | 閱讀 `references/backsolve-math.md` 並執行反推分析             |\r\n| 5, \"事件\", \"event\", \"底部\"     | 閱讀 `workflows/analyze.md` 並聚焦事件研究                     |\r\n| 6, \"學習\", \"方法論\", \"why\"     | 閱讀 `references/fundamental-factors.md` + `backsolve-math.md` |\r\n| 7, \"視覺化\", \"圖\", \"chart\"     | 執行 `python scripts/visualize_factors.py --quick`             |\r\n| 8, \"共同上漲\", \"情境\", \"路徑\"  | 執行 `python scripts/scenario_path_simulator.py --quick`       |\r\n| \"比例關係\", \"漲幅\", \"要漲多少\" | 執行 `python scripts/scenario_path_simulator.py --quick`       |\r\n| 提供參數 (如 ETF/金屬代理)     | 閱讀 `workflows/analyze.md` 並使用參數執行                     |\r\n\r\n**路由後，閱讀對應文件並執行。**\r\n</routing>\r\n\r\n<directory_structure>\r\n```\r\nbacksolve-miner-vs-metal-ratio-with-fundamentals/\r\n├── SKILL.md                           # 本文件（路由器）\r\n├── skill.yaml                         # 前端展示元數據\r\n├── manifest.json                      # 技能元數據\r\n├── workflows/\r\n│   ├── analyze.md                     # 完整分析工作流\r\n│   └── data-fetch.md                  # 數據抓取工作流\r\n├── references/\r\n│   ├── input-schema.md                # 完整輸入參數定義\r\n│   ├── data-sources.md                # 數據來源說明\r\n│   ├── fundamental-factors.md         # 四大因子計算邏輯\r\n│   └── backsolve-math.md              # 反推數學公式\r\n├── templates/\r\n│   ├── output-json.md                 # JSON 輸出模板\r\n│   └── output-markdown.md             # Markdown 報告模板\r\n├── scripts/\r\n│   ├── fundamental_analyzer.py        # 主計算腳本\r\n│   ├── visualize_factors.py           # 視覺化儀表板腳本\r\n│   └── scenario_path_simulator.py     # 共同上漲情境模擬器\r\n└── examples/\r\n    └── sample-output.json             # 範例輸出\r\n```\r\n</directory_structure>\r\n\r\n<reference_index>\r\n\r\n**輸入參數**: references/input-schema.md\r\n- 完整參數定義\r\n- 預設值與建議範圍\r\n- 各方法選項說明\r\n\r\n**數據來源**: references/data-sources.md\r\n- 價格數據（yfinance / stooq / alphavantage）\r\n- 財報數據（SEC EDGAR / SEDAR+ / 公司 IR）\r\n- ETF 持股（官方 CSV / N-PORT / 手動 URL）\r\n\r\n**因子計算**: references/fundamental-factors.md\r\n- AISC 成本因子\r\n- 槓桿因子\r\n- 倍數因子\r\n- 稀釋因子\r\n\r\n**反推數學**: references/backsolve-math.md\r\n- 單因子反推公式\r\n- 雙因子組合網格\r\n- 校準常數估計\r\n\r\n</reference_index>\r\n\r\n<workflows_index>\r\n| Workflow      | Purpose  | 使用時機                    |\r\n|---------------|----------|-----------------------------|\r\n| analyze.md    | 完整分析 | 需要抓取財報並計算因子      |\r\n| data-fetch.md | 數據抓取 | 了解如何抓取 ETF 持股與財報 |\r\n</workflows_index>\r\n\r\n<templates_index>\r\n| Template           | Purpose           |\r\n|--------------------|-------------------|\r\n| output-json.md     | JSON 輸出結構定義 |\r\n| output-markdown.md | Markdown 報告模板 |\r\n</templates_index>\r\n\r\n<scripts_index>\r\n| Script                     | Command                              | Purpose                    |\r\n|----------------------------|--------------------------------------|----------------------------|\r\n| fundamental_analyzer.py    | `--quick`                            | 快速分析 SIL/SI=F          |\r\n| fundamental_analyzer.py    | `--miner-universe etf:SILJ`          | 自訂礦業股 ETF             |\r\n| fundamental_analyzer.py    | `--backsolve-target 1.7`             | 指定反推目標比率           |\r\n| fundamental_analyzer.py    | `--event-study --min-separation 180` | 執行事件研究               |\r\n| visualize_factors.py       | `--quick --output output/`           | 生成四面板視覺化儀表板     |\r\n| visualize_factors.py       | `--input result.json`                | 從 JSON 結果生成圖表       |\r\n| scenario_path_simulator.py | `--quick`                            | 共同上漲情境路徑模擬       |\r\n| scenario_path_simulator.py | `--silver-monthly 5 --months 6`      | 自訂銀價月漲幅與模擬月數   |\r\n| scenario_path_simulator.py | `--ratio-start 1.10 --ratio-end 1.20`| 自訂比率起終點             |\r\n| scenario_path_simulator.py | `--heatmap`                          | 同時生成收益率熱力圖       |\r\n</scripts_index>\r\n\r\n<input_schema_summary>\r\n\r\n**核心參數**\r\n\r\n| 參數                 | 類型   | 預設值  | 說明                                    |\r\n|----------------------|--------|---------|-----------------------------------------|\r\n| metal_symbol         | string | SI=F    | 金屬價格代碼（SI=F 白銀、GC=F 黃金）    |\r\n| miner_universe       | object | etf:SIL | 礦業股/ETF 定義                         |\r\n| region_profile       | string | us_sec  | 監管與揭露來源（us_sec / canada_sedar） |\r\n| time_range.start     | string | 5 年前  | 分析起點（YYYY-MM-DD）                  |\r\n| time_range.end       | string | today   | 分析終點                                |\r\n| time_range.frequency | string | weekly  | 取樣頻率（daily/weekly/monthly）        |\r\n\r\n**因子方法選擇**\r\n\r\n| 參數                         | 類型   | 預設值              | 說明          |\r\n|------------------------------|--------|---------------------|---------------|\r\n| fundamental_methods.aisc     | string | hybrid              | AISC 抽取方法 |\r\n| fundamental_methods.leverage | string | net_debt_to_ev      | 槓桿計算方法  |\r\n| fundamental_methods.multiple | string | ev_to_ebitda        | 倍數計算方法  |\r\n| fundamental_methods.dilution | string | weighted_avg_shares | 稀釋計算方法  |\r\n\r\n**分位門檻**\r\n\r\n| 參數                    | 類型  | 預設值 | 說明           |\r\n|-------------------------|-------|--------|----------------|\r\n| ratio_thresholds.bottom | float | 0.20   | 底部分位數門檻 |\r\n| ratio_thresholds.top    | float | 0.80   | 頂部分位數門檻 |\r\n\r\n完整參數定義見 `references/input-schema.md`。\r\n\r\n</input_schema_summary>\r\n\r\n<output_schema_summary>\r\n```json\r\n{\r\n  \"skill\": \"backsolve_miner_vs_metal_ratio_with_fundamentals\",\r\n  \"inputs\": {\r\n    \"metal_symbol\": \"SI=F\",\r\n    \"miner_universe\": {\"type\": \"etf_holdings\", \"etf_ticker\": \"SIL\"},\r\n    \"region_profile\": \"us_sec\"\r\n  },\r\n  \"now\": {\r\n    \"metal_price\": 94.4,\r\n    \"miner_price\": 103.4,\r\n    \"ratio\": 1.13,\r\n    \"ratio_percentile\": 0.111\r\n  },\r\n  \"thresholds\": {\r\n    \"bottom_ratio\": 1.20,\r\n    \"top_ratio\": 1.70,\r\n    \"median_ratio\": 1.51\r\n  },\r\n  \"fundamentals_weighted\": {\r\n    \"aisc_usd_per_oz\": 28.0,\r\n    \"net_debt_to_ev\": 0.25,\r\n    \"ev_to_ebitda\": 6.4,\r\n    \"shares_yoy_change\": 0.12\r\n  },\r\n  \"factors_now\": {\r\n    \"cost_factor_C\": 0.7034,\r\n    \"leverage_factor_1_minus_L\": 0.75,\r\n    \"multiple_M\": 6.4,\r\n    \"dilution_discount_D\": 0.89\r\n  },\r\n  \"backsolve_to_top\": {\r\n    \"multiple_only_need\": 9.1,\r\n    \"deleverage_only_need_1_minus_L\": 1.12,\r\n    \"cost_only_implied_aisc\": 15.6,\r\n    \"dilution_only_need_D\": 1.26,\r\n    \"two_factor_grid_examples\": [\r\n      {\"multiple_up\": 1.20, \"metal_down\": -0.15, \"hits_top\": true},\r\n      {\"deleverage\": -0.10, \"multiple_up\": 1.15, \"hits_top\": true}\r\n    ]\r\n  },\r\n  \"event_study\": {\r\n    \"bottom_events\": [\r\n      {\r\n        \"date\": \"2026-01-02\",\r\n        \"ratio\": 1.13,\r\n        \"aisc\": 29.1,\r\n        \"net_debt_to_ev\": 0.27,\r\n        \"ev_to_ebitda\": 5.8,\r\n        \"shares_yoy\": 0.14,\r\n        \"dominant_driver\": \"multiple_compression\"\r\n      }\r\n    ]\r\n  },\r\n  \"summary\": \"比率處於歷史底部，主要驅動為倍數壓縮...\",\r\n  \"notes\": [\r\n    \"AISC 使用 hybrid 方法回算，部分公司為 proxy 值\",\r\n    \"建議交叉驗證：COT 持倉、ETF 流量、美元/實質利率\"\r\n  ]\r\n}\r\n```\r\n\r\n完整輸出結構見 `templates/output-json.md`。\r\n</output_schema_summary>\r\n\r\n<success_criteria>\r\n執行成功時應產出：\r\n\r\n- [ ] 當前比率與歷史分位數\r\n- [ ] 四大基本面因子（AISC、槓桿、倍數、稀釋）\r\n- [ ] 權重加總後的組合因子\r\n- [ ] 門檻反推結果（單因子 + 雙因子組合）\r\n- [ ] 歷史底部事件的因子驅動排名\r\n- [ ] 結果輸出為指定格式（JSON 或 Markdown）\r\n- [ ] 數據來源與方法標註（aisc_method 等）\r\n- [ ] 風險提示與後續研究建議\r\n- [ ] 視覺化儀表板（PNG 格式，檔名含日期）\r\n</success_criteria>",
+    "path": "skills/backsolve-miner-vs-metal-ratio-with-fundamentals/SKILL.md",
+    "directoryStructure": "backsolve-miner-vs-metal-ratio-with-fundamentals/\n├── examples\n│   └── sample-output.json\n├── manifest.json\n├── methodology.md\n├── references\n│   ├── backsolve-math.md\n│   ├── data-sources.md\n│   ├── fundamental-factors.md\n│   └── input-schema.md\n├── scripts\n│   ├── fundamental_analyzer.py\n│   ├── scenario_path_simulator.py\n│   ├── visualize_factors.py\n│   └── __pycache__\n│       └── fundamental_analyzer.cpython-312.pyc\n├── SKILL.md\n├── skill.yaml\n├── templates\n│   ├── output-json.md\n│   └── output-markdown.md\n└── workflows\n    ├── analyze.md\n    └── data-fetch.md",
+    "lastUpdated": "2026-01-21",
+    "rating": 3,
+    "testQuestions": [
+      {
+        "question": "分析目前 SIL 對白銀比率處於底部的原因，是成本上升、槓桿壓力、倍數壓縮還是股權稀釋？",
+        "expectedResult": "根據分析結果，讓我整理 SIL 對白銀比率處於底部的原因分析：\n\n---                                                                                                                                                                                           SIL/白銀比率底部原因分析\n                                                                                                                                                                                            \n當前狀態\n┌──────────┬───────────┬───────────────────────────────────┐\n│   指標   │   數值    │               解讀                │\n├──────────┼───────────┼───────────────────────────────────┤\n│ 比率     │ 1.103     │ 處於歷史 25.6% 分位數（低位區間） │\n├──────────┼───────────┼───────────────────────────────────┤\n│ 白銀價格 │ $30.17/oz │ 近 5 年高位                       │\n├──────────┼───────────┼───────────────────────────────────┤\n│ SIL 價格 │ $33.28    │ 未同步跟上金屬漲幅                │\n└──────────┴───────────┴───────────────────────────────────┘\n四大因子拆解\n\nR_t ≈ K × M × (1-L) × C × D\n┌────────────────┬────────┬─────────────┬────────────────────────────────────────┐\n│      因子      │ 當前值 │    狀態     │              對比率的影響              │\n├────────────────┼────────┼─────────────┼────────────────────────────────────────┤\n│ 成本因子 C     │ 0.74   │ ✅ 健康     │ AISC $24.4/oz vs 白銀 $30+，毛利空間大 │\n├────────────────┼────────┼─────────────┼────────────────────────────────────────┤\n│ 槓桿因子 (1-L) │ 0.96   │ ✅ 健康     │ NetDebt/EV 僅 3.5%，槓桿極低           │\n├────────────────┼────────┼─────────────┼────────────────────────────────────────┤\n│ 倍數因子 M     │ 7.2x   │ ⚠️ 壓縮     │ 歷史中位約 8-9x，目前偏低              │\n├────────────────┼────────┼─────────────┼────────────────────────────────────────┤\n│ 稀釋因子 D     │ 0.94   │ ⚠️ 輕微拖累 │ YoY 股數增加 6.6%                      │\n└────────────────┴────────┴─────────────┴────────────────────────────────────────┘\n---\n主要驅動因素排名\n\n1️⃣ 倍數壓縮（EV/EBITDA）— 主因                                                                                                                                                             \n\n\n當前 EV/EBITDA 7.2x 低於歷史合理區間 8-9x。要回到歷史 80% 分位（比率 1.48），需要倍數擴張至 9.65x (+34%)。\n\n倍數壓縮的原因：\n- 市場對銀礦股的風險溢價上升\n- 貴金屬礦業股普遍不被追捧\n- 資金偏好實物白銀 ETF 而非礦業股\n\n2️⃣ 股權稀釋 — 次要因素                                                                                                                                                                     \n\n\n加權平均股數 YoY 增加 6.6%，D 因子為 0.94。\n\n各公司稀釋情況：\n┌─────────────────────┬──────────┬────────────┐\n│        公司         │ 股數 YoY │    影響    │\n├─────────────────────┼──────────┼────────────┤\n│ CDE (Coeur)         │ +13.3%   │ 稀釋最嚴重 │\n├─────────────────────┼──────────┼────────────┤\n│ EXK (Endeavour)     │ +9.1%    │ 稀釋較高   │\n├─────────────────────┼──────────┼────────────┤\n│ AG (First Majestic) │ +7.7%    │ 稀釋中等   │\n└─────────────────────┴──────────┴────────────┘\n礦業公司在熊市融資存活，牛市來時股東被稀釋。\n\n3️⃣ 成本因子 — 非主因                                                                                                                                                                       \n\n\nAISC $24.4/oz vs 白銀 $30+，成本因子 C = 0.74 非常健康。\n- 反推：若要靠成本改善回到頂部，需 AISC 降至 $0.65/oz（不可能）\n- 結論：成本不是問題\n\n4️⃣ 槓桿因子 — 非主因                                                                                                                                                                       \n\n\nNetDebt/EV 僅 3.5%，(1-L) = 0.96 接近無槓桿。\n- MAG Silver 甚至是淨現金（NetDebt/EV = -14%）\n- 結論：槓桿不是問題\n\n---\n歷史底部事件\n\n過去 5 年出現 4 次底部（比率 ≤ 1.09）：\n┌─────────┬───────┬──────────────────────────┐\n│  日期   │ 比率  │           背景           │\n├─────────┼───────┼──────────────────────────┤\n│ 2023-06 │ 1.076 │ 白銀橫盤，礦業股持續走弱 │\n├─────────┼───────┼──────────────────────────┤\n│ 2024-01 │ 1.072 │ 市場不信任貴金屬反彈     │\n├─────────┼───────┼──────────────────────────┤\n│ 2024-07 │ 1.083 │ 白銀快速上漲，礦業股落後 │\n├─────────┼───────┼──────────────────────────┤\n│ 2025-01 │ 1.063 │ 白銀創新高，礦業股跟不上 │\n└─────────┴───────┴──────────────────────────┘\n規律：當白銀快速上漲時，礦業股估值倍數反而被壓縮（市場認為漲勢不可持續）。\n\n---\n結論\n┌─────────────┬────────────────┬─────────────────────────────┐\n│    因素     │ 是否為底部原因 │            說明             │\n├─────────────┼────────────────┼─────────────────────────────┤\n│ ❌ 成本上升 │ 否             │ AISC 健康，毛利空間充裕     │\n├─────────────┼────────────────┼─────────────────────────────┤\n│ ❌ 槓桿壓力 │ 否             │ 淨負債極低，財務穩健        │\n├─────────────┼────────────────┼─────────────────────────────┤\n│ ✅ 倍數壓縮 │ 主因           │ EV/EBITDA 7.2x 低於歷史均值 │\n├─────────────┼────────────────┼─────────────────────────────┤\n│ ⚠️ 股權稀釋 │ 次要           │ 平均稀釋 6.6% 造成拖累      │\n└─────────────┴────────────────┴─────────────────────────────┘\n核心結論：SIL/白銀比率處於底部，不是礦業公司經營惡化，而是市場給予的估值倍數壓縮。基本面（成本、槓桿）實際上非常健康，這形成一個「估值落差」的機會。\n\n---\n回到中位數所需條件\n┌────────────┬──────────────────────────────────┬─────────┐\n│    情境    │             所需變化             │ 可行性  │\n├────────────┼──────────────────────────────────┼─────────┤\n│ 純倍數擴張 │ EV/EBITDA 7.2x → 8.0x (+11%)     │ ✅ 可行 │\n├────────────┼──────────────────────────────────┼─────────┤\n│ 純稀釋改善 │ D: 0.94 → 1.04 (需回購 10% 股份) │ 🔶 困難 │\n├────────────┼──────────────────────────────────┼─────────┤\n│ 組合情境   │ 倍數 +15% + 白銀 -5%             │ ✅ 可行 │\n└────────────┴──────────────────────────────────┴─────────┘\n"
+      },
+      {
+        "question": "如果 SIL/白銀比率要回到歷史頂部 1.7，需要什麼條件？",
+        "expectedResult": "門檻反推分析：回到頂部比率 1.7\n\n當前狀態\n┌───────────────────────┬──────────────┐\n│         指標          │     數值     │\n├───────────────────────┼──────────────┤\n│ 當前比率              │ 1.13         │\n├───────────────────────┼──────────────┤\n│ 目標比率（頂部）      │ 1.70         │\n├───────────────────────┼──────────────┤\n│ 需要的倍數           │ 1.50x        │\n└───────────────────────┴──────────────┘\n\n單因子反推\n┌───────────────────────┬──────────────────────────────────┐\n│       假設條件        │           需要的調整             │\n├───────────────────────┼──────────────────────────────────┤\n│ 只靠倍數擴張          │ EV/EBITDA 從 6.4x 升至 9.6x      │\n├───────────────────────┼──────────────────────────────────┤\n│ 只靠去槓桿            │ NetDebt/EV 從 25% 降至 0%        │\n├───────────────────────┼──────────────────────────────────┤\n│ 只靠成本改善          │ AISC 從 $28 降至 $16/oz          │\n├───────────────────────┼──────────────────────────────────┤\n│ 只靠減少稀釋          │ 股數需減少 33%（不現實）         │\n└───────────────────────┴──────────────────────────────────┘\n\n雙因子組合\n┌───────────────────────┬──────────────┬──────────────┬────────────────┐\n│         組合          │   倍數調整   │   其他調整   │   是否達標     │\n├───────────────────────┼──────────────┼──────────────┼────────────────┤\n│ 倍數 + 白銀回調       │ EV/EBITDA +20% │ 白銀 -20%    │ ✓              │\n├───────────────────────┼──────────────┼──────────────┼────────────────┤\n│ 倍數 + 去槓桿         │ EV/EBITDA +15% │ Debt -15%    │ ✓              │\n├───────────────────────┼──────────────┼──────────────┼────────────────┤\n│ 成本 + 倍數           │ AISC -$5/oz   │ EV/EBITDA +10% │ ✓              │\n└───────────────────────┴──────────────┴──────────────┴────────────────┘\n\n結論：回到頂部需要多個因子同時改善，單靠倍數擴張需要 50%，較難實現。\n"
+      },
+      {
+        "question": "歷史上比率落入底部時，哪個因子是主要驅動？",
+        "imagePath": "images/sil-silver-factor-analysis-2026-01-21.png",
+        "expectedResult": "歷史底部事件的因子驅動分析\n\n偵測到 5 次底部區間事件\n┌─────┬────────────┬──────────────────────────────────────┐\n│  #  │    日期    │           主要驅動因子               │\n├─────┼────────────┼──────────────────────────────────────┤\n│ 1   │ 2015-08-07 │ 倍數壓縮（商品熊市末期）             │\n├─────┼────────────┼──────────────────────────────────────┤\n│ 2   │ 2020-03-20 │ 槓桿惡化 + 倍數壓縮（COVID 危機）    │\n├─────┼────────────┼──────────────────────────────────────┤\n│ 3   │ 2022-09-02 │ 成本上升（通膨推高 AISC）            │\n├─────┼────────────┼──────────────────────────────────────┤\n│ 4   │ 2024-06-28 │ 股權稀釋 + 倍數壓縮                  │\n├─────┼────────────┼──────────────────────────────────────┤\n│ 5   │ 2026-01-02 │ 倍數壓縮（當前）                     │\n└─────┴────────────┴──────────────────────────────────────┘\n\n因子驅動統計\n┌─────────────────┬──────────────┬──────────────────────────────────┐\n│      因子       │  出現次數    │             說明                 │\n├─────────────────┼──────────────┼──────────────────────────────────┤\n│ 倍數壓縮        │ 5/5 (100%)   │ 最常見的底部驅動因素             │\n├─────────────────┼──────────────┼──────────────────────────────────┤\n│ 成本上升        │ 2/5 (40%)    │ 通膨環境下較常見                 │\n├─────────────────┼──────────────┼──────────────────────────────────┤\n│ 槓桿惡化        │ 2/5 (40%)    │ 危機時期較常見                   │\n├─────────────────┼──────────────┼──────────────────────────────────┤\n│ 股權稀釋        │ 2/5 (40%)    │ 熊市末期礦企增發融資             │\n└─────────────────┴──────────────┴──────────────────────────────────┘\n\n結論：倍數壓縮是歷史上最常見的底部驅動因素，通常伴隨 1-2 個次要因子。\n\n生成圖表\n\n輸出: output/sil_silver_factor_analysis_2026-01-21.png\n┌──────┬───────────────────────────────────────────┐\n│ 面板 │                   內容                    │\n├──────┼───────────────────────────────────────────┤\n│ 左上 │ 比率歷史走勢 (當前 1.10, 26% 分位)        │\n├──────┼───────────────────────────────────────────┤\n│ 右上 │ 四大因子雷達圖                            │\n├──────┼───────────────────────────────────────────┤\n│ 左下 │ 因子評分 (成本74, 槓桿96, 倍數97, 稀釋94) │\n├──────┼───────────────────────────────────────────┤\n│ 右下 │ 情境熱力圖 (達到1.48需1.34x)              │\n└──────┴───────────────────────────────────────────┘\n"
+      },
+      {
+        "question": "銀礦股和銀價共同上漲時，且比率維持在 1.00–1.20 時：礦業股要漲多少？銀價要漲多少？",
+        "imagePath": "images/backsolve-miner-vs-metal-ratio-with-fundamentals-sil-scenario-path-2026-01-21.png",
+        "expectedResult": "共同上漲情境分析\n\n核心公式\n┌─────────────────────────────────────────────────────────────┐\n│ 礦業股漲幅 = (1 + 銀價漲幅) × (R₁/R₀) - 1                   │\n│ 近似公式：礦業股漲幅 ≈ 銀價漲幅 + 比率變動幅度              │\n└─────────────────────────────────────────────────────────────┘\n\n快速對照表（R₀=1.103）\n\n   銀價漲幅    |   R₁=1.00    |   R₁=1.10    |   R₁=1.20\n-------------------------------------------------------\n   +5%     |   -4.8%     |   +4.7%     |  +14.2%     |\n   +10%    |   -0.3%     |   +9.7%     |  +19.7%     |\n   +15%    |   +4.3%     |  +14.7%     |  +25.1%     |\n   +20%    |   +8.8%     |  +19.7%     |  +30.6%     |\n   +25%    |  +13.3%     |  +24.7%     |  +36.0%     |\n   +30%    |  +17.9%     |  +29.6%     |  +41.4%     |\n\n直覺讀法\n- 比率維持不變 → 礦業股漲幅 ≈ 銀價漲幅\n- 比率上修（→1.20）→ 礦業股明顯跑贏銀價\n- 比率下修（→1.00）→ 礦業股落後，甚至可能銀漲但礦不漲\n\n路徑表範例（銀價月漲 5%，比率 1.10 → 1.20）\n┌───────┬────────────┬───────┬────────────┬────────────┬────────────┐\n│ 月份  │ 銀價 $/oz  │ 比率  │ 礦業股 $   │ 銀價累積   │ 礦業股累積 │\n├───────┼────────────┼───────┼────────────┼────────────┼────────────┤\n│ M0    │ 30.17      │ 1.103 │ 33.28      │ 0.0%       │ 0.0%       │\n├───────┼────────────┼───────┼────────────┼────────────┼────────────┤\n│ M1    │ 31.68      │ 1.10  │ 34.85      │ +5.0%      │ +4.7%      │\n├───────┼────────────┼───────┼────────────┼────────────┼────────────┤\n│ M3    │ 34.93      │ 1.14  │ 39.82      │ +15.8%     │ +19.6%     │\n├───────┼────────────┼───────┼────────────┼────────────┼────────────┤\n│ M6    │ 40.43      │ 1.20  │ 48.52      │ +34.0%     │ +45.8%     │\n└───────┴────────────┴───────┴────────────┴────────────┴────────────┘\n\n結論\n- 6 個月累積：銀價 +34%，礦業股 +46%\n- 超額收益 +11.8% 來自比率上修（估值追趕）\n- 因為比率從 1.10 → 1.20，礦業股月漲幅約 6.8%（高於銀價 5%）\n\n輸出圖表\n- 路徑圖：output/scenario-path-2026-01-21.png\n- 熱力圖：output/return-heatmap-2026-01-21.png\n"
+      },
+      {
+        "question": "假設銀價每月漲 5%，銀礦股價對銀價比率從 1.10 緩慢升到 1.20，幫我畫出 6 個月的路徑圖",
+        "imagePath": "images/backsolve-miner-vs-metal-ratio-with-fundamentals-return-heatmap-2026-01-21.png",
+        "expectedResult": "執行: python scripts/scenario_path_simulator.py --quick --output output/\n\n生成圖表\n- 路徑圖：output/scenario-path-2026-01-21.png（雙軸：價格 + 比率）\n- 熱力圖：output/return-heatmap-2026-01-21.png（銀價漲幅 × 比率組合）\n"
+      }
+    ],
+    "qualityScore": {
+      "overall": 66,
+      "badge": "中高級",
+      "evaluatedAt": "2026-01-23",
+      "metrics": {
+        "problemFit": 75,
+        "correctness": 70,
+        "dataGovernance": 58,
+        "robustness": 62,
+        "maintainability": 65,
+        "usability": 66
+      },
+      "metricDetails": {
+        "problemFit": {
+          "score": 75,
+          "strengths": [
+            "完整的四因子拆解框架",
+            "清晰的反推數學公式",
+            "門檻反推功能實用"
+          ],
+          "improvements": [
+            "可增加不適用情境說明",
+            "單因子歸因為極端情境需強調"
+          ]
+        },
+        "correctness": {
+          "score": 70,
+          "strengths": [
+            "方法論文檔完整",
+            "testQuestions 有詳細 expectedResult",
+            "含歷史底部事件因子分析"
+          ],
+          "improvements": [
+            "Proxy AISC 可能有誤差",
+            "財報時滯影響需說明"
+          ]
+        },
+        "dataGovernance": {
+          "score": 58,
+          "strengths": [
+            "使用 SEC/SEDAR 公開數據",
+            "hybrid 方法抽取 AISC"
+          ],
+          "improvements": [
+            "缺少 data-sources.md 完整文檔",
+            "需爬蟲抓取，可能有合規問題",
+            "爬取頻率與間隔需規範"
+          ]
+        },
+        "robustness": {
+          "score": 62,
+          "strengths": [
+            "pitfalls 詳列 proxy 風險",
+            "bestPractices 有快取建議"
+          ],
+          "improvements": [
+            "缺少 failure-modes.md",
+            "SEC EDGAR 格式變動風險",
+            "需增加爬蟲失敗處理"
+          ]
+        },
+        "maintainability": {
+          "score": 65,
+          "strengths": [
+            "路由器模式設計",
+            "分層 workflows/references"
+          ],
+          "improvements": [
+            "可增加 manifest.json 版本控制",
+            "AISC 抽取邏輯需持續調整",
+            "需監控 ETF 成分變化"
+          ]
+        },
+        "usability": {
+          "score": 66,
+          "strengths": [
+            "FAQ 解答 AISC/Cash Cost 差異",
+            "輸出有因子雷達圖"
+          ],
+          "improvements": [
+            "可增加 historical-episodes.md",
+            "可增加因子趨勢視覺化"
+          ]
+        }
+      },
+      "details": "**任務適配度（75/100）**\n- 四因子拆解與反推公式清晰\n- 待改進：增加不適用情境\n\n**正確性（70/100）**\n- 方法論完整\n- 待改進：Proxy AISC 誤差說明\n\n**資料治理（58/100）**\n- 使用公開財報數據\n- 待改進：增加爬蟲規範說明\n\n**穩健性（62/100）**\n- pitfalls 詳列風險\n- 待改進：增加 failure-modes.md\n\n**可維護性（65/100）**\n- 路由器模式設計\n- 待改進：增加版本控制\n\n**輸出可用性（66/100）**\n- FAQ 解答核心概念\n- 待改進：增加歷史對照\n",
+      "upgradeNotes": {
+        "targetBadge": "高級",
+        "requirements": [
+          {
+            "metric": "dataGovernance",
+            "currentScore": 58,
+            "targetScore": 80,
+            "suggestion": "增加 data-sources.md 與爬蟲規範"
+          },
+          {
+            "metric": "robustness",
+            "currentScore": 62,
+            "targetScore": 80,
+            "suggestion": "增加 failure-modes.md 與爬蟲失敗處理"
+          },
+          {
+            "metric": "maintainability",
+            "currentScore": 65,
+            "targetScore": 75,
+            "suggestion": "增加版本控制與 ETF 成分追蹤"
+          }
+        ]
+      }
+    },
+    "bestPractices": [
+      {
+        "title": "使用 hybrid 方法抽取 AISC",
+        "description": "優先從 MD&A 抽取揭露值，缺失時用 proxy 回算補齊"
+      },
+      {
+        "title": "限制爬取頻率",
+        "description": "財報數據季度更新，無需高頻抓取；建議每日最多 1 次"
+      },
+      {
+        "title": "快取財報數據",
+        "description": "財報內容不常變，應快取避免重複抓取"
+      },
+      {
+        "title": "關注權重分布",
+        "description": "前 10 大持股通常占 ETF 50%+ 權重，優先分析"
+      }
+    ],
+    "pitfalls": [
+      {
+        "title": "過度依賴 Proxy AISC",
+        "description": "當直接揭露不可得時使用 proxy 回算，可能有誤差",
+        "consequence": "成本因子估計不準確"
+      },
+      {
+        "title": "忽略財報時滯",
+        "description": "最新財報可能是 1-2 季前的數據",
+        "consequence": "因子狀態反映過去而非當前"
+      },
+      {
+        "title": "ETF 成分變動",
+        "description": "季度調倉可能導致持股權重變化",
+        "consequence": "權重加總時需確認數據日期"
+      },
+      {
+        "title": "單一因子歸因",
+        "description": "實際上多因子同時作用，單因子反推為極端情境",
+        "consequence": "不應視為預測"
+      }
+    ],
+    "faq": [
+      {
+        "question": "AISC 和 Cash Cost 有什麼差別？",
+        "answer": "- **Cash Cost**：直接營運成本（採礦、加工）\n- **AISC (All-In Sustaining Cost)**：Cash Cost + 維持性資本支出 + G&A - 副產品抵減\n\nAISC 更能反映礦企的「全成本」，是估值的關鍵驅動。\n"
+      },
+      {
+        "question": "為何倍數壓縮是最常見的底部因素？",
+        "answer": "礦業股是「高 Beta」資產，市場風險偏好下降時首先被拋售：\n- 流動性收緊 → 資金撤離風險資產\n- 商品悲觀預期 → 獲利預估下調\n- 結果：EV/EBITDA 壓縮\n\n這通常是「情緒面」而非「基本面」驅動。\n"
+      },
+      {
+        "question": "股權稀釋如何影響比率？",
+        "answer": "礦業公司常透過增發融資：\n- 股本增加 → 每股價值稀釋\n- 即使總市值不變，股價也會下跌\n- 結果：比率下降\n\n稀釋因子 D = Shares_base / Shares_now，D < 1 表示有稀釋。\n"
+      },
+      {
+        "question": "如何驗證 AISC 抽取結果？",
+        "answer": "1. 交叉比對年報簡報（通常有表格）\n2. 查看產業報告（如 World Silver Survey）\n3. 比較同業數值（PAAS、AG、HL 等）\n4. 檢查 aisc_method 標註是否為 proxy\n"
+      }
+    ],
+    "about": {
+      "repository": "https://github.com/fatfingererr/macro-skills",
+      "branch": "main",
+      "additionalInfo": "## 使用場景\n\n1. **驗證比率訊號**：當看到「礦業股/金屬價格比率在底部」時，用財報驗證驅動因素\n2. **因子歸因**：識別成本、槓桿、倍數、稀釋哪個是主因\n3. **門檻反推**：量化「回到頂部」需要的條件\n4. **事件研究**：歷史底部的因子驅動模式\n\n## 與 analyze-silver-miner-metal-ratio 的差異\n\n| 項目                     | 本技能                       | 比率分析技能              |\n|--------------------------|------------------------------|---------------------------|\n| 核心輸入                 | 財報數據 + 價格              | 價格數據                  |\n| 因子拆解                 | 四大因子（AISC/槓桿/倍數/稀釋） | 無                        |\n| 門檻反推                 | 基於因子的反推               | 基於價格的反推            |\n| 數據抓取                 | 需要爬蟲抓取財報             | 僅 yfinance               |\n| 適用場景                 | 深度基本面驗證               | 快速比率篩選              |\n\n## 預設代理\n\n**礦業股**：SIL (Global X Silver Miners ETF)\n**白銀**：SI=F (COMEX 白銀期貨)\n"
+    },
+    "methodology": "\r\n當你看到「礦業股（或礦業 ETF）相對金屬本體」的比率（例如 **SIL／白銀**）落在歷史極端（底部或頂部），市場常見的解釋會停在一句話：  \r\n> 「礦業股太便宜了／礦業股太貴了」\r\n\r\n但這句話不夠。因為礦業股的價格不是只跟金屬價格走，它還受 **成本、負債、估值倍數、股本稀釋**影響。  \r\n所以這個 Skill 的目標是：**把比率的變動拆成可驗證的財務原因**，而且用「公司申報的財報與營運揭露」去回算，不靠感覺。\r\n\r\n---\r\n\r\n## 核心原理：把「比率」拆成四個可量化因子\r\n我們觀察的比率是：\r\n\r\n- **比率 = 礦業股價格 ÷ 金屬價格**  \r\n  例如：`SIL 價格 ÷ 白銀價格`\r\n\r\n這個比率為什麼會上去或下來？Skill 會用財報把原因拆成四類：\r\n\r\n### 1) 成本因子：每盎司成本（例如全維持成本）相對金屬價格\r\n- 若金屬價格很高，但公司成本也跟著上升，**獲利不一定變好**  \r\n- Skill 會從公司揭露或財報文本中抓取「每盎司成本」與「產量」，必要時用財報科目做近似回算  \r\n- 結果是回答：  \r\n  **比率低，是不是因為成本上升把利潤吃掉？**\r\n\r\n### 2) 槓桿因子：負債與現金結構（資產負債表）\r\n- 負債高、現金少的公司，即使金屬漲，市場也會更保守  \r\n- Skill 會用財報計算「淨負債」並結合市值推估企業整體價值  \r\n- 結果是回答：  \r\n  **比率低，是不是因為槓桿風險折價？**\r\n\r\n### 3) 倍數因子：市場願意給的估值倍數\r\n- 即使獲利上升，市場仍可能用更低倍數定價（例如因為政策風險、項目不確定、景氣循環）  \r\n- Skill 會用財報推估獲利能力，再對照市場估值，得到「倍數」的高低  \r\n- 結果是回答：  \r\n  **比率低，是不是因為估值倍數被壓縮？**\r\n\r\n### 4) 稀釋因子：股本增加（每股價值被稀釋）\r\n- 礦業很常見「增資、可轉債、併購發股」  \r\n- 即使公司總獲利增加，如果股本膨脹得更快，每股價值反而上不去  \r\n- Skill 會追蹤股數變化，回算稀釋對比率的影響  \r\n- 結果是回答：  \r\n  **比率低，是不是因為股本稀釋把每股漲幅抵消？**\r\n\r\n---\r\n\r\n## 用 SIL／白銀案例示範：我們會怎麼做\r\n你目前的觀察重點是：\r\n\r\n- **SIL／白銀比率在歷史底部區**\r\n- 同時 **白銀價格處於歷史高位**\r\n- 形成「比率低 + 金屬高」的背離組合\r\n\r\n### 第一步：用市場數據確認「這是極端」\r\n- 把過去十多年每日的 `SIL／白銀` 比率做分位數\r\n- 確認當前落在底部區（例如低於 20% 分位）\r\n\r\n### 第二步：抓「SIL 主要成分股」的財報資料（真實回算）\r\n- 取權重最大的公司（例如前 10 大）  \r\n- 對每家公司抓：\r\n  1) 每盎司成本（能抓就抓，抓不到就用財報回算近似）\r\n  2) 負債與現金（淨負債）\r\n  3) 現金流與資本支出（是否被維持性支出吃掉）\r\n  4) 股本變化（是否持續稀釋）\r\n\r\n### 第三步：把「比率低」拆成四個可能原因，逐一量化\r\nSkill 會輸出像這樣的結論架構（每一項都對應到實際數據）：\r\n\r\n- **成本面**：如果多數公司每盎司成本上升明顯 → 比率低可能是合理折價  \r\n- **槓桿面**：若淨負債偏高、再融資壓力大 → 市場會壓低估值  \r\n- **倍數面**：若市場把倍數壓得很低 → 可能是情緒或風險溢酬在主導  \r\n- **稀釋面**：若股數增加快 → 即使銀價高，每股漲幅也會被稀釋抵消\r\n\r\n### 第四步：做你要的「回到 1.7」或「回到 1.2」的真實回算\r\n這是 Skill 最實用的一段：  \r\n它不是只算「礦業股要漲多少、白銀要跌多少」，而是會同時回答：\r\n\r\n- **如果要回到頂部區（例如 1.7）**\r\n  - 需要：倍數回升到什麼水平？  \r\n  - 或：淨負債要降到什麼程度？  \r\n  - 或：成本要改善到什麼程度？  \r\n  - 或：稀釋要停止到什麼程度？\r\n\r\n這個 Skill 的精髓是：  \r\n**先用分位數找出比率極端，再用財報把極端拆解成成本、槓桿、倍數、稀釋四種可驗證的原因，最後回算要回到頂部或中位數需要哪些“真實財務條件”。**",
+    "downloadUrl": "downloads/backsolve-miner-vs-metal-ratio-with-fundamentals-0.1.0.zip"
   },
   {
     "id": "analyze-high-unemployment-high-gdp-growth-fiscal-deficit-scenarios",
