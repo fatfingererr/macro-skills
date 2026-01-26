@@ -1,0 +1,99 @@
+{
+  "skill": "analyze_jgb_insurer_superlong_flow",
+  "version": "0.1.0",
+  "as_of": "2026-01-26",
+  "status": "success",
+  "data_source": {
+    "name": "JSDA Trends in Bond Transactions (by investor type)",
+    "url": "https://www.jsda.or.jp/",
+    "fetch_timestamp": "2026-01-26T10:30:00+09:00",
+    "data_version": "2025-12"
+  },
+  "parameters": {
+    "start_date": "2020-01",
+    "end_date": "2025-12",
+    "investor_group": "insurance_companies",
+    "maturity_bucket": "super_long",
+    "measure": "net_purchases",
+    "frequency": "monthly",
+    "currency": "JPY",
+    "record_lookback_years": 999,
+    "streak_sign": "negative"
+  },
+  "latest_month": {
+    "date": "2025-12",
+    "net_purchases_billion_jpy": -822.4,
+    "net_purchases_trillion_jpy": -0.8224,
+    "net_purchases_usd_billion": null,
+    "interpretation": "淨賣出 ¥8,224 億"
+  },
+  "record_analysis": {
+    "is_record_sale": true,
+    "record_low_billion_jpy": -822.4,
+    "record_low_date": "2025-12",
+    "record_high_billion_jpy": 456.7,
+    "record_high_date": "2020-03",
+    "lookback_period": "全樣本 (2010-01 至 2025-12)",
+    "interpretation": "創下歷史最大單月淨賣出紀錄"
+  },
+  "streak_analysis": {
+    "consecutive_negative_months": 5,
+    "streak_start": "2025-08",
+    "streak_end": "2025-12",
+    "cumulative_over_streak_billion_jpy": -1370.5,
+    "cumulative_over_streak_trillion_jpy": -1.3705,
+    "interpretation": "自 2025-08 起連續 5 個月淨賣出，累積 ¥1.37 兆"
+  },
+  "historical_stats": {
+    "sample_period": {
+      "start": "2010-01",
+      "end": "2025-12"
+    },
+    "count": 192,
+    "mean_billion_jpy": 45.8,
+    "std_billion_jpy": 142.3,
+    "min_billion_jpy": -822.4,
+    "max_billion_jpy": 456.7,
+    "median_billion_jpy": 38.2,
+    "percentile_25_billion_jpy": -35.6,
+    "percentile_75_billion_jpy": 115.4,
+    "latest_zscore": -6.1,
+    "latest_percentile": 0.005,
+    "interpretation": "當前值處於歷史 0.5% 分位，極端偏低"
+  },
+  "caliber_notes": [
+    {
+      "type": "maturity_bucket",
+      "used": "super_long",
+      "note": "JSDA 超長端分類，通常對應 20Y+ 或 30Y+。新聞若使用「10年以上」，數值可能略有差異。"
+    },
+    {
+      "type": "investor_group",
+      "used": "insurance_companies",
+      "note": "包含壽險 + 產險。若僅需壽險，請使用 life_insurance。"
+    },
+    {
+      "type": "unit",
+      "used": "billion_jpy",
+      "note": "十億日圓（¥B）。兆日圓 = 十億日圓 ÷ 1000。"
+    }
+  ],
+  "headline_takeaways": [
+    "日本保險公司在 2025-12 創下歷史最大單月淨賣出（-¥8,224 億）",
+    "已連續 5 個月淨賣出，累積金額達 ¥1.37 兆",
+    "當前淨賣出規模處於歷史 0.5% 分位，屬極端事件"
+  ],
+  "confidence": {
+    "level": "high",
+    "reasons": [
+      "數據來源為 JSDA 官方統計（公開可下載）",
+      "計算邏輯透明可重現",
+      "無需依賴付費終端"
+    ],
+    "caveats": [
+      "天期桶口徑與新聞可能不完全一致",
+      "JSDA 數據約滯後 1 個月發布"
+    ]
+  },
+  "artifacts": []
+}

@@ -1,0 +1,92 @@
+{
+  "name": "analyze-jgb-insurer-superlong-flow",
+  "version": "0.1.0",
+  "displayName": "分析日本保險公司超長債淨買賣流量",
+  "description": "從日本保險公司對長端/超長端 JGB 的淨買入(淨賣出) 時間序列，自動產出「本月是否創紀錄賣超、連續賣超月數、期間累積賣超」等結論。",
+  "author": "Ricky Wang",
+  "license": "MIT",
+  "category": "interest-rates",
+  "tags": [
+    "日本",
+    "JGB",
+    "保險公司",
+    "長債",
+    "淨買賣",
+    "JSDA",
+    "債券",
+    "壽險",
+    "金流",
+    "殖利率"
+  ],
+  "dataLevel": "free-nolimit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "requests>=2.28.0",
+      "openpyxl>=3.0.0"
+    ],
+    "optional": [
+      "matplotlib>=3.5.0",
+      "python-dateutil>=2.8.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/jsda_flow_analyzer.py"
+  },
+  "workflows": [
+    {
+      "id": "quick-check",
+      "name": "快速檢查",
+      "description": "查看最新月份的淨買賣與連續賣超狀態",
+      "file": "workflows/quick-check.md"
+    },
+    {
+      "id": "full-analysis",
+      "name": "完整分析",
+      "description": "執行完整的歷史比較與極值判斷",
+      "file": "workflows/full-analysis.md"
+    },
+    {
+      "id": "verify-claim",
+      "name": "驗證新聞",
+      "description": "輸入新聞數字，對比 JSDA 原始數據",
+      "file": "workflows/verify-claim.md"
+    },
+    {
+      "id": "generate-chart",
+      "name": "生成圖表",
+      "description": "生成淨買賣流量歷史走勢圖",
+      "file": "workflows/generate-chart.md"
+    }
+  ],
+  "references": [
+    "references/data-sources.md",
+    "references/methodology.md",
+    "references/input-schema.md",
+    "references/jsda-structure.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md"
+  ],
+  "examples": [
+    "examples/sample-output.json"
+  ],
+  "dataSources": [
+    {
+      "name": "JSDA (日本證券業協會)",
+      "type": "primary",
+      "url": "https://www.jsda.or.jp/",
+      "api": "Trends in Bond Transactions (by investor type) XLS"
+    },
+    {
+      "name": "FRED",
+      "type": "secondary",
+      "url": "https://fred.stlouisfed.org/",
+      "api": "USDJPY 匯率（若需 USD 換算）"
+    }
+  ]
+}
