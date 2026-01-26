@@ -75,24 +75,6 @@
       "tags": []
     },
     {
-      "name": "us-cpi-pce-comparator",
-      "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/us-cpi-pce-comparator",
-      "category": "inflation-analytics",
-      "tags": [
-        "CPI",
-        "PCE",
-        "通膨",
-        "Fed",
-        "權重差異",
-        "FRED"
-      ]
-    },
-    {
       "name": "nickel-concentration-risk-analyzer",
       "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
       "version": "0.1.1",
@@ -111,21 +93,21 @@
       ]
     },
     {
-      "name": "monitor-etf-holdings-drawdown-risk",
-      "description": "偵測「商品價格上漲、但對應實物 ETF/信託持倉卻下滑」的背離現象，並用多指標交叉驗證，評估是否存在實物供給緊張/交割壓力風險",
+      "name": "us-cpi-pce-comparator",
+      "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
       "version": "0.1.0",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/monitor-etf-holdings-drawdown-risk",
-      "category": "indicator-monitoring",
+      "source": "./skills/us-cpi-pce-comparator",
+      "category": "inflation-analytics",
       "tags": [
-        "ETF",
-        "持倉監控",
-        "背離分析",
-        "實物短缺",
-        "白銀",
-        "黃金"
+        "CPI",
+        "PCE",
+        "通膨",
+        "Fed",
+        "權重差異",
+        "FRED"
       ]
     },
     {
@@ -165,21 +147,21 @@
       ]
     },
     {
-      "name": "google-trends-ath-detector",
-      "description": "模擬真人操作瀏覽器抓取 Google Trends 數據，自動判定搜尋趨勢是否創下歷史新高（ATH）或出現異常飆升，並提供訊號分類。",
-      "version": "0.1.1",
+      "name": "monitor-etf-holdings-drawdown-risk",
+      "description": "偵測「商品價格上漲、但對應實物 ETF/信託持倉卻下滑」的背離現象，並用多指標交叉驗證，評估是否存在實物供給緊張/交割壓力風險",
+      "version": "0.1.0",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/google-trends-ath-detector",
+      "source": "./skills/monitor-etf-holdings-drawdown-risk",
       "category": "indicator-monitoring",
       "tags": [
-        "Google Trends",
-        "ATH",
-        "歷史新高",
-        "情緒指標",
-        "異常偵測",
-        "搜尋趨勢"
+        "ETF",
+        "持倉監控",
+        "背離分析",
+        "實物短缺",
+        "白銀",
+        "黃金"
       ]
     },
     {
@@ -237,6 +219,24 @@
       ]
     },
     {
+      "name": "google-trends-ath-detector",
+      "description": "模擬真人操作瀏覽器抓取 Google Trends 數據，自動判定搜尋趨勢是否創下歷史新高（ATH）或出現異常飆升，並提供訊號分類。",
+      "version": "0.1.1",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/google-trends-ath-detector",
+      "category": "indicator-monitoring",
+      "tags": [
+        "Google Trends",
+        "ATH",
+        "歷史新高",
+        "情緒指標",
+        "異常偵測",
+        "搜尋趨勢"
+      ]
+    },
+    {
       "name": "detect-palladium-lead-silver-turns",
       "description": "以鈀金的先行轉向作為確認條件，檢驗白銀短期漲跌是否獲得工業景氣與風險情緒的同步支持，並標記缺乏鈀金參與度的失敗走勢。",
       "version": "0.1.0",
@@ -252,24 +252,6 @@
         "拐點偵測",
         "領先指標",
         "跨金屬確認"
-      ]
-    },
-    {
-      "name": "detect-atr-squeeze-regime",
-      "description": "以 14 日指數平滑 ATR 偵測市場是否從秩序型趨勢轉為波動主導的擠壓（squeeze）行情，並輸出對技術位、停損、交易持有期的可行性評估。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/detect-atr-squeeze-regime",
-      "category": "indicator-monitoring",
-      "tags": [
-        "ATR",
-        "波動率",
-        "擠壓行情",
-        "停損管理",
-        "風險控制",
-        "技術分析"
       ]
     },
     {
@@ -291,6 +273,35 @@
       ]
     },
     {
+      "name": "detect-atr-squeeze-regime",
+      "description": "以 14 日指數平滑 ATR 偵測市場是否從秩序型趨勢轉為波動主導的擠壓（squeeze）行情，並輸出對技術位、停損、交易持有期的可行性評估。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-atr-squeeze-regime",
+      "category": "indicator-monitoring",
+      "tags": [
+        "ATR",
+        "波動率",
+        "擠壓行情",
+        "停損管理",
+        "風險控制",
+        "技術分析"
+      ]
+    },
+    {
+      "name": "cost-density-net-rr-calculator",
+      "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
+      "version": "0.1.0",
+      "author": {
+        "name": "macro-skills"
+      },
+      "source": "./skills/cost-density-net-rr-calculator",
+      "category": "indicator-monitoring",
+      "tags": []
+    },
+    {
       "name": "detect-freight-led-inflation-turn",
       "description": "透過美國卡斯貨運指數 (CASS Freight Index) 的週期轉折，偵測美國通膨壓力是否進入放緩或反轉階段。用於判斷「通膨是否正在降溫」，並驗證市場對降息、通膨回落的宏觀敘事是否有實體經濟數據支撐。",
       "version": "0.1.1",
@@ -307,17 +318,6 @@
         "領先指標",
         "CPI"
       ]
-    },
-    {
-      "name": "cost-density-net-rr-calculator",
-      "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
-      "version": "0.1.0",
-      "author": {
-        "name": "macro-skills"
-      },
-      "source": "./skills/cost-density-net-rr-calculator",
-      "category": "indicator-monitoring",
-      "tags": []
     },
     {
       "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
@@ -371,6 +371,24 @@
         "SILJ",
         "相對估值",
         "分位數"
+      ]
+    },
+    {
+      "name": "analyze-move-risk-gauges-leadlag",
+      "description": "用公開市場數據檢查「利率波動率（MOVE）是否對利率事件（如 JGB 殖利率變動）不恐慌，並且是否領先帶動 VIX / 信用利差走低」",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-move-risk-gauges-leadlag",
+      "category": "interest-rates",
+      "tags": [
+        "利率波動率",
+        "MOVE",
+        "VIX",
+        "信用利差",
+        "領先落後",
+        "事件分析"
       ]
     },
     {
@@ -443,24 +461,6 @@
         "採礦",
         "地緣政治",
         "情境分析"
-      ]
-    },
-    {
-      "name": "analyze-move-risk-gauges-leadlag",
-      "description": "用公開市場數據檢查「利率波動率（MOVE）是否對利率事件（如 JGB 殖利率變動）不恐慌，並且是否領先帶動 VIX / 信用利差走低」",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/analyze-move-risk-gauges-leadlag",
-      "category": "interest-rates",
-      "tags": [
-        "利率波動率",
-        "MOVE",
-        "VIX",
-        "信用利差",
-        "領先落後",
-        "事件分析"
       ]
     },
     {
