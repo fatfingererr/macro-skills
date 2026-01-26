@@ -88,7 +88,7 @@ python inventory_signal_analyzer.py
 python visualize_inventory_signal.py
 ```
 
-**輸出**：`output/copper_inventory_signal.png`
+**輸出**：`{專案根目錄}/output/copper_inventory_signal_YYYY-MM-DD.png`
 
 </quick_start>
 
@@ -140,10 +140,12 @@ analyze-copper-inventory-rebuild-signal/
 │   ├── shfe_inventory.csv                # SHFE 庫存快取
 │   ├── comex_inventory.csv               # COMEX 庫存快取
 │   └── copper_price.csv                  # 銅價快取
-├── examples/
-│   └── sample_output.json                # 範例輸出
-└── output/
-    └── copper_inventory_signal.png       # 輸出圖表
+└── examples/
+    └── sample_output.json                # 範例輸出
+
+# 視覺化輸出位置（專案根目錄）
+{專案根目錄}/output/
+└── copper_inventory_signal_YYYY-MM-DD.png  # 輸出圖表（含日期）
 ```
 </directory_structure>
 
@@ -158,7 +160,8 @@ analyze-copper-inventory-rebuild-signal/
 | inventory_signal_analyzer.py | `--quick` | 快速檢查當前訊號狀態 |
 | inventory_signal_analyzer.py | `--full` | 完整歷史驗證分析 |
 | inventory_signal_analyzer.py | `--long-term` | 長期價格分位數分析 |
-| visualize_inventory_signal.py | 無參數 | 生成 Bloomberg 風格圖表 |
+| visualize_inventory_signal.py | 無參數 | 生成 Bloomberg 風格圖表（輸出到專案根目錄 output/） |
+| visualize_inventory_signal.py | `-o path.png` | 指定輸出路徑 |
 </scripts_index>
 
 <input_parameters>
@@ -185,18 +188,35 @@ analyze-copper-inventory-rebuild-signal/
 
 **視覺化輸出：Bloomberg 風格銅庫存回補訊號儀表板**
 
-包含三張圖（上中下排列）：
+遵循 `thoughts/shared/guide/bloomberg-style-chart-guide.md` 規範設計。
 
-1. **銅價 + SHFE 庫存對照**：雙軸圖，標記「訊號觸發點」
-2. **回補速度 z-score**：時序圖 + 門檻線（±1.5, ±2.0）
-3. **庫存水位分位數**：熱力條形圖
+包含三個區塊（上中下排列）：
 
-**配色**：Bloomberg 深色主題
-- 背景: `#1a1a2e`
-- 銅價: `#ffa500` (橙色)
-- SHFE 庫存: `#00bfff` (天藍)
-- 訊號觸發: `#ff4444` (紅色)
-- 中性區: `#888888` (灰色)
+1. **銅價 + 總庫存對照**（雙軸圖）
+   - R1 右軸：銅價（橙紅色線）
+   - L2 左軸：總庫存面積圖（SHFE + COMEX 疊加）
+   - 標記 CAUTION 訊號觸發點
+   - 最新價格標註
+
+2. **回補速度 z-score**（時序圖）
+   - SHFE z-score：面積填充（紅/青色區分回補/去庫存）
+   - COMEX z-score：虛線疊加
+   - 門檻線（z=1.5, z=2.0, z=-1.5）
+
+3. **訊號狀態儀表板**
+   - 短期訊號區塊（CAUTION/NEUTRAL/SUPPORTIVE）
+   - 長期判斷區塊（CHEAP/FAIR/RICH）
+   - SHFE/COMEX z-score 即時數值
+
+**配色**：Bloomberg 深色主題（依據 bloomberg-style-chart-guide.md）
+- 背景: `#1a1a2e`（深藍黑色）
+- 網格: `#2d2d44`（暗灰紫）
+- 銅價（primary）: `#ff6b35`（橙紅色）
+- SHFE 庫存（secondary）: `#ffaa00`（橙黃色）
+- COMEX 庫存（tertiary）: `#ffff00`（黃色）
+- CAUTION 訊號: `#ff4444`（紅色）
+- SUPPORTIVE: `#00ff88`（綠色）
+- 中性: `#888888`（灰色）
 
 **快速繪圖**：
 ```bash
@@ -204,7 +224,9 @@ cd scripts
 python visualize_inventory_signal.py
 ```
 
-**輸出路徑**：`output/copper_inventory_signal.png`
+**輸出路徑**：`{專案根目錄}/output/copper_inventory_signal_YYYY-MM-DD.png`
+
+圖表會自動輸出到專案根目錄的 `output/` 資料夾，檔名包含當天日期。
 
 </visualization>
 
