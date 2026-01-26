@@ -91,13 +91,12 @@ description: 檢查聯準會持有證券的未攤銷折價（Unamortized Discoun
 
 ```bash
 cd skills/detect-fed-unamortized-discount-pattern
-pip install pandas numpy requests scipy  # 首次使用
+pip install pandas numpy requests scipy matplotlib  # 首次使用
 python scripts/pattern_detector.py --quick
 ```
 
 輸出：
 - `output/pattern_analysis_YYYY-MM-DD.json` - JSON 結果
-- `output/pattern_comparison_YYYY-MM-DD.png` - 形狀比對圖（若安裝 matplotlib）
 
 **完整分析（指定參數）**：
 ```bash
@@ -108,10 +107,19 @@ python scripts/pattern_detector.py \
   --output result.json
 ```
 
-**快速視覺化**：
+**Bloomberg 風格視覺化**（輸出至專案根目錄 output/）：
 ```bash
-python scripts/visualize_pattern.py -o output
+python scripts/visualize_pattern.py
 ```
+
+使用現有分析結果生成圖表：
+```bash
+python scripts/visualize_pattern.py --json output/pattern_analysis_YYYY-MM-DD.json
+```
+
+輸出圖表：
+- `output/fed_unamortized_discount_pattern_YYYY-MM-DD.png` - 形狀比對與壓力儀表板
+- `output/fed_unamortized_discount_history_YYYY-MM-DD.png` - 歷史走勢總覽
 
 </quick_start>
 
@@ -208,12 +216,13 @@ detect-fed-unamortized-discount-pattern/
 </templates_index>
 
 <scripts_index>
-| Script               | Command           | Purpose          |
-|----------------------|-------------------|------------------|
-| pattern_detector.py  | `--quick`         | 快速檢查當前狀態 |
-| pattern_detector.py  | `--output FILE`   | 完整分析         |
-| visualize_pattern.py | `-o output`       | 視覺化分析       |
-| fetch_data.py        | `--series WUDSHO` | 抓取 FRED 資料   |
+| Script               | Command              | Purpose                              |
+|----------------------|----------------------|--------------------------------------|
+| pattern_detector.py  | `--quick`            | 快速檢查當前狀態                     |
+| pattern_detector.py  | `--output FILE`      | 完整分析                             |
+| visualize_pattern.py | （無參數）           | Bloomberg 風格視覺化（輸出至專案根目錄 output/） |
+| visualize_pattern.py | `--json FILE`        | 使用現有 JSON 結果生成圖表           |
+| fetch_data.py        | `--series WUDSHO`    | 抓取 FRED 資料                       |
 </scripts_index>
 
 <input_schema_summary>
@@ -297,13 +306,16 @@ detect-fed-unamortized-discount-pattern/
 - [ ] 解讀框架（summary、what_to_watch、rebuttal）
 - [ ] 資料品質說明與風險警語（caveats）
 
-**視覺化輸出**（使用 visualize_pattern.py）：
+**視覺化輸出**（使用 visualize_pattern.py，Bloomberg 風格）：
 
-- [ ] 形狀比對圖（`pattern_comparison_YYYY-MM-DD.png`）
-  - 近期窗口 vs. 歷史基準窗口的疊加圖
-  - 正規化後的形狀對比
-  - 相似度分數標註
-- [ ] 壓力指標儀表板（`stress_dashboard_YYYY-MM-DD.png`）
-  - 各交叉驗證指標的當前狀態
-  - 歷史分位數標示
+- [ ] 形狀比對與壓力儀表板圖（`fed_unamortized_discount_pattern_YYYY-MM-DD.png`）
+  - 上左：近期 vs. 歷史基準窗口的正規化形狀比對
+  - 上右：相似度分數面板（corr、DTW、feature_sim、綜合風險）
+  - 下左：壓力驗證指標水平條圖（Z-Score）
+  - 下右：解讀說明（訊號統計、結論）
+- [ ] 歷史走勢總覽圖（`fed_unamortized_discount_history_YYYY-MM-DD.png`）
+  - 完整 WUDSHO 歷史走勢
+  - 歷史基準窗口標記（COVID_2020、GFC_2008、TAPER_2013、RATE_HIKE_2022）
+  - 近期窗口與最佳匹配片段高亮
+  - 最新值標註
 </success_criteria>
