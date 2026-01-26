@@ -111,24 +111,6 @@
       ]
     },
     {
-      "name": "monitor-etf-holdings-drawdown-risk",
-      "description": "偵測「商品價格上漲、但對應實物 ETF/信託持倉卻下滑」的背離現象，並用多指標交叉驗證，評估是否存在實物供給緊張/交割壓力風險",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/monitor-etf-holdings-drawdown-risk",
-      "category": "indicator-monitoring",
-      "tags": [
-        "ETF",
-        "持倉監控",
-        "背離分析",
-        "實物短缺",
-        "白銀",
-        "黃金"
-      ]
-    },
-    {
       "name": "lithium-supply-demand-gap-radar",
       "description": "將鋰產業鏈（礦端 → 精煉化學品 → 電池與終端需求），整合為一套可運算的替代指標；再把這些指標映射到鋰主題 ETF（如 LIT）的成分暴露與長期價格走勢，形成可供決策的依據。 ",
       "version": "0.1.0",
@@ -198,6 +180,24 @@
         "指數成長",
         "技術分析",
         "宏觀分析"
+      ]
+    },
+    {
+      "name": "monitor-etf-holdings-drawdown-risk",
+      "description": "偵測「商品價格上漲、但對應實物 ETF/信託持倉卻下滑」的背離現象，並用多指標交叉驗證，評估是否存在實物供給緊張/交割壓力風險",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/monitor-etf-holdings-drawdown-risk",
+      "category": "indicator-monitoring",
+      "tags": [
+        "ETF",
+        "持倉監控",
+        "背離分析",
+        "實物短缺",
+        "白銀",
+        "黃金"
       ]
     },
     {
@@ -291,24 +291,6 @@
       ]
     },
     {
-      "name": "detect-atr-squeeze-regime",
-      "description": "以 14 日指數平滑 ATR 偵測市場是否從秩序型趨勢轉為波動主導的擠壓（squeeze）行情，並輸出對技術位、停損、交易持有期的可行性評估。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/detect-atr-squeeze-regime",
-      "category": "indicator-monitoring",
-      "tags": [
-        "ATR",
-        "波動率",
-        "擠壓行情",
-        "停損管理",
-        "風險控制",
-        "技術分析"
-      ]
-    },
-    {
       "name": "demographic-fiscal-trap-analyzer",
       "description": "分析人口老化、債務動態、官僚膨脹與通膨稀釋交互作用下的「財政陷阱」風險，量化各國/地區的財政脆弱度並識別潛在的貨幣稀釋路徑",
       "version": "0.1.0",
@@ -336,6 +318,42 @@
       "source": "./skills/cost-density-net-rr-calculator",
       "category": "indicator-monitoring",
       "tags": []
+    },
+    {
+      "name": "detect-atr-squeeze-regime",
+      "description": "以 14 日指數平滑 ATR 偵測市場是否從秩序型趨勢轉為波動主導的擠壓（squeeze）行情，並輸出對技術位、停損、交易持有期的可行性評估。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-atr-squeeze-regime",
+      "category": "indicator-monitoring",
+      "tags": [
+        "ATR",
+        "波動率",
+        "擠壓行情",
+        "停損管理",
+        "風險控制",
+        "技術分析"
+      ]
+    },
+    {
+      "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
+      "description": "從網路自動抓取礦業公司財務報表與營運揭露（產量、成本、資本支出），回算「礦業股/金屬本體比率」的基本面解釋與區間門檻（如 1.2/1.7），並輸出可重現的估值拆解（成本因子 / 槓桿因子 / 倍數因子 / 稀釋因子）。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/backsolve-miner-vs-metal-ratio-with-fundamentals",
+      "category": "commodity-sd",
+      "tags": [
+        "礦業股",
+        "基本面",
+        "AISC",
+        "槓桿",
+        "倍數",
+        "稀釋"
+      ]
     },
     {
       "name": "analyze-us-bank-credit-deposit-decoupling",
@@ -425,24 +443,6 @@
         "金融環境",
         "資產配置",
         "象限分析"
-      ]
-    },
-    {
-      "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
-      "description": "從網路自動抓取礦業公司財務報表與營運揭露（產量、成本、資本支出），回算「礦業股/金屬本體比率」的基本面解釋與區間門檻（如 1.2/1.7），並輸出可重現的估值拆解（成本因子 / 槓桿因子 / 倍數因子 / 稀釋因子）。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/backsolve-miner-vs-metal-ratio-with-fundamentals",
-      "category": "commodity-sd",
-      "tags": [
-        "礦業股",
-        "基本面",
-        "AISC",
-        "槓桿",
-        "倍數",
-        "稀釋"
       ]
     },
     {
