@@ -99,7 +99,7 @@
   },
   "data_sources": [
     {
-      "name": "OWID Minerals",
+      "name": "MacroMicro (WBMS)",
       "tier": 0,
       "confidence": 0.9
     }

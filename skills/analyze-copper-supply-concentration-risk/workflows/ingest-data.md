@@ -3,6 +3,7 @@
 <required_reading>
 **讀取以下參考文件：**
 1. references/data-sources.md
+2. thoughts/shared/guide/macromicro-highcharts-crawler.md
 </required_reading>
 
 <process>
@@ -13,42 +14,148 @@ commodity: "copper"
 start_year: 1970
 end_year: 2023
 sources:
-  - OWID   # 主要來源
-  - USGS   # 驗證來源
+  - MacroMicro   # 唯一主要來源（WBMS 數據）
 output_dir: "data/"
 cache_enabled: true
 cache_ttl_days: 7
 ```
 
-## Step 2: 擷取 OWID Minerals 數據
+> **注意**：本技能僅使用 MacroMicro (WBMS) 作為產量數據的唯一主要來源。
 
-OWID 提供免費、長序列的礦產數據。
+## Step 2: 擷取 MacroMicro 銅礦產量數據
+
+MacroMicro 提供 WBMS（World Bureau of Metal Statistics）銅礦產量數據，包含全球及各主要產銅國的歷史產量。
 
 **數據源 URL**：
 ```
-https://raw.githubusercontent.com/owid/owid-datasets/master/datasets/Copper%20mine%20production%20(USGS%20%26%20BGS)/Copper%20mine%20production%20(USGS%20%26%20BGS).csv
+https://en.macromicro.me/charts/91500/wbms-copper-mine-production-total-world
 ```
+
+**擷取方式**：
+使用 Selenium 模擬瀏覽器，從 Highcharts 圖表提取數據。
 
 **擷取腳本**：
 
 ```python
-import pandas as pd
-import requests
+import random
+import time
+import json
 from pathlib import Path
 from datetime import datetime
 
-OWID_COPPER_URL = "https://raw.githubusercontent.com/owid/owid-datasets/master/datasets/Copper%20mine%20production%20(USGS%20%26%20BGS)/Copper%20mine%20production%20(USGS%20%26%20BGS).csv"
+import pandas as pd
 
-def fetch_owid_copper(start_year: int, end_year: int, cache_dir: Path = Path("data/cache")):
+# MacroMicro 爬蟲配置
+MACROMICRO_URL = "https://en.macromicro.me/charts/91500/wbms-copper-mine-production-total-world"
+CHART_WAIT_SECONDS = 35  # Highcharts 渲染需要長時間等待
+
+# User-Agent 清單（防偵測）
+USER_AGENTS = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36...',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36...',
+]
+
+# Highcharts 數據提取 JavaScript
+EXTRACT_HIGHCHARTS_JS = '''
+(function() {
+    if (typeof Highcharts === 'undefined' || !Highcharts.charts) {
+        return JSON.stringify({error: 'Highcharts not found', retry: true});
+    }
+
+    var charts = Highcharts.charts.filter(c => c !== undefined && c !== null);
+    if (charts.length === 0) {
+        return JSON.stringify({error: 'No charts found', retry: true});
+    }
+
+    var result = [];
+    for (var i = 0; i < charts.length; i++) {
+        var chart = charts[i];
+        var chartInfo = {
+            title: chart.title ? chart.title.textStr : 'Chart ' + i,
+            series: []
+        };
+
+        for (var j = 0; j < chart.series.length; j++) {
+            var s = chart.series[j];
+            var seriesData = [];
+
+            // 優先使用 xData/yData
+            if (s.xData && s.xData.length > 0) {
+                for (var k = 0; k < s.xData.length; k++) {
+                    seriesData.push({
+                        x: s.xData[k],
+                        y: s.yData[k],
+                        date: new Date(s.xData[k]).toISOString().split('T')[0]
+                    });
+                }
+            } else if (s.data && s.data.length > 0) {
+                seriesData = s.data.map(function(point) {
+                    return {
+                        x: point.x,
+                        y: point.y,
+                        date: point.x ? new Date(point.x).toISOString().split('T')[0] : null
+                    };
+                });
+            }
+
+            chartInfo.series.push({
+                name: s.name,
+                type: s.type,
+                dataLength: seriesData.length,
+                data: seriesData
+            });
+        }
+        result.push(chartInfo);
+    }
+    return JSON.stringify(result);
+})()
+'''
+
+
+def get_selenium_driver():
+    """建立 Selenium WebDriver（帶防偵測配置）"""
+    from selenium import webdriver
+    from selenium.webdriver.chrome.service import Service
+    from selenium.webdriver.chrome.options import Options
+    from webdriver_manager.chrome import ChromeDriverManager
+
+    chrome_options = Options()
+    chrome_options.add_argument('--headless=new')
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--window-size=1920,1080')
+
+    # 防偵測設定
+    chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+    chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
+    chrome_options.add_experimental_option('useAutomationExtension', False)
+
+    # 隨機 User-Agent
+    user_agent = random.choice(USER_AGENTS)
+    chrome_options.add_argument(f'user-agent={user_agent}')
+
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+    driver.set_page_load_timeout(120)
+
+    return driver
+
+
+def fetch_macromicro_copper(start_year: int, end_year: int, cache_dir: Path = Path("data/cache")):
     """
-    從 OWID 擷取銅產量數據
+    從 MacroMicro 擷取銅產量數據
 
     Returns:
     --------
-    pd.DataFrame with columns: year, country, production, unit, source_id
+    pd.DataFrame with columns: year, country, production, unit, source_id, confidence
     """
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+
     cache_dir.mkdir(parents=True, exist_ok=True)
-    cache_file = cache_dir / f"owid_copper_{start_year}_{end_year}.csv"
+    cache_file = cache_dir / f"macromicro_copper_{start_year}_{end_year}.csv"
 
     # 檢查快取
     if cache_file.exists():
@@ -57,119 +164,132 @@ def fetch_owid_copper(start_year: int, end_year: int, cache_dir: Path = Path("da
             print(f"使用快取: {cache_file}")
             return pd.read_csv(cache_file)
 
-    # 下載數據
-    print(f"從 OWID 下載銅產量數據...")
-    response = requests.get(OWID_COPPER_URL, timeout=30)
-    response.raise_for_status()
+    driver = None
+    try:
+        # 隨機延遲
+        delay = random.uniform(1.0, 2.0)
+        print(f"請求前延遲 {delay:.2f} 秒...")
+        time.sleep(delay)
 
-    # 解析 CSV
-    from io import StringIO
-    df = pd.read_csv(StringIO(response.text))
+        # 啟動瀏覽器
+        driver = get_selenium_driver()
+        print(f"正在抓取: {MACROMICRO_URL}")
+        driver.get(MACROMICRO_URL)
 
-    # 標準化欄位名稱
-    df = df.rename(columns={
-        "Entity": "country",
-        "Year": "year",
-        "Copper mine production (USGS & BGS)": "production"
-    })
+        # 等待頁面載入
+        time.sleep(5)
+        driver.execute_script('window.scrollTo(0, 0);')
+        time.sleep(3)
 
-    # 過濾年份
-    df = df[(df.year >= start_year) & (df.year <= end_year)]
+        # 等待圖表區域
+        chart_selectors = ['.highcharts-container', '[data-highcharts-chart]']
+        for selector in chart_selectors:
+            try:
+                WebDriverWait(driver, 30).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, selector))
+                )
+                break
+            except:
+                continue
 
-    # 添加標準化欄位
-    df["unit"] = "t_Cu_content"
-    df["source_id"] = "OWID"
-    df["confidence"] = 0.9
+        # 🔴 長時間等待 Highcharts 渲染
+        print(f"等待圖表渲染 ({CHART_WAIT_SECONDS}秒)...")
+        time.sleep(CHART_WAIT_SECONDS)
 
-    # 保存快取
-    df.to_csv(cache_file, index=False)
-    print(f"數據已快取: {cache_file}")
+        # 執行 JavaScript 提取數據
+        result = driver.execute_script(f"return {EXTRACT_HIGHCHARTS_JS}")
+        chart_data = json.loads(result) if isinstance(result, str) else result
 
-    return df[["year", "country", "production", "unit", "source_id", "confidence"]]
+        if isinstance(chart_data, dict) and 'error' in chart_data:
+            raise ValueError(f"提取失敗: {chart_data['error']}")
+
+        # 解析數據
+        all_data = []
+        for chart in chart_data:
+            for series in chart.get('series', []):
+                series_name = series.get('name', '')
+                for point in series.get('data', []):
+                    if point.get('y') is None:
+                        continue
+                    try:
+                        year = int(point['date'][:4])
+                        if year < start_year or year > end_year:
+                            continue
+                        all_data.append({
+                            'year': year,
+                            'country': normalize_country_name(series_name),
+                            'production': float(point['y']) * 1000,  # 千噸 -> 噸
+                            'unit': 't_Cu_content',
+                            'source_id': 'MacroMicro',
+                            'confidence': 0.9,
+                            'date': point['date']
+                        })
+                    except (ValueError, TypeError):
+                        continue
+
+        df = pd.DataFrame(all_data)
+
+        # 去重：每年每國只保留一筆
+        df = df.sort_values(['year', 'country', 'date'])
+        df = df.groupby(['year', 'country']).last().reset_index()
+        df = df[['year', 'country', 'production', 'unit', 'source_id', 'confidence']]
+
+        # 保存快取
+        df.to_csv(cache_file, index=False)
+        print(f"數據已快取: {cache_file}")
+
+        return df
+
+    finally:
+        if driver:
+            driver.quit()
 ```
 
-## Step 3: 擷取 USGS 數據（驗證用）
-
-USGS 提供官方統計數據，用於交叉驗證最新年度。
-
-**數據源**：
-- 頁面：https://www.usgs.gov/centers/national-minerals-information-center/copper-statistics-and-information
-- 下載：Mineral Commodity Summaries（年度 PDF）
-
-**注意**：USGS 數據通常需要手動下載 PDF 或使用他們的 Data Series。
-對於自動化擷取，建議：
+## Step 3: 國家名稱標準化
 
 ```python
-def fetch_usgs_copper_summary(year: int):
-    """
-    從 USGS 擷取銅產量摘要（最新年度驗證用）
-
-    注意：USGS 數據格式較複雜，這裡提供簡化版本
-    實際使用可能需要解析 PDF 或使用 API
-    """
-    # USGS Data Series 提供歷史數據
-    # https://pubs.usgs.gov/ds/140/
-    # https://www.usgs.gov/centers/national-minerals-information-center/historical-statistics-mineral-and-material-commodities
-
-    # 簡化版：使用預設值作為最新年度錨點
-    usgs_latest = {
-        2023: {
-            "World": 22000000,
-            "Chile": 5260000,
-            "Peru": 2000000,
-            "DRC": 1860000,
-            "China": 1700000,
-            "USA": 1100000
-        }
-    }
-
-    return usgs_latest.get(year, {})
-```
-
-## Step 4: 數據標準化
-
-將所有來源數據轉換為統一 schema：
-
-```python
-def normalize_production_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    標準化產量數據
-
-    統一 Schema:
-    - year: int
-    - country: str (標準化國家名)
-    - production: float (公噸)
-    - unit: str ("t_Cu_content")
-    - source_id: str ("OWID" | "USGS")
-    - confidence: float (0-1)
-    """
-    # 國家名稱標準化映射
-    country_mapping = {
+def normalize_country_name(name: str) -> str:
+    """標準化國家名稱"""
+    mapping = {
+        # 英文變體
         "Democratic Republic of the Congo": "Democratic Republic of Congo",
         "DRC": "Democratic Republic of Congo",
         "Congo, Dem. Rep.": "Democratic Republic of Congo",
+        "D.R. Congo": "Democratic Republic of Congo",
         "United States of America": "United States",
         "USA": "United States",
         "US": "United States",
         "Russian Federation": "Russia",
-        "USSR": "Russia",  # 歷史數據
+        "USSR": "Russia",
+        # 中文
+        "智利": "Chile",
+        "秘魯": "Peru",
+        "中國": "China",
+        "美國": "United States",
+        "俄羅斯": "Russia",
+        "澳洲": "Australia",
+        "墨西哥": "Mexico",
+        "加拿大": "Canada",
+        "印尼": "Indonesia",
+        "贊比亞": "Zambia",
+        "哈薩克": "Kazakhstan",
+        "剛果民主共和國": "Democratic Republic of Congo",
+        "全球": "World",
+        "世界": "World",
     }
 
-    df = df.copy()
-    df["country"] = df["country"].replace(country_mapping)
+    if name in mapping:
+        return mapping[name]
 
-    # 確保數值類型
-    df["year"] = df["year"].astype(int)
-    df["production"] = pd.to_numeric(df["production"], errors="coerce")
+    name_lower = name.lower()
+    for key, value in mapping.items():
+        if key.lower() in name_lower or name_lower in key.lower():
+            return value
 
-    # 過濾無效數據
-    df = df.dropna(subset=["production"])
-    df = df[df["production"] > 0]
-
-    return df
+    return name
 ```
 
-## Step 5: 數據驗證
+## Step 4: 數據驗證
 
 ```python
 def validate_data(df: pd.DataFrame, end_year: int) -> dict:
@@ -197,52 +317,18 @@ def validate_data(df: pd.DataFrame, end_year: int) -> dict:
     if results["latest_year_records"] < 10:
         results["issues"].append(f"最新年度（{end_year}）記錄過少")
 
-    # 檢查是否有重大缺值
-    for year in range(end_year - 5, end_year + 1):
-        year_data = df[df.year == year]
-        if len(year_data) < 5:
-            results["issues"].append(f"{year} 年數據不完整")
+    # 檢查主要產銅國是否都有數據
+    major_countries = ["Chile", "Peru", "China", "Democratic Republic of Congo"]
+    for country in major_countries:
+        if country not in df.country.values:
+            results["issues"].append(f"缺少 {country} 數據")
 
     results["is_valid"] = len(results["issues"]) == 0
 
     return results
 ```
 
-## Step 6: 交叉驗證（OWID vs USGS）
-
-```python
-def cross_validate(owid_df: pd.DataFrame, usgs_data: dict, year: int) -> dict:
-    """
-    交叉驗證 OWID 與 USGS 數據
-
-    Returns:
-    --------
-    dict with comparison results
-    """
-    owid_year = owid_df[owid_df.year == year]
-
-    comparisons = []
-    for country, usgs_value in usgs_data.items():
-        owid_value = owid_year[owid_year.country == country]["production"].values
-        if len(owid_value) > 0:
-            owid_value = owid_value[0]
-            diff_pct = abs(owid_value - usgs_value) / usgs_value
-            comparisons.append({
-                "country": country,
-                "owid": owid_value,
-                "usgs": usgs_value,
-                "diff_pct": diff_pct,
-                "is_aligned": diff_pct < 0.05  # 5% 容差
-            })
-
-    return {
-        "year": year,
-        "comparisons": comparisons,
-        "all_aligned": all(c["is_aligned"] for c in comparisons)
-    }
-```
-
-## Step 7: 保存標準化數據
+## Step 5: 保存標準化數據
 
 ```python
 def save_normalized_data(df: pd.DataFrame, output_dir: Path = Path("data")):
@@ -262,10 +348,10 @@ def save_normalized_data(df: pd.DataFrame, output_dir: Path = Path("data")):
         "records": len(df),
         "year_range": f"{df.year.min()}-{df.year.max()}",
         "countries": df.country.nunique(),
-        "sources": df.source_id.unique().tolist()
+        "source": "MacroMicro (WBMS)",
+        "url": MACROMICRO_URL
     }
 
-    import json
     meta_file = output_dir / "copper_production_metadata.json"
     with open(meta_file, "w") as f:
         json.dump(metadata, f, indent=2)
@@ -273,7 +359,7 @@ def save_normalized_data(df: pd.DataFrame, output_dir: Path = Path("data")):
     return output_file
 ```
 
-## Step 8: 完整擷取流程
+## Step 6: 完整擷取流程
 
 ```python
 def run_ingestion_pipeline(
@@ -285,54 +371,94 @@ def run_ingestion_pipeline(
     執行完整數據擷取流程
     """
     print("=" * 50)
-    print("銅產量數據擷取流程")
+    print("銅產量數據擷取流程（數據來源：MacroMicro）")
     print("=" * 50)
 
-    # Step 1: 擷取 OWID 數據
-    print("\n[1/5] 擷取 OWID 數據...")
-    owid_df = fetch_owid_copper(start_year, end_year)
-    print(f"  - 擷取 {len(owid_df)} 筆記錄")
+    # Step 1: 擷取 MacroMicro 數據
+    print("\n[1/3] 擷取 MacroMicro 數據...")
+    df = fetch_macromicro_copper(start_year, end_year)
+    print(f"  - 擷取 {len(df)} 筆記錄")
 
-    # Step 2: 標準化
-    print("\n[2/5] 標準化數據...")
-    normalized_df = normalize_production_data(owid_df)
-    print(f"  - 標準化後 {len(normalized_df)} 筆記錄")
-
-    # Step 3: 驗證
-    print("\n[3/5] 驗證數據...")
-    validation = validate_data(normalized_df, end_year)
+    # Step 2: 驗證
+    print("\n[2/3] 驗證數據...")
+    validation = validate_data(df, end_year)
     print(f"  - 驗證結果: {'通過' if validation['is_valid'] else '有問題'}")
     if validation["issues"]:
         for issue in validation["issues"]:
             print(f"    ⚠️ {issue}")
 
-    # Step 4: 交叉驗證（可選）
-    print("\n[4/5] 交叉驗證...")
-    usgs_latest = fetch_usgs_copper_summary(end_year)
-    if usgs_latest:
-        cross_val = cross_validate(normalized_df, usgs_latest, end_year)
-        print(f"  - OWID vs USGS 對齊: {'是' if cross_val['all_aligned'] else '否'}")
-
-    # Step 5: 保存
-    print("\n[5/5] 保存數據...")
-    output_file = save_normalized_data(normalized_df, output_dir)
+    # Step 3: 保存
+    print("\n[3/3] 保存數據...")
+    output_file = save_normalized_data(df, output_dir)
 
     print("\n" + "=" * 50)
     print("擷取完成！")
     print(f"輸出檔案: {output_file}")
     print("=" * 50)
 
-    return normalized_df
+    return df
 
 # 執行
 if __name__ == "__main__":
     df = run_ingestion_pipeline()
 ```
+
+## 替代方案：Chrome CDP 連接
+
+如果 Selenium headless 被 Cloudflare 擋住，可使用 Chrome CDP 方式：
+
+**Step 1: 啟動 Chrome 調試模式**
+
+```bash
+# Windows
+"C:\Program Files\Google\Chrome\Application\chrome.exe" ^
+  --remote-debugging-port=9222 ^
+  --remote-allow-origins=* ^
+  --user-data-dir="%USERPROFILE%\.chrome-debug-profile" ^
+  "https://en.macromicro.me/charts/91500/wbms-copper-mine-production-total-world"
+```
+
+**Step 2: 等待頁面完全載入**（圖表顯示）
+
+**Step 3: 使用 CDP 提取數據**
+
+```python
+import requests
+import websocket
+import json
+
+CDP_PORT = 9222
+
+def get_page_ws_url():
+    resp = requests.get(f'http://127.0.0.1:{CDP_PORT}/json', timeout=5)
+    pages = resp.json()
+    for page in pages:
+        if 'macromicro' in page.get('url', '').lower():
+            return page.get('webSocketDebuggerUrl')
+    return pages[0].get('webSocketDebuggerUrl') if pages else None
+
+def execute_js(ws_url, js_code):
+    ws = websocket.create_connection(ws_url, timeout=30)
+    cmd = {
+        "id": 1,
+        "method": "Runtime.evaluate",
+        "params": {"expression": js_code, "returnByValue": True}
+    }
+    ws.send(json.dumps(cmd))
+    result = json.loads(ws.recv())
+    ws.close()
+    return result
+
+# 使用
+ws_url = get_page_ws_url()
+result = execute_js(ws_url, EXTRACT_HIGHCHARTS_JS)
+chart_data = json.loads(result['result']['result']['value'])
+```
 </process>
 
 <success_criteria>
 此 workflow 完成時：
-- [ ] OWID 銅產量數據已擷取
+- [ ] MacroMicro 銅產量數據已擷取
 - [ ] 數據已標準化為統一 schema
 - [ ] 國家名稱已標準化
 - [ ] 數據完整性已驗證

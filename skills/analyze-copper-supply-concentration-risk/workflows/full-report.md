@@ -58,15 +58,26 @@ output_format: "markdown"  # markdown | json
 
 ## Step 2: 執行數據擷取
 
+使用 Chrome CDP 方式從 MacroMicro 擷取數據：
+
+**Step 2.1: 啟動 Chrome 調試模式**
 ```bash
-python scripts/copper_pipeline.py ingest \
-  --start={start_year} --end={end_year} \
-  --sources=OWID,USGS
+"C:\Program Files\Google\Chrome\Application\chrome.exe" ^
+  --remote-debugging-port=9222 ^
+  --remote-allow-origins=* ^
+  --user-data-dir="%USERPROFILE%\.chrome-debug-profile" ^
+  "https://en.macromicro.me/charts/91500/wbms-copper-mine-production-total-world"
+```
+
+**Step 2.2: 等待圖表完全載入**（約 35 秒）
+
+**Step 2.3: 執行數據擷取**
+```bash
+python scripts/copper_pipeline.py ingest --start={start_year} --end={end_year}
 ```
 
 等待數據擷取完成，確認：
-- OWID Minerals 銅產量數據已下載
-- USGS 最新年度數據已驗證
+- MacroMicro (WBMS) 銅產量數據已下載
 - 數據已標準化為統一 schema
 
 ## Step 3: 執行命題 A - 集中度分析
@@ -375,8 +386,7 @@ python scripts/visualize_analysis.py --mode=full-report
 
 | 來源 | Tier | 用途 |
 |------|------|------|
-| OWID Minerals | 0 | 主幹產量數據（1900年起） |
-| USGS MCS | 0 | 官方口徑驗證 |
+| MacroMicro (WBMS) | 0 | 主幹產量數據（唯一主要來源） |
 | GDELT | 3 | 地緣風險事件 |
 
 ### 口徑說明
