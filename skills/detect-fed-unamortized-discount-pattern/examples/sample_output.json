@@ -1,0 +1,203 @@
+{
+  "skill": "detect-fed-unamortized-discount-pattern",
+  "version": "0.1.0",
+  "as_of_date": "2026-01-26",
+  "target_series": "WUDSHO",
+  "parameters": {
+    "recent_window_days": 120,
+    "resample_freq": "W",
+    "normalize_method": "zscore",
+    "similarity_metrics": [
+      "corr",
+      "dtw",
+      "shape_features"
+    ]
+  },
+  "best_match": {
+    "baseline": "COVID_2020",
+    "segment_start": "2020-01-08",
+    "segment_end": "2020-06-17",
+    "corr": 0.91,
+    "dtw": 0.38,
+    "feature_sim": 0.82,
+    "pattern_similarity_score": 0.88
+  },
+  "all_matches": [
+    {
+      "baseline": "COVID_2020",
+      "segment_start": "2020-01-08",
+      "segment_end": "2020-06-17",
+      "corr": 0.91,
+      "dtw": 0.38,
+      "feature_sim": 0.82,
+      "pattern_similarity_score": 0.88
+    },
+    {
+      "baseline": "RATE_HIKE_2022",
+      "segment_start": "2022-03-01",
+      "segment_end": "2022-07-15",
+      "corr": 0.78,
+      "dtw": 0.55,
+      "feature_sim": 0.75,
+      "pattern_similarity_score": 0.75
+    },
+    {
+      "baseline": "TAPER_2013",
+      "segment_start": "2013-05-15",
+      "segment_end": "2013-09-20",
+      "corr": 0.72,
+      "dtw": 0.65,
+      "feature_sim": 0.68,
+      "pattern_similarity_score": 0.68
+    },
+    {
+      "baseline": "GFC_2008",
+      "segment_start": "2008-10-01",
+      "segment_end": "2009-02-15",
+      "corr": 0.45,
+      "dtw": 1.2,
+      "feature_sim": 0.38,
+      "pattern_similarity_score": 0.38
+    }
+  ],
+  "stress_confirmation": {
+    "score": 0.22,
+    "details": [
+      {
+        "name": "credit_spread",
+        "series": "BAMLC0A0CM",
+        "current_value": 1.05,
+        "historical_mean": 0.95,
+        "historical_std": 0.25,
+        "z": 0.4,
+        "signal": "neutral",
+        "weight": 0.25
+      },
+      {
+        "name": "equity_vol",
+        "series": "VIXCLS",
+        "current_value": 14.5,
+        "historical_mean": 18.2,
+        "historical_std": 8.5,
+        "z": -0.44,
+        "signal": "mild_risk_on",
+        "weight": 0.2
+      },
+      {
+        "name": "hy_spread",
+        "series": "BAMLH0A0HYM2",
+        "current_value": 3.2,
+        "historical_mean": 3.0,
+        "historical_std": 1.2,
+        "z": 0.17,
+        "signal": "neutral",
+        "weight": 0.2
+      },
+      {
+        "name": "yield_curve",
+        "series": "yield_curve",
+        "current_value": 0.15,
+        "historical_mean": 0.8,
+        "historical_std": 0.6,
+        "z": -1.08,
+        "signal": "mild_stress",
+        "weight": 0.15
+      },
+      {
+        "name": "fed_balance",
+        "series": "WALCL",
+        "current_value": 7500000,
+        "historical_mean": 7200000,
+        "historical_std": 500000,
+        "z": 0.6,
+        "signal": "neutral",
+        "weight": 0.2
+      }
+    ]
+  },
+  "composite_risk_score": 0.49,
+  "risk_level": "medium",
+  "interpretation": {
+    "summary": "走勢形狀與 COVID 早期片段相似度高（0.88），但壓力驗證指標偏中性（0.22），綜合風險分數 0.49（中等）。這更像是「利率/會計結構造成的圖形相似」，不足以支持「系統性壓力升高」的假說。",
+    "pattern_analysis": {
+      "finding": "近期 WUDSHO 走勢與 COVID_2020 的形狀相關係數為 0.91",
+      "possible_causes": [
+        "利率環境變化驅動（最可能）",
+        "持有債券久期結構調整",
+        "會計攤銷時程效果"
+      ],
+      "unlikely_cause": "系統性金融壓力（缺乏壓力指標共振）"
+    },
+    "stress_analysis": {
+      "finding": "壓力驗證指標大多處於中性區間",
+      "key_observations": [
+        "credit_spread: z=0.40, neutral",
+        "equity_vol: z=-0.44, mild_risk_on",
+        "hy_spread: z=0.17, neutral",
+        "yield_curve: z=-1.08, mild_stress",
+        "fed_balance: z=0.60, neutral"
+      ]
+    },
+    "what_to_watch_next_60d": [
+      "若形狀相似度維持高檔，同時信用利差明顯走寬（z > 1.5），才應升級風險警報",
+      "若 VIX 持續上升並突破 25，顯示市場開始定價風險",
+      "觀察 Fed 是否啟用緊急流動性工具"
+    ],
+    "rebuttal_to_claim": [
+      "「像」可以量化（相關係數 0.91），但「像 COVID」不等於「會發生 COVID 級事件」",
+      "WUDSHO 變動最常見的原因是利率效果，不是金融壓力",
+      "把「黑天鵝」定義成「精心策劃」屬於不可驗證敘事"
+    ]
+  },
+  "data_quality": {
+    "target_series": {
+      "series_id": "WUDSHO",
+      "data_start": "2015-01-07",
+      "data_end": "2026-01-22",
+      "frequency": "W",
+      "missing_values": 0
+    },
+    "confirmatory_series": [
+      {
+        "series_id": "BAMLC0A0CM",
+        "data_end": "2026-01-24",
+        "status": "ok"
+      },
+      {
+        "series_id": "VIXCLS",
+        "data_end": "2026-01-24",
+        "status": "ok"
+      },
+      {
+        "series_id": "BAMLH0A0HYM2",
+        "data_end": "2026-01-24",
+        "status": "ok"
+      },
+      {
+        "series_id": "DGS10",
+        "data_end": "2026-01-24",
+        "status": "ok"
+      },
+      {
+        "series_id": "DGS2",
+        "data_end": "2026-01-24",
+        "status": "ok"
+      },
+      {
+        "series_id": "WALCL",
+        "data_end": "2026-01-22",
+        "status": "ok"
+      }
+    ]
+  },
+  "caveats": [
+    "形狀相似不代表因果相同；該序列可能強烈受利率、持有期限結構與會計攤銷影響。",
+    "若缺乏壓力指標同步惡化，不應把圖形類比直接升級成『黑天鵝預言』。",
+    "本工具提供的是『樣態比對 + 交叉驗證』，不是預測器。",
+    "任何單一序列都不應被用來做高確信度的危機斷言。"
+  ],
+  "metadata": {
+    "executed_at": "2026-01-26T10:30:00+08:00",
+    "skill_version": "0.1.0"
+  }
+}

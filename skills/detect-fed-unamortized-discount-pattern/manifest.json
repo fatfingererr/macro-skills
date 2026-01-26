@@ -1,0 +1,192 @@
+{
+  "name": "detect-fed-unamortized-discount-pattern",
+  "version": "0.1.0",
+  "displayName": "判讀聯準會未攤銷折價走勢模式",
+  "description": "檢查聯準會持有證券的未攤銷折價（Unamortized Discounts）是否出現與特定歷史危機期間相似的走勢模板，並用多指標交叉驗證是否真的屬於「金融壓力升高」而非單純會計/利率效果",
+  "author": "Ricky Wang",
+  "license": "MIT",
+  "category": "liquidity-fci",
+  "tags": [
+    "聯準會",
+    "未攤銷折價",
+    "WUDSHO",
+    "流動性風險",
+    "金融壓力",
+    "交叉驗證",
+    "信用利差",
+    "FED"
+  ],
+  "dataLevel": "free-nolimit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "requests>=2.28.0",
+      "scipy>=1.9.0"
+    ],
+    "optional": [
+      "fastdtw>=0.3.0",
+      "matplotlib>=3.5.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/pattern_detector.py"
+  },
+  "workflows": [
+    {
+      "id": "execute-analysis",
+      "name": "完整形狀比對分析",
+      "description": "執行完整的形狀比對與交叉驗證",
+      "file": "workflows/execute-analysis.md"
+    },
+    {
+      "id": "visualize-analysis",
+      "name": "視覺化分析",
+      "description": "生成形狀比對圖表",
+      "file": "workflows/visualize-analysis.md"
+    },
+    {
+      "id": "historical-episodes",
+      "name": "歷史事件對照",
+      "description": "深入分析歷史基準窗口的後續發展",
+      "file": "workflows/historical-episodes.md"
+    }
+  ],
+  "references": [
+    "references/methodology.md",
+    "references/data-sources.md",
+    "references/wudsho-mechanism.md",
+    "references/input-schema.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md"
+  ],
+  "examples": [
+    "examples/sample_output.json"
+  ],
+  "dataSources": [
+    {
+      "name": "FRED",
+      "type": "primary",
+      "url": "https://fred.stlouisfed.org",
+      "api": "CSV endpoint（無需 API key）",
+      "series": {
+        "targetSeries": [
+          "WUDSHO"
+        ],
+        "creditSpread": [
+          "BAMLC0A0CM",
+          "BAMLH0A0HYM2"
+        ],
+        "volatility": [
+          "VIXCLS"
+        ],
+        "treasuryRates": [
+          "DGS10",
+          "DGS2"
+        ],
+        "fedBalance": [
+          "WALCL",
+          "WTREGEN"
+        ]
+      }
+    }
+  ],
+  "modelConfig": {
+    "defaultParams": {
+      "target_series": "WUDSHO",
+      "resample_freq": "W",
+      "normalize_method": "zscore",
+      "recent_window_days": 120,
+      "similarity_metrics": [
+        "corr",
+        "dtw",
+        "shape_features"
+      ],
+      "lookahead_days": 60
+    },
+    "alertThresholds": {
+      "corr_min": 0.7,
+      "dtw_max": 1.5,
+      "risk_score_min": 0.6
+    },
+    "baselineWindows": [
+      {
+        "name": "COVID_2020",
+        "start": "2020-01-01",
+        "end": "2020-06-30",
+        "context": "COVID-19 疫情初期市場恐慌",
+        "subsequent": "Fed 無限 QE，市場 V 型反轉"
+      },
+      {
+        "name": "GFC_2008",
+        "start": "2008-09-01",
+        "end": "2009-03-31",
+        "context": "全球金融危機",
+        "subsequent": "長期低利率、量化寬鬆開始"
+      },
+      {
+        "name": "TAPER_2013",
+        "start": "2013-05-01",
+        "end": "2013-09-30",
+        "context": "縮減恐慌（Taper Tantrum）",
+        "subsequent": "利率上升但經濟持續復甦"
+      },
+      {
+        "name": "RATE_HIKE_2022",
+        "start": "2022-01-01",
+        "end": "2022-12-31",
+        "context": "激進升息週期",
+        "subsequent": "SVB 事件、區域銀行危機"
+      }
+    ],
+    "confirmatoryIndicators": [
+      {
+        "name": "credit_spread",
+        "source": "FRED",
+        "series": "BAMLC0A0CM",
+        "description": "IG 信用利差",
+        "weight": 0.25,
+        "stressThreshold": 1.5
+      },
+      {
+        "name": "hy_spread",
+        "source": "FRED",
+        "series": "BAMLH0A0HYM2",
+        "description": "高收益債利差",
+        "weight": 0.20,
+        "stressThreshold": 1.5
+      },
+      {
+        "name": "equity_vol",
+        "source": "FRED",
+        "series": "VIXCLS",
+        "description": "VIX 波動率",
+        "weight": 0.20,
+        "stressThreshold": 1.5
+      },
+      {
+        "name": "yield_curve",
+        "source": "FRED",
+        "series": [
+          "DGS10",
+          "DGS2"
+        ],
+        "description": "殖利率曲線（10Y-2Y）",
+        "weight": 0.15,
+        "stressThreshold": -1.0
+      },
+      {
+        "name": "fed_balance",
+        "source": "FRED",
+        "series": "WALCL",
+        "description": "Fed 資產負債表總規模",
+        "weight": 0.20,
+        "stressThreshold": 1.0
+      }
+    ]
+  }
+}
