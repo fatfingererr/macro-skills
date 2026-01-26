@@ -1,114 +1,106 @@
-### 1.1 淨買入 (Net Purchases)
+# 方法論與計算邏輯
+
+## 1. 核心指標定義
+
+### 1.1 淨賣出 (Net Sale)
+
+**重要**：JSDA 使用「賣出 - 買入」計算差引：
 
 ```
-net_purchases = gross_purchases - gross_sales
+net_sale = 売付額 - 買付額 = gross_sales - gross_purchases
 ```
 
 | 值  | 意義                      |
 |-----|---------------------------|
-| > 0 | 淨買入（需求增加）        |
-| < 0 | 淨賣出（需求減少 / 拋售） |
+| > 0 | 淨賣出（賣出 > 買入，需求減少）|
+| < 0 | 淨買入（買入 > 賣出，需求增加）|
 | = 0 | 買賣相抵                  |
 
-**單位**：十億日圓（¥B）或兆日圓（¥T）
+**單位**：億日圓（100 million yen）
 
-### 1.2 連續賣超月數 (Streak)
+**注意**：此符號慣例與部分新聞報導相反，需特別留意。
 
-從最新月份往回數，連續滿足條件的月數。
+### 1.2 連續淨賣出月數 (Streak)
+
+從最新月份往回數，連續滿足「淨賣出 > 0」條件的月數。
 
 **計算邏輯**：
 ```python
-def calc_streak(series: pd.Series, sign: str = "negative") -> int:
+def calc_streak(series: pd.Series) -> int:
     """
-    計算連續賣超（或買超）月數
+    計算連續淨賣出月數
 
     Args:
-        series: 淨買入時間序列，index 為日期
-        sign: "negative"（連續賣超）或 "positive"（連續買超）
+        series: 淨賣出時間序列，index 為日期，正值 = 淨賣出
 
     Returns:
         連續月數
     """
-    s = series.dropna()
     streak = 0
-
-    for v in reversed(s.values):
-        if sign == "negative" and v < 0:
-            streak += 1
-        elif sign == "positive" and v > 0:
+    for v in reversed(series.values):
+        if v > 0:  # 正值 = 淨賣出
             streak += 1
         else:
             break
-
     return streak
 ```
 
 **範例**：
 ```
 月份:    2025-08  2025-09  2025-10  2025-11  2025-12
-淨買入:    -100     -200     -150     -300     -800
+淨賣出:     259    2,258    2,767      451    8,224
 streak:                                         → 5 個月
 ```
 
 ### 1.3 本輪累積 (Cumulative over Streak)
 
-連續賣超期間的淨買入總和。
+連續淨賣出期間的淨賣出總和。
 
 ```python
-def calc_cumulative(series: pd.Series, end_date: str, streak_len: int) -> float:
+def calc_cumulative(series: pd.Series, streak_len: int) -> float:
     """
-    計算本輪累積淨買入
+    計算本輪累積淨賣出
 
     Args:
-        series: 淨買入時間序列
-        end_date: 結束日期
+        series: 淨賣出時間序列
         streak_len: 連續月數
 
     Returns:
-        累積金額
+        累積金額（億日圓）
     """
-    streak_window = series.loc[:end_date].tail(streak_len)
-    return streak_window.sum()
+    return series.tail(streak_len).sum()
 ```
 
 ### 1.4 歷史極值判斷 (Record Detection)
 
-判斷最新月份是否為歷史最低（最大淨賣出）。
+判斷最新月份是否為歷史最大淨賣出（正值最大）。
 
 ```python
-def is_record_sale(series: pd.Series, end_date: str, lookback_years: int = 999) -> dict:
+def is_record_sale(series: pd.Series) -> dict:
     """
     判斷是否創下歷史最大淨賣出
 
     Args:
-        series: 淨買入時間序列
-        end_date: 結束日期
-        lookback_years: 回溯年數（999 = 全樣本）
+        series: 淨賣出時間序列
 
     Returns:
-        dict: 包含 is_record, record_low, record_date
+        dict: 包含 is_record, record_sale, record_date
     """
-    if lookback_years < 999:
-        lookback_start = pd.Timestamp(end_date) - pd.DateOffset(years=lookback_years)
-        sample = series.loc[lookback_start:end_date]
-    else:
-        sample = series.loc[:end_date]
-
-    latest = series.loc[end_date]
-    record_low = sample.min()
-    record_date = sample.idxmin()
+    latest = series.iloc[-1]
+    record_high = series.max()  # 最大淨賣出（正值最大）
+    record_date = series.idxmax()
 
     return {
-        "is_record": (latest == record_low) and (latest < 0),
-        "record_low": float(record_low),
+        "is_record_sale": (latest == record_high) and (latest > 0),
+        "record_sale_100m_yen": float(record_high),
         "record_date": str(record_date),
-        "lookback_period": f"{lookback_years} years" if lookback_years < 999 else "全樣本"
+        "lookback_period": f"全樣本 ({len(series)} 個月)"
     }
 ```
 
 **注意**：
-- `lookback_years = 999` 表示使用全樣本
-- 若資料起點較晚，「歷史紀錄」的含義需說明
+- 數據起點會影響「歷史紀錄」的含義，輸出必須說明樣本期間
+- 若僅為近期極值，需標註「近 N 個月新高」
 
 ---
 
@@ -120,10 +112,11 @@ def is_record_sale(series: pd.Series, end_date: str, lookback_years: int = 999) 
 def calc_historical_stats(series: pd.Series) -> dict:
     """計算歷史統計"""
     return {
+        "count": len(series),
         "mean": series.mean(),
         "std": series.std(),
-        "min": series.min(),
-        "max": series.max(),
+        "min": series.min(),  # 最大淨買入（負值最小）
+        "max": series.max(),  # 最大淨賣出（正值最大）
         "median": series.median(),
         "percentile_25": series.quantile(0.25),
         "percentile_75": series.quantile(0.75)
@@ -140,49 +133,66 @@ def calc_zscore(value: float, mean: float, std: float) -> float:
     return (value - mean) / std
 ```
 
+**解讀**：
+- Z-score > 2：極端淨賣出（超過 2 個標準差）
+- Z-score < -2：極端淨買入
+
 ### 2.3 歷史分位數
 
 ```python
 def calc_percentile(series: pd.Series, value: float) -> float:
     """計算數值在歷史中的分位數"""
-    return (series < value).mean()  # 比例低於該值的觀察數
+    return (series <= value).mean()
 ```
+
+**解讀**：
+- 分位數 > 0.95：歷史前 5% 的淨賣出
+- 分位數 < 0.05：歷史前 5% 的淨買入
 
 ---
 
-## 3. 口徑對齊邏輯
+## 3. 數據結構
 
-### 3.1 天期桶映射
+### 3.1 JSDA Excel 結構
 
-```python
-MATURITY_MAPPING = {
-    "super_long": ["超長期", "super-long", "20Y+", "30Y+"],
-    "long": ["長期", "long-term", "10Y"],
-    "10y_plus": ["10年以上", "10+ years"],  # 可能需要合併 long + super_long
-    "long_plus_super_long": None  # 需手動計算
-}
+**來源 URL**：
+- 當前財年：`https://www.jsda.or.jp/shiryoshitsu/toukei/tentoubaibai/koushasai.xlsx`
+- 歷史財年：`https://www.jsda.or.jp/shiryoshitsu/toukei/tentoubaibai/koushasai{YYYY}.xlsx`
 
-def get_maturity_bucket(xls_data, bucket_name: str):
-    """從 XLS 中提取對應的天期桶數據"""
-    if bucket_name == "long_plus_super_long":
-        return xls_data["long"] + xls_data["super_long"]
+**關鍵 Sheet**：`(Ｊ)合計差引`
 
-    for jsda_name in MATURITY_MAPPING.get(bucket_name, []):
-        if jsda_name in xls_data.columns:
-            return xls_data[jsda_name]
+**欄位結構**：
 
-    raise ValueError(f"未找到對應的天期桶: {bucket_name}")
-```
+| 欄位位置 | 內容 |
+|----------|------|
+| 第 0 列 | 年/月（如 2025/12）|
+| 第 1 列 | 投資人類型（日文）|
+| 第 2 列 | 投資人類型（英文）|
+| 第 3 列 | 國債總計 |
+| **第 4 列** | **超長期（Interest-bearing Long-term over 10-year）** |
+| 第 5 列 | 利付長期 |
+| 第 6 列 | 利付中期 |
+| 第 7 列 | 割引 |
+| 第 8 列 | 國庫短期證券等 |
 
-### 3.2 投資人分類映射
+### 3.2 投資人分類
 
-```python
-INVESTOR_MAPPING = {
-    "insurance_companies": ["保險公司", "Insurance"],
-    "life_insurance": ["壽險", "Life Insurance"],
-    "non_life_insurance": ["產險", "Non-life Insurance"]
-}
-```
+| JSDA 分類 | 英文 | 說明 |
+|-----------|------|------|
+| **生保・損保** | **Life & Non-Life Insurance Companies** | 壽險 + 產險（本 Skill 使用）|
+| 都市銀行 | City Banks | 大型商業銀行 |
+| 地方銀行 | Regional Banks | 區域性銀行 |
+| 信託銀行 | Trust Banks | 含年金管理 |
+| 外国人 | Foreigners | 海外投資者 |
+
+### 3.3 天期桶定義
+
+| 天期桶 | 英文 | 說明 |
+|--------|------|------|
+| **超長期** | Interest-bearing Long-term (over 10-year) | 10 年以上利付債（本 Skill 使用）|
+| 利付長期 | Interest-bearing Long-term | 5-10 年利付債 |
+| 利付中期 | Interest-bearing Medium-term | 2-5 年利付債 |
+| 割引 | Zero-Coupon | 零息債 |
 
 ---
 
@@ -190,45 +200,60 @@ INVESTOR_MAPPING = {
 
 ### 4.1 核心輸出結構
 
-```python
-def analyze(
-    series: pd.Series,
-    end_date: str,
-    investor_group: str,
-    maturity_bucket: str,
-    lookback_years: int = 999
-) -> dict:
-    """執行完整分析"""
-
-    latest = series.loc[end_date]
-    streak_len = calc_streak(series.loc[:end_date], sign="negative")
-    cum = calc_cumulative(series, end_date, streak_len)
-    record_info = is_record_sale(series, end_date, lookback_years)
-    stats = calc_historical_stats(series)
-
-    return {
-        "skill": "analyze_jgb_insurer_superlong_flow",
-        "as_of": str(pd.Timestamp.now().date()),
-        "data_source": "JSDA Trends in Bond Transactions (by investor type)",
-        "investor_group": investor_group,
-        "maturity_bucket": maturity_bucket,
-        "latest_month": {
-            "date": end_date,
-            "net_purchases_trillion_jpy": round(latest / 1000, 4),  # 轉換為兆
-            "interpretation": "淨賣出" if latest < 0 else "淨買入"
-        },
-        "record_analysis": record_info,
-        "streak_analysis": {
-            "consecutive_negative_months": streak_len,
-            "streak_start": str(series.loc[:end_date].tail(streak_len).index[0]),
-            "cumulative_over_streak_trillion_jpy": round(cum / 1000, 4)
-        },
-        "historical_stats": {
-            "mean_billion_jpy": round(stats["mean"], 2),
-            "std_billion_jpy": round(stats["std"], 2),
-            "zscore": round(calc_zscore(latest, stats["mean"], stats["std"]), 2)
-        }
-    }
+```json
+{
+  "skill": "analyze_jgb_insurer_superlong_flow",
+  "version": "1.0.0",
+  "as_of": "2026-01-26",
+  "data_source": {
+    "name": "JSDA Trading Volume of OTC Bonds (公社債店頭売買高)",
+    "url": "https://www.jsda.or.jp/shiryoshitsu/toukei/tentoubaibai/",
+    "sheet": "(Ｊ)合計差引"
+  },
+  "parameters": {
+    "investor_group": "life_and_nonlife_insurance",
+    "investor_label": "生保・損保 (Life & Non-Life Insurance Companies)",
+    "maturity_bucket": "super_long",
+    "maturity_label": "超長期 (Interest-bearing Long-term over 10-year)",
+    "sign_convention": "正值=淨賣出 (Sell-Purchase), 負值=淨買入",
+    "unit": "100 million yen (億円)"
+  },
+  "analysis_period": {
+    "start": "2021-04",
+    "end": "2025-12",
+    "months": 57
+  },
+  "latest_month": {
+    "date": "2025-12",
+    "net_sale_100m_yen": 8224,
+    "net_sale_trillion_yen": 0.8224,
+    "interpretation": "淨賣出"
+  },
+  "record_analysis": {
+    "is_record_sale": true,
+    "record_sale_100m_yen": 8224,
+    "record_sale_date": "2025-12",
+    "lookback_period": "全樣本 (57 個月)"
+  },
+  "streak_analysis": {
+    "consecutive_net_sale_months": 5,
+    "streak_start": "2025-08",
+    "cumulative_net_sale_100m_yen": 13959,
+    "cumulative_net_sale_trillion_yen": 1.3959
+  },
+  "historical_stats": {
+    "count": 57,
+    "mean_100m_yen": -2872,
+    "std_100m_yen": 3830,
+    "latest_zscore": 2.90,
+    "latest_percentile": 0.9825
+  },
+  "headline_takeaways": [
+    "✓ 驗證屬實：日本保險公司在 2025/12 創下歷史最大單月淨賣出（8,224 億日圓）",
+    "已連續 5 個月淨賣出超長期國債，累積金額 13,959 億日圓（1.40 兆日圓）",
+    "當前淨賣出規模處於歷史極端區間（Z-score: 2.90，超過 2 個標準差）"
+  ]
+}
 ```
 
 ---
@@ -237,17 +262,24 @@ def analyze(
 
 ### 5.1 單位轉換
 
-| JSDA 原始單位  | 常見報導單位 | 轉換   |
-|----------------|--------------|--------|
-| 十億日圓（¥B） | 兆日圓（¥T） | ÷ 1000 |
-| 十億日圓（¥B） | 億日圓       | × 10   |
+| 原始單位 | 目標單位 | 轉換 |
+|----------|----------|------|
+| 億日圓 | 兆日圓 | ÷ 10,000 |
+| 億日圓 | 十億日圓 | ÷ 10 |
 
 ### 5.2 時間對齊
 
 - JSDA 月度數據以月末為基準
-- 匯率換算若需使用月均值，需另行計算
+- 日本財年從 4 月開始，歷史檔案依財年分割
+- 數據延遲約 T+1 個月
 
 ### 5.3 邊界處理
 
 - 若 `streak_len = 0`，表示最新月份為淨買入
-- 若 `streak_len = 全樣本長度`，表示從未有淨買入月份（極端情況）
+- 若 `streak_len = 全樣本長度`，表示整個樣本期間都是淨賣出（極端情況）
+
+### 5.4 數據範圍限制
+
+- 僅包含店頭（OTC）交易，不含交易所交易
+- 「生保・損保」為壽險 + 產險合計，無法分拆
+- 2018/05 前的數據格式不同，需特別處理

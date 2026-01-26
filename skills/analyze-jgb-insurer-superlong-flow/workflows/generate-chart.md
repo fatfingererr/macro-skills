@@ -3,7 +3,7 @@
 <required_reading>
 **執行前請先閱讀**：
 1. references/data-sources.md - 確認數據可用性
-2. references/methodology.md - 了解指標定義
+2. thoughts/shared/guide/bloomberg-style-chart-guide.md - Bloomberg 風格設計規範
 </required_reading>
 
 <process>
@@ -11,99 +11,121 @@
 ## Step 1: 確認圖表參數
 
 **可選參數**：
-- `start_date`: 圖表起始年月（預設 5 年前）
-- `end_date`: 圖表結束年月（預設最新）
-- `maturity_bucket`: 天期桶（預設 super_long）
-- `output_dir`: 輸出目錄（預設 `../../output`）
+- `--output-dir`: 輸出目錄（預設專案根目錄 `output/`）
+- `--filename`: 輸出檔名（預設 `jgb-insurer-superlong-flow-YYYYMMDD.png`）
+- `--no-rolling`: 不顯示 12M 滾動累積線
+- `--no-stats`: 不顯示統計摘要面板
+- `--no-record`: 不標記創紀錄月份
+- `--refresh`: 強制重新下載數據
 
-## Step 2: 抓取數據
+## Step 2: 安裝依賴
 
 ```bash
-cd skills/analyze-jgb-insurer-superlong-flow
-python scripts/fetch_jsda_data.py --refresh
+pip install pandas numpy openpyxl matplotlib
 ```
 
 ## Step 3: 生成圖表
 
 ```bash
-python scripts/generate_flow_chart.py \
-  --start 2020-01 \
-  --end 2025-12 \
-  --maturity super_long \
-  --output-dir ../../output
+cd .claude/skills/analyze-jgb-insurer-superlong-flow
+python scripts/generate_flow_chart.py --output-dir ../../../output
 ```
 
-輸出：`output/jgb_insurer_flow_YYYYMMDD.png`
+輸出：`output/jgb-insurer-superlong-flow-YYYYMMDD.png`
 
 ## Step 4: 圖表內容說明
 
-生成的圖表包含：
+生成的圖表遵循 Bloomberg 風格設計：
 
-### 4.1 主圖：淨買賣月度走勢
+### 4.1 配色方案
 
-- X 軸：時間（月度）
-- Y 軸：淨買入金額（十億日圓）
-- 正值區域：綠色（淨買入）
-- 負值區域：紅色（淨賣出）
-- 標記：創紀錄月份特別標註
+| 元素 | 顏色 | 說明 |
+|------|------|------|
+| 背景 | #1a1a2e | 深藍黑色 |
+| 網格 | #2d2d44 | 暗灰紫色 |
+| 淨賣出柱 | #ff4444 | 紅色（需求↓）|
+| 淨買入柱 | #00ff88 | 綠色（需求↑）|
+| 12M 滾動線 | #ffaa00 | 橙黃色 |
+| 創紀錄標記 | #ff00ff | 品紅色 |
 
-### 4.2 副圖：累積走勢
+### 4.2 主圖：淨賣出/買入柱狀圖
 
-- 顯示滾動 12 個月累積淨買入
-- 便於識別中期趨勢
+- X 軸：時間（月度，年為主刻度）
+- Y 軸：淨賣出金額（億日圓）
+- 正值（紅色）：淨賣出（賣出 > 買入）
+- 負值（綠色）：淨買入（買入 > 賣出）
+- 零線：水平參考線
 
-### 4.3 統計摘要面板
+### 4.3 疊加：12M 滾動累積線
 
-- 最新月份數值
-- 連續賣超月數
+- 橙黃色虛線
+- 顯示過去 12 個月的累積淨賣出
+- 便於識別中期趨勢轉向
+
+### 4.4 創紀錄月份標記
+
+- 品紅色箭頭標註
+- 顯示紀錄值（億日圓）
+
+### 4.5 統計摘要面板
+
+位於左上角，包含：
+- 最新月份與數值
+- 連續淨賣出月數
 - 本輪累積金額
-- 歷史分位數
+- Z-score
+- 創紀錄月份與數值
 
-## Step 5: 圖表格式選項
+### 4.6 頁尾資訊
 
-```bash
-# PNG 格式（預設）
-python scripts/generate_flow_chart.py --format png
+- 資料來源：JSDA 公社債店頭売買高
+- 截至日期、投資人類型、天期桶
 
-# PDF 格式（高品質列印）
-python scripts/generate_flow_chart.py --format pdf
-
-# 互動式 HTML（含 hover 資訊）
-python scripts/generate_flow_chart.py --format html
-```
-
-## Step 6: 自定義樣式
+## Step 5: 自訂選項
 
 ```bash
-# Bloomberg 風格（深色背景）
-python scripts/generate_flow_chart.py --style bloomberg
+# 不顯示滾動線
+python scripts/generate_flow_chart.py --no-rolling
 
-# 簡潔風格（白色背景）
-python scripts/generate_flow_chart.py --style minimal
+# 不顯示統計面板
+python scripts/generate_flow_chart.py --no-stats
 
-# 報告風格（適合嵌入文件）
-python scripts/generate_flow_chart.py --style report
+# 指定檔名
+python scripts/generate_flow_chart.py --filename my-chart.png
+
+# 完整選項
+python scripts/generate_flow_chart.py \
+  --output-dir ../../../output \
+  --filename jgb-flow-custom.png \
+  --refresh
 ```
 
-## Step 7: 多口徑對比圖
+## Step 6: 輸出範例
 
-```bash
-# 同時顯示 long 與 super_long
-python scripts/generate_flow_chart.py --compare long,super_long
-
-# 顯示合併的 10Y+
-python scripts/generate_flow_chart.py --maturity long_plus_super_long
+生成的圖表範例位置：
 ```
+output/jgb-insurer-superlong-flow-20260126.png
+```
+
+圖表特點：
+- Bloomberg 終端風格深色背景
+- 清晰的紅綠對比顯示淨賣出/買入
+- 12M 滾動線便於識別趨勢
+- 左上角統計摘要面板
+- 創紀錄月份明確標記
+- 完整的頁尾資訊標註
 
 </process>
 
 <success_criteria>
 圖表生成完成時：
 
-- [ ] 成功生成 PNG/PDF/HTML 圖表
-- [ ] 圖表包含月度淨買賣走勢
-- [ ] 正確標註正負區間（淨買入 vs 淨賣出）
-- [ ] 標記創紀錄月份
-- [ ] 包含統計摘要面板
-- [ ] 明確標示天期桶口徑與數據來源
+- [x] 成功生成 PNG 圖表
+- [x] 採用 Bloomberg 風格深色背景
+- [x] 正確顯示淨賣出（紅色）vs 淨買入（綠色）
+- [x] 顯示 12M 滾動累積線
+- [x] 標記創紀錄月份
+- [x] 包含統計摘要面板
+- [x] 明確標示天期桶口徑與數據來源
+- [x] 輸出到指定目錄
 </success_criteria>

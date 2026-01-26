@@ -4,164 +4,151 @@
 **執行前請先閱讀**：
 1. references/data-sources.md - 確認 JSDA 數據可用性與下載方式
 2. references/methodology.md - 了解 streak、record、cumulative 計算邏輯
-3. references/jsda-structure.md - 了解 XLS 結構與投資人分類
 </required_reading>
 
 <process>
 
 ## Step 1: 確認分析參數
 
-**必要參數**：
-- `start_date`: 分析起始年月（如 2020-01）
-- `end_date`: 分析結束年月（如 2025-12）
-- `investor_group`: 投資人分類（預設 insurance_companies）
-- `maturity_bucket`: 天期桶（預設 super_long）
-
-若用戶未提供，使用預設值並詢問確認。
+**可選參數**：
+- `--start-year`: 起始財年（預設 2018，日本財年 4 月開始）
+- `--lookback`: 回溯月數（預設全樣本）
+- `--format`: 輸出格式（`json` 或 `markdown`，預設 markdown）
+- `--refresh`: 強制重新下載數據
 
 ## Step 2: 抓取 JSDA 數據
 
+數據會自動從 JSDA 網站下載並緩存：
+
 ```bash
-cd skills/analyze-jgb-insurer-superlong-flow
-python scripts/fetch_jsda_data.py --refresh
+cd .claude/skills/analyze-jgb-insurer-superlong-flow
+python scripts/jsda_flow_analyzer.py --full --refresh
 ```
 
+**數據來源**：
+- 當前財年：`https://www.jsda.or.jp/shiryoshitsu/toukei/tentoubaibai/koushasai.xlsx`
+- 歷史財年：`https://www.jsda.or.jp/shiryoshitsu/toukei/tentoubaibai/koushasai{YYYY}.xlsx`
+
 腳本會：
-1. 從 JSDA 下載最新 XLS
-2. 解析投資人別交易數據
-3. 緩存到 `data/cache/` 目錄
+1. 從 JSDA 下載最新 Excel 檔案
+2. 解析 Sheet「(Ｊ)合計差引」
+3. 提取「生保・損保」的「超長期」淨賣出數據
+4. 緩存到 `data/cache/` 目錄
 
 ## Step 3: 執行完整分析
 
 ```bash
-python scripts/jsda_flow_analyzer.py --full \
-  --start 2020-01 \
-  --end 2025-12 \
-  --investor insurance_companies \
-  --maturity super_long
+# Markdown 格式輸出
+python scripts/jsda_flow_analyzer.py --full
+
+# JSON 格式輸出
+python scripts/jsda_flow_analyzer.py --full --format json
+
+# 指定起始年份
+python scripts/jsda_flow_analyzer.py --full --start-year 2020
+
+# 輸出到檔案
+python scripts/jsda_flow_analyzer.py --full --format json --output ../../output/analysis.json
 ```
 
 ## Step 4: 計算關鍵指標
 
-### 4.1 取得本月值
+### 4.1 符號慣例（重要）
 
-```python
-latest = series.loc[end_date]  # 單位：兆日圓
+JSDA 使用「賣出 - 買入」計算差引：
 ```
+net_sale = 売付額 - 買付額
+```
+
+- **正值 = 淨賣出**（賣出 > 買入，需求減少）
+- **負值 = 淨買入**（買入 > 賣出，需求增加）
 
 ### 4.2 判斷是否為歷史極值
 
 ```python
-record_low = series.min()
-is_record_sale = (latest == record_low) and (latest < 0)
+record_high = max(series)  # 最大淨賣出（正值最大）
+is_record_sale = (latest == record_high) and (latest > 0)
 ```
 
-若 `record_lookback_years` 不是全樣本，需調整計算範圍。
-
-### 4.3 計算連續賣超月數
+### 4.3 計算連續淨賣出月數
 
 ```python
-def calc_streak(series, sign="negative"):
-    s = series.dropna()
+def calc_streak(series):
     streak = 0
-    for v in reversed(s.values):
-        if (sign == "negative" and v < 0) or (sign == "positive" and v > 0):
+    for v in reversed(series.values):
+        if v > 0:  # 正值 = 淨賣出
             streak += 1
         else:
             break
     return streak
 ```
 
-### 4.4 計算本輪累積賣超
+### 4.4 計算本輪累積淨賣出
 
 ```python
-streak_window = series.loc[:end_date].tail(streak_len)
-cum = streak_window.sum()
+cumulative = series.tail(streak_len).sum()
 ```
 
-## Step 5: 口徑對照檢查
+## Step 5: 口徑說明
 
-若新聞使用「10+ years」而分析使用「super_long」：
-
-1. 檢查 JSDA XLS 是否有「10年以上」合併桶
-2. 若有，同時輸出兩個口徑的數值
-3. 若無，標註「口徑可能不完全一致」
+**數據口徑**：
+- **投資人分類**：生保・損保（Life & Non-Life Insurance Companies）
+- **天期桶**：超長期（Interest-bearing Long-term over 10-year）
+- **交易類型**：店頭交易（OTC），不含交易所交易
+- **單位**：億日圓（100 million yen）
 
 ## Step 6: 生成完整報告
 
-使用 `templates/output-markdown.md` 模板生成報告：
+Markdown 輸出範例：
 
 ```markdown
-### 日本保險公司超長端 JGB 淨買入完整分析
+## 日本保險公司超長期 JGB 淨買賣驗證報告
 
-**分析期間**：2020-01 至 2025-12
-**數據來源**：JSDA Trends in Bond Transactions (by investor type)
+**分析期間**：2021-04 ~ 2025-12（57 個月）
 
----
+### 核心結論
 
-#### 一、最新月份狀態
+| 指標 | 數值 | 說明 |
+|------|------|------|
+| 本月（2025-12）| **8,224 億日圓** | 淨賣出 |
+| 是否創歷史紀錄 | **✓ 是** | 全樣本 (57 個月) |
+| 連續淨賣出月數 | **5 個月** | 自 2025-08 起 |
+| 本輪累積淨賣出 | **13,959 億日圓** | 1.40 兆日圓 |
 
-| 指標       | 數值       | 說明          |
-|------------|------------|---------------|
-| 本月淨買入 | -¥8,224 億 | 負值 = 淨賣出 |
-| 是否創紀錄 | 是         | 全樣本最低值  |
-| 歷史最低值 | -¥8,224 億 | 2025-12       |
-| 歷史最高值 | +¥XXX 億   | YYYY-MM       |
+### 歷史統計
 
----
+| 指標 | 數值 |
+|------|------|
+| 平均值 | -2,872 億/月（淨買入為主）|
+| 標準差 | 3,830 億 |
+| Z-score | 2.90（極端淨賣出）|
+| 分位數 | 98.25%（歷史高位）|
 
-#### 二、連續賣超分析
+### Headline Takeaways
 
-| 指標           | 數值      |
-|----------------|-----------|
-| 連續淨賣出月數 | 5 個月    |
-| 本輪起始月     | 2025-08   |
-| 本輪累積淨賣出 | -¥1.37 兆 |
-
----
-
-#### 三、歷史分布
-
-- 全樣本平均淨買入：+¥XXX 億/月
-- 全樣本標準差：¥XXX 億
-- 當前值 Z-score：-X.XX
-
----
-
-#### 四、口徑說明
-
-- 投資人分類：insurance_companies（含壽險 + 產險）
-- 天期桶：super_long（超長端）
-- 若需嚴格對齊「10 年以上」，請使用 long_plus_super_long 合併桶
-
----
-
-#### 五、結論
-
-1. 日本保險公司確實在 2025-12 創下歷史最大單月淨賣出紀錄
-2. 已連續 5 個月淨賣出，累積金額達 ¥1.37 兆
-3. 此趨勢與 JGB 殖利率上升期間吻合
+1. ✓ 驗證屬實：日本保險公司在 2025/12 創下歷史最大單月淨賣出
+2. 已連續 5 個月淨賣出超長期國債，累積 1.40 兆日圓
+3. 當前淨賣出規模處於歷史極端區間（Z-score: 2.90）
 ```
 
-## Step 7: 輸出 JSON（可選）
-
-若 `output_format` 為 JSON：
+## Step 7: 輸出 JSON（結構化）
 
 ```bash
-python scripts/jsda_flow_analyzer.py --full --format json > output/analysis_result.json
+python scripts/jsda_flow_analyzer.py --full --format json --output ../../output/jgb-insurer-superlong-flow-2025-12.json
 ```
+
+JSON 輸出包含完整的數據來源、參數、分析結果和 headline takeaways。
 
 </process>
 
 <success_criteria>
 完整分析完成時：
 
-- [ ] 成功抓取指定期間的 JSDA 數據
-- [ ] 計算並輸出最新月份淨買賣數值
-- [ ] 判斷是否為歷史極值（含回溯期間說明）
-- [ ] 計算連續賣超月數與累積金額
-- [ ] 提供歷史分布統計（均值、標準差、Z-score）
-- [ ] 明確標示天期桶與投資人口徑
-- [ ] 若口徑不一致，提供警示
-- [ ] 生成完整 Markdown 報告
+- [x] 成功抓取指定期間的 JSDA 數據
+- [x] 計算並輸出最新月份淨賣出數值
+- [x] 判斷是否為歷史極值（含回溯期間說明）
+- [x] 計算連續淨賣出月數與累積金額
+- [x] 提供歷史分布統計（均值、標準差、Z-score）
+- [x] 明確標示天期桶與投資人口徑
+- [x] 生成完整 Markdown 或 JSON 報告
 </success_criteria>

@@ -11,13 +11,13 @@
 ## Step 1: 執行快速分析腳本
 
 ```bash
-cd skills/analyze-jgb-insurer-superlong-flow
+cd .claude/skills/analyze-jgb-insurer-superlong-flow
 python scripts/jsda_flow_analyzer.py --quick
 ```
 
 若首次使用，先安裝依賴：
 ```bash
-pip install pandas numpy requests openpyxl
+pip install pandas numpy openpyxl
 ```
 
 ## Step 2: 檢視輸出結果
@@ -26,40 +26,64 @@ pip install pandas numpy requests openpyxl
 
 ```json
 {
-  "end_date": "2025-12",
-  "investor_group": "insurance_companies",
-  "maturity_bucket": "super_long",
-  "latest_net_purchases_trillion_jpy": -0.8224,
-  "is_record_sale": true,
-  "consecutive_negative_months": 5,
-  "cumulative_net_purchases_over_streak_trillion_jpy": -1.37
+  "skill": "analyze_jgb_insurer_superlong_flow",
+  "latest_month": {
+    "date": "2025-12",
+    "net_sale_100m_yen": 8224,
+    "net_sale_trillion_yen": 0.8224,
+    "interpretation": "淨賣出"
+  },
+  "record_analysis": {
+    "is_record_sale": true,
+    "record_sale_100m_yen": 8224,
+    "record_sale_date": "2025-12"
+  },
+  "streak_analysis": {
+    "consecutive_net_sale_months": 5,
+    "cumulative_net_sale_100m_yen": 13959
+  }
 }
 ```
 
 ## Step 3: 解讀結果
 
+**符號慣例（重要）**：
+
+JSDA 使用「賣出 - 買入」計算差引：
+- **正值 = 淨賣出**（賣出 > 買入，需求減少）
+- **負值 = 淨買入**（買入 > 賣出，需求增加）
+
 **關鍵指標解讀**：
 
-| 指標                          | 意義                            |
-|-------------------------------|---------------------------------|
-| `latest_net_purchases`        | 最新月份淨買入（負值 = 淨賣出） |
-| `is_record_sale`              | 是否為歷史最大淨賣出            |
-| `consecutive_negative_months` | 連續淨賣出月數                  |
-| `cumulative_over_streak`      | 本輪連續賣超的累積金額          |
+| 指標                             | 意義                            |
+|----------------------------------|---------------------------------|
+| `net_sale_100m_yen`              | 最新月份淨賣出（億日圓）        |
+| `is_record_sale`                 | 是否為歷史最大淨賣出（正值最大）|
+| `consecutive_net_sale_months`    | 連續淨賣出月數                  |
+| `cumulative_net_sale_100m_yen`   | 本輪連續淨賣出的累積金額        |
 
 ## Step 4: 生成摘要
 
 根據結果生成可複製的摘要：
 
 ```markdown
-### 日本保險公司超長端 JGB 淨買入驗證（JSDA 公開數據）
+### 日本保險公司超長期 JGB 淨買賣驗證（JSDA 公開數據）
 
-- 本月（2025-12）淨買入：**-0.8224 兆日圓**（負值＝淨賣出）
-- 是否創紀錄：**是**（全樣本最低值）
-- 連續淨賣出月數：**5 個月**
-- 本輪累積淨賣出：**-1.37 兆日圓**
+- 本月（2025-12）：**淨賣出 8,224 億日圓**（0.82 兆日圓）
+- 是否創紀錄：**是**（全樣本最大淨賣出）
+- 連續淨賣出月數：**5 個月**（自 2025-08 起）
+- 本輪累積淨賣出：**13,959 億日圓**（1.40 兆日圓）
 
-> 註：天期桶採用 JSDA「super_long」分類。若新聞口徑為「10 年以上」，數值可能略有差異。
+> 註：天期桶採用 JSDA「超長期」分類（10 年以上利付債）。
+> 數據來源：JSDA 公社債店頭売買高 (Trading Volume of OTC Bonds)
+```
+
+## Step 5: 強制重新下載數據（可選）
+
+若需要最新數據，使用 `--refresh` 參數：
+
+```bash
+python scripts/jsda_flow_analyzer.py --quick --refresh
 ```
 
 </process>
@@ -67,9 +91,9 @@ pip install pandas numpy requests openpyxl
 <success_criteria>
 快速檢查完成時：
 
-- [ ] 成功抓取最新月份數據
-- [ ] 輸出淨買賣數值與正負判斷
-- [ ] 判斷是否為歷史極值
-- [ ] 計算連續賣超月數
-- [ ] 生成可複製的摘要
+- [x] 成功抓取最新月份數據
+- [x] 輸出淨賣出數值與正負判斷
+- [x] 判斷是否為歷史極值
+- [x] 計算連續淨賣出月數
+- [x] 生成可複製的摘要
 </success_criteria>
