@@ -75,6 +75,24 @@
       "tags": []
     },
     {
+      "name": "us-cpi-pce-comparator",
+      "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/us-cpi-pce-comparator",
+      "category": "inflation-analytics",
+      "tags": [
+        "CPI",
+        "PCE",
+        "通膨",
+        "Fed",
+        "權重差異",
+        "FRED"
+      ]
+    },
+    {
       "name": "nickel-concentration-risk-analyzer",
       "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
       "version": "0.1.1",
@@ -111,24 +129,6 @@
       ]
     },
     {
-      "name": "us-cpi-pce-comparator",
-      "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/us-cpi-pce-comparator",
-      "category": "inflation-analytics",
-      "tags": [
-        "CPI",
-        "PCE",
-        "通膨",
-        "Fed",
-        "權重差異",
-        "FRED"
-      ]
-    },
-    {
       "name": "lithium-supply-demand-gap-radar",
       "description": "將鋰產業鏈（礦端 → 精煉化學品 → 電池與終端需求），整合為一套可運算的替代指標；再把這些指標映射到鋰主題 ETF（如 LIT）的成分暴露與長期價格走勢，形成可供決策的依據。 ",
       "version": "0.1.0",
@@ -162,24 +162,6 @@
         "華爾街日報",
         "央行",
         "利率"
-      ]
-    },
-    {
-      "name": "evaluate-exponential-trend-deviation-regimes",
-      "description": "計算資產價格相對長期指數成長趨勢線的偏離度，衡量當前是否處於歷史極端區間，並可選擇性地進行宏觀因子分析以判斷行情體質。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/evaluate-exponential-trend-deviation-regimes",
-      "category": "business-cycles",
-      "tags": [
-        "趨勢",
-        "偏離度",
-        "歷史峰值",
-        "指數成長",
-        "技術分析",
-        "宏觀分析"
       ]
     },
     {
@@ -255,21 +237,21 @@
       ]
     },
     {
-      "name": "detect-atr-squeeze-regime",
-      "description": "以 14 日指數平滑 ATR 偵測市場是否從秩序型趨勢轉為波動主導的擠壓（squeeze）行情，並輸出對技術位、停損、交易持有期的可行性評估。",
+      "name": "evaluate-exponential-trend-deviation-regimes",
+      "description": "計算資產價格相對長期指數成長趨勢線的偏離度，衡量當前是否處於歷史極端區間，並可選擇性地進行宏觀因子分析以判斷行情體質。",
       "version": "0.1.0",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/detect-atr-squeeze-regime",
-      "category": "indicator-monitoring",
+      "source": "./skills/evaluate-exponential-trend-deviation-regimes",
+      "category": "business-cycles",
       "tags": [
-        "ATR",
-        "波動率",
-        "擠壓行情",
-        "停損管理",
-        "風險控制",
-        "技術分析"
+        "趨勢",
+        "偏離度",
+        "歷史峰值",
+        "指數成長",
+        "技術分析",
+        "宏觀分析"
       ]
     },
     {
@@ -291,21 +273,21 @@
       ]
     },
     {
-      "name": "demographic-fiscal-trap-analyzer",
-      "description": "分析人口老化、債務動態、官僚膨脹與通膨稀釋交互作用下的「財政陷阱」風險，量化各國/地區的財政脆弱度並識別潛在的貨幣稀釋路徑",
+      "name": "detect-atr-squeeze-regime",
+      "description": "以 14 日指數平滑 ATR 偵測市場是否從秩序型趨勢轉為波動主導的擠壓（squeeze）行情，並輸出對技術位、停損、交易持有期的可行性評估。",
       "version": "0.1.0",
       "author": {
-        "name": "macro-skills"
+        "name": "Ricky Wang"
       },
-      "source": "./skills/demographic-fiscal-trap-analyzer",
-      "category": "policy-modeling",
+      "source": "./skills/detect-atr-squeeze-regime",
+      "category": "indicator-monitoring",
       "tags": [
-        "人口",
-        "人口結構",
-        "財政政策",
-        "債務動能",
-        "通貨膨脹",
-        "人口老化"
+        "ATR",
+        "波動率",
+        "擠壓行情",
+        "停損管理",
+        "風險控制",
+        "技術分析"
       ]
     },
     {
@@ -407,6 +389,24 @@
         "利息支出",
         "稅收",
         "壓力測試"
+      ]
+    },
+    {
+      "name": "demographic-fiscal-trap-analyzer",
+      "description": "分析人口老化、債務動態、官僚膨脹與通膨稀釋交互作用下的「財政陷阱」風險，量化各國/地區的財政脆弱度並識別潛在的貨幣稀釋路徑",
+      "version": "0.1.0",
+      "author": {
+        "name": "macro-skills"
+      },
+      "source": "./skills/demographic-fiscal-trap-analyzer",
+      "category": "policy-modeling",
+      "tags": [
+        "人口",
+        "人口結構",
+        "財政政策",
+        "債務動能",
+        "通貨膨脹",
+        "人口老化"
       ]
     },
     {
