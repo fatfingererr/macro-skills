@@ -2,7 +2,7 @@
 """
 視覺化圖表腳本
 
-生成殖利率利差與相對報酬的對齊圖表。
+生成美國公債利差與相對報酬的對齊圖表。
 """
 
 import argparse
@@ -253,7 +253,7 @@ relative to defensive stocks.
 # =============================================================================
 
 def main():
-    parser = argparse.ArgumentParser(description="生成殖利率利差預測圖表")
+    parser = argparse.ArgumentParser(description="生成美國公債利差預測圖表")
     parser.add_argument("--quick", action="store_true", help="快速生成基本版")
     parser.add_argument("--comprehensive", action="store_true", help="生成完整版")
     parser.add_argument("--risk-ticker", default="QQQ")

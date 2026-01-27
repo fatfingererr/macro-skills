@@ -525,7 +525,7 @@ def _generate_summary(spread: float, forecast: dict, risk_ticker: str, defensive
     """生成摘要"""
     curve_status = "曲線倒掛" if spread > 0 else "曲線正常" if spread < -0.5 else "曲線輕微倒掛"
     winner = defensive_ticker if forecast["pct"] < 0 else risk_ticker
-    return f"殖利率利差（2Y-10Y）對 {risk_ticker}/{defensive_ticker} 相對報酬存在領先關係。當前 spread 為 {spread:.2f}%（{curve_status}），對應未來 {horizon} 個月 {winner} 相對跑贏的預期。"
+    return f"美國公債利差（2Y-10Y）對 {risk_ticker}/{defensive_ticker} 相對報酬存在領先關係。當前 spread 為 {spread:.2f}%（{curve_status}），對應未來 {horizon} 個月 {winner} 相對跑贏的預期。"
 
 
 # =============================================================================
@@ -533,7 +533,7 @@ def _generate_summary(spread: float, forecast: dict, risk_ticker: str, defensive
 # =============================================================================
 
 def main():
-    parser = argparse.ArgumentParser(description="殖利率利差 → 板塊相對報酬預測")
+    parser = argparse.ArgumentParser(description="美國公債利差 → 板塊相對報酬預測")
 
     parser.add_argument("--quick", action="store_true", help="使用預設參數快速執行")
     parser.add_argument("--risk-ticker", default=DEFAULT_PARAMS["risk_ticker"], help="成長股標的")
