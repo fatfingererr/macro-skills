@@ -9,24 +9,27 @@ import argparse
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import numpy as np
 import pandas as pd
 
-# 預設合約對照表
-DEFAULT_CONTRACTS_MAP = {
-    "CORN": "grains",
-    "WHEAT-SRW": "grains",
-    "WHEAT-HRW": "grains",
-    "SOYBEANS": "oilseeds",
-    "SOYBEAN OIL": "oilseeds",
-    "SOYBEAN MEAL": "oilseeds",
-    "LIVE CATTLE": "meats",
-    "LEAN HOGS": "meats",
-    "COFFEE C": "softs",
-    "SUGAR NO. 11": "softs",
-}
+# 從 fetch_cot_data 導入函數
+from fetch_cot_data import (
+    ALL_GROUPS,
+    aggregate_by_group,
+    calculate_flows,
+    fetch_cot_from_api,
+    get_latest_week_summary,
+    parse_cot_data,
+)
+
+# 從 fetch_macro_data 導入函數（如果存在）
+try:
+    from fetch_macro_data import fetch_all_indicators, calculate_tailwind_score
+    HAS_MACRO = True
+except ImportError:
+    HAS_MACRO = False
 
 
 def percentile_rank(series: pd.Series, value: float) -> float:
@@ -53,7 +56,7 @@ def calculate_firepower(
     current = net_pos_series.iloc[-1]
     p = percentile_rank(hist, current)
 
-    return float(1 - p)
+    return round(1 - p, 3)
 
 
 def calculate_macro_tailwind(macro_df: pd.DataFrame, lookback_days: int = 5) -> Dict:
@@ -77,7 +80,7 @@ def calculate_macro_tailwind(macro_df: pd.DataFrame, lookback_days: int = 5) -> 
 
     score = sum(components.values()) / len(components)
 
-    return {"score": score, "components": components}
+    return {"score": round(score, 2), "components": components}
 
 
 def generate_call(
@@ -91,7 +94,7 @@ def generate_call(
     confidence_factors = []
 
     # Signal 1: Funds back & buying
-    if flow_total > 0:
+    if flow_total is not None and flow_total > 0:
         if prev_flow_total is not None and prev_flow_total < 0:
             calls.append("Funds back & buying")
             confidence_factors.append(0.3)
@@ -99,17 +102,26 @@ def generate_call(
             calls.append("Funds continue buying")
             confidence_factors.append(0.2)
 
-    # Signal 2: Crowded risk
+    # Signal 2: Funds selling
+    if flow_total is not None and flow_total < 0:
+        if prev_flow_total is not None and prev_flow_total > 0:
+            calls.append("Funds turning bearish")
+            confidence_factors.append(0.25)
+        else:
+            calls.append("Funds continue selling")
+            confidence_factors.append(0.15)
+
+    # Signal 3: Crowded risk
     if firepower_total and firepower_total < 0.2:
         calls.append("Crowded long - caution")
         confidence_factors.append(-0.15)
 
-    # Signal 3: Extreme short (opportunity)
+    # Signal 4: Extreme short (opportunity)
     if firepower_total and firepower_total > 0.85:
         calls.append("Extreme short - watch for reversal")
         confidence_factors.append(0.1)
 
-    # Signal 4: Macro alignment
+    # Signal 5: Macro alignment
     if macro_score and macro_score >= 0.67:
         calls.append("Macro mood bullish")
         confidence_factors.append(0.15)
@@ -137,7 +149,7 @@ def generate_annotations(context: Dict) -> List[Dict]:
     annotations = []
 
     # Macro mood
-    if context.get("macro_score", 0) >= 0.67:
+    if context.get("macro_score") and context.get("macro_score") >= 0.67:
         annotations.append({
             "label": "macro_mood_bullish",
             "rule_hit": True,
@@ -148,21 +160,41 @@ def generate_annotations(context: Dict) -> List[Dict]:
         })
 
     # Funds buying
-    if context.get("flow_total", 0) > 0 and context.get("firepower_total", 0) > 0.5:
+    if context.get("flow_total") and context.get("flow_total") > 0:
+        fp = context.get("firepower_total")
+        if fp and fp > 0.5:
+            annotations.append({
+                "label": "funds_back_buying",
+                "rule_hit": True,
+                "evidence": [
+                    f"Flow: {context.get('flow_total', 0):+,}",
+                    f"Firepower: {fp:.0%}" if fp else "N/A",
+                ],
+                "date": context.get("date"),
+            })
+
+    # Funds selling
+    if context.get("flow_total") and context.get("flow_total") < -10000:
         annotations.append({
-            "label": "funds_back_buying",
+            "label": "funds_selling",
             "rule_hit": True,
-            "evidence": [
-                f"Flow: {context.get('flow_total', 0):+,}",
-                f"Firepower: {context.get('firepower_total', 0):.0%}",
-            ],
+            "evidence": [f"Flow: {context.get('flow_total', 0):+,}"],
             "date": context.get("date"),
         })
 
     # Crowded
-    if context.get("firepower_total", 1) < 0.2:
+    if context.get("firepower_total") is not None and context.get("firepower_total") < 0.2:
         annotations.append({
             "label": "crowded_long",
+            "rule_hit": True,
+            "evidence": [f"Firepower: {context.get('firepower_total', 0):.0%}"],
+            "date": context.get("date"),
+        })
+
+    # Extreme short
+    if context.get("firepower_total") is not None and context.get("firepower_total") > 0.85:
+        annotations.append({
+            "label": "extreme_short",
             "rule_hit": True,
             "evidence": [f"Firepower: {context.get('firepower_total', 0):.0%}"],
             "date": context.get("date"),
@@ -171,154 +203,148 @@ def generate_annotations(context: Dict) -> List[Dict]:
     return annotations
 
 
-def run_quick_analysis() -> Dict:
-    """快速分析模式（使用模擬資料）"""
-    # 這裡使用模擬資料作為示範
-    # 實際使用時應從 fetch_cot_data.py 和 fetch_macro_data.py 取得資料
-
-    result = {
-        "skill": "track-agri-hedge-fund-positioning",
-        "version": "0.1.0",
-        "generated_at": datetime.now().isoformat(),
-        "as_of": (datetime.now() - timedelta(days=datetime.now().weekday() + 5)).strftime("%Y-%m-%d"),
-        "summary": {
-            "call": "Funds back & buying",
-            "confidence": 0.72,
-            "why": [
-                "COT 週部位變化顯示農產品總流量由負轉正",
-                "分組（穀物/油籽）同步改善",
-                "宏觀順風：美元走弱、原油偏強",
-            ],
-            "risks": [
-                "COT 只到週二：Wed-Fri 的買回屬推估",
-                "USDA 報告可能讓訊號反轉",
-            ],
-        },
-        "latest_metrics": {
-            "cot_week_end": (datetime.now() - timedelta(days=datetime.now().weekday() + 5)).strftime("%Y-%m-%d"),
-            "flow_total_contracts": 58000,
-            "flow_by_group_contracts": {
-                "grains": 35000,
-                "oilseeds": 25000,
-                "meats": 5000,
-                "softs": -7000,
-            },
-            "buying_firepower": {
-                "total": 0.63,
-                "grains": 0.58,
-                "oilseeds": 0.67,
-                "meats": 0.41,
-                "softs": 0.75,
-            },
-            "macro_tailwind_score": 0.67,
-        },
-        "annotations": [
-            {
-                "label": "macro_mood_bullish",
-                "rule_hit": True,
-                "evidence": ["USD down", "crude up"],
-            }
-        ],
-    }
-
-    return result
-
-
-def run_full_analysis(
-    start_date: str,
-    end_date: str,
+def run_analysis(
+    start_date: str = None,
+    end_date: str = None,
     cot_file: str = None,
     macro_file: str = None,
     lookback_weeks: int = 156,
+    fetch_fresh: bool = True,
 ) -> Dict:
-    """完整分析模式"""
-    # 載入資料
-    if cot_file and Path(cot_file).exists():
+    """
+    執行完整分析
+
+    Args:
+        start_date: 起始日期
+        end_date: 結束日期
+        cot_file: 已存在的 COT 資料檔案路徑
+        macro_file: 已存在的宏觀指標檔案路徑
+        lookback_weeks: 火力計算視窗（週數）
+        fetch_fresh: 是否從 API 抓取最新資料
+
+    Returns:
+        分析結果字典
+    """
+    # 設定日期範圍
+    if end_date is None:
+        end_date = datetime.now().strftime("%Y-%m-%d")
+    if start_date is None:
+        start_date = (datetime.now() - timedelta(days=365 * 3)).strftime("%Y-%m-%d")
+
+    # 載入或抓取 COT 資料
+    if cot_file and Path(cot_file).exists() and not fetch_fresh:
+        print(f"Loading COT data from {cot_file}")
         cot_df = pd.read_parquet(cot_file)
     else:
-        print("COT data not found, using simulated data")
-        return run_quick_analysis()
+        print("Fetching fresh COT data from API...")
+        raw_df = fetch_cot_from_api(start_date, end_date)
+        if raw_df.empty:
+            raise ValueError("Failed to fetch COT data from API")
+        cot_df = parse_cot_data(raw_df)
+        cot_df = calculate_flows(cot_df)
+
+    # 載入宏觀資料（如果可用）
+    macro_df = None
+    macro_result = {"score": None, "components": {}}
 
     if macro_file and Path(macro_file).exists():
-        macro_df = pd.read_parquet(macro_file)
-    else:
-        macro_df = None
+        try:
+            macro_df = pd.read_parquet(macro_file)
+            macro_result = calculate_macro_tailwind(macro_df)
+        except Exception as e:
+            print(f"Warning: Failed to load macro data: {e}")
 
-    # 計算分組流量
-    groups = ["grains", "oilseeds", "meats", "softs"]
-
-    flows = cot_df.groupby(["date", "group"])["flow"].sum().unstack(fill_value=0)
-    for g in groups:
-        if g not in flows.columns:
-            flows[g] = 0
-    flows["total"] = flows[groups].sum(axis=1)
-
-    positions = cot_df.groupby(["date", "group"])["pos"].sum().unstack(fill_value=0)
-    for g in groups:
-        if g not in positions.columns:
-            positions[g] = 0
-    positions["total"] = positions[groups].sum(axis=1)
+    # 計算分組流量與部位
+    flows, positions = aggregate_by_group(cot_df)
 
     # 計算火力
     firepower = {}
-    for col in ["total"] + groups:
-        fp = calculate_firepower(positions[col], lookback_weeks)
-        firepower[col] = fp
-
-    # 計算宏觀順風
-    macro_result = calculate_macro_tailwind(macro_df) if macro_df is not None else {"score": None, "components": {}}
+    for col in ["total"] + ALL_GROUPS:
+        if col in positions.columns:
+            fp = calculate_firepower(positions[col], lookback_weeks)
+            firepower[col] = fp
 
     # 取得最新資料
     latest_date = flows.index.max()
     latest_flow = flows.loc[latest_date]
+    latest_pos = positions.loc[latest_date]
+
+    # 取得前一週資料
     prev_date = flows.index[-2] if len(flows) > 1 else None
-    prev_flow = flows.loc[prev_date]["total"] if prev_date else None
+    prev_flow_total = flows.loc[prev_date]["total"] if prev_date is not None else None
 
     # 產生呼叫
     call_result = generate_call(
         flow_total=latest_flow["total"],
-        firepower_total=firepower["total"],
+        firepower_total=firepower.get("total"),
         macro_score=macro_result["score"],
-        prev_flow_total=prev_flow,
+        prev_flow_total=prev_flow_total,
     )
 
     # 產生標註
     context = {
         "date": str(latest_date),
         "flow_total": latest_flow["total"],
-        "firepower_total": firepower["total"],
+        "firepower_total": firepower.get("total"),
         "macro_score": macro_result["score"],
         "macro_components": macro_result["components"],
     }
     annotations = generate_annotations(context)
 
+    # 建立 why 說明
+    why_list = []
+    why_list.append(f"總流量: {latest_flow['total']:+,.0f} 合約")
+
+    group_changes = []
+    for g in ALL_GROUPS:
+        if g in latest_flow and latest_flow[g] != 0:
+            group_changes.append(f"{g}: {latest_flow[g]:+,.0f}")
+    if group_changes:
+        why_list.append("分組: " + ", ".join(group_changes))
+
+    if firepower.get("total") is not None:
+        why_list.append(f"火力: {firepower['total']:.0%}")
+
+    if macro_result["score"] is not None:
+        why_list.append(f"宏觀順風: {macro_result['score']:.0%}")
+
+    # 建立風險提示
+    risks = ["COT 資料只到週二，Wed-Fri 為推估"]
+    if firepower.get("total") and firepower.get("total") < 0.3:
+        risks.append("部位已接近歷史高檔，擁擠風險")
+    if abs(latest_flow["total"]) > 50000:
+        risks.append("大幅流動可能引發反向修正")
+
     # 組裝結果
     result = {
         "skill": "track-agri-hedge-fund-positioning",
-        "version": "0.1.0",
+        "version": "1.0.0",
         "generated_at": datetime.now().isoformat(),
         "as_of": str(latest_date),
+        "data_source": "CFTC Socrata API (real data)",
         "summary": {
             "call": call_result["call"],
+            "all_signals": call_result["all_signals"],
             "confidence": call_result["confidence"],
-            "why": [
-                f"總流量: {latest_flow['total']:+,.0f} 合約",
-                f"穀物: {latest_flow['grains']:+,.0f}, 油籽: {latest_flow['oilseeds']:+,.0f}",
-                f"火力: {firepower['total']:.0%}" if firepower["total"] else "火力: N/A",
-            ],
-            "risks": [
-                "COT 資料只到週二",
-                "宏觀情勢可能快速變化",
-            ],
+            "why": why_list,
+            "risks": risks,
         },
         "latest_metrics": {
             "cot_week_end": str(latest_date),
             "flow_total_contracts": int(latest_flow["total"]),
-            "flow_by_group_contracts": {g: int(latest_flow[g]) for g in groups},
-            "buying_firepower": {k: round(v, 2) if v else None for k, v in firepower.items()},
-            "macro_tailwind_score": round(macro_result["score"], 2) if macro_result["score"] else None,
+            "flow_by_group_contracts": {g: int(latest_flow[g]) for g in ALL_GROUPS if g in latest_flow},
+            "net_pos_total_contracts": int(latest_pos["total"]),
+            "net_pos_by_group_contracts": {g: int(latest_pos[g]) for g in ALL_GROUPS if g in latest_pos},
+            "buying_firepower": {k: v for k, v in firepower.items() if v is not None},
+            "macro_tailwind_score": macro_result["score"],
         },
-        "weekly_flows": flows.reset_index().to_dict(orient="records"),
+        "historical_data": {
+            "weeks_available": len(flows),
+            "date_range": {
+                "start": str(flows.index.min()),
+                "end": str(flows.index.max()),
+            },
+        },
         "annotations": annotations,
     }
 
@@ -327,29 +353,28 @@ def run_full_analysis(
 
 def main():
     parser = argparse.ArgumentParser(description="Analyze agricultural hedge fund positioning")
-    parser.add_argument("--quick", action="store_true", help="Quick analysis mode")
     parser.add_argument("--start", type=str, help="Start date (YYYY-MM-DD)")
     parser.add_argument("--end", type=str, help="End date (YYYY-MM-DD)")
     parser.add_argument("--cot-file", type=str, default="cache/cot_data.parquet", help="COT data file")
     parser.add_argument("--macro-file", type=str, default="cache/macro_data.parquet", help="Macro data file")
-    parser.add_argument("--lookback", type=int, default=156, help="Lookback weeks for firepower")
+    parser.add_argument("--lookback", type=int, default=156, help="Lookback weeks for firepower (default: 156 = 3 years)")
     parser.add_argument("--output", type=str, default="output/result.json", help="Output file")
-    parser.add_argument("--visualize", action="store_true", help="Also generate visualization")
+    parser.add_argument("--no-fetch", action="store_true", help="Use cached data instead of fetching fresh")
 
     args = parser.parse_args()
 
-    if args.quick:
-        result = run_quick_analysis()
-    else:
-        start = args.start or "2025-01-01"
-        end = args.end or datetime.now().strftime("%Y-%m-%d")
-        result = run_full_analysis(
-            start_date=start,
-            end_date=end,
+    try:
+        result = run_analysis(
+            start_date=args.start,
+            end_date=args.end,
             cot_file=args.cot_file,
             macro_file=args.macro_file,
             lookback_weeks=args.lookback,
+            fetch_fresh=not args.no_fetch,
         )
+    except Exception as e:
+        print(f"Error: {e}")
+        return 1
 
     # 確保輸出目錄存在
     output_path = Path(args.output)
@@ -359,18 +384,39 @@ def main():
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2, default=str)
 
-    print(f"Results saved to {output_path}")
+    print(f"\nResults saved to {output_path}")
 
     # 顯示摘要
-    print("\n" + "=" * 50)
-    print(f"Call: {result['summary']['call']}")
+    print("\n" + "=" * 60)
+    print(f"農產品對沖基金部位分析 ({result['as_of']})")
+    print("=" * 60)
+    print(f"Call:       {result['summary']['call']}")
     print(f"Confidence: {result['summary']['confidence']:.0%}")
-    print(f"As of: {result['as_of']}")
-    print("=" * 50)
+    print(f"Signals:    {', '.join(result['summary']['all_signals'])}")
+    print("-" * 60)
+    print("Latest Metrics:")
+    metrics = result["latest_metrics"]
+    print(f"  總流量:     {metrics['flow_total_contracts']:+,} 合約")
+    print(f"  總淨部位:   {metrics['net_pos_total_contracts']:,} 合約")
+    print("  分組流量:")
+    for g, v in metrics["flow_by_group_contracts"].items():
+        print(f"    {g:12}: {v:+,}")
+    print("  火力分數:")
+    for g, v in metrics["buying_firepower"].items():
+        print(f"    {g:12}: {v:.0%}")
+    if metrics["macro_tailwind_score"] is not None:
+        print(f"  宏觀順風:   {metrics['macro_tailwind_score']:.0%}")
+    print("-" * 60)
+    print("Why:")
+    for w in result["summary"]["why"]:
+        print(f"  - {w}")
+    print("Risks:")
+    for r in result["summary"]["risks"]:
+        print(f"  - {r}")
+    print("=" * 60)
 
-    if args.visualize:
-        print("\nVisualization requested - run visualize_flows.py separately")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    exit(main())
