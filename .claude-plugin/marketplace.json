@@ -75,27 +75,9 @@
       "tags": []
     },
     {
-      "name": "us-cpi-pce-comparator",
-      "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/us-cpi-pce-comparator",
-      "category": "inflation-analytics",
-      "tags": [
-        "CPI",
-        "PCE",
-        "通膨",
-        "Fed",
-        "權重差異",
-        "FRED"
-      ]
-    },
-    {
       "name": "track-agri-hedge-fund-positioning",
       "description": "用 COT 非商業部位變化，量化對沖基金在農產品期貨的資金流向，並把出口需求、USDA 數據、美元/原油/金屬等宏觀風向整合成可交易的敘事與訊號。",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": {
         "name": "macro-skills"
       },
@@ -111,21 +93,21 @@
       ]
     },
     {
-      "name": "nickel-concentration-risk-analyzer",
-      "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
-      "version": "0.1.1",
+      "name": "us-cpi-pce-comparator",
+      "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
+      "version": "0.1.0",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/nickel-concentration-risk-analyzer",
-      "category": "event-scenario",
+      "source": "./skills/us-cpi-pce-comparator",
+      "category": "inflation-analytics",
       "tags": [
-        "鎳",
-        "供給集中度",
-        "原物料",
-        "採礦",
-        "地緣政治",
-        "情境分析"
+        "CPI",
+        "PCE",
+        "通膨",
+        "Fed",
+        "權重差異",
+        "FRED"
       ]
     },
     {
@@ -201,21 +183,21 @@
       ]
     },
     {
-      "name": "evaluate-exponential-trend-deviation-regimes",
-      "description": "計算資產價格相對長期指數成長趨勢線的偏離度，衡量當前是否處於歷史極端區間，並可選擇性地進行宏觀因子分析以判斷行情體質。",
-      "version": "0.1.0",
+      "name": "nickel-concentration-risk-analyzer",
+      "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
+      "version": "0.1.1",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/evaluate-exponential-trend-deviation-regimes",
-      "category": "business-cycles",
+      "source": "./skills/nickel-concentration-risk-analyzer",
+      "category": "event-scenario",
       "tags": [
-        "趨勢",
-        "偏離度",
-        "歷史峰值",
-        "指數成長",
-        "技術分析",
-        "宏觀分析"
+        "鎳",
+        "供給集中度",
+        "原物料",
+        "採礦",
+        "地緣政治",
+        "情境分析"
       ]
     },
     {
@@ -234,6 +216,24 @@
         "相對報酬",
         "QQQ",
         "XLV"
+      ]
+    },
+    {
+      "name": "evaluate-exponential-trend-deviation-regimes",
+      "description": "計算資產價格相對長期指數成長趨勢線的偏離度，衡量當前是否處於歷史極端區間，並可選擇性地進行宏觀因子分析以判斷行情體質。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/evaluate-exponential-trend-deviation-regimes",
+      "category": "business-cycles",
+      "tags": [
+        "趨勢",
+        "偏離度",
+        "歷史峰值",
+        "指數成長",
+        "技術分析",
+        "宏觀分析"
       ]
     },
     {
@@ -273,39 +273,21 @@
       ]
     },
     {
-      "name": "detect-atr-squeeze-regime",
-      "description": "以 14 日指數平滑 ATR 偵測市場是否從秩序型趨勢轉為波動主導的擠壓（squeeze）行情，並輸出對技術位、停損、交易持有期的可行性評估。",
-      "version": "0.1.0",
+      "name": "detect-palladium-lead-silver-turns",
+      "description": "以鈀金的先行轉向作為確認條件，檢驗白銀短期漲跌是否獲得工業景氣與風險情緒的同步支持，並標記缺乏鈀金參與度的失敗走勢。",
+      "version": "0.1.1",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/detect-atr-squeeze-regime",
+      "source": "./skills/detect-palladium-lead-silver-turns",
       "category": "indicator-monitoring",
       "tags": [
-        "ATR",
-        "波動率",
-        "擠壓行情",
-        "停損管理",
-        "風險控制",
-        "技術分析"
-      ]
-    },
-    {
-      "name": "detect-fed-unamortized-discount-pattern",
-      "description": "檢查聯準會持有證券的未攤銷折價（Unamortized Discounts）是否出現與特定歷史危機期間相似的走勢模板，並用多指標交叉驗證是否真的屬於「金融壓力升高」而非單純會計/利率效果",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/detect-fed-unamortized-discount-pattern",
-      "category": "liquidity-fci",
-      "tags": [
-        "聯準會",
-        "未攤銷折價",
-        "WUDSHO",
-        "流動性風險",
-        "金融壓力",
-        "交叉驗證"
+        "鈀金",
+        "白銀",
+        "貴金屬",
+        "拐點偵測",
+        "領先指標",
+        "跨金屬確認"
       ]
     },
     {
@@ -327,21 +309,39 @@
       ]
     },
     {
-      "name": "detect-palladium-lead-silver-turns",
-      "description": "以鈀金的先行轉向作為確認條件，檢驗白銀短期漲跌是否獲得工業景氣與風險情緒的同步支持，並標記缺乏鈀金參與度的失敗走勢。",
-      "version": "0.1.1",
+      "name": "detect-fed-unamortized-discount-pattern",
+      "description": "檢查聯準會持有證券的未攤銷折價（Unamortized Discounts）是否出現與特定歷史危機期間相似的走勢模板，並用多指標交叉驗證是否真的屬於「金融壓力升高」而非單純會計/利率效果",
+      "version": "0.1.0",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/detect-palladium-lead-silver-turns",
+      "source": "./skills/detect-fed-unamortized-discount-pattern",
+      "category": "liquidity-fci",
+      "tags": [
+        "聯準會",
+        "未攤銷折價",
+        "WUDSHO",
+        "流動性風險",
+        "金融壓力",
+        "交叉驗證"
+      ]
+    },
+    {
+      "name": "detect-atr-squeeze-regime",
+      "description": "以 14 日指數平滑 ATR 偵測市場是否從秩序型趨勢轉為波動主導的擠壓（squeeze）行情，並輸出對技術位、停損、交易持有期的可行性評估。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-atr-squeeze-regime",
       "category": "indicator-monitoring",
       "tags": [
-        "鈀金",
-        "白銀",
-        "貴金屬",
-        "拐點偵測",
-        "領先指標",
-        "跨金屬確認"
+        "ATR",
+        "波動率",
+        "擠壓行情",
+        "停損管理",
+        "風險控制",
+        "技術分析"
       ]
     },
     {
