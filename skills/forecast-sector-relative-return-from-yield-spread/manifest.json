@@ -1,0 +1,110 @@
+{
+  "name": "forecast-sector-relative-return-from-yield-spread",
+  "version": "0.1.0",
+  "displayName": "以殖利率利差預測板塊相對報酬",
+  "description": "用美債殖利率曲線利差（如 2Y-10Y）建立領先關係，推估未來一段時間內成長股（Nasdaq 100）相對防禦股（Healthcare/XLV）的相對績效方向與幅度。",
+  "author": "Ricky Wang",
+  "license": "MIT",
+  "category": "interest-rates",
+  "tags": [
+    "殖利率",
+    "利差",
+    "領先指標",
+    "相對報酬",
+    "QQQ",
+    "XLV",
+    "Nasdaq",
+    "低Beta",
+    "景氣循環",
+    "板塊輪動"
+  ],
+  "dataLevel": "free-nolimit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "yfinance>=0.2.0",
+      "requests>=2.28.0"
+    ],
+    "optional": [
+      "statsmodels>=0.14.0",
+      "scikit-learn>=1.0.0",
+      "matplotlib>=3.5.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/spread_forecaster.py"
+  },
+  "workflows": [
+    {
+      "id": "analyze",
+      "name": "完整情境分析",
+      "description": "自訂參數驗證領先關係與產出預測",
+      "file": "workflows/analyze.md"
+    },
+    {
+      "id": "data-research",
+      "name": "數據源研究",
+      "description": "了解殖利率/資產代理的替代方案",
+      "file": "workflows/data-research.md"
+    }
+  ],
+  "references": [
+    "references/methodology.md",
+    "references/input-schema.md",
+    "references/data-sources.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md"
+  ],
+  "examples": [
+    "examples/sample-output.json"
+  ],
+  "dataSources": [
+    {
+      "name": "FRED",
+      "type": "primary",
+      "url": "https://fred.stlouisfed.org",
+      "api": "免費 CSV API，DGS2（2年殖利率）、DGS10（10年殖利率）"
+    },
+    {
+      "name": "Yahoo Finance",
+      "type": "primary",
+      "url": "https://finance.yahoo.com",
+      "api": "yfinance 套件取得 QQQ、XLV 等 ETF 價格"
+    }
+  ],
+  "defaultProxies": {
+    "yield": {
+      "short": {
+        "ticker": "DGS2",
+        "description": "2-Year Treasury Constant Maturity Rate"
+      },
+      "long": {
+        "ticker": "DGS10",
+        "description": "10-Year Treasury Constant Maturity Rate"
+      }
+    },
+    "asset": {
+      "risk": {
+        "primary": "QQQ",
+        "alternatives": [
+          "^NDX",
+          "TQQQ"
+        ],
+        "description": "Invesco QQQ Trust 作為 Nasdaq 100 代理"
+      },
+      "defensive": {
+        "primary": "XLV",
+        "alternatives": [
+          "VHT",
+          "IYH"
+        ],
+        "description": "Health Care Select Sector SPDR Fund"
+      }
+    }
+  }
+}

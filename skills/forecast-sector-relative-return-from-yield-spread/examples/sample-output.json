@@ -1,0 +1,116 @@
+{
+  "skill": "forecast_sector_relative_return_from_yield_spread",
+  "version": "0.1.0",
+  "generated_at": "2026-01-27T10:30:00",
+
+  "inputs": {
+    "risk_ticker": "QQQ",
+    "defensive_ticker": "XLV",
+    "short_tenor": "2Y",
+    "long_tenor": "10Y",
+    "lead_months": 24,
+    "lookback_years": 12,
+    "freq": "weekly",
+    "smoothing_window": 13,
+    "return_horizon_months": 24,
+    "model_type": "lagged_regression",
+    "confidence_level": 0.80
+  },
+
+  "signal_name": "DGS2_minus_DGS10_leads_QQQ_over_XLV",
+
+  "current_state": {
+    "spread": -0.35,
+    "spread_percentile": 35.2,
+    "spread_3m_change": 0.25,
+    "spread_6m_change": 0.42,
+    "spread_trend": "steepening",
+    "as_of_date": "2026-01-24"
+  },
+
+  "model": {
+    "type": "lagged_regression",
+    "coefficients": {
+      "alpha": 0.0215,
+      "beta": -0.4523
+    },
+    "fit_quality": {
+      "corr_x_y": -0.32,
+      "r_squared": 0.102,
+      "p_value": 0.0012,
+      "n_observations": 520,
+      "notes": "負 beta 意味 spread 越高 → 未來 QQQ 相對 XLV 越弱"
+    }
+  },
+
+  "forecast": {
+    "horizon_months": 24,
+    "future_relative_return": {
+      "log": -0.0823,
+      "pct": -0.079
+    },
+    "interval": {
+      "confidence_level": 0.80,
+      "log": [-0.2512, 0.0432],
+      "pct": [-0.2219, 0.0441]
+    },
+    "direction": {
+      "defensive_outperform_prob": 0.70,
+      "expected_winner": "XLV"
+    },
+    "interpretation": "若此關係維持，未來 24 個月 QQQ 相對 XLV 期望報酬為 -7.9%，XLV 較可能跑贏；但 4% 上界仍為正值，需搭配其他條件確認。"
+  },
+
+  "diagnostics": {
+    "lead_scan": {
+      "performed": true,
+      "scan_range": [6, 12, 18, 24, 30],
+      "best_lead_months": 24,
+      "correlation_by_lead": {
+        "6": -0.148,
+        "12": -0.223,
+        "18": -0.285,
+        "24": -0.320,
+        "30": -0.298
+      }
+    },
+    "stability_checks": {
+      "first_half_period": "2014-01-03 to 2020-01-03",
+      "second_half_period": "2020-01-10 to 2026-01-24",
+      "first_half_corr": -0.298,
+      "second_half_corr": -0.342,
+      "consistency": "medium-high",
+      "notes": "兩段相關性符號一致且差異 < 0.1，關係跨時期穩定"
+    },
+    "data_quality": {
+      "yield_data_points": 3120,
+      "price_data_points": 520,
+      "aligned_data_points": 416,
+      "date_range": "2014-01-03 to 2026-01-24"
+    }
+  },
+
+  "summary": "殖利率利差（2Y-10Y）對 QQQ/XLV 相對報酬存在領先關係。當前 spread 為 -0.35%（曲線輕微倒掛），對應未來 24 個月 XLV 相對跑贏的預期。",
+
+  "notes": [
+    "領先關係反映的是『歷史統計規律』，不保證未來成立。",
+    "R² 為 0.10，spread 僅解釋約 10% 的相對報酬變異。",
+    "當前 spread 正在變陡（從倒掛回正），需持續觀察。",
+    "建議搭配：景氣指標、估值分位、資金流向做交叉驗證。"
+  ],
+
+  "next_steps": [
+    "監控 spread 是否持續變陡",
+    "檢查經濟領先指標（ISM、消費者信心）",
+    "比較 Healthcare 基本面（防禦需求）",
+    "3 個月後重新驗證預測"
+  ],
+
+  "artifacts": [
+    {
+      "type": "chart",
+      "path": "output/spread_forecast_2026-01-27.png",
+      "description": "利差與相對報酬對齊圖"
+    }
+  ]
+}
