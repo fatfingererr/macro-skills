@@ -99,7 +99,7 @@
     }
   },
 
-  "summary": "殖利率利差（2Y-10Y）對 QQQ/XLV 相對報酬存在約 24 個月的領先關係。當前 spread 為 -0.35%（曲線輕微倒掛），對應未來 24 個月 XLV 相對跑贏的預期。",
+  "summary": "美國公債利差（2Y-10Y）對 QQQ/XLV 相對報酬存在約 24 個月的領先關係。當前 spread 為 -0.35%（曲線輕微倒掛），對應未來 24 個月 XLV 相對跑贏的預期。",
 
   "notes": [
     "領先關係反映的是『歷史統計規律』，不保證未來成立。",
@@ -143,39 +143,39 @@
 
 ### current_state
 
-| 欄位             | 類型   | 說明                           |
-|------------------|--------|--------------------------------|
-| spread           | float  | 當前殖利率利差（%）            |
-| spread_percentile| float  | 利差在歷史的分位數（0-100）    |
-| spread_3m_change | float  | 利差過去 3 個月變化            |
-| spread_trend     | string | 趨勢：steepening/flattening    |
-| as_of_date       | string | 數據截止日期                   |
+| 欄位              | 類型   | 說明                        |
+|-------------------|--------|-----------------------------|
+| spread            | float  | 當前美國公債利差（%）       |
+| spread_percentile | float  | 利差在歷史的分位數（0-100） |
+| spread_3m_change  | float  | 利差過去 3 個月變化         |
+| spread_trend      | string | 趨勢：steepening/flattening |
+| as_of_date        | string | 數據截止日期                |
 
 ### model
 
-| 欄位        | 類型   | 說明                     |
-|-------------|--------|--------------------------|
-| type        | string | 模型類型                 |
-| coefficients| object | 迴歸係數（alpha, beta）  |
-| fit_quality | object | 擬合品質指標             |
+| 欄位         | 類型   | 說明                    |
+|--------------|--------|-------------------------|
+| type         | string | 模型類型                |
+| coefficients | object | 迴歸係數（alpha, beta） |
+| fit_quality  | object | 擬合品質指標            |
 
 ### forecast
 
-| 欄位                   | 類型   | 說明                          |
-|------------------------|--------|-------------------------------|
-| horizon_months         | int    | 預測視野（月）                |
-| future_relative_return | object | 預測報酬（log 與 pct）        |
-| interval               | object | 信心區間                      |
-| direction              | object | 方向預測（哪邊跑贏機率）      |
-| interpretation         | string | 自然語言解讀                  |
+| 欄位                   | 類型   | 說明                     |
+|------------------------|--------|--------------------------|
+| horizon_months         | int    | 預測視野（月）           |
+| future_relative_return | object | 預測報酬（log 與 pct）   |
+| interval               | object | 信心區間                 |
+| direction              | object | 方向預測（哪邊跑贏機率） |
+| interpretation         | string | 自然語言解讀             |
 
 ### diagnostics
 
-| 欄位             | 類型   | 說明                     |
-|------------------|--------|--------------------------|
-| lead_scan        | object | 領先掃描結果             |
-| stability_checks | object | 穩定性驗證結果           |
-| data_quality     | object | 數據品質指標             |
+| 欄位             | 類型   | 說明           |
+|------------------|--------|----------------|
+| lead_scan        | object | 領先掃描結果   |
+| stability_checks | object | 穩定性驗證結果 |
+| data_quality     | object | 數據品質指標   |
 
 ---
 
@@ -197,10 +197,10 @@
 ```
 
 **錯誤碼：**
-| 代碼                 | 說明                   |
-|----------------------|------------------------|
-| DATA_FETCH_FAILED    | 數據抓取失敗           |
-| INSUFFICIENT_DATA    | 數據點不足             |
-| INVALID_PARAMS       | 參數無效               |
-| MODEL_FIT_FAILED     | 模型估計失敗           |
-| STABILITY_CHECK_FAIL | 穩定性驗證不通過       |
+| 代碼                 | 說明             |
+|----------------------|------------------|
+| DATA_FETCH_FAILED    | 數據抓取失敗     |
+| INSUFFICIENT_DATA    | 數據點不足       |
+| INVALID_PARAMS       | 參數無效         |
+| MODEL_FIT_FAILED     | 模型估計失敗     |
+| STABILITY_CHECK_FAIL | 穩定性驗證不通過 |

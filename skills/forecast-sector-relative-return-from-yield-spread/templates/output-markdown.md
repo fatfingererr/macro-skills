@@ -7,7 +7,7 @@
 ## 報告結構
 
 ```markdown
-# 殖利率利差 → 板塊相對報酬 預測報告
+# 美國公債利差 → 板塊相對報酬 預測報告
 
 **生成時間**：{generated_at}
 **數據截止**：{as_of_date}
@@ -22,11 +22,11 @@
 
 ## 當前利差狀態
 
-| 指標               | 數值      | 解讀                 |
-|--------------------|-----------|----------------------|
-| 2Y-10Y 殖利率利差  | {spread}% | {spread_interpretation} |
-| 歷史分位數         | {spread_percentile}% | {percentile_interpretation} |
-| 近 3 個月變化      | {spread_3m_change}% | {trend_interpretation} |
+| 指標                | 數值                 | 解讀                        |
+|---------------------|----------------------|-----------------------------|
+| 2Y-10Y 美國公債利差 | {spread}%            | {spread_interpretation}     |
+| 歷史分位數          | {spread_percentile}% | {percentile_interpretation} |
+| 近 3 個月變化       | {spread_3m_change}%  | {trend_interpretation}      |
 
 **趨勢判斷**：{spread_trend}
 
@@ -42,19 +42,19 @@
 
 ### 模型結果
 
-| 指標         | 數值    | 解讀                           |
-|--------------|---------|--------------------------------|
-| 相關係數     | {corr}  | {corr_interpretation}          |
-| R²           | {r_sq}  | spread 解釋約 {r_sq_pct}% 變異 |
-| Beta 係數    | {beta}  | {beta_interpretation}          |
-| p-value      | {p_val} | {significance_interpretation}  |
+| 指標      | 數值    | 解讀                           |
+|-----------|---------|--------------------------------|
+| 相關係數  | {corr}  | {corr_interpretation}          |
+| R²        | {r_sq}  | spread 解釋約 {r_sq_pct}% 變異 |
+| Beta 係數 | {beta}  | {beta_interpretation}          |
+| p-value   | {p_val} | {significance_interpretation}  |
 
 ### 穩定性驗證
 
-| 子樣本       | 期間                 | 相關係數 |
-|--------------|----------------------|----------|
-| 前半段       | {first_half_period}  | {first_half_corr} |
-| 後半段       | {second_half_period} | {second_half_corr} |
+| 子樣本 | 期間                 | 相關係數           |
+|--------|----------------------|--------------------|
+| 前半段 | {first_half_period}  | {first_half_corr}  |
+| 後半段 | {second_half_period} | {second_half_corr} |
 
 **一致性判斷**：{consistency}
 
@@ -64,11 +64,11 @@
 
 ### 未來 {horizon_months} 個月相對報酬預測
 
-| 指標                 | 數值                        |
-|----------------------|-----------------------------|
-| 點估計（QQQ 相對 XLV） | {future_rel_return_pct}%  |
+| 指標                     | 數值                             |
+|--------------------------|----------------------------------|
+| 點估計（QQQ 相對 XLV）   | {future_rel_return_pct}%         |
 | {confidence_level}% 區間 | [{interval_lo}%, {interval_hi}%] |
-| XLV 跑贏機率         | {defensive_outperform_prob}% |
+| XLV 跑贏機率             | {defensive_outperform_prob}%     |
 
 ### 解讀
 
@@ -80,13 +80,13 @@
 
 （若執行）
 
-| 領先期（月） | 相關係數 | 備註     |
-|--------------|----------|----------|
-| 6            | {corr_6} |          |
-| 12           | {corr_12}|          |
-| 18           | {corr_18}|          |
-| 24           | {corr_24}| ← 最佳   |
-| 30           | {corr_30}|          |
+| 領先期（月） | 相關係數  | 備註   |
+|--------------|-----------|--------|
+| 6            | {corr_6}  |        |
+| 12           | {corr_12} |        |
+| 18           | {corr_18} |        |
+| 24           | {corr_24} | ← 最佳 |
+| 30           | {corr_30} |        |
 
 **最佳領先期**：{best_lead_months} 個月
 
@@ -133,12 +133,12 @@
 
 ## 數據來源
 
-| 數據         | 來源         | 代碼        |
-|--------------|--------------|-------------|
-| 短端殖利率   | FRED         | {short_code}|
-| 長端殖利率   | FRED         | {long_code} |
-| 成長股價格   | Yahoo Finance| {risk_ticker}|
-| 防禦股價格   | Yahoo Finance| {defensive_ticker}|
+| 數據       | 來源          | 代碼               |
+|------------|---------------|--------------------|
+| 短端殖利率 | FRED          | {short_code}       |
+| 長端殖利率 | FRED          | {long_code}        |
+| 成長股價格 | Yahoo Finance | {risk_ticker}      |
+| 防禦股價格 | Yahoo Finance | {defensive_ticker} |
 
 ---
 
@@ -151,26 +151,26 @@
 
 ## 欄位填充說明
 
-| 佔位符                     | 來源                              | 範例               |
-|----------------------------|-----------------------------------|--------------------|
-| {generated_at}             | 報告生成時間                      | 2026-01-27 10:30   |
-| {as_of_date}               | current_state.as_of_date          | 2026-01-24         |
-| {summary}                  | summary 欄位                      | 見範例             |
-| {spread}                   | current_state.spread              | -0.35              |
-| {spread_percentile}        | current_state.spread_percentile   | 35                 |
-| {spread_3m_change}         | current_state.spread_3m_change    | +0.25              |
-| {spread_trend}             | current_state.spread_trend        | steepening         |
-| {model_type}               | model.type                        | lagged_regression  |
-| {lead_months}              | inputs.lead_months                | 24                 |
-| {lookback_years}           | inputs.lookback_years             | 12                 |
-| {corr}                     | model.fit_quality.corr_x_y        | -0.32              |
-| {r_sq}                     | model.fit_quality.r_squared       | 0.10               |
-| {beta}                     | model.coefficients.beta           | -0.45              |
-| {future_rel_return_pct}    | forecast.future_relative_return.pct | -7.7             |
-| {interval_lo}              | forecast.interval.pct[0]          | -22                |
-| {interval_hi}              | forecast.interval.pct[1]          | +4                 |
-| {defensive_outperform_prob}| forecast.direction.defensive_outperform_prob | 70    |
-| {chart_path}               | artifacts[0].path                 | output/xxx.png     |
+| 佔位符                      | 來源                                         | 範例              |
+|-----------------------------|----------------------------------------------|-------------------|
+| {generated_at}              | 報告生成時間                                 | 2026-01-27 10:30  |
+| {as_of_date}                | current_state.as_of_date                     | 2026-01-24        |
+| {summary}                   | summary 欄位                                 | 見範例            |
+| {spread}                    | current_state.spread                         | -0.35             |
+| {spread_percentile}         | current_state.spread_percentile              | 35                |
+| {spread_3m_change}          | current_state.spread_3m_change               | +0.25             |
+| {spread_trend}              | current_state.spread_trend                   | steepening        |
+| {model_type}                | model.type                                   | lagged_regression |
+| {lead_months}               | inputs.lead_months                           | 24                |
+| {lookback_years}            | inputs.lookback_years                        | 12                |
+| {corr}                      | model.fit_quality.corr_x_y                   | -0.32             |
+| {r_sq}                      | model.fit_quality.r_squared                  | 0.10              |
+| {beta}                      | model.coefficients.beta                      | -0.45             |
+| {future_rel_return_pct}     | forecast.future_relative_return.pct          | -7.7              |
+| {interval_lo}               | forecast.interval.pct[0]                     | -22               |
+| {interval_hi}               | forecast.interval.pct[1]                     | +4                |
+| {defensive_outperform_prob} | forecast.direction.defensive_outperform_prob | 70                |
+| {chart_path}                | artifacts[0].path                            | output/xxx.png    |
 
 ---
 

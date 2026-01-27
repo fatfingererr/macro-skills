@@ -8,7 +8,7 @@ description: 用美債殖利率曲線利差（如 2Y-10Y）建立「領先關係
 <principle name="lead_lag_definition">
 **領先落後關係定義**
 
-殖利率利差（Yield Spread）作為領先指標：
+美國公債利差（Yield Spread）作為領先指標：
 
 ```
 spread_t = short_yield_t - long_yield_t
@@ -97,7 +97,7 @@ Y = future_rel_return(t, H) = log(ratio(t+H) / ratio(t))
 </essential_principles>
 
 <objective>
-實作「殖利率利差 → 板塊相對報酬」領先關係分析：
+實作「美國公債利差 → 板塊相對報酬」領先關係分析：
 
 1. **數據整合**：取得殖利率（FRED）與資產價格（yfinance）
 2. **利差計算**：計算 spread = short_yield - long_yield
@@ -130,10 +130,21 @@ python scripts/spread_forecaster.py \
   --output result.json
 ```
 
-**生成視覺化圖表**
+**生成 Bloomberg 風格視覺化圖表**
 
 ```bash
-python scripts/spread_plotter.py --quick --output-dir ../../output
+python scripts/plot_bloomberg_style.py --quick --output output/yield_spread_forecast_$(date +%Y-%m-%d).png
+```
+
+**完整版圖表（自訂參數）**
+
+```bash
+python scripts/plot_bloomberg_style.py \
+  --lookback-years 18 \
+  --lead-months 24 \
+  --risk-ticker QQQ \
+  --defensive-ticker XLV \
+  --output output/yield_spread_analysis.png
 ```
 
 輸出範例：
@@ -173,15 +184,15 @@ python scripts/spread_plotter.py --quick --output-dir ../../output
 </intake>
 
 <routing>
-| Response                       | Action                                                              |
-|--------------------------------|---------------------------------------------------------------------|
-| 1, "快速", "quick", "分析"     | 執行 `python scripts/spread_forecaster.py --quick`                  |
-| 2, "完整", "full", "自訂"      | 閱讀 `workflows/analyze.md` 並執行                                  |
-| 3, "掃描", "scan", "領先"      | 閱讀 `workflows/analyze.md` 並聚焦 lead_scan                        |
-| 4, "圖表", "chart", "視覺化"   | 執行 `python scripts/spread_plotter.py --quick --output-dir output/`|
-| 5, "驗證", "穩定", "stability" | 閱讀 `workflows/analyze.md` 並聚焦穩定性驗證                        |
-| 6, "學習", "方法論", "why"     | 閱讀 `references/methodology.md`                                    |
-| 提供參數 (如 ticker, lead)     | 閱讀 `workflows/analyze.md` 並使用參數執行                          |
+| Response                       | Action                                                                 |
+|--------------------------------|------------------------------------------------------------------------|
+| 1, "快速", "quick", "分析"     | 執行 `python scripts/spread_forecaster.py --quick`                     |
+| 2, "完整", "full", "自訂"      | 閱讀 `workflows/analyze.md` 並執行                                     |
+| 3, "掃描", "scan", "領先"      | 閱讀 `workflows/analyze.md` 並聚焦 lead_scan                           |
+| 4, "圖表", "chart", "視覺化"   | 執行 `python scripts/plot_bloomberg_style.py --quick --output output/` |
+| 5, "驗證", "穩定", "stability" | 閱讀 `workflows/analyze.md` 並聚焦穩定性驗證                           |
+| 6, "學習", "方法論", "why"     | 閱讀 `references/methodology.md`                                       |
+| 提供參數 (如 ticker, lead)     | 閱讀 `workflows/analyze.md` 並使用參數執行                             |
 
 **路由後，閱讀對應文件並執行。**
 </routing>
@@ -204,7 +215,8 @@ forecast-sector-relative-return-from-yield-spread/
 │   └── output-markdown.md             # Markdown 報告模板
 ├── scripts/
 │   ├── spread_forecaster.py           # 主計算腳本
-│   └── spread_plotter.py              # 視覺化圖表腳本
+│   ├── plot_bloomberg_style.py        # Bloomberg 風格視覺化（推薦）
+│   └── spread_plotter.py              # 基本版圖表腳本（備用）
 └── examples/
     └── sample-output.json             # 範例輸出
 ```
@@ -231,10 +243,10 @@ forecast-sector-relative-return-from-yield-spread/
 </reference_index>
 
 <workflows_index>
-| Workflow         | Purpose        | 使用時機                            |
-|------------------|----------------|-------------------------------------|
-| analyze.md       | 完整情境分析   | 需要自訂參數驗證領先關係與預測      |
-| data-research.md | 數據源研究     | 了解如何獲取或替代殖利率/資產數據   |
+| Workflow         | Purpose      | 使用時機                          |
+|------------------|--------------|-----------------------------------|
+| analyze.md       | 完整情境分析 | 需要自訂參數驗證領先關係與預測    |
+| data-research.md | 數據源研究   | 了解如何獲取或替代殖利率/資產數據 |
 </workflows_index>
 
 <templates_index>
@@ -245,37 +257,38 @@ forecast-sector-relative-return-from-yield-spread/
 </templates_index>
 
 <scripts_index>
-| Script               | Command                                     | Purpose                          |
-|----------------------|---------------------------------------------|----------------------------------|
-| spread_forecaster.py | `--quick`                                   | 快速分析 QQQ/XLV, 24m lead       |
-| spread_forecaster.py | `--lead-months 12 --lookback-years 15`     | 自訂領先期與回測長度             |
-| spread_forecaster.py | `--lead-scan --scan-range 6,12,18,24,30`   | 領先期掃描                       |
-| spread_plotter.py    | `--quick --output-dir ../../output`        | 快速生成基本版圖表               |
-| spread_plotter.py    | `--comprehensive --start-date 2007-01-01`  | 完整版圖表（含領先對齊）         |
+| Script                  | Command                                     | Purpose                         |
+|-------------------------|---------------------------------------------|---------------------------------|
+| spread_forecaster.py    | `--quick`                                   | 快速分析 QQQ/XLV, 24m lead      |
+| spread_forecaster.py    | `--lead-months 12 --lookback-years 15`      | 自訂領先期與回測長度            |
+| spread_forecaster.py    | `--lead-scan --scan-range 6,12,18,24,30,36` | 領先期掃描                      |
+| plot_bloomberg_style.py | `--quick --output output/chart.png`         | Bloomberg 風格快速圖表          |
+| plot_bloomberg_style.py | `--lookback-years 18 --lead-months 24`      | 完整版圖表（含領先掃描+穩定性） |
+| spread_plotter.py       | `--quick --output-dir output/`              | 基本版圖表（備用）              |
 </scripts_index>
 
 <input_schema_summary>
 
 **核心參數**
 
-| 參數              | 類型   | 預設值 | 說明                              |
-|-------------------|--------|--------|-----------------------------------|
-| risk_ticker       | string | QQQ    | 代表成長股的標的                  |
-| defensive_ticker  | string | XLV    | 代表防禦股的標的                  |
-| short_tenor       | string | 2Y     | 短端殖利率期限                    |
-| long_tenor        | string | 10Y    | 長端殖利率期限                    |
-| lead_months       | int    | 24     | 領先期（月）                      |
-| lookback_years    | int    | 12     | 回測/估計歷史年數                 |
+| 參數             | 類型   | 預設值 | 說明              |
+|------------------|--------|--------|-------------------|
+| risk_ticker      | string | QQQ    | 代表成長股的標的  |
+| defensive_ticker | string | XLV    | 代表防禦股的標的  |
+| short_tenor      | string | 2Y     | 短端殖利率期限    |
+| long_tenor       | string | 10Y    | 長端殖利率期限    |
+| lead_months      | int    | 24     | 領先期（月）      |
+| lookback_years   | int    | 12     | 回測/估計歷史年數 |
 
 **進階參數**
 
-| 參數                 | 類型   | 預設值            | 說明                           |
-|----------------------|--------|-------------------|--------------------------------|
-| freq                 | string | weekly            | 資料頻率（daily/weekly/monthly）|
-| smoothing_window     | int    | 13                | 平滑視窗（週數）               |
-| return_horizon_months| int    | 24                | 預測的相對報酬視窗             |
-| model_type           | string | lagged_regression | 模型類型                       |
-| confidence_level     | float  | 0.80              | 區間估計信心水準               |
+| 參數                  | 類型   | 預設值            | 說明                             |
+|-----------------------|--------|-------------------|----------------------------------|
+| freq                  | string | weekly            | 資料頻率（daily/weekly/monthly） |
+| smoothing_window      | int    | 13                | 平滑視窗（週數）                 |
+| return_horizon_months | int    | 24                | 預測的相對報酬視窗               |
+| model_type            | string | lagged_regression | 模型類型                         |
+| confidence_level      | float  | 0.80              | 區間估計信心水準                 |
 
 完整參數定義見 `references/input-schema.md`。
 
@@ -289,54 +302,61 @@ forecast-sector-relative-return-from-yield-spread/
     "risk_ticker": "QQQ",
     "defensive_ticker": "XLV",
     "lead_months": 24,
-    "lookback_years": 12
+    "lookback_years": 18
   },
-  "signal_name": "US02Y_minus_US10Y_leads_QQQ_over_XLV",
-  "lead_months": 24,
-  "current_spread": -0.35,
+  "signal_name": "DGS2_minus_DGS10_leads_QQQ_over_XLV",
+  "current_state": {
+    "spread": -0.61,
+    "spread_percentile": 61.1,
+    "spread_trend": "steepening"
+  },
   "model": {
     "type": "lagged_regression",
-    "alpha": 0.02,
-    "beta": -0.45,
+    "coefficients": { "alpha": 0.19, "beta": 0.087 },
     "fit_quality": {
-      "corr_x_y": -0.32,
-      "r_squared": 0.10,
-      "notes": "負 beta 意味歷史上倒掛/緊縮的 spread 對應未來 QQQ 相對走弱"
+      "corr_x_y": 0.484,
+      "r_squared": 0.234,
+      "notes": "正 beta 意味 spread 越低（曲線正常）→ 未來 QQQ 相對 XLV 越強"
     }
   },
   "forecast": {
-    "future_24m_relative_return_log": -0.08,
-    "future_24m_relative_return_pct": -0.077,
-    "interval_pct_80": [-0.22, 0.04],
-    "interpretation": "若此關係維持，未來24個月QQQ相對XLV期望報酬為-7.7%，XLV較可能跑贏；但區間仍含正值，需搭配其他條件確認。"
+    "horizon_months": 24,
+    "future_relative_return_pct": 0.148,
+    "interval_pct_80": [-0.05, 0.36],
+    "expected_winner": "QQQ"
   },
   "diagnostics": {
     "lead_scan": {
-      "best_lead_months": 24,
-      "correlation_by_lead": {"6": -0.15, "12": -0.22, "18": -0.28, "24": -0.32, "30": -0.30}
+      "best_lead_months": 36,
+      "correlation_by_lead": {"6": 0.233, "12": 0.360, "18": 0.405, "24": 0.484, "30": 0.502, "36": 0.509}
     },
     "stability_checks": {
-      "first_half_corr": -0.30,
-      "second_half_corr": -0.34,
-      "consistency": "medium-high"
+      "first_half_corr": -0.087,
+      "second_half_corr": 0.663,
+      "consistency": "low"
     }
   },
-  "summary": "殖利率利差（2Y-10Y）對 QQQ/XLV 相對報酬有約 24 個月的領先性...",
   "notes": [
     "領先關係反映的是『歷史統計規律』，不保證未來成立。",
-    "當前 spread 水準與變化率皆需考慮。",
+    "子樣本一致性低：前半段（2007-2015）為負相關，後半段（2015-2024）為正相關。",
+    "這意味著此領先關係可能只是 2015 後 QE 時代的特有現象。",
     "建議搭配：景氣指標、估值分位、資金流向做交叉驗證。"
   ]
 }
 ```
 
 完整輸出結構見 `templates/output-json.md`。
+
+**重要發現（2026-01-27 驗證結果）**：
+- 領先關係存在，但 **子樣本一致性低**（前半段負相關 vs 後半段正相關）
+- 最佳領先期為 30-36 個月（非 24 個月），但 24 個月也有 0.484 的相關性
+- R² = 23.4%，spread 僅解釋約四分之一的相對報酬變異
 </output_schema_summary>
 
 <success_criteria>
 執行成功時應產出：
 
-- [ ] 當前殖利率利差水準
+- [ ] 當前美國公債利差水準
 - [ ] 領先關係相關性與迴歸係數
 - [ ] 未來相對報酬預測（點估計與區間）
 - [ ] 領先期掃描結果（若執行）

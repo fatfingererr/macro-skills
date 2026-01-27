@@ -174,7 +174,7 @@ python scripts/spread_plotter.py --comprehensive --start-date 2007-01-01 --outpu
 ```
 
 **完整版圖表包含：**
-1. 上圖：殖利率利差走勢（平移 lead_months 後）
+1. 上圖：美國公債利差走勢（平移 lead_months 後）
 2. 中圖：QQQ/XLV 相對報酬走勢
 3. 下左：領先掃描相關性條形圖
 4. 下右：預測區間分佈
