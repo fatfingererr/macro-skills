@@ -1,0 +1,102 @@
+{
+  "name": "track-agri-hedge-fund-positioning",
+  "version": "0.1.0",
+  "displayName": "追蹤農產品對沖基金部位",
+  "description": "用 COT 非商業部位變化，量化對沖基金在農產品期貨的資金流向，並把出口需求、USDA 數據、美元/原油/金屬等宏觀風向整合成可交易的敘事與訊號。",
+  "author": {
+    "name": "macro-skills"
+  },
+  "license": "MIT",
+  "category": "commodity-sd",
+  "tags": [
+    "COT",
+    "農產品",
+    "穀物",
+    "油籽",
+    "肉類",
+    "軟性商品",
+    "期貨",
+    "對沖基金",
+    "金流"
+  ],
+  "dataLevel": "free-nolimit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "requests>=2.28.0",
+      "yfinance>=0.2.0"
+    ],
+    "optional": [
+      "matplotlib>=3.5.0",
+      "seaborn>=0.12.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/analyze_positioning.py"
+  },
+  "workflows": [
+    {
+      "id": "analyze",
+      "name": "完整資金流向分析",
+      "description": "分析指定日期範圍的基金部位變化與資金流向",
+      "file": "workflows/analyze.md"
+    },
+    {
+      "id": "visualize",
+      "name": "視覺化圖表",
+      "description": "生成分組柱狀圖與火力時序圖",
+      "file": "workflows/visualize.md"
+    },
+    {
+      "id": "monitor",
+      "name": "週度監控",
+      "description": "每週五 COT 更新後的監控與警報",
+      "file": "workflows/monitor.md"
+    },
+    {
+      "id": "cross-check",
+      "name": "交叉驗證",
+      "description": "宏觀與基本面敘事一致性驗證",
+      "file": "workflows/cross-check.md"
+    }
+  ],
+  "references": [
+    "references/methodology.md",
+    "references/data-sources.md",
+    "references/input-schema.md",
+    "references/contracts-map.md",
+    "references/macro-indicators.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md",
+    "templates/annotations.md"
+  ],
+  "examples": [
+    "examples/weekly_flow_sample.json",
+    "examples/full_analysis_result.json"
+  ],
+  "dataSources": [
+    {
+      "name": "CFTC COT Reports",
+      "type": "primary",
+      "url": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm",
+      "api": "CSV 下載"
+    },
+    {
+      "name": "FRED (DXY proxy)",
+      "type": "secondary",
+      "url": "https://fred.stlouisfed.org",
+      "api": "CSV 無需 API key"
+    },
+    {
+      "name": "Yahoo Finance",
+      "type": "secondary",
+      "url": "https://finance.yahoo.com",
+      "api": "yfinance 套件"
+    }
+  ]
+}

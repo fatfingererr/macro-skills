@@ -1,0 +1,37 @@
+{
+  "description": "單週流量資料範例",
+  "cot_week_end": "2026-01-21",
+  "flow_total_contracts": 58000,
+  "flow_by_group_contracts": {
+    "grains": 35000,
+    "oilseeds": 25000,
+    "meats": 5000,
+    "softs": -7000
+  },
+  "net_position_by_group": {
+    "grains": 125000,
+    "oilseeds": 85000,
+    "meats": 12000,
+    "softs": -5000,
+    "total": 217000
+  },
+  "buying_firepower": {
+    "total": 0.63,
+    "grains": 0.58,
+    "oilseeds": 0.67,
+    "meats": 0.41,
+    "softs": 0.75
+  },
+  "macro_tailwind_score": 0.67,
+  "macro_components": {
+    "usd_down": true,
+    "crude_up": true,
+    "metals_up": false
+  },
+  "interpretation": {
+    "call": "Funds back & buying",
+    "confidence": 0.72,
+    "primary_driver": "穀物與油籽同步流入，宏觀順風支持",
+    "key_observation": "總流量由負轉正，火力仍有空間"
+  }
+}

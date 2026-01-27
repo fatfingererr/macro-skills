@@ -1,0 +1,227 @@
+displayName: 追蹤農產品對沖基金部位
+emoji: "\U0001F33E"
+authorUrl: https://github.com/fatfingererr/macro-skills
+
+tools:
+  - claude-code
+
+featured: false
+installCount: 0
+
+testQuestions:
+  - question: '分析最新一週的農產品對沖基金部位變化'
+    expectedResult: |
+      此技能會：
+      1. 抓取最新 CFTC COT 週報資料
+      2. 計算非商業部位的淨變化
+      3. 依 Grains/Oilseeds/Meats/Softs 分組彙總
+      4. 計算各群組的火力分數
+      5. 整合宏觀順風評分
+      6. 輸出「Funds back & buying」或類似的可交易呼叫
+
+  - question: '基金火力在穀物板塊還有多少空間？'
+    expectedResult: |
+      此技能會計算穀物群組的 buying_firepower：
+      - 取得過去 156 週的淨部位歷史
+      - 計算當前淨部位的分位數
+      - firepower = 1 - percentile
+      - 高火力（>0.6）表示仍有大量加碼空間
+
+  - question: '驗證新聞敘事：基金週中買回是否有宏觀支持？'
+    expectedResult: |
+      此技能會交叉驗證：
+      1. COT 週資料確認到週二是否偏賣
+      2. 週三～週五的價格動能是否轉強
+      3. 宏觀共振：USD 走弱、原油/金屬走強
+      4. 輸出敘事一致性評分與證據
+
+qualityScore:
+  overall: 45
+  badge: 中級
+  evaluatedAt: "2026-01-27"
+
+  metrics:
+    problemFit: 60
+    correctness: 45
+    dataGovernance: 50
+    robustness: 35
+    maintainability: 45
+    usability: 45
+
+  metricDetails:
+    problemFit:
+      score: 60
+      strengths:
+        - 清晰的問題定義：量化新聞敘事
+        - 涵蓋 COT + 宏觀 + 基本面整合
+        - 分組彙總邏輯完整
+      improvements:
+        - Alpha 階段，功能未完善
+        - 週中回補驗證需更多代理資料
+
+    correctness:
+      score: 45
+      strengths:
+        - 方法論有明確的公式定義
+        - 火力計算邏輯可重現
+      improvements:
+        - COT 資料解析需驗證
+        - 缺少 golden case 範例
+
+    dataGovernance:
+      score: 50
+      strengths:
+        - 使用 CFTC 官方公開資料
+        - FRED/Yahoo 無需 API key
+      improvements:
+        - COT CSV 格式可能變化
+        - 缺少 fallback 來源
+
+    robustness:
+      score: 35
+      strengths:
+        - 有基本的分組容錯
+      improvements:
+        - Alpha 階段穩定性不足
+        - 缺少 failure-modes.md
+        - 缺值處理未完善
+
+    maintainability:
+      score: 45
+      strengths:
+        - 工作流程分離設計
+        - 參數集中定義
+      improvements:
+        - 需增加版本控制
+        - 合約對照表需定期更新
+
+    usability:
+      score: 45
+      strengths:
+        - 輸出包含可交易呼叫
+        - 有信心水準與風險提示
+      improvements:
+        - 缺少歷史對照
+        - 視覺化範例不足
+
+  details: |
+    **任務適配度（60/100）**
+    - 問題定義清晰
+    - 待改進：Alpha 階段未完善
+
+    **正確性（45/100）**
+    - 公式可重現
+    - 待改進：缺少 golden case
+
+    **資料治理（50/100）**
+    - 使用公開資料
+    - 待改進：COT 格式風險
+
+    **穩健性（35/100）**
+    - 有基本容錯
+    - 待改進：Alpha 穩定性
+
+    **可維護性（45/100）**
+    - 工作流程分離
+    - 待改進：合約表更新
+
+    **輸出可用性（45/100）**
+    - 有可交易呼叫
+    - 待改進：歷史對照
+
+  upgradeNotes:
+    targetBadge: 中高級
+    requirements:
+      - metric: robustness
+        currentScore: 35
+        targetScore: 55
+        suggestion: 完成 Alpha 測試與 failure-modes.md
+      - metric: correctness
+        currentScore: 45
+        targetScore: 65
+        suggestion: 增加 golden case 與回歸測試
+      - metric: usability
+        currentScore: 45
+        targetScore: 60
+        suggestion: 增加歷史事件對照
+
+bestPractices:
+  - title: 週五 COT 發布後再執行
+    description: CFTC COT 報告在週五下午 3:30 ET 發布，確認發布後再抓取最新資料
+  - title: 對照多期資料判斷趨勢
+    description: 單週流量可能有雜訊，建議看 2-4 週的流量動能
+  - title: 結合基本面事件解讀
+    description: 大幅流入/流出通常有對應的 USDA 報告或出口數據
+  - title: 注意火力極端值
+    description: 火力低於 0.2 時要警惕擁擠風險，高於 0.8 時留意反轉機會
+
+pitfalls:
+  - title: 將 COT 當成即時資料
+    description: COT 資料截止到週二，週三～週五的部位變化只能用代理推估
+    consequence: 可能誤判週中反轉
+  - title: 忽略合約規格差異
+    description: 不同商品的合約大小與單位不同（bushels vs cwt vs lbs）
+    consequence: 跨商品比較失真
+  - title: 單純看淨部位忽略結構
+    description: 相同淨部位下，多空結構不同（集中 vs 分散）風險也不同
+    consequence: 低估部位擠壓風險
+
+faq:
+  - question: COT 報告有哪些版本？
+    answer: |
+      CFTC 發布多種 COT 報告：
+
+      **Legacy COT**
+      - 分類：Commercial / Non-Commercial / Non-Reportable
+      - 最常用，歷史最長
+
+      **Disaggregated COT**
+      - 分類更細：Producer/Merchant, Swap Dealer, Managed Money, Other
+      - 2009 年後可用
+
+      **Traders in Financial Futures (TFF)**
+      - 金融期貨專用
+      - 分類：Dealer, Asset Manager, Leveraged, Other
+
+  - question: 如何定義「基金」部位？
+    answer: |
+      本技能預設使用 Legacy COT 的 Non-Commercial（非商業）部位：
+      - 代表投機性質的交易者
+      - 包含對沖基金、CTA、個人大戶
+      - 是市場情緒的代理指標
+
+      若用 Disaggregated COT，可聚焦 Managed Money。
+
+  - question: 火力分數如何解讀？
+    answer: |
+      | 火力區間   | 意義                         | 建議行動             |
+      |------------|------------------------------|----------------------|
+      | 0.8 - 1.0  | 極低部位，大量加碼空間       | 留意反轉做多機會     |
+      | 0.6 - 0.8  | 偏低部位，仍有上行空間       | 順勢做多相對安全     |
+      | 0.4 - 0.6  | 中性部位                     | 觀望為主             |
+      | 0.2 - 0.4  | 偏高部位，空間有限           | 謹慎追多             |
+      | 0.0 - 0.2  | 極高部位，擁擠風險高         | 警惕反轉，考慮減碼   |
+
+about:
+  repository: https://github.com/fatfingererr/macro-skills
+  branch: main
+  additionalInfo: |
+    ## 資料來源
+
+    **CFTC Commitments of Traders**
+    - 官網：https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm
+    - 更新：每週五下午 3:30 ET
+    - 格式：CSV/TXT
+    - 費用：免費公開
+
+    **宏觀指標**
+    - 美元：FRED DXY proxy 或 Yahoo Finance UUP
+    - 原油：Yahoo Finance CL=F 或 USO
+    - 金屬：Yahoo Finance XME 或 FRED 工業金屬指數
+
+    ## 理論背景
+
+    本技能基於 COT 分析的經典方法論：
+    - 非商業部位代表投機情緒
+    - 極端部位通常是反轉訊號
+    - 資金流向可驗證敘事一致性

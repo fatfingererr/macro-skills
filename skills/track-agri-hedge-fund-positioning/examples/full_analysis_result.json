@@ -1,0 +1,215 @@
+{
+  "skill": "track-agri-hedge-fund-positioning",
+  "version": "0.1.0",
+  "generated_at": "2026-01-27T10:30:00Z",
+  "as_of": "2026-01-21",
+
+  "summary": {
+    "call": "Funds back & buying",
+    "confidence": 0.72,
+    "why": [
+      "COT 週部位變化顯示農產品總流量由負轉正",
+      "分組（穀物/油籽）同步改善，非單一品種噪音",
+      "宏觀順風：美元走弱、原油與金屬偏強"
+    ],
+    "risks": [
+      "COT 只到週二：Wed–Fri 的『買回』屬推估，需要價格/未平倉等代理證據佐證",
+      "USDA 報告或天氣/南美供給變動可能讓訊號反轉"
+    ],
+    "next_steps": [
+      "監控週五 USDA Export Sales 報告",
+      "觀察火力是否持續回升",
+      "若火力突破 70%，考慮減碼觀望"
+    ]
+  },
+
+  "latest_metrics": {
+    "cot_week_end": "2026-01-21",
+    "flow_total_contracts": 58000,
+    "flow_by_group_contracts": {
+      "grains": 35000,
+      "oilseeds": 25000,
+      "meats": 5000,
+      "softs": -7000
+    },
+    "net_position_by_group": {
+      "grains": 125000,
+      "oilseeds": 85000,
+      "meats": 12000,
+      "softs": -5000,
+      "total": 217000
+    },
+    "buying_firepower": {
+      "total": 0.63,
+      "grains": 0.58,
+      "oilseeds": 0.67,
+      "meats": 0.41,
+      "softs": 0.75
+    },
+    "macro_tailwind_score": 0.67,
+    "macro_components": {
+      "usd_down": true,
+      "crude_up": true,
+      "metals_up": false
+    }
+  },
+
+  "weekly_flows": [
+    {
+      "date": "2025-12-03",
+      "grains": -25000,
+      "oilseeds": -15000,
+      "meats": 2000,
+      "softs": -3000,
+      "total": -41000
+    },
+    {
+      "date": "2025-12-10",
+      "grains": -18000,
+      "oilseeds": -8000,
+      "meats": -1000,
+      "softs": 1000,
+      "total": -26000
+    },
+    {
+      "date": "2025-12-17",
+      "grains": -5000,
+      "oilseeds": 5000,
+      "meats": 3000,
+      "softs": -2000,
+      "total": 1000
+    },
+    {
+      "date": "2025-12-24",
+      "grains": 2000,
+      "oilseeds": 3000,
+      "meats": 1000,
+      "softs": 0,
+      "total": 6000
+    },
+    {
+      "date": "2025-12-31",
+      "grains": 8000,
+      "oilseeds": 10000,
+      "meats": 2000,
+      "softs": -1000,
+      "total": 19000
+    },
+    {
+      "date": "2026-01-07",
+      "grains": 15000,
+      "oilseeds": 12000,
+      "meats": 3000,
+      "softs": -2000,
+      "total": 28000
+    },
+    {
+      "date": "2026-01-14",
+      "grains": 22000,
+      "oilseeds": 18000,
+      "meats": 4000,
+      "softs": -5000,
+      "total": 39000
+    },
+    {
+      "date": "2026-01-21",
+      "grains": 35000,
+      "oilseeds": 25000,
+      "meats": 5000,
+      "softs": -7000,
+      "total": 58000
+    }
+  ],
+
+  "firepower_history": [
+    {"date": "2025-12-03", "total": 0.82, "grains": 0.85, "oilseeds": 0.78},
+    {"date": "2025-12-10", "total": 0.80, "grains": 0.82, "oilseeds": 0.76},
+    {"date": "2025-12-17", "total": 0.78, "grains": 0.78, "oilseeds": 0.74},
+    {"date": "2025-12-24", "total": 0.75, "grains": 0.74, "oilseeds": 0.72},
+    {"date": "2025-12-31", "total": 0.72, "grains": 0.70, "oilseeds": 0.70},
+    {"date": "2026-01-07", "total": 0.68, "grains": 0.65, "oilseeds": 0.68},
+    {"date": "2026-01-14", "total": 0.65, "grains": 0.62, "oilseeds": 0.67},
+    {"date": "2026-01-21", "total": 0.63, "grains": 0.58, "oilseeds": 0.67}
+  ],
+
+  "annotations": [
+    {
+      "label": "macro_mood_bullish",
+      "display": "Macro Mood Bullish",
+      "rule_hit": true,
+      "evidence": ["USD down", "crude up"],
+      "date": "2026-01-21",
+      "priority": 1
+    },
+    {
+      "label": "funds_back_buying",
+      "display": "Funds Back & Buying",
+      "rule_hit": true,
+      "evidence": ["Flow reversed to positive", "Firepower: 63%"],
+      "date": "2026-01-14",
+      "priority": 1
+    },
+    {
+      "label": "broad_based_buying",
+      "display": "Broad-Based Buying",
+      "rule_hit": true,
+      "evidence": ["Grains: +35,000", "Oilseeds: +25,000", "Meats: +5,000"],
+      "date": "2026-01-21",
+      "priority": 2
+    }
+  ],
+
+  "validation": {
+    "wed_fri_buyback": {
+      "price_momentum": {
+        "value": 0.012,
+        "signal": "bullish"
+      },
+      "volume_change": {
+        "value": 1.15,
+        "signal": "normal"
+      },
+      "macro_resonance": {
+        "value": 0.67,
+        "details": {
+          "usd_down": true,
+          "oil_up": true,
+          "metals_up": false
+        },
+        "signal": "supportive"
+      }
+    },
+    "macro_alignment": {
+      "flow_direction": "inflow",
+      "macro_bias": "bullish",
+      "aligned": true,
+      "interpretation": "資金流入且宏觀順風，敘事一致"
+    },
+    "fundamental_events": [
+      {
+        "event": "export_sales",
+        "date": "2026-01-16",
+        "bias": "bullish",
+        "group": "grains",
+        "flow": 35000,
+        "consistent": true
+      }
+    ],
+    "overall_consistency": 0.78,
+    "confidence_adjustment": 0.1,
+    "narrative_assessment": "敘事高度一致，可信度高"
+  },
+
+  "metadata": {
+    "cot_report_type": "legacy",
+    "trader_group": "noncommercial",
+    "position_metric": "net",
+    "lookback_weeks": 156,
+    "macro_lookback_days": 5,
+    "data_sources": {
+      "cot": "CFTC",
+      "macro": "Yahoo Finance",
+      "fundamentals": "USDA"
+    }
+  }
+}
