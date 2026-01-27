@@ -19,16 +19,18 @@ CFTC Commitments of Traders 報告是追蹤對沖基金農產品部位的核心�
 <principle name="group_aggregation">
 **分組彙總邏輯**
 
-將個別農產品期貨依商品特性分組：
+使用 CFTC 原生分組（commodity_subgroup_name）：
 
-| 群組     | 商品                             | 特性       |
-|----------|----------------------------------|------------|
-| Grains   | Corn, Wheat, Rice, Oats, Sorghum | 穀物主糧   |
-| Oilseeds | Soybeans, Soybean Oil/Meal       | 油籽蛋白粕 |
-| Meats    | Live Cattle, Lean Hogs, Feeder   | 畜牧期貨   |
-| Softs    | Coffee, Sugar, Cocoa, Cotton     | 軟性商品   |
+| 群組     | CFTC 分組名稱           | 包含商品                          |
+|----------|-------------------------|-----------------------------------|
+| Grains   | GRAINS                  | Corn, Wheat (SRW/HRW/HRS), Oats   |
+| Oilseeds | OILSEED and PRODUCTS    | Soybeans, Soybean Oil/Meal, Canola|
+| Meats    | LIVESTOCK/MEAT PRODUCTS | Live Cattle, Lean Hogs, Feeder    |
+| Softs    | FOODSTUFFS/SOFTS        | Coffee, Sugar, Cocoa, OJ          |
+| Fiber    | FIBER                   | Cotton                            |
+| Dairy    | DAIRY PRODUCTS          | Milk, Butter, Cheese              |
 
-**Total Flow = Grains + Oilseeds + Meats + Softs**
+**Total Flow = Grains + Oilseeds + Meats + Softs + Fiber + Dairy**
 </principle>
 
 <principle name="firepower_definition">
@@ -88,29 +90,35 @@ COT 只到週二，週三～週五需用代理證據：
 **快速開始：分析最新 COT 資料**
 
 ```bash
-cd skills/track-agri-hedge-fund-positioning
-pip install pandas numpy requests yfinance  # 首次使用
-python scripts/analyze_positioning.py --quick
+cd .claude/skills/track-agri-hedge-fund-positioning/scripts
+pip install pandas numpy requests yfinance pyarrow  # 首次使用
+python analyze_positioning.py --start 2023-01-01
 ```
 
-輸出範例：
+輸出範例（真實資料）：
 ```json
 {
-  "cot_week_end": "2026-01-21",
-  "flow_total_contracts": 58,
-  "flow_by_group": {"grains": 35, "oilseeds": 25, "meats": 5, "softs": 0},
-  "buying_firepower": {"total": 0.63},
-  "macro_tailwind_score": 0.67,
-  "call": "Funds back & buying"
+  "skill": "track-agri-hedge-fund-positioning",
+  "as_of": "2026-01-20",
+  "data_source": "CFTC Socrata API (real data)",
+  "summary": {
+    "call": "Funds continue selling",
+    "all_signals": ["Funds continue selling", "Extreme short - watch for reversal", "Macro mood bullish"],
+    "confidence": 0.90
+  },
+  "latest_metrics": {
+    "flow_total_contracts": -24559,
+    "flow_by_group_contracts": {"grains": -31279, "oilseeds": 11517, "meats": 18972, "softs": -23887, "fiber": 1607, "dairy": -1489},
+    "buying_firepower": {"total": 0.86, "grains": 0.58, "oilseeds": 0.62, "meats": 0.31, "softs": 0.99, "fiber": 0.58, "dairy": 0.99},
+    "macro_tailwind_score": 0.67
+  }
 }
 ```
 
-**完整分析**：
+**視覺化圖表**：
 ```bash
-python scripts/analyze_positioning.py \
-  --start 2025-01-01 \
-  --end 2026-01-21 \
-  --output result.json
+python visualize_flows.py --weeks 52
+# 輸出：output/agri_fund_positioning_YYYY-MM-DD.png
 ```
 
 </quick_start>
@@ -128,16 +136,16 @@ python scripts/analyze_positioning.py \
 </intake>
 
 <routing>
-| Response                       | Action                                               |
-|--------------------------------|------------------------------------------------------|
-| 1, "快速", "quick", "latest"   | 執行 `python scripts/analyze_positioning.py --quick` |
-| 2, "分析", "analyze", "full"   | 閱讀 `workflows/analyze.md` 並執行                   |
-| 3, "視覺化", "chart", "plot"   | 閱讀 `workflows/visualize.md` 並執行                 |
-| 4, "監控", "monitor", "weekly" | 閱讀 `workflows/monitor.md` 並執行                   |
-| 5, "學習", "方法論", "why"     | 閱讀 `references/methodology.md`                     |
-| 提供參數 (如日期範圍、商品)    | 閱讀 `workflows/analyze.md` 並使用參數執行           |
+| Response                       | Action                                                    |
+|--------------------------------|-----------------------------------------------------------|
+| 1, "快速", "quick", "latest"   | 執行 `python scripts/analyze_positioning.py`              |
+| 2, "分析", "analyze", "full"   | 執行 `python scripts/analyze_positioning.py --start DATE` |
+| 3, "視覺化", "chart", "plot"   | 執行 `python scripts/visualize_flows.py --weeks 52`       |
+| 4, "監控", "monitor", "weekly" | 閱讀 `workflows/monitor.md` 並執行                        |
+| 5, "學習", "方法論", "why"     | 閱讀 `references/methodology.md`                          |
+| 提供參數 (如日期範圍、商品)    | 使用參數執行 `analyze_positioning.py`                     |
 
-**路由後，閱讀對應文件並執行。**
+**所有腳本使用 CFTC Socrata API 取得真實資料，無模擬數據。**
 </routing>
 
 <reference_index>
@@ -170,12 +178,12 @@ python scripts/analyze_positioning.py \
 </templates_index>
 
 <scripts_index>
-| Script                 | Command                       | Purpose                    |
-|------------------------|-------------------------------|----------------------------|
-| fetch_cot_data.py      | `--report legacy`             | 抓取 CFTC COT 資料         |
-| fetch_macro_data.py    | `--indicators dxy,wti`        | 抓取宏觀指標（FRED/Yahoo） |
-| analyze_positioning.py | `--quick` or `--full`         | 主分析腳本                 |
-| visualize_flows.py     | `-i result.json -o chart.png` | 生成視覺化圖表             |
+| Script                 | Command                           | Purpose                         |
+|------------------------|-----------------------------------|---------------------------------|
+| fetch_cot_data.py      | `--start 2023-01-01 --summary`    | 從 CFTC Socrata API 抓取 COT    |
+| fetch_macro_data.py    | `--start 2025-01-01 --summary`    | 抓取宏觀指標（Yahoo/FRED）      |
+| analyze_positioning.py | `--start 2023-01-01`              | 主分析腳本（自動抓取+計算）     |
+| visualize_flows.py     | `--weeks 52`                      | 生成 Bloomberg 風格視覺化圖表   |
 </scripts_index>
 
 <input_schema_summary>
@@ -239,12 +247,12 @@ python scripts/analyze_positioning.py \
 <success_criteria>
 執行成功時應產出：
 
-- [ ] 週流量時序（Grains/Oilseeds/Meats/Softs/Total）
+- [ ] 週流量時序（Grains/Oilseeds/Meats/Softs/Fiber/Dairy/Total）
 - [ ] 最新一週的流量與淨部位
 - [ ] 各群組的火力分數（buying_firepower）
 - [ ] 宏觀順風評分（macro_tailwind_score）
 - [ ] 可交易呼叫（call）與信心水準
 - [ ] 圖表標註（annotations）與規則觸發
 - [ ] 風險提示與下一步建議
-- [ ] 視覺化圖表（可選）
+- [ ] Bloomberg 風格視覺化圖表（output/agri_fund_positioning_YYYY-MM-DD.png）
 </success_criteria>
