@@ -75,24 +75,6 @@
       "tags": []
     },
     {
-      "name": "us-cpi-pce-comparator",
-      "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/us-cpi-pce-comparator",
-      "category": "inflation-analytics",
-      "tags": [
-        "CPI",
-        "PCE",
-        "通膨",
-        "Fed",
-        "權重差異",
-        "FRED"
-      ]
-    },
-    {
       "name": "nickel-concentration-risk-analyzer",
       "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
       "version": "0.1.1",
@@ -165,24 +147,6 @@
       ]
     },
     {
-      "name": "forecast-sector-relative-return-from-yield-spread",
-      "description": "用美債殖利率曲線利差（如 2Y-10Y）建立領先關係，推估未來一段時間內成長股（Nasdaq 100）相對防禦股（Healthcare/XLV）的相對績效方向與幅度。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/forecast-sector-relative-return-from-yield-spread",
-      "category": "interest-rates",
-      "tags": [
-        "殖利率",
-        "利差",
-        "領先指標",
-        "相對報酬",
-        "QQQ",
-        "XLV"
-      ]
-    },
-    {
       "name": "google-trends-ath-detector",
       "description": "模擬真人操作瀏覽器抓取 Google Trends 數據，自動判定搜尋趨勢是否創下歷史新高（ATH）或出現異常飆升，並提供訊號分類。",
       "version": "0.1.1",
@@ -198,6 +162,42 @@
         "情緒指標",
         "異常偵測",
         "搜尋趨勢"
+      ]
+    },
+    {
+      "name": "us-cpi-pce-comparator",
+      "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/us-cpi-pce-comparator",
+      "category": "inflation-analytics",
+      "tags": [
+        "CPI",
+        "PCE",
+        "通膨",
+        "Fed",
+        "權重差異",
+        "FRED"
+      ]
+    },
+    {
+      "name": "forecast-sector-relative-return-from-yield-spread",
+      "description": "用美債殖利率曲線利差（如 2Y-10Y）建立領先關係，推估未來一段時間內成長股（Nasdaq 100）相對防禦股（Healthcare/XLV）的相對績效方向與幅度。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/forecast-sector-relative-return-from-yield-spread",
+      "category": "interest-rates",
+      "tags": [
+        "殖利率",
+        "利差",
+        "領先指標",
+        "相對報酬",
+        "QQQ",
+        "XLV"
       ]
     },
     {
@@ -237,24 +237,6 @@
       ]
     },
     {
-      "name": "detect-palladium-lead-silver-turns",
-      "description": "以鈀金的先行轉向作為確認條件，檢驗白銀短期漲跌是否獲得工業景氣與風險情緒的同步支持，並標記缺乏鈀金參與度的失敗走勢。",
-      "version": "0.1.1",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/detect-palladium-lead-silver-turns",
-      "category": "indicator-monitoring",
-      "tags": [
-        "鈀金",
-        "白銀",
-        "貴金屬",
-        "拐點偵測",
-        "領先指標",
-        "跨金屬確認"
-      ]
-    },
-    {
       "name": "detect-shanghai-silver-stock-drain",
       "description": "以公開交易所庫存資料為核心，量化上海白銀庫存耗盡的方向、速度與加速度，並將其轉成可交易的供給緊縮訊號",
       "version": "0.1.0",
@@ -270,6 +252,24 @@
         "上海期交所",
         "供給緊縮",
         "耗盡訊號"
+      ]
+    },
+    {
+      "name": "detect-palladium-lead-silver-turns",
+      "description": "以鈀金的先行轉向作為確認條件，檢驗白銀短期漲跌是否獲得工業景氣與風險情緒的同步支持，並標記缺乏鈀金參與度的失敗走勢。",
+      "version": "0.1.1",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-palladium-lead-silver-turns",
+      "category": "indicator-monitoring",
+      "tags": [
+        "鈀金",
+        "白銀",
+        "貴金屬",
+        "拐點偵測",
+        "領先指標",
+        "跨金屬確認"
       ]
     },
     {
@@ -345,6 +345,17 @@
       ]
     },
     {
+      "name": "cost-density-net-rr-calculator",
+      "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
+      "version": "0.1.0",
+      "author": {
+        "name": "macro-skills"
+      },
+      "source": "./skills/cost-density-net-rr-calculator",
+      "category": "indicator-monitoring",
+      "tags": []
+    },
+    {
       "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
       "description": "從網路自動抓取礦業公司財務報表與營運揭露（產量、成本、資本支出），回算「礦業股/金屬本體比率」的基本面解釋與區間門檻（如 1.2/1.7），並輸出可重現的估值拆解（成本因子 / 槓桿因子 / 倍數因子 / 稀釋因子）。",
       "version": "0.1.0",
@@ -379,17 +390,6 @@
         "RRP",
         "隱性緊縮"
       ]
-    },
-    {
-      "name": "cost-density-net-rr-calculator",
-      "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
-      "version": "0.1.0",
-      "author": {
-        "name": "macro-skills"
-      },
-      "source": "./skills/cost-density-net-rr-calculator",
-      "category": "indicator-monitoring",
-      "tags": []
     },
     {
       "name": "analyze-silver-miner-metal-ratio",
