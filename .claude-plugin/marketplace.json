@@ -111,21 +111,21 @@
       ]
     },
     {
-      "name": "lithium-supply-demand-gap-radar",
-      "description": "將鋰產業鏈（礦端 → 精煉化學品 → 電池與終端需求），整合為一套可運算的替代指標；再把這些指標映射到鋰主題 ETF（如 LIT）的成分暴露與長期價格走勢，形成可供決策的依據。 ",
+      "name": "monitor-etf-holdings-drawdown-risk",
+      "description": "偵測「商品價格上漲、但對應實物 ETF/信託持倉卻下滑」的背離現象，並用多指標交叉驗證，評估是否存在實物供給緊張/交割壓力風險",
       "version": "0.1.0",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/lithium-supply-demand-gap-radar",
-      "category": "commodity-sd",
+      "source": "./skills/monitor-etf-holdings-drawdown-risk",
+      "category": "indicator-monitoring",
       "tags": [
-        "鋰",
-        "供需分析",
         "ETF",
-        "LIT",
-        "原物料",
-        "電池"
+        "持倉監控",
+        "背離分析",
+        "實物短缺",
+        "白銀",
+        "黃金"
       ]
     },
     {
@@ -147,21 +147,39 @@
       ]
     },
     {
-      "name": "monitor-etf-holdings-drawdown-risk",
-      "description": "偵測「商品價格上漲、但對應實物 ETF/信託持倉卻下滑」的背離現象，並用多指標交叉驗證，評估是否存在實物供給緊張/交割壓力風險",
+      "name": "lithium-supply-demand-gap-radar",
+      "description": "將鋰產業鏈（礦端 → 精煉化學品 → 電池與終端需求），整合為一套可運算的替代指標；再把這些指標映射到鋰主題 ETF（如 LIT）的成分暴露與長期價格走勢，形成可供決策的依據。 ",
       "version": "0.1.0",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/monitor-etf-holdings-drawdown-risk",
-      "category": "indicator-monitoring",
+      "source": "./skills/lithium-supply-demand-gap-radar",
+      "category": "commodity-sd",
       "tags": [
+        "鋰",
+        "供需分析",
         "ETF",
-        "持倉監控",
-        "背離分析",
-        "實物短缺",
-        "白銀",
-        "黃金"
+        "LIT",
+        "原物料",
+        "電池"
+      ]
+    },
+    {
+      "name": "forecast-sector-relative-return-from-yield-spread",
+      "description": "用美債殖利率曲線利差（如 2Y-10Y）建立領先關係，推估未來一段時間內成長股（Nasdaq 100）相對防禦股（Healthcare/XLV）的相對績效方向與幅度。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/forecast-sector-relative-return-from-yield-spread",
+      "category": "interest-rates",
+      "tags": [
+        "殖利率",
+        "利差",
+        "領先指標",
+        "相對報酬",
+        "QQQ",
+        "XLV"
       ]
     },
     {
@@ -201,24 +219,6 @@
       ]
     },
     {
-      "name": "detect-shanghai-silver-stock-drain",
-      "description": "以公開交易所庫存資料為核心，量化上海白銀庫存耗盡的方向、速度與加速度，並將其轉成可交易的供給緊縮訊號",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/detect-shanghai-silver-stock-drain",
-      "category": "commodity-sd",
-      "tags": [
-        "白銀",
-        "庫存監控",
-        "上海黃金交易所",
-        "上海期交所",
-        "供給緊縮",
-        "耗盡訊號"
-      ]
-    },
-    {
       "name": "detect-us-equity-valuation-percentile-extreme",
       "description": "把多個股票估值指標統一轉成在過去百年歷史中的分位數，再合成一個總分，判斷目前是否處於歷史極端高估區間，並用歷史類比（如 1929、1965、1999）給出風險解讀",
       "version": "0.1.0",
@@ -252,6 +252,24 @@
         "拐點偵測",
         "領先指標",
         "跨金屬確認"
+      ]
+    },
+    {
+      "name": "detect-shanghai-silver-stock-drain",
+      "description": "以公開交易所庫存資料為核心，量化上海白銀庫存耗盡的方向、速度與加速度，並將其轉成可交易的供給緊縮訊號",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-shanghai-silver-stock-drain",
+      "category": "commodity-sd",
+      "tags": [
+        "白銀",
+        "庫存監控",
+        "上海黃金交易所",
+        "上海期交所",
+        "供給緊縮",
+        "耗盡訊號"
       ]
     },
     {
@@ -327,17 +345,6 @@
       ]
     },
     {
-      "name": "cost-density-net-rr-calculator",
-      "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
-      "version": "0.1.0",
-      "author": {
-        "name": "macro-skills"
-      },
-      "source": "./skills/cost-density-net-rr-calculator",
-      "category": "indicator-monitoring",
-      "tags": []
-    },
-    {
       "name": "backsolve-miner-vs-metal-ratio-with-fundamentals",
       "description": "從網路自動抓取礦業公司財務報表與營運揭露（產量、成本、資本支出），回算「礦業股/金屬本體比率」的基本面解釋與區間門檻（如 1.2/1.7），並輸出可重現的估值拆解（成本因子 / 槓桿因子 / 倍數因子 / 稀釋因子）。",
       "version": "0.1.0",
@@ -356,24 +363,6 @@
       ]
     },
     {
-      "name": "analyze-silver-miner-metal-ratio",
-      "description": "以「銀礦股價格 / 白銀價格」的相對比率衡量礦業股板塊相對於金屬本體的估值區間（偏貴/偏便宜），並用歷史分位數與類比區間推導「底部/頂部」訊號與情境推演。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/analyze-silver-miner-metal-ratio",
-      "category": "commodity-sd",
-      "tags": [
-        "白銀",
-        "礦業股",
-        "SIL",
-        "SILJ",
-        "相對估值",
-        "分位數"
-      ]
-    },
-    {
       "name": "analyze-us-bank-credit-deposit-decoupling",
       "description": "分析銀行貸款與存款之間的「信貸創造脫鉤」現象，用以辨識聯準會緊縮政策在銀行體系內部的真實傳導效果。",
       "version": "0.1.1",
@@ -389,6 +378,35 @@
         "存款",
         "RRP",
         "隱性緊縮"
+      ]
+    },
+    {
+      "name": "cost-density-net-rr-calculator",
+      "description": "計算非線性交易成本對風險報酬比的影響。將固定手續費與買賣價差整合為統一的成本密度（Cost Density）指標，揭示停損幅度與策略效率之間呈現雙曲線式的關係。",
+      "version": "0.1.0",
+      "author": {
+        "name": "macro-skills"
+      },
+      "source": "./skills/cost-density-net-rr-calculator",
+      "category": "indicator-monitoring",
+      "tags": []
+    },
+    {
+      "name": "analyze-silver-miner-metal-ratio",
+      "description": "以「銀礦股價格 / 白銀價格」的相對比率衡量礦業股板塊相對於金屬本體的估值區間（偏貴/偏便宜），並用歷史分位數與類比區間推導「底部/頂部」訊號與情境推演。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-silver-miner-metal-ratio",
+      "category": "commodity-sd",
+      "tags": [
+        "白銀",
+        "礦業股",
+        "SIL",
+        "SILJ",
+        "相對估值",
+        "分位數"
       ]
     },
     {
