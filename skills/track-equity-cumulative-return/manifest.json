@@ -1,8 +1,8 @@
 {
   "name": "track-equity-cumulative-return",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "displayName": "追蹤股票累積報酬率",
-  "description": "追蹤股票/指數的累積報酬率，支援多標的比較、指數成分股 Top N 排名，並輸出視覺化圖表。固定使用 S&P 500 作為基準。",
+  "description": "追蹤股票/指數的累積報酬率，支援多標的比較、指數成分股 Top N 排名，並與 S&P 500 作為基準進行比較，並輸出視覺化圖表。",
   "lastUpdated": "2026-01-28",
   "author": {
     "name": "macro-skills"
@@ -11,14 +11,13 @@
   "category": "indicator-monitoring",
   "tags": [
     "股票",
-    "報酬率",
+    "美股",
+    "YTD",
     "累積報酬",
-    "CAGR",
-    "年化報酬",
+    "股票指數",
     "基準比較",
-    "指數成分股",
-    "選股",
-    "視覺化"
+    "成分股",
+    "選股"
   ],
   "dataLevel": "free-nolimit",
   "dependencies": {
