@@ -94,8 +94,8 @@
     },
     {
       "name": "track-equity-cumulative-return",
-      "description": "追蹤股票/指數的累積報酬率，支援多標的比較、指數成分股 Top N 排名，並輸出視覺化圖表。固定使用 S&P 500 作為基準。",
-      "version": "0.1.0",
+      "description": "追蹤股票/指數的累積報酬率，支援多標的比較、指數成分股 Top N 排名，並與 S&P 500 作為基準進行比較，並輸出視覺化圖表。",
+      "version": "0.1.1",
       "author": {
         "name": "macro-skills"
       },
@@ -103,47 +103,11 @@
       "category": "indicator-monitoring",
       "tags": [
         "股票",
-        "報酬率",
+        "美股",
+        "YTD",
         "累積報酬",
-        "CAGR",
-        "年化報酬",
+        "股票指數",
         "基準比較"
-      ]
-    },
-    {
-      "name": "track-agri-hedge-fund-positioning",
-      "description": "用 COT 非商業部位變化，量化對沖基金在農產品期貨的資金流向，並把出口需求、USDA 數據、美元/原油/金屬等宏觀風向整合成可交易的敘事與訊號。",
-      "version": "0.1.1",
-      "author": {
-        "name": "macro-skills"
-      },
-      "source": "./skills/track-agri-hedge-fund-positioning",
-      "category": "commodity-sd",
-      "tags": [
-        "COT",
-        "農產品",
-        "穀物",
-        "油籽",
-        "肉類",
-        "軟性商品"
-      ]
-    },
-    {
-      "name": "nickel-concentration-risk-analyzer",
-      "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
-      "version": "0.1.1",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/nickel-concentration-risk-analyzer",
-      "category": "event-scenario",
-      "tags": [
-        "鎳",
-        "供給集中度",
-        "原物料",
-        "採礦",
-        "地緣政治",
-        "情境分析"
       ]
     },
     {
@@ -165,6 +129,24 @@
       ]
     },
     {
+      "name": "nickel-concentration-risk-analyzer",
+      "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
+      "version": "0.1.1",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/nickel-concentration-risk-analyzer",
+      "category": "event-scenario",
+      "tags": [
+        "鎳",
+        "供給集中度",
+        "原物料",
+        "採礦",
+        "地緣政治",
+        "情境分析"
+      ]
+    },
+    {
       "name": "lithium-supply-demand-gap-radar",
       "description": "將鋰產業鏈（礦端 → 精煉化學品 → 電池與終端需求），整合為一套可運算的替代指標；再把這些指標映射到鋰主題 ETF（如 LIT）的成分暴露與長期價格走勢，形成可供決策的依據。 ",
       "version": "0.1.0",
@@ -180,6 +162,24 @@
         "LIT",
         "原物料",
         "電池"
+      ]
+    },
+    {
+      "name": "track-agri-hedge-fund-positioning",
+      "description": "用 COT 非商業部位變化，量化對沖基金在農產品期貨的資金流向，並把出口需求、USDA 數據、美元/原油/金屬等宏觀風向整合成可交易的敘事與訊號。",
+      "version": "0.1.1",
+      "author": {
+        "name": "macro-skills"
+      },
+      "source": "./skills/track-agri-hedge-fund-positioning",
+      "category": "commodity-sd",
+      "tags": [
+        "COT",
+        "農產品",
+        "穀物",
+        "油籽",
+        "肉類",
+        "軟性商品"
       ]
     },
     {
@@ -255,24 +255,6 @@
       ]
     },
     {
-      "name": "detect-shanghai-silver-stock-drain",
-      "description": "以公開交易所庫存資料為核心，量化上海白銀庫存耗盡的方向、速度與加速度，並將其轉成可交易的供給緊縮訊號",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/detect-shanghai-silver-stock-drain",
-      "category": "commodity-sd",
-      "tags": [
-        "白銀",
-        "庫存監控",
-        "上海黃金交易所",
-        "上海期交所",
-        "供給緊縮",
-        "耗盡訊號"
-      ]
-    },
-    {
       "name": "detect-us-equity-valuation-percentile-extreme",
       "description": "把多個股票估值指標統一轉成在過去百年歷史中的分位數，再合成一個總分，判斷目前是否處於歷史極端高估區間，並用歷史類比（如 1929、1965、1999）給出風險解讀",
       "version": "0.1.0",
@@ -288,6 +270,24 @@
         "本益比",
         "巴菲特指標",
         "GDP"
+      ]
+    },
+    {
+      "name": "detect-shanghai-silver-stock-drain",
+      "description": "以公開交易所庫存資料為核心，量化上海白銀庫存耗盡的方向、速度與加速度，並將其轉成可交易的供給緊縮訊號",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-shanghai-silver-stock-drain",
+      "category": "commodity-sd",
+      "tags": [
+        "白銀",
+        "庫存監控",
+        "上海黃金交易所",
+        "上海期交所",
+        "供給緊縮",
+        "耗盡訊號"
       ]
     },
     {
@@ -428,24 +428,6 @@
       ]
     },
     {
-      "name": "analyze-move-risk-gauges-leadlag",
-      "description": "用公開市場數據檢查「利率波動率（MOVE）是否對利率事件（如 JGB 殖利率變動）不恐慌，並且是否領先帶動 VIX / 信用利差走低」",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/analyze-move-risk-gauges-leadlag",
-      "category": "interest-rates",
-      "tags": [
-        "利率波動率",
-        "MOVE",
-        "VIX",
-        "信用利差",
-        "領先落後",
-        "事件分析"
-      ]
-    },
-    {
       "name": "analyze-silver-miner-metal-ratio",
       "description": "以「銀礦股價格 / 白銀價格」的相對比率衡量礦業股板塊相對於金屬本體的估值區間（偏貴/偏便宜），並用歷史分位數與類比區間推導「底部/頂部」訊號與情境推演。",
       "version": "0.1.0",
@@ -461,6 +443,24 @@
         "SILJ",
         "相對估值",
         "分位數"
+      ]
+    },
+    {
+      "name": "analyze-move-risk-gauges-leadlag",
+      "description": "用公開市場數據檢查「利率波動率（MOVE）是否對利率事件（如 JGB 殖利率變動）不恐慌，並且是否領先帶動 VIX / 信用利差走低」",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-move-risk-gauges-leadlag",
+      "category": "interest-rates",
+      "tags": [
+        "利率波動率",
+        "MOVE",
+        "VIX",
+        "信用利差",
+        "領先落後",
+        "事件分析"
       ]
     },
     {
