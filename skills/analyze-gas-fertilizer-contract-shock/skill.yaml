@@ -1,0 +1,289 @@
+displayName: 分析天然氣暴漲對化肥價格衝擊
+emoji: "\U0001F4A8"
+authorUrl: https://github.com/fatfingererr/macro-skills
+
+tools:
+  - claude-code
+
+featured: false
+installCount: 0
+
+testQuestions:
+  - question: '最近天然氣暴漲是否導致化肥價格跟隨上漲？'
+    expectedResult: |
+      根據 2026 年 1 月的數據分析：
+
+      ---
+      三段式因果檢驗結果
+
+      ┌────────────────┬────────────────────────────────────────────────┐
+      │      階段      │                      結果                      │
+      ├────────────────┼────────────────────────────────────────────────┤
+      │ A: Gas Shock   │ 2026-01-12 至 2026-01-29，漲幅 85.4%           │
+      ├────────────────┼────────────────────────────────────────────────┤
+      │ B: Fert Spike  │ 2026-01-20 至 2026-02-01，漲幅 22.1%           │
+      ├────────────────┼────────────────────────────────────────────────┤
+      │ C: Lead-Lag    │ Gas 領先 Fert 約 12 天，相關係數 0.41          │
+      └────────────────┴────────────────────────────────────────────────┘
+
+      ---
+      敘事評估
+
+      **Signal**: narrative_supported
+      **Confidence**: medium
+
+      解讀：
+      - 天然氣在樣本末端出現明顯 shock regime（z-score/斜率同時觸發）
+      - 化肥在天然氣 shock 後約 1-3 週出現 spike regime
+      - 交叉相關顯示 gas 報酬領先 fert 報酬約 12 天
+
+      ---
+      注意事項
+
+      - 僅憑價格無法證明 force majeure/毀約
+      - 可提供「敘事是否符合時間順序」的量化支持度
+      - 其他可能因素：運費、需求、出口限制、季節
+
+  - question: '如何判斷天然氣價格是否出現 shock？'
+    expectedResult: |
+      Shock 偵測使用 rolling z-score + 斜率雙重確認：
+
+      ---
+      z-score 偵測（主要）
+
+      z_t = (報酬率_t - 滾動平均) / 滾動標準差
+
+      - 預設視窗：60 日
+      - 預設閾值：z >= 3.0
+      - 含義：報酬率偏離歷史均值 3 個標準差以上
+
+      ---
+      斜率偵測（補充）
+
+      slope_t = (價格_t / 價格_{t-k} - 1) / k
+
+      - 預設 k：20 日
+      - 預設閾值：1.5%/天
+      - 含義：短期內日均漲幅超過 1.5%
+
+      ---
+      Regime 合併
+
+      連續符合條件的日期合併為一個 regime：
+      - 起點：第一個觸發日
+      - 終點：最後一個觸發日
+      - 峰值：regime 內的最高點
+
+      ---
+      參數可調整
+
+      ```python
+      spike_detection = {
+        "return_window": 1,      # 報酬計算窗口
+        "z_window": 60,          # rolling z-score 視窗
+        "parabolic_threshold": {
+          "z": 3.0,              # z-score 閾值
+          "slope_pct_per_day": 1.5  # 斜率閾值
+        }
+      }
+      ```
+
+qualityScore:
+  overall: 65
+  badge: 白銀
+  evaluatedAt: "2026-01-28"
+
+  metrics:
+    problemFit: 75
+    correctness: 65
+    dataGovernance: 60
+    robustness: 55
+    maintainability: 70
+    usability: 65
+
+  metricDetails:
+    problemFit:
+      score: 75
+      strengths:
+        - 問題定義精準：「檢驗天然氣→化肥敘事」
+        - 三段式因果檢驗架構完整
+        - 輸入參數設計詳盡（te_symbols, spike_detection, lead_lag）
+      improvements:
+        - 可增加更多化肥種類（DAP, 磷肥等）
+        - 缺資料分支處理可更系統化
+
+    correctness:
+      score: 65
+      strengths:
+        - 方法論清晰（z-score + 斜率）
+        - 領先落後分析邏輯合理
+        - 有完整的 pseudo-code 說明
+      improvements:
+        - 需實際運行驗證
+        - 可增加更多 golden case
+        - 數學公式可更精確
+
+    dataGovernance:
+      score: 60
+      strengths:
+        - Chrome CDP 爬蟲已實作完成
+        - 有 FRED + World Bank 備援方案
+        - 快取策略已規劃（12 小時有效期）
+      improvements:
+        - TradingEconomics 爬蟲授權需注意
+        - 缺少 cross-validate 流程
+
+    robustness:
+      score: 55
+      strengths:
+        - 有多種數據來源可選
+        - 有參數預設值
+        - CDP 連線失敗有明確錯誤訊息
+      improvements:
+        - 缺少獨立的 failure-modes.md
+        - 錯誤處理策略可更完善
+        - 降級輸出機制待完善
+
+    maintainability:
+      score: 70
+      strengths:
+        - manifest.json 完整
+        - 目錄結構清晰
+        - 模組化腳本設計
+        - Chrome CDP 實作乾淨（無 Selenium 依賴）
+      improvements:
+        - 長期維護性需觀察
+        - 版本更新記錄待建立
+
+    usability:
+      score: 65
+      strengths:
+        - 輸出結構設計完整
+        - 視覺化腳本已實作
+        - 有解讀說明與範例輸出
+      improvements:
+        - 待實際運行產生真實範例
+        - 可增加歷史案例對照
+
+  details: |
+    **任務適配度（75/100）— 良好**
+    - 問題定義精準，三段式檢驗架構完整
+    - 待改進：擴展化肥種類、系統化缺資料處理
+
+    **正確性（65/100）— 中等**
+    - 方法論清晰，邏輯合理
+    - 待改進：實際運行驗證、增加 golden case
+
+    **資料治理（60/100）— 中等**
+    - Chrome CDP 爬蟲已實作，有備援方案
+    - 待改進：授權說明、交叉驗證
+
+    **穩健性（55/100）— 待改進**
+    - 有基本參數配置
+    - 待改進：failure-modes、降級機制
+
+    **可維護性（70/100）— 良好**
+    - 結構清晰，純 CDP 實作無額外依賴
+    - 待改進：長期維護驗證
+
+    **輸出可用性（65/100）— 中等**
+    - 輸出設計完整，視覺化已實作
+    - 待改進：真實範例、歷史對照
+
+bestPractices:
+  - title: 使用多個化肥指標交叉驗證
+    description: Urea、DAP、磷肥等可能有不同走勢，多指標一致性更可靠
+  - title: 關注 regime 時序而非單點
+    description: 重點是「A 段之後 B 段才出現」的時序關係，非單日波動
+  - title: 結合新聞事件驗證
+    description: 價格 shock 配合 force majeure 新聞，敘事更有說服力
+  - title: 區分現貨與期貨
+    description: TradingEconomics 數據可能是現貨或近月期貨，需注意區分
+
+pitfalls:
+  - title: 過度解讀相關性
+    description: 相關不代表因果，需配合時序與機制分析
+    consequence: 錯誤歸因價格變動
+  - title: 忽略全球供需因素
+    description: 化肥價格受多因素影響，不只天然氣
+    consequence: 錯誤單一歸因於天然氣 shock
+  - title: 數據頻率不匹配
+    description: 天然氣日頻與化肥可能週/月頻
+    consequence: 領先落後分析失準
+  - title: 地區差異
+    description: 美國天然氣與歐洲/亞洲化肥市場關聯可能不同
+    consequence: 區域性分析結論無法泛化
+
+faq:
+  - question: 天然氣和化肥價格真的有關嗎？
+    answer: |
+      是的，天然氣是生產氨肥（如尿素）的主要原料。
+
+      **傳導機制**：
+      1. 天然氣價格上漲 → 氨生產成本上升
+      2. 成本上升 → 部分廠商減產或停產（force majeure）
+      3. 供給減少 → 化肥價格上漲
+
+      **時間滯後**：
+      - 通常 1-8 週
+      - 取決於庫存緩衝和合約安排
+
+  - question: 什麼是不可抗力 (Force Majeure)？
+    answer: |
+      Force Majeure（不可抗力）是合約條款，允許供應商在極端情況下
+      不履行合約義務而不承擔違約責任。
+
+      **天然氣→化肥場景**：
+      - 天然氣成本飆升超過合約價格
+      - 生產商宣布 force majeure 停產
+      - 化肥供給驟減，價格飆漲
+
+      **本技能作用**：
+      - 用價格數據檢驗這個敘事是否在時序上成立
+      - 不能證明具體公司是否毀約，只能看價格關係
+
+  - question: 為什麼使用 Z 分數偵測事件衝擊？
+    answer: |
+      Z 分數可以標準化不同商品的波動性：
+
+      **優點**：
+      - 適應性：不同商品有不同波動水平
+      - 可比性：跨商品的衝擊強度可比較
+      - 動態閾值：隨市場波動調整
+
+      **公式**：
+      z = (當日報酬 - 60日平均報酬) / 60日報酬標準差
+
+      當 z >= 3，代表報酬偏離歷史均值 3 個標準差，屬於異常事件。
+      
+about:
+  repository: https://github.com/fatfingererr/macro-skills
+  branch: main
+  additionalInfo: |
+    ## 數據來源
+
+    **TradingEconomics（主要）**
+    - Natural Gas: https://tradingeconomics.com/commodity/natural-gas
+    - Urea: https://tradingeconomics.com/commodity/urea
+    - DAP: https://tradingeconomics.com/commodity/dap
+    - 使用 Chrome CDP 爬取 Highcharts 圖表數據
+
+    **FRED（備援）**
+    - DHHNGSP: Henry Hub Natural Gas Spot Price
+    - 使用 CSV endpoint 直接下載
+
+    **World Bank Pink Sheet（備援）**
+    - 月頻化肥價格數據
+    - Excel 下載
+
+    ## 使用場景
+
+    1. 社群帖文驗證：看到「天然氣暴漲導致化肥危機」的說法時
+    2. 研究筆記：撰寫天然氣→化肥傳導機制的分析報告
+    3. 投資假說：評估天然氣 shock 對農業/化工股的影響
+
+    ## 技術架構
+
+    - **爬蟲方法**：Chrome CDP（透過 WebSocket 連接調試端口）
+    - **數據提取**：從 Highcharts.charts 全域變數取得圖表數據
+    - **分析方法**：Rolling z-score + 斜率偵測 + Cross-correlation

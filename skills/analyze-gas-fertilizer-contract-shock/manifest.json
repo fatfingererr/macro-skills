@@ -1,0 +1,135 @@
+{
+  "name": "analyze-gas-fertilizer-contract-shock",
+  "version": "0.1.0",
+  "displayName": "分析天然氣暴漲對化肥價格衝擊",
+  "description": "用天然氣與化肥價格的日頻數據，檢驗「天然氣暴漲→化肥供應受限/毀約→化肥飆價」敘事是否成立，輸出可標註到圖上的關鍵轉折點與領先落後分析。",
+  "author": "Ricky Wang",
+  "license": "MIT",
+  "category": "event-scenario",
+  "tags": [
+    "天然氣",
+    "化肥",
+    "尿素",
+    "原物料",
+    "事件分析",
+    "不可抗力",
+    "合約違約"
+  ],
+  "dataLevel": "free-limit",
+  "dependencies": {
+    "python": ">=3.8",
+    "packages": [
+      "pandas>=1.5.0",
+      "numpy>=1.20.0",
+      "requests>=2.28.0",
+      "websocket-client>=1.0.0"
+    ],
+    "optional": [
+      "matplotlib>=3.5.0",
+      "scipy>=1.9.0"
+    ]
+  },
+  "entryPoints": {
+    "skill": "SKILL.md",
+    "mainScript": "scripts/gas_fertilizer_analyzer.py"
+  },
+  "workflows": [
+    {
+      "id": "analyze",
+      "name": "完整分析",
+      "description": "完整三段式因果檢驗：Gas Shock → Fert Spike → Lead-Lag",
+      "file": "workflows/analyze.md"
+    },
+    {
+      "id": "quick-check",
+      "name": "快速檢查",
+      "description": "快速查看最近是否有天然氣 shock 及化肥跟隨",
+      "file": "workflows/quick-check.md"
+    },
+    {
+      "id": "hedge-hypothesis",
+      "name": "合約對沖假說",
+      "description": "輸入合約價格，計算價差壓力指標",
+      "file": "workflows/hedge-hypothesis.md"
+    }
+  ],
+  "references": [
+    "references/data-sources.md",
+    "references/methodology.md",
+    "references/input-schema.md",
+    "references/historical-episodes.md"
+  ],
+  "templates": [
+    "templates/output-json.md",
+    "templates/output-markdown.md"
+  ],
+  "scripts": [
+    {
+      "name": "fetch_te_data.py",
+      "description": "Chrome CDP 爬蟲：從 TradingEconomics 提取 Highcharts 圖表數據",
+      "usage": "python fetch_te_data.py --symbol natural-gas"
+    },
+    {
+      "name": "gas_fertilizer_analyzer.py",
+      "description": "主分析腳本：三段式因果檢驗",
+      "usage": "python gas_fertilizer_analyzer.py --start DATE --end DATE"
+    },
+    {
+      "name": "visualize_shock_regimes.py",
+      "description": "視覺化腳本：生成 shock regime 對比圖",
+      "usage": "python visualize_shock_regimes.py --output FILE"
+    }
+  ],
+  "examples": [
+    "examples/sample_output.json"
+  ],
+  "dataSources": [
+    {
+      "name": "TradingEconomics",
+      "type": "primary",
+      "url": "https://tradingeconomics.com/commodity/natural-gas",
+      "method": "Chrome CDP (WebSocket + Highcharts extraction)",
+      "series": [
+        "natural-gas",
+        "eu-natural-gas",
+        "uk-natural-gas",
+        "urea",
+        "dap",
+        "fertilizers"
+      ],
+      "notes": "需手動啟動 Chrome 調試模式，完全繞過 Cloudflare"
+    },
+    {
+      "name": "FRED",
+      "type": "fallback",
+      "url": "https://fred.stlouisfed.org",
+      "method": "CSV endpoint (no API key required)",
+      "series": [
+        "DHHNGSP"
+      ],
+      "notes": "Henry Hub Natural Gas Spot Price，免費直接下載"
+    },
+    {
+      "name": "World Bank Pink Sheet",
+      "type": "fallback",
+      "url": "https://www.worldbank.org/en/research/commodity-markets",
+      "method": "Excel download (monthly)",
+      "series": [
+        "Urea",
+        "DAP",
+        "TSP"
+      ],
+      "notes": "月頻數據，需手動下載 Excel 檔案"
+    }
+  ],
+  "requirements": {
+    "chrome": {
+      "description": "需要安裝 Google Chrome 或 Chromium 瀏覽器",
+      "minVersion": "90"
+    },
+    "cdpPort": {
+      "description": "Chrome 調試端口",
+      "default": 9222
+    }
+  }
+}

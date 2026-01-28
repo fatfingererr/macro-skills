@@ -1,0 +1,133 @@
+{
+  "metadata": {
+    "skill_name": "analyze-gas-fertilizer-contract-shock",
+    "skill_version": "0.1.0",
+    "analysis_timestamp": "2026-01-28T10:30:00Z",
+    "parameters": {
+      "start_date": "2025-08-01",
+      "end_date": "2026-02-01",
+      "freq": "1D"
+    }
+  },
+
+  "series": {
+    "natural_gas": {
+      "symbol": "natural-gas",
+      "source": "TradingEconomics",
+      "unit": "USD/MMBtu",
+      "data_points": 180,
+      "date_range": ["2025-08-01", "2026-01-28"]
+    },
+    "fertilizer": {
+      "symbol": "urea",
+      "source": "TradingEconomics",
+      "unit": "USD/ton",
+      "data_points": 175,
+      "date_range": ["2025-08-01", "2026-01-28"]
+    }
+  },
+
+  "detections": {
+    "gas_shock_regimes": [
+      {
+        "start": "2026-01-12",
+        "end": "2026-01-29",
+        "peak_date": "2026-01-29",
+        "peak_value": 6.95,
+        "start_value": 3.75,
+        "regime_return_pct": 85.4,
+        "duration_days": 18,
+        "max_z_score": 4.2,
+        "max_slope_pct_per_day": 2.1
+      }
+    ],
+    "fert_spike_regimes": [
+      {
+        "start": "2026-01-20",
+        "end": "2026-02-01",
+        "peak_date": "2026-01-31",
+        "peak_value": 420.0,
+        "start_value": 344.0,
+        "regime_return_pct": 22.1,
+        "duration_days": 13,
+        "max_z_score": 3.5,
+        "max_slope_pct_per_day": 1.8
+      }
+    ]
+  },
+
+  "lead_lag_test": {
+    "method": "corr_returns",
+    "max_lag_days": 60,
+    "best_lag_days_gas_leads_fert": 12,
+    "best_corr": 0.41,
+    "corr_at_zero_lag": 0.25,
+    "reasonable_lag_range": [7, 56],
+    "in_reasonable_range": true,
+    "interpretation": "天然氣報酬領先化肥報酬約 12 天，相關係數為中度"
+  },
+
+  "three_part_test": {
+    "A_gas_shock": {
+      "pass": true,
+      "regime_count": 1,
+      "max_return_pct": 85.4,
+      "total_days": 18
+    },
+    "B_fert_follows": {
+      "pass": true,
+      "fert_start_after_gas_start": true,
+      "lag_days": 8,
+      "explanation": "化肥 spike 起點（2026-01-20）晚於天然氣 shock 起點（2026-01-12）約 8 天"
+    },
+    "C_lead_lag_supports": {
+      "pass": true,
+      "lag_in_range": true,
+      "corr_significant": true,
+      "explanation": "best_lag=12 在合理範圍 [7,56] 內，相關係數 0.41 為中度"
+    }
+  },
+
+  "signal": "narrative_supported",
+  "confidence": "medium",
+
+  "narrative_assessment": {
+    "summary": "三段式因果檢驗通過，敘事有量化支撐",
+    "details": [
+      "天然氣在樣本末端出現明顯 shock regime（z-score/斜率同時觸發）",
+      "化肥在天然氣 shock 後約 1-3 週出現 spike regime，時序關係符合預期",
+      "交叉相關顯示 gas 報酬領先 fert 報酬約 12 天，達到中度相關",
+      "僅憑價格無法證明 force majeure/毀約，但可提供敘事的時間序列支持度"
+    ],
+    "alternative_explanations": [
+      "化肥 spike 可能還受其他因素影響（運費、需求、政策）",
+      "相關係數 0.41 為中度，部分變異來自其他驅動因素"
+    ]
+  },
+
+  "hedge_proxy": {
+    "enabled": false,
+    "contract_price": null,
+    "unit": null,
+    "peak_proxy": null,
+    "interpretation": null
+  },
+
+  "artifacts": {
+    "data_files": [
+      "data/natural_gas.csv",
+      "data/urea.csv",
+      "data/analysis_result.json"
+    ],
+    "charts": [
+      "output/gas_fert_shock_2026-01-28.png"
+    ]
+  },
+
+  "caveats": [
+    "數據來源為 TradingEconomics，可能與交易所官方數據有差異",
+    "日頻數據可能有缺失，已使用 forward-fill 處理",
+    "相關不代表因果，需配合機制分析",
+    "本分析不構成任何投資建議"
+  ]
+}
