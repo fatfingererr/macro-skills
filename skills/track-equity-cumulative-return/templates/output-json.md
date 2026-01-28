@@ -27,8 +27,7 @@
   "benchmark": {
     "ticker": "^GSPC",
     "name": "S&P 500",
-    "cumulative_return_pct": 45.2,
-    "cagr_pct": 10.1
+    "cumulative_return_pct": 45.2
   },
   "summary": {
     "best_performer": "NVDA",
@@ -42,7 +41,6 @@
       "ticker": "NVDA",
       "name": "NVIDIA (NVDA)",
       "cumulative_return_pct": 320.5,
-      "cagr_pct": 52.3,
       "vs_benchmark": 275.3,
       "price_start": 29.25,
       "price_end": 123.15
@@ -51,7 +49,6 @@
       "ticker": "AMD",
       "name": "AMD (AMD)",
       "cumulative_return_pct": 180.2,
-      "cagr_pct": 35.1,
       "vs_benchmark": 135.0,
       "price_start": 45.50,
       "price_end": 127.48
@@ -60,7 +57,6 @@
       "ticker": "GOOGL",
       "name": "Google (GOOGL)",
       "cumulative_return_pct": 65.3,
-      "cagr_pct": 14.2,
       "vs_benchmark": 20.1,
       "price_start": 144.25,
       "price_end": 238.50
@@ -112,7 +108,6 @@
       "ticker": "NVDA",
       "name": "NVIDIA (NVDA)",
       "cumulative_return_pct": 320.5,
-      "cagr_pct": 52.3,
       "vs_benchmark": 275.3
     },
     {
@@ -120,7 +115,6 @@
       "ticker": "META",
       "name": "Meta (META)",
       "cumulative_return_pct": 250.2,
-      "cagr_pct": 43.1,
       "vs_benchmark": 205.0
     }
   ]
@@ -166,7 +160,6 @@
 | ticker                | string | 基準代碼                       |
 | name                  | string | 基準名稱                       |
 | cumulative_return_pct | float  | 基準累積報酬率 (%)             |
-| cagr_pct              | float  | 基準年化報酬率 (%)             |
 
 ### summary (compare 模式)
 
@@ -198,7 +191,6 @@
 | ticker                | string | 股票代碼                       |
 | name                  | string | 股票名稱                       |
 | cumulative_return_pct | float  | 累積報酬率 (%)                 |
-| cagr_pct              | float  | 年化報酬率 (%)                 |
 | vs_benchmark          | float  | 相對基準報酬 (%)               |
 | price_start           | float  | 起始價格 (僅 compare 模式)     |
 | price_end             | float  | 結束價格 (僅 compare 模式)     |

@@ -36,20 +36,6 @@ Cumulative Return = ((Final Price / Base Price) - 1) × 100%
 All tickers are aligned to common trading days with data.
 </principle>
 
-<principle name="cagr_calculation">
-**CAGR Calculation**
-
-Compound Annual Growth Rate:
-
-```
-CAGR = ((Final Value / Initial Value) ^ (1 / Years)) - 1
-
-Where: Years = Days Held / 365.25
-```
-
-CAGR is used to compare investments across different time periods.
-</principle>
-
 <principle name="four_scenarios">
 **Four Analysis Scenarios**
 
@@ -84,7 +70,7 @@ Top N analysis fetches all component stocks and ranks by return.
 Track cumulative return performance of stocks and indices:
 
 1. **Fetch Data**: Get historical prices from Yahoo Finance (with caching)
-2. **Calculate Returns**: Cumulative return, CAGR
+2. **Calculate Returns**: Cumulative return
 3. **Benchmark Comparison**: Compare against S&P 500 (fixed)
 4. **Rank Analysis**: Index component Top N performance ranking
 5. **Visualization**: dark theme PNG charts
@@ -152,7 +138,7 @@ What analysis do you need?
 2. **Scenario 1.b** - Analyze stock(s) from a year to today (e.g., "NVDA from 2022 to today")
 3. **Scenario 2.a** - Index Top N for a specific year only (e.g., "Nasdaq 100 Top N in 2024")
 4. **Scenario 2.b** - Index Top N from a year to today (e.g., "Nasdaq 100 Top N since 2022")
-5. **Methodology** - Learn about cumulative return and CAGR calculation
+5. **Methodology** - Learn about cumulative return calculation
 
 **Provide your analysis parameters or select a scenario.**
 </intake>
@@ -178,12 +164,12 @@ What analysis do you need?
 <reference_index>
 **Reference Documents** (`references/`)
 
-| File                | Content                                         |
-|---------------------|-------------------------------------------------|
-| methodology.md      | Cumulative return, CAGR calculation methodology |
-| data-sources.md     | Yahoo Finance data source documentation         |
-| input-schema.md     | Complete input parameter definitions            |
-| index-components.md | Supported index component lists                 |
+| File                | Content                                  |
+|---------------------|------------------------------------------|
+| methodology.md      | Cumulative return calculation methodology |
+| data-sources.md     | Yahoo Finance data source documentation   |
+| input-schema.md     | Complete input parameter definitions      |
+| index-components.md | Supported index component lists           |
 </reference_index>
 
 <workflows_index>
@@ -277,8 +263,7 @@ Output specs:
   "benchmark": {
     "ticker": "^GSPC",
     "name": "S&P 500",
-    "cumulative_return_pct": 45.2,
-    "cagr_pct": 10.1
+    "cumulative_return_pct": 45.2
   },
   "summary": {
     "best_performer": "NVDA",
@@ -291,7 +276,6 @@ Output specs:
       "ticker": "NVDA",
       "name": "NVIDIA (NVDA)",
       "cumulative_return_pct": 542.2,
-      "cagr_pct": 58.3,
       "vs_benchmark": 497.0
     }
   ],
@@ -306,7 +290,7 @@ See `templates/output-json.md` for complete output structure.
 Successful execution should produce:
 
 - [ ] Cumulative return time series data
-- [ ] Cumulative return and CAGR for each ticker
+- [ ] Cumulative return for each ticker
 - [ ] Comparison against S&P 500 benchmark (vs benchmark)
 - [ ] Performance ranking (sorted by return descending)
 - [ ] Beat benchmark statistics
@@ -336,11 +320,11 @@ Period: 2024 Full Year (2023-12-29 ~ 2024-12-31)
 Benchmark: S&P 500
 ==========================================================================================
 
-Rank  Ticker  Name                 Cum. Return        CAGR   vs Bench
-------------------------------------------------------------------------------------------
-1     NVDA    NVIDIA (NVDA)          +185.52%    +187.38%  +160.97% ✓
-------------------------------------------------------------------------------------------
-Bench ^GSPC   S&P 500                 +24.54%     +24.71%
+Rank  Ticker  Name                 Cum. Return   vs Bench
+----------------------------------------------------------------------
+1     NVDA    NVIDIA (NVDA)          +185.52%  +160.97% ✓
+----------------------------------------------------------------------
+Bench ^GSPC   S&P 500                 +24.54%
 ==========================================================================================
 
 Statistics:
@@ -416,10 +400,9 @@ python test_calculations.py
 **Test Coverage**:
 
 1. **Cumulative return formula** - Validates calculation accuracy
-2. **CAGR formula** - Validates annualized return calculation
-3. **Cumulative return series** - Validates time series generation
-4. **Validators** - Tests all input validation functions
-5. **Golden cases** - Structure validation of expected results
+2. **Cumulative return series** - Validates time series generation
+3. **Validators** - Tests all input validation functions
+4. **Golden cases** - Structure validation of expected results
 
 **Golden Cases**
 
@@ -428,7 +411,6 @@ Located in `scripts/tests/golden_cases.json`:
 - NVDA 2024 full year (expected: 170-190% return)
 - AMD 2024 full year (expected: -20% to -10% return)
 - S&P 500 2024 benchmark (expected: 20-28% return)
-- CAGR calculation verification
 
 </testing>
 

@@ -26,34 +26,7 @@ cumulative_return_t = ((price_t / price_0) - 1) × 100%
 
 ---
 
-## 2. 年化報酬率 (CAGR)
-
-### 定義
-
-複合年成長率 (Compound Annual Growth Rate)，將總報酬換算成等效的年度複合成長率。
-
-### 公式
-
-```
-CAGR = ((最終值 / 起始值) ^ (1 / 年數)) - 1
-
-其中：年數 = 持有天數 / 365.25
-```
-
-### 範例
-
-- 起始價格：$100
-- 最終價格：$200
-- 持有時間：3 年
-- CAGR = (200/100)^(1/3) - 1 = **+26.0%**
-
-### 為什麼用 365.25？
-
-考慮閏年，平均每年 365.25 天。
-
----
-
-## 3. 基準比較
+## 2. 基準比較
 
 ### 超額報酬 (Alpha)
 
@@ -80,7 +53,7 @@ vs_benchmark = 標的報酬率 - 基準報酬率
 
 ---
 
-## 4. 日期對齊
+## 3. 日期對齊
 
 ### 問題
 
@@ -129,7 +102,7 @@ cumulative_return = ((price_end / price_base) - 1) * 100%
 
 ---
 
-## 5. 指數成分股分析
+## 4. 指數成分股分析
 
 ### Top N 排序
 
@@ -149,7 +122,7 @@ cumulative_return = ((price_end / price_base) - 1) * 100%
 
 ---
 
-## 6. 注意事項
+## 5. 注意事項
 
 ### 倖存者偏差
 
@@ -170,7 +143,7 @@ cumulative_return = ((price_end / price_base) - 1) * 100%
 
 ---
 
-## 7. 參考資料
+## 6. 參考資料
 
-- [Investopedia: CAGR](https://www.investopedia.com/terms/c/cagr.asp)
+- [Investopedia: Cumulative Return](https://www.investopedia.com/terms/c/cumulativereturn.asp)
 - [Investopedia: Total Return vs Price Return](https://www.investopedia.com/terms/t/totalreturn.asp)

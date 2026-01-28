@@ -17,8 +17,7 @@
   "benchmark": {
     "ticker": "^GSPC",
     "name": "S&P 500",
-    "cumulative_return_pct": 45.2,
-    "cagr_pct": 10.1
+    "cumulative_return_pct": 45.2
   },
   "summary": {
     "best_performer": "NVDA",
@@ -32,7 +31,6 @@
       "ticker": "NVDA",
       "name": "NVIDIA (NVDA)",
       "cumulative_return_pct": 320.5,
-      "cagr_pct": 52.3,
       "vs_benchmark": 275.3,
       "price_start": 29.25,
       "price_end": 123.15
@@ -41,7 +39,6 @@
       "ticker": "AMD",
       "name": "AMD (AMD)",
       "cumulative_return_pct": 180.2,
-      "cagr_pct": 35.1,
       "vs_benchmark": 135.0,
       "price_start": 45.5,
       "price_end": 127.48
@@ -50,7 +47,6 @@
       "ticker": "GOOGL",
       "name": "Google (GOOGL)",
       "cumulative_return_pct": 65.3,
-      "cagr_pct": 14.2,
       "vs_benchmark": 20.1,
       "price_start": 144.25,
       "price_end": 238.5
