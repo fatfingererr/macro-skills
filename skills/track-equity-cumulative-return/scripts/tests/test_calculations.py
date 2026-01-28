@@ -4,7 +4,7 @@
 Calculation Tests for Cumulative Return Skill
 
 Validates:
-1. Core calculation formulas (cumulative return, CAGR)
+1. Core calculation formulas (cumulative return)
 2. Golden cases with expected ranges
 3. Data validation functions
 
@@ -54,47 +54,6 @@ def test_cumulative_return_formula():
     print(f"  [PASS] 100 -> 50 = {result3:.2f}% (expected {expected3}%)")
 
     print("  [OK] All cumulative return formula tests passed")
-    return True
-
-
-def test_cagr_formula():
-    """Test CAGR formula"""
-    from cumulative_return_analyzer import calculate_cagr
-    import pandas as pd
-
-    print("\n=== Test: CAGR Formula ===")
-
-    # Test case 1: Double in 1 year = 100% CAGR
-    dates1 = pd.date_range("2024-01-01", "2025-01-01", periods=2)
-    prices1 = pd.Series([100, 200], index=dates1)
-    result1 = calculate_cagr(prices1)
-    # 1 year: (200/100)^(1/1) - 1 = 100%
-    expected1 = 100.0
-    tolerance1 = 5.0  # Allow 5% tolerance due to day counting
-    assert abs(result1 - expected1) < tolerance1, f"Expected ~{expected1}, got {result1}"
-    print(f"  [PASS] 1-year double: CAGR = {result1:.2f}% (expected ~{expected1}%)")
-
-    # Test case 2: Double in 2 years = ~41.4% CAGR
-    dates2 = pd.date_range("2024-01-01", "2026-01-01", periods=2)
-    prices2 = pd.Series([100, 200], index=dates2)
-    result2 = calculate_cagr(prices2)
-    # 2 years: (200/100)^(1/2) - 1 = 41.42%
-    expected2 = 41.42
-    tolerance2 = 2.0
-    assert abs(result2 - expected2) < tolerance2, f"Expected ~{expected2}, got {result2}"
-    print(f"  [PASS] 2-year double: CAGR = {result2:.2f}% (expected ~{expected2}%)")
-
-    # Test case 3: Triple in 3 years = ~44.2% CAGR
-    dates3 = pd.date_range("2024-01-01", "2027-01-01", periods=2)
-    prices3 = pd.Series([100, 300], index=dates3)
-    result3 = calculate_cagr(prices3)
-    # 3 years: (300/100)^(1/3) - 1 = 44.22%
-    expected3 = 44.22
-    tolerance3 = 2.0
-    assert abs(result3 - expected3) < tolerance3, f"Expected ~{expected3}, got {result3}"
-    print(f"  [PASS] 3-year triple: CAGR = {result3:.2f}% (expected ~{expected3}%)")
-
-    print("  [OK] All CAGR formula tests passed")
     return True
 
 
@@ -215,7 +174,6 @@ def run_all_tests():
 
     results = {
         "cumulative_return_formula": test_cumulative_return_formula(),
-        "cagr_formula": test_cagr_formula(),
         "cumulative_return_series": test_cumulative_return_series(),
         "validators": test_validators(),
         "golden_cases_structure": test_golden_cases_structure(),

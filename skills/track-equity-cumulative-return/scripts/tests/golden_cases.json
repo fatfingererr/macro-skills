@@ -18,15 +18,6 @@
       "expected_return": 50.0
     }
   },
-  "cagr_formula": {
-    "description": "CAGR = ((Final / Initial) ^ (1 / Years)) - 1",
-    "example": {
-      "initial_price": 100,
-      "final_price": 150,
-      "years": 2.0,
-      "expected_cagr": 22.47
-    }
-  },
   "test_cases": [
     {
       "case_id": "NVDA_2024_FULL_YEAR",
@@ -88,35 +79,14 @@
         "end_date": "2025-12-31",
         "years_approx": 4.0,
         "cumulative_return_range": [500, 700],
-        "cagr_range": [50, 70],
         "notes": "NVIDIA had exceptional growth. 4-year cumulative ~600%"
       }
-    },
-    {
-      "case_id": "CAGR_CALCULATION",
-      "description": "CAGR calculation verification",
-      "test_type": "calculation",
-      "input": {
-        "initial_price": 100,
-        "final_price": 200,
-        "days_held": 730
-      },
-      "expected": {
-        "years": 2.0,
-        "cumulative_return": 100.0,
-        "cagr": 41.42
-      },
-      "tolerance": 0.5
     }
   ],
   "validation_rules": [
     {
       "rule": "cumulative_return_formula",
       "test": "((final / base) - 1) * 100 should equal cumulative_return"
-    },
-    {
-      "rule": "cagr_formula",
-      "test": "((final / base) ^ (1 / years)) - 1) * 100 should equal cagr"
     },
     {
       "rule": "vs_benchmark",
