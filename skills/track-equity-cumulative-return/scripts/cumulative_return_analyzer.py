@@ -3,7 +3,7 @@
 """
 Cumulative Return Analyzer
 
-Calculate cumulative returns and CAGR for stocks/indices, with multi-ticker comparison.
+Calculate cumulative returns for stocks/indices, with multi-ticker comparison.
 
 Usage:
     # Year to today (1.b mode)
@@ -71,38 +71,6 @@ def calculate_cumulative_return(prices: pd.Series) -> float:
     if len(prices) < 2:
         return np.nan
     return ((prices.iloc[-1] / prices.iloc[0]) - 1) * 100
-
-
-def calculate_cagr(prices: pd.Series) -> float:
-    """
-    Calculate Compound Annual Growth Rate (CAGR)
-
-    Parameters
-    ----------
-    prices : pd.Series
-        Price time series with DatetimeIndex
-
-    Returns
-    -------
-    float
-        CAGR (%)
-    """
-    if len(prices) < 2:
-        return np.nan
-
-    # Calculate holding period in years
-    days = (prices.index[-1] - prices.index[0]).days
-    years = days / 365.25
-
-    if years <= 0:
-        return np.nan
-
-    # Calculate total return
-    total_return = prices.iloc[-1] / prices.iloc[0]
-
-    # CAGR = (ending/beginning)^(1/years) - 1
-    cagr = (total_return ** (1 / years) - 1) * 100
-    return cagr
 
 
 def create_cumulative_dataframe(
@@ -245,7 +213,6 @@ def analyze_returns(
         cum_return = latest[f"{ticker}_Return%"]
         price_start = first[f"{ticker}_Price"]
         price_end = latest[f"{ticker}_Price"]
-        cagr = calculate_cagr(df[f"{ticker}_Price"])
         vs_benchmark = cum_return - latest[f"{benchmark}_Return%"]
 
         results.append(
@@ -253,7 +220,6 @@ def analyze_returns(
                 "ticker": ticker,
                 "name": get_ticker_name(ticker),
                 "cumulative_return_pct": round(cum_return, 2),
-                "cagr_pct": round(cagr, 2),
                 "vs_benchmark": round(vs_benchmark, 2),
                 "price_start": round(price_start, 2),
                 "price_end": round(price_end, 2),
@@ -265,7 +231,6 @@ def analyze_returns(
 
     # Benchmark data
     benchmark_return = latest[f"{benchmark}_Return%"]
-    benchmark_cagr = calculate_cagr(df[f"{benchmark}_Price"])
 
     # Summary statistics
     beat_benchmark_count = sum(1 for r in results if r["cumulative_return_pct"] > benchmark_return)
@@ -291,7 +256,6 @@ def analyze_returns(
             "ticker": benchmark,
             "name": get_ticker_name(benchmark),
             "cumulative_return_pct": round(benchmark_return, 2),
-            "cagr_pct": round(benchmark_cagr, 2),
         },
         "summary": {
             "best_performer": best["ticker"] if best else None,
@@ -329,9 +293,9 @@ def print_summary_table(
     results = summary["results"]
     year_only = params.get("year_only", False)
 
-    print("\n" + "=" * 90)
+    print("\n" + "=" * 70)
     print(f"Cumulative Return Analysis Report")
-    print("=" * 90)
+    print("=" * 70)
 
     if year_only:
         print(f"Period: {params['start_year']} Full Year ({period['start_date']} ~ {period['end_date']})")
@@ -339,26 +303,26 @@ def print_summary_table(
         print(f"Period: {period['start_date']} ~ {period['end_date']} ({period['years_held']:.1f} years)")
 
     print(f"Benchmark: {benchmark['name']}")
-    print("=" * 90)
+    print("=" * 70)
 
     # Ranking table
-    print(f"\n{'Rank':<5} {'Ticker':<8} {'Name':<20} {'Cum. Return':>12} {'CAGR':>12} {'vs Bench':>10}")
-    print("-" * 90)
+    print(f"\n{'Rank':<5} {'Ticker':<8} {'Name':<20} {'Cum. Return':>12} {'vs Bench':>10}")
+    print("-" * 70)
 
     for i, r in enumerate(results, 1):
         beat = "✓" if r["cumulative_return_pct"] > benchmark["cumulative_return_pct"] else ""
         print(
             f"{i:<5} {r['ticker']:<8} {r['name']:<20} "
-            f"{r['cumulative_return_pct']:>+11.2f}% {r['cagr_pct']:>+11.2f}% "
+            f"{r['cumulative_return_pct']:>+11.2f}% "
             f"{r['vs_benchmark']:>+9.2f}% {beat}"
         )
 
-    print("-" * 90)
+    print("-" * 70)
     print(
         f"{'Bench':<5} {benchmark['ticker']:<8} {benchmark['name']:<20} "
-        f"{benchmark['cumulative_return_pct']:>+11.2f}% {benchmark['cagr_pct']:>+11.2f}%"
+        f"{benchmark['cumulative_return_pct']:>+11.2f}%"
     )
-    print("=" * 90)
+    print("=" * 70)
 
     # Statistics
     s = summary["summary"]
@@ -372,7 +336,7 @@ def print_summary_table(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Calculate cumulative returns and CAGR for stocks/indices",
+        description="Calculate cumulative returns for stocks/indices",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

@@ -177,17 +177,11 @@ def analyze_single_stock(
         end_price = close.iloc[-1]
         cumulative_return = ((end_price / start_price) - 1) * 100
 
-        # Calculate CAGR
-        days = (data.index[-1] - data.index[0]).days
-        years = days / 365.25
-        cagr = ((end_price / start_price) ** (1 / years) - 1) * 100 if years > 0 else 0
-
         return {
             "ticker": ticker,
             "name": get_ticker_name(ticker),
             "data": data,
             "cumulative_return": cumulative_return,
-            "cagr": cagr,
             "start_price": start_price,
             "end_price": end_price,
         }
@@ -328,7 +322,6 @@ def analyze_index_components(
                 "ticker": r["ticker"],
                 "name": r["name"],
                 "cumulative_return_pct": round(r["cumulative_return"], 2),
-                "cagr_pct": round(r["cagr"], 2),
                 "vs_benchmark": round(r["cumulative_return"] - benchmark_return, 2),
             }
             for i, r in enumerate(top_stocks)
@@ -405,7 +398,7 @@ def print_ranking_table(summary: Dict[str, Any]) -> None:
     top = summary["top_performers"]
     year_only = params.get("year_only", False)
 
-    print("\n" + "=" * 100)
+    print("\n" + "=" * 80)
     print(f"{params['index_name']} Component Performance Ranking")
 
     if year_only:
@@ -413,25 +406,25 @@ def print_ranking_table(summary: Dict[str, Any]) -> None:
     else:
         print(f"Period: {period['start_date']} ~ {period['end_date']} ({period['years_held']:.1f} years)")
 
-    print("=" * 100)
+    print("=" * 80)
 
-    print(f"\n{'Rank':<5} {'Ticker':<8} {'Name':<25} {'Cum. Return':>12} {'CAGR':>12} {'vs Bench':>10}")
-    print("-" * 100)
+    print(f"\n{'Rank':<5} {'Ticker':<8} {'Name':<25} {'Cum. Return':>12} {'vs Bench':>10}")
+    print("-" * 80)
 
     for r in top:
         beat = "✓" if r["cumulative_return_pct"] > benchmark["cumulative_return_pct"] else ""
         print(
             f"{r['rank']:<5} {r['ticker']:<8} {r['name']:<25} "
-            f"{r['cumulative_return_pct']:>+11.2f}% {r['cagr_pct']:>+11.2f}% "
+            f"{r['cumulative_return_pct']:>+11.2f}% "
             f"{r['vs_benchmark']:>+9.2f}% {beat}"
         )
 
-    print("-" * 100)
+    print("-" * 80)
     print(
         f"{'Bench':<5} {benchmark['ticker']:<8} {benchmark['name']:<25} "
         f"{benchmark['cumulative_return_pct']:>+11.2f}%"
     )
-    print("=" * 100)
+    print("=" * 80)
 
     print(f"\nStatistics:")
     print(f"  - Stocks analyzed: {stats['analyzed']} / {stats['total_components']}")
