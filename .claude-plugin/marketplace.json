@@ -75,6 +75,42 @@
       "tags": []
     },
     {
+      "name": "us-cpi-pce-comparator",
+      "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/us-cpi-pce-comparator",
+      "category": "inflation-analytics",
+      "tags": [
+        "CPI",
+        "PCE",
+        "通膨",
+        "Fed",
+        "權重差異",
+        "FRED"
+      ]
+    },
+    {
+      "name": "track-equity-cumulative-return",
+      "description": "追蹤股票/指數的累積報酬率，支援多標的比較、指數成分股 Top N 排名，並輸出視覺化圖表。固定使用 S&P 500 作為基準。",
+      "version": "0.1.0",
+      "author": {
+        "name": "macro-skills"
+      },
+      "source": "./skills/track-equity-cumulative-return",
+      "category": "indicator-monitoring",
+      "tags": [
+        "股票",
+        "報酬率",
+        "累積報酬",
+        "CAGR",
+        "年化報酬",
+        "基準比較"
+      ]
+    },
+    {
       "name": "track-agri-hedge-fund-positioning",
       "description": "用 COT 非商業部位變化，量化對沖基金在農產品期貨的資金流向，並把出口需求、USDA 數據、美元/原油/金屬等宏觀風向整合成可交易的敘事與訊號。",
       "version": "0.1.1",
@@ -93,21 +129,21 @@
       ]
     },
     {
-      "name": "us-cpi-pce-comparator",
-      "description": "自動比較 CPI（固定權重）與 PCE（動態權重）的通膨訊號，識別低波動高權重桶位的 PCE 上行風險。用於分析 Fed 關注的 PCE 是否正在 re-accelerate，即使 CPI 看似降溫。",
-      "version": "0.1.0",
+      "name": "nickel-concentration-risk-analyzer",
+      "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
+      "version": "0.1.1",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/us-cpi-pce-comparator",
-      "category": "inflation-analytics",
+      "source": "./skills/nickel-concentration-risk-analyzer",
+      "category": "event-scenario",
       "tags": [
-        "CPI",
-        "PCE",
-        "通膨",
-        "Fed",
-        "權重差異",
-        "FRED"
+        "鎳",
+        "供給集中度",
+        "原物料",
+        "採礦",
+        "地緣政治",
+        "情境分析"
       ]
     },
     {
@@ -183,24 +219,6 @@
       ]
     },
     {
-      "name": "nickel-concentration-risk-analyzer",
-      "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
-      "version": "0.1.1",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/nickel-concentration-risk-analyzer",
-      "category": "event-scenario",
-      "tags": [
-        "鎳",
-        "供給集中度",
-        "原物料",
-        "採礦",
-        "地緣政治",
-        "情境分析"
-      ]
-    },
-    {
       "name": "forecast-sector-relative-return-from-yield-spread",
       "description": "用美債殖利率曲線利差（如 2Y-10Y）建立領先關係，推估未來一段時間內成長股（Nasdaq 100）相對防禦股（Healthcare/XLV）的相對績效方向與幅度。",
       "version": "0.1.0",
@@ -237,24 +255,6 @@
       ]
     },
     {
-      "name": "detect-us-equity-valuation-percentile-extreme",
-      "description": "把多個股票估值指標統一轉成在過去百年歷史中的分位數，再合成一個總分，判斷目前是否處於歷史極端高估區間，並用歷史類比（如 1929、1965、1999）給出風險解讀",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/detect-us-equity-valuation-percentile-extreme",
-      "category": "indicator-monitoring",
-      "tags": [
-        "估值",
-        "分位數",
-        "CAPE",
-        "本益比",
-        "巴菲特指標",
-        "GDP"
-      ]
-    },
-    {
       "name": "detect-shanghai-silver-stock-drain",
       "description": "以公開交易所庫存資料為核心，量化上海白銀庫存耗盡的方向、速度與加速度，並將其轉成可交易的供給緊縮訊號",
       "version": "0.1.0",
@@ -270,6 +270,24 @@
         "上海期交所",
         "供給緊縮",
         "耗盡訊號"
+      ]
+    },
+    {
+      "name": "detect-us-equity-valuation-percentile-extreme",
+      "description": "把多個股票估值指標統一轉成在過去百年歷史中的分位數，再合成一個總分，判斷目前是否處於歷史極端高估區間，並用歷史類比（如 1929、1965、1999）給出風險解讀",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-us-equity-valuation-percentile-extreme",
+      "category": "indicator-monitoring",
+      "tags": [
+        "估值",
+        "分位數",
+        "CAPE",
+        "本益比",
+        "巴菲特指標",
+        "GDP"
       ]
     },
     {
@@ -291,24 +309,6 @@
       ]
     },
     {
-      "name": "detect-freight-led-inflation-turn",
-      "description": "透過美國卡斯貨運指數 (CASS Freight Index) 的週期轉折，偵測美國通膨壓力是否進入放緩或反轉階段。用於判斷「通膨是否正在降溫」，並驗證市場對降息、通膨回落的宏觀敘事是否有實體經濟數據支撐。",
-      "version": "0.1.1",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/detect-freight-led-inflation-turn",
-      "category": "inflation-analytics",
-      "tags": [
-        "卡斯貨運指數",
-        "貨運",
-        "企業運費",
-        "通貨膨脹",
-        "領先指標",
-        "CPI"
-      ]
-    },
-    {
       "name": "detect-fed-unamortized-discount-pattern",
       "description": "檢查聯準會持有證券的未攤銷折價（Unamortized Discounts）是否出現與特定歷史危機期間相似的走勢模板，並用多指標交叉驗證是否真的屬於「金融壓力升高」而非單純會計/利率效果",
       "version": "0.1.0",
@@ -324,6 +324,24 @@
         "流動性風險",
         "金融壓力",
         "交叉驗證"
+      ]
+    },
+    {
+      "name": "detect-freight-led-inflation-turn",
+      "description": "透過美國卡斯貨運指數 (CASS Freight Index) 的週期轉折，偵測美國通膨壓力是否進入放緩或反轉階段。用於判斷「通膨是否正在降溫」，並驗證市場對降息、通膨回落的宏觀敘事是否有實體經濟數據支撐。",
+      "version": "0.1.1",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-freight-led-inflation-turn",
+      "category": "inflation-analytics",
+      "tags": [
+        "卡斯貨運指數",
+        "貨運",
+        "企業運費",
+        "通貨膨脹",
+        "領先指標",
+        "CPI"
       ]
     },
     {
@@ -410,24 +428,6 @@
       ]
     },
     {
-      "name": "analyze-silver-miner-metal-ratio",
-      "description": "以「銀礦股價格 / 白銀價格」的相對比率衡量礦業股板塊相對於金屬本體的估值區間（偏貴/偏便宜），並用歷史分位數與類比區間推導「底部/頂部」訊號與情境推演。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/analyze-silver-miner-metal-ratio",
-      "category": "commodity-sd",
-      "tags": [
-        "白銀",
-        "礦業股",
-        "SIL",
-        "SILJ",
-        "相對估值",
-        "分位數"
-      ]
-    },
-    {
       "name": "analyze-move-risk-gauges-leadlag",
       "description": "用公開市場數據檢查「利率波動率（MOVE）是否對利率事件（如 JGB 殖利率變動）不恐慌，並且是否領先帶動 VIX / 信用利差走低」",
       "version": "0.1.0",
@@ -443,6 +443,24 @@
         "信用利差",
         "領先落後",
         "事件分析"
+      ]
+    },
+    {
+      "name": "analyze-silver-miner-metal-ratio",
+      "description": "以「銀礦股價格 / 白銀價格」的相對比率衡量礦業股板塊相對於金屬本體的估值區間（偏貴/偏便宜），並用歷史分位數與類比區間推導「底部/頂部」訊號與情境推演。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-silver-miner-metal-ratio",
+      "category": "commodity-sd",
+      "tags": [
+        "白銀",
+        "礦業股",
+        "SIL",
+        "SILJ",
+        "相對估值",
+        "分位數"
       ]
     },
     {
