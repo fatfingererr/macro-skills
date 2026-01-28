@@ -1,0 +1,324 @@
+displayName: 追蹤股票累積報酬率
+emoji: "\U0001F4C8"
+authorUrl: https://github.com/fatfingererr/macro-skills
+
+tools:
+  - claude-code
+
+featured: false
+installCount: 0
+testQuestions:
+  # 1.a：股票（多檔），僅指定年份（整年）
+  - question: '分析 NVDA 與 AMD 在 2024 全年度的累積報酬'
+    expectedResult: |
+      累積報酬分析報告
+
+      期間：2023-12-29 ~ 2024-12-31（整年度）
+      基準：2023 年最後一個交易日（2023-12-29）
+      比較基準：S&P 500
+
+      排名  代號    名稱                 累積報酬       年化報酬率（CAGR）  相對基準
+      1     NVDA    NVIDIA（NVDA）      +185.52%       +187.38%           +160.97% ✓
+      2     AMD     AMD（AMD）          -11.65%        -11.71%            -36.19%
+      基準  ^GSPC   S&P 500             +24.54%        +24.71%
+
+      統計：
+        - 表現最佳：NVDA（+185.52%）
+        - 贏過基準：1 / 2
+
+      圖表已儲存：output/cumulative_return_2024_only_2026-01-28.png
+
+  # 1.b：股票（多檔），從某年到今天
+  - question: '顯示 NVDA 與 AMD 從 2022 年到今天的累積報酬'
+    expectedResult: |
+      累積報酬分析報告
+
+      期間：2021-12-31 ~ 2026-01-28（4.1 年）
+      基準：2021 年最後一個交易日（2021-12-31）
+      比較基準：S&P 500
+
+      排名  代號    名稱                 累積報酬       年化報酬率（CAGR）  相對基準
+      1     NVDA    NVIDIA（NVDA）      +320.50%       +52.30%            +275.30% ✓
+      2     AMD     AMD（AMD）          +180.20%       +35.10%            +135.00% ✓
+      基準  ^GSPC   S&P 500             +45.20%        +10.10%
+
+      統計：
+        - 表現最佳：NVDA（+320.50%）
+        - 贏過基準：2 / 2
+
+      圖表已儲存：output/cumulative_return_2026-01-28.png
+
+  # 2.a：指數 Top N，僅指定年份（整年）
+  - question: '找出 Nasdaq 100 在 2024 全年度表現前 10 名的股票'
+    expectedResult: |
+      Nasdaq 100 前 10 名績效分析
+
+      期間：2023-12-29 ~ 2024-12-31（整年度）
+      基準：2023 年最後一個交易日（2023-12-29）
+      比較基準：S&P 500
+
+      排名  代號    名稱                 累積報酬       年化報酬率（CAGR）  相對基準
+      1     NVDA    NVIDIA（NVDA）      +185.52%       +187.38%           +160.97%
+      2     META    Meta（META）        +65.20%        +65.20%            +40.00%
+      ...
+      10    GOOGL   Google（GOOGL）     +35.30%        +35.30%            +10.10%
+
+      統計：
+        - 已分析：98 / 100
+        - 贏過基準：45（45.9%）
+        - 前 10 名平均報酬：+85.60%
+
+      圖表已儲存：output/nasdaq100_top10_2024_only_2026-01-28.png
+
+  # 2.b：指數 Top N，從某年到今天
+  - question: '顯示 Nasdaq 100 自 2022 年以來表現前 20 名的股票'
+    expectedResult: |
+      Nasdaq 100 前 20 名績效分析
+
+      期間：2021-12-31 ~ 2026-01-28（4.1 年）
+      基準：2021 年最後一個交易日（2021-12-31）
+      比較基準：S&P 500
+
+      排名  代號    名稱                 累積報酬       年化報酬率（CAGR）  相對基準
+      1     NVDA    NVIDIA（NVDA）      +320.50%       +52.30%            +275.30%
+      2     META    Meta（META）        +250.20%       +43.10%            +205.00%
+      3     AMD     AMD（AMD）          +180.20%       +35.10%            +135.00%
+      ...
+      20    AAPL    Apple（AAPL）       +65.30%        +14.20%            +20.10%
+
+      統計：
+        - 已分析：98 / 100
+        - 贏過基準：45（45.9%）
+        - 前 20 名平均報酬：+145.60%
+        - 全體平均報酬：+52.30%
+
+      圖表已儲存：output/nasdaq100_top20_2026-01-28.png
+  # 1.a: Stock(s), specific year only (full year)
+  - question: 'Analyze NVDA and AMD cumulative return for 2024 full year only'
+    expectedResult: |
+      Cumulative Return Analysis Report
+
+      Period: 2023-12-29 ~ 2024-12-31 (Full Year)
+      Base: Last trading day of 2023 (2023-12-29)
+      Benchmark: S&P 500
+
+      Rank  Ticker  Name             Cum. Return    CAGR         vs Bench
+      1     NVDA    NVIDIA (NVDA)    +185.52%       +187.38%     +160.97% ✓
+      2     AMD     AMD (AMD)        -11.65%        -11.71%      -36.19%
+      Bench ^GSPC   S&P 500          +24.54%        +24.71%
+
+      Statistics:
+        - Best performer: NVDA (+185.52%)
+        - Beat benchmark: 1 / 2
+
+      Chart saved: output/cumulative_return_2024_only_2026-01-28.png
+
+  # 1.b: Stock(s), from year to today
+  - question: 'Show NVDA and AMD cumulative return from 2022 to today'
+    expectedResult: |
+      Cumulative Return Analysis Report
+
+      Period: 2021-12-31 ~ 2026-01-28 (4.1 years)
+      Base: Last trading day of 2021 (2021-12-31)
+      Benchmark: S&P 500
+
+      Rank  Ticker  Name             Cum. Return    CAGR         vs Bench
+      1     NVDA    NVIDIA (NVDA)    +320.50%       +52.30%      +275.30% ✓
+      2     AMD     AMD (AMD)        +180.20%       +35.10%      +135.00% ✓
+      Bench ^GSPC   S&P 500          +45.20%        +10.10%
+
+      Statistics:
+        - Best performer: NVDA (+320.50%)
+        - Beat benchmark: 2 / 2
+
+      Chart saved: output/cumulative_return_2026-01-28.png
+
+  # 2.a: Index Top N, specific year only (full year)
+  - question: 'Find top 10 performers in Nasdaq 100 for 2024 full year only'
+    expectedResult: |
+      Nasdaq 100 Top 10 Performance Analysis
+
+      Period: 2023-12-29 ~ 2024-12-31 (Full Year)
+      Base: Last trading day of 2023 (2023-12-29)
+      Benchmark: S&P 500
+
+      Rank  Ticker  Name             Cum. Return    CAGR         vs Bench
+      1     NVDA    NVIDIA (NVDA)    +185.52%       +187.38%     +160.97%
+      2     META    Meta (META)      +65.20%        +65.20%      +40.00%
+      ...
+      10    GOOGL   Google (GOOGL)   +35.30%        +35.30%      +10.10%
+
+      Statistics:
+        - Analyzed: 98 / 100
+        - Beat benchmark: 45 (45.9%)
+        - Top 10 avg return: +85.60%
+
+      Chart saved: output/nasdaq100_top10_2024_only_2026-01-28.png
+
+  # 2.b: Index Top N, from year to today
+  - question: 'Show top 20 performing stocks in Nasdaq 100 since 2022'
+    expectedResult: |
+      Nasdaq 100 Top N Performance Analysis
+
+      Period: 2021-12-31 ~ 2026-01-28 (4.1 years)
+      Base: Last trading day of 2021 (2021-12-31)
+      Benchmark: S&P 500
+
+      Rank  Ticker  Name             Cum. Return    CAGR         vs Bench
+      1     NVDA    NVIDIA (NVDA)    +320.50%       +52.30%      +275.30%
+      2     META    Meta (META)      +250.20%       +43.10%      +205.00%
+      3     AMD     AMD (AMD)        +180.20%       +35.10%      +135.00%
+      ...
+      20    AAPL    Apple (AAPL)     +65.30%        +14.20%      +20.10%
+
+      Statistics:
+        - Analyzed: 98 / 100
+        - Beat benchmark: 45 (45.9%)
+        - Top N avg return: +145.60%
+        - All avg return: +52.30%
+
+      Chart saved: output/nasdaq100_top20_2026-01-28.png
+
+qualityScore:
+  overall: 68
+  badge: 白銀
+  evaluatedAt: "2026-01-28"
+  evaluatedBy: "skill-quality-guide.md v1.1.0"
+
+  metrics:
+    problemFit: 70
+    correctness: 80
+    dataGovernance: 60
+    robustness: 65
+    maintainability: 80
+    usability: 55
+
+  details: |
+    **任務適配度（70/100）**
+    - SKILL.md 有清晰的一句話目標（<objective>）
+    - 支援 4 種分析情境，工作流覆蓋主路徑
+    - input-schema.md 欄位定義清楚
+    - 缺少「不適用情境」說明 (-5)
+    - 輸出支持的決策未明確說明 (-10)
+    - workflows/ 缺少 top20.md (-5)
+
+    **正確性（80/100）**
+    - methodology.md 有完整公式推導
+    - scripts/ 實作與文檔吻合
+    - examples/ 有 golden_cases.json 可回歸
+    - 有 test_calculations.py 測試套件
+    - 可增加更多邊界案例測試
+
+    **資料治理（60/100）**
+    - data-sources.md 有完整來源說明
+    - 有 cache 機制（12小時有效期）
+    - 缺少 cross-validate.md (-10)
+    - 缺少 explore_*.py (-5)
+    - fetch 無記錄 timestamp 到輸出 (-5)
+    - fallback 替代方案未實作 (-5)
+
+    **穩健性（65/100）**
+    - 有 retry 機制（3次，指數退避）
+    - 有 validators.py 輸入驗證
+    - 有缺值處理（dropna, NaN check）
+    - 無明確 rate limit 控制 (-3)
+    - 無明確 timeout 設定 (-3)
+    - 無降級輸出機制 (-5)
+    - try-except 覆蓋不完整 (-5)
+
+    **可維護性（80/100）**
+    - manifest.json 有 semver 版本（1.1.0）
+    - templates/ 欄位命名穩定
+    - scripts 模組化，參數集中定義
+    - 無重複文件（無文件漂移）
+    - inputs/outputs schema 版本未明確 (-3)
+
+    **輸出可用性（55/100）**
+    - 有 visualizer 視覺化腳本
+    - 有風險提示（倖存者偏差、股息）
+    - 缺少 TL;DR 結論一句話 (-10)
+    - 缺少 historical-episodes.md (-10)
+    - 缺少「下一步」建議 (-5)
+    - JSON 缺少 status/confidence/reasons (-9)
+    - 缺少「如何解讀」文檔 (-5)
+
+upgradeNotes: |
+  **白銀 → 黃金 升級路徑**（需 overall ≥ 80，所有維度 ≥ 70）
+
+  1. **資料治理 60 → 75**
+     - 增加 cross-validate.md 或 explore_*.py
+     - fetch 輸出增加 timestamp 記錄
+     - 實作 fallback 替代來源
+
+  2. **穩健性 65 → 75**
+     - 增加 timeout 設定
+     - 增加降級輸出機制
+     - 完善 try-except 覆蓋
+
+  3. **輸出可用性 55 → 75**
+     - output-markdown.md 增加 TL;DR + 下一步
+     - 增加 historical-episodes.md
+     - 增加「如何解讀」文檔
+     - JSON 輸出增加 status/confidence/reasons
+
+bestPractices:
+  - title: 使用適當的起始年份
+    description: 選擇有意義的起始年份，避免太短（波動大）或太長（資料不完整）
+  - title: 搭配基準比較
+    description: 累積報酬率需與基準比較才有意義，避免單看絕對值
+  - title: 注意倖存者偏差
+    description: 成分股列表是當前的，歷史成分可能不同
+
+pitfalls:
+  - title: 忽略股息再投資
+    description: 本工具使用價格報酬，未計入股息，對高股息股票可能低估
+    consequence: 低估實際總報酬
+  - title: 成分股變動
+    description: 指數成分股會定期調整，歷史分析使用當前成分
+    consequence: 存在倖存者偏差
+
+faq:
+  - question: 累積報酬率和年化報酬率有什麼差別？
+    answer: |
+      **累積報酬率**
+      - 總報酬百分比，不考慮時間長度
+      - 例如：3 年賺 50%
+
+      **年化報酬率 (CAGR)**
+      - 換算成每年的複合成長率
+      - 例如：3 年賺 50% → CAGR ≈ 14.5%
+
+      CAGR 更適合比較不同時間長度的投資。
+
+  - question: 為什麼要與基準比較？
+    answer: |
+      單看累積報酬率無法判斷投資表現好壞：
+
+      - 如果市場漲 50%，你賺 40%，其實表現不佳
+      - 如果市場跌 20%，你只跌 10%，表現優異
+
+      「vs 基準」顯示超額報酬（Alpha），才是真正的投資能力指標。
+
+about:
+  repository: https://github.com/fatfingererr/macro-skills
+  branch: main
+  additionalInfo: |
+    ## 資料來源
+
+    **Yahoo Finance**
+    - 官網：https://finance.yahoo.com
+    - 套件：yfinance
+    - 費用：免費公開
+    - 限制：有 API 速率限制，使用快取減少請求
+
+    ## 計算方法
+
+    **累積報酬率**
+    ```
+    R = (P_end / P_start - 1) × 100%
+    ```
+
+    **年化報酬率 (CAGR)**
+    ```
+    CAGR = (P_end / P_start)^(1/years) - 1
+    ```

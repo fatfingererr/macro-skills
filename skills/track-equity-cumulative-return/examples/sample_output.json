@@ -1,0 +1,60 @@
+{
+  "skill": "track-equity-cumulative-return",
+  "as_of": "2026-01-28",
+  "mode": "compare",
+  "parameters": {
+    "tickers": ["NVDA", "AMD", "GOOGL"],
+    "start_year": 2022,
+    "benchmark": "^GSPC"
+  },
+  "period": {
+    "start_date": "2021-12-31",
+    "end_date": "2026-01-28",
+    "days_held": 1489,
+    "years_held": 4.08,
+    "base_note": "Start from last trading day of 2021"
+  },
+  "benchmark": {
+    "ticker": "^GSPC",
+    "name": "S&P 500",
+    "cumulative_return_pct": 45.2,
+    "cagr_pct": 10.1
+  },
+  "summary": {
+    "best_performer": "NVDA",
+    "best_return": 320.5,
+    "benchmark_return": 45.2,
+    "beat_benchmark_count": 3,
+    "total_count": 3
+  },
+  "results": [
+    {
+      "ticker": "NVDA",
+      "name": "NVIDIA (NVDA)",
+      "cumulative_return_pct": 320.5,
+      "cagr_pct": 52.3,
+      "vs_benchmark": 275.3,
+      "price_start": 29.25,
+      "price_end": 123.15
+    },
+    {
+      "ticker": "AMD",
+      "name": "AMD (AMD)",
+      "cumulative_return_pct": 180.2,
+      "cagr_pct": 35.1,
+      "vs_benchmark": 135.0,
+      "price_start": 45.5,
+      "price_end": 127.48
+    },
+    {
+      "ticker": "GOOGL",
+      "name": "Google (GOOGL)",
+      "cumulative_return_pct": 65.3,
+      "cagr_pct": 14.2,
+      "vs_benchmark": 20.1,
+      "price_start": 144.25,
+      "price_end": 238.5
+    }
+  ],
+  "chart_path": "output/cumulative_return_2026-01-28.png"
+}

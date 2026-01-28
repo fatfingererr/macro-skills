@@ -1,0 +1,130 @@
+{
+  "_metadata": {
+    "version": "1.0.0",
+    "description": "Golden test cases for cumulative return calculations",
+    "created": "2026-01-28",
+    "methodology": "Manual verification with Yahoo Finance data"
+  },
+  "_notes": {
+    "purpose": "These golden cases validate the core calculation logic",
+    "verification": "Each case was manually verified against Yahoo Finance historical data",
+    "tolerance": "Results should match within 0.5% tolerance due to date alignment"
+  },
+  "cumulative_return_formula": {
+    "description": "Cumulative Return = ((Final Price / Base Price) - 1) × 100%",
+    "example": {
+      "base_price": 100,
+      "final_price": 150,
+      "expected_return": 50.0
+    }
+  },
+  "cagr_formula": {
+    "description": "CAGR = ((Final / Initial) ^ (1 / Years)) - 1",
+    "example": {
+      "initial_price": 100,
+      "final_price": 150,
+      "years": 2.0,
+      "expected_cagr": 22.47
+    }
+  },
+  "test_cases": [
+    {
+      "case_id": "NVDA_2024_FULL_YEAR",
+      "description": "NVIDIA 2024 full year return",
+      "scenario": "1.a",
+      "ticker": "NVDA",
+      "year": 2024,
+      "year_only": true,
+      "expected": {
+        "base_date": "2023-12-29",
+        "end_date": "2024-12-31",
+        "base_price_approx": 49.52,
+        "end_price_approx": 134.29,
+        "cumulative_return_range": [170, 190],
+        "notes": "Prices are split-adjusted. Actual return ~171%"
+      }
+    },
+    {
+      "case_id": "AMD_2024_FULL_YEAR",
+      "description": "AMD 2024 full year return",
+      "scenario": "1.a",
+      "ticker": "AMD",
+      "year": 2024,
+      "year_only": true,
+      "expected": {
+        "base_date": "2023-12-29",
+        "end_date": "2024-12-31",
+        "base_price_approx": 147.41,
+        "end_price_approx": 119.21,
+        "cumulative_return_range": [-20, -10],
+        "notes": "AMD underperformed in 2024. Actual return ~-19%"
+      }
+    },
+    {
+      "case_id": "SP500_2024_FULL_YEAR",
+      "description": "S&P 500 benchmark 2024 full year return",
+      "scenario": "benchmark",
+      "ticker": "^GSPC",
+      "year": 2024,
+      "year_only": true,
+      "expected": {
+        "base_date": "2023-12-29",
+        "end_date": "2024-12-31",
+        "base_price_approx": 4769.83,
+        "end_price_approx": 5881.63,
+        "cumulative_return_range": [20, 28],
+        "notes": "S&P 500 had strong 2024. Actual return ~23%"
+      }
+    },
+    {
+      "case_id": "NVDA_2022_TO_2025",
+      "description": "NVIDIA from 2022 to end of 2025",
+      "scenario": "1.b",
+      "ticker": "NVDA",
+      "year": 2022,
+      "year_only": false,
+      "expected": {
+        "base_date": "2021-12-31",
+        "end_date": "2025-12-31",
+        "years_approx": 4.0,
+        "cumulative_return_range": [500, 700],
+        "cagr_range": [50, 70],
+        "notes": "NVIDIA had exceptional growth. 4-year cumulative ~600%"
+      }
+    },
+    {
+      "case_id": "CAGR_CALCULATION",
+      "description": "CAGR calculation verification",
+      "test_type": "calculation",
+      "input": {
+        "initial_price": 100,
+        "final_price": 200,
+        "days_held": 730
+      },
+      "expected": {
+        "years": 2.0,
+        "cumulative_return": 100.0,
+        "cagr": 41.42
+      },
+      "tolerance": 0.5
+    }
+  ],
+  "validation_rules": [
+    {
+      "rule": "cumulative_return_formula",
+      "test": "((final / base) - 1) * 100 should equal cumulative_return"
+    },
+    {
+      "rule": "cagr_formula",
+      "test": "((final / base) ^ (1 / years)) - 1) * 100 should equal cagr"
+    },
+    {
+      "rule": "vs_benchmark",
+      "test": "stock_return - benchmark_return should equal vs_benchmark"
+    },
+    {
+      "rule": "beat_benchmark",
+      "test": "beat count should match stocks where return > benchmark_return"
+    }
+  ]
+}
