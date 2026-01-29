@@ -64,14 +64,18 @@ Cross-correlation 結果解讀：
 <principle name="data_source_priority">
 **數據來源優先順序**
 
-主要：TradingEconomics（透過 Chrome CDP 爬取）
+主要：TradingEconomics（透過全自動 Chrome CDP 爬取）
 備援：FRED Henry Hub + World Bank Pink Sheet
 
-**Chrome CDP 爬取方法**：
-1. 啟動 Chrome 調試模式（`--remote-debugging-port=9222`）
+**全自動 Chrome CDP 爬取**：
+腳本自動完成以下步驟，無需手動操作：
+1. 自動啟動 Chrome 調試模式
 2. 開啟 TradingEconomics 頁面並等待圖表載入
 3. 透過 WebSocket 連接執行 JavaScript 提取 Highcharts 數據
-4. 完全繞過 Cloudflare，模擬真人瀏覽
+4. 自動導航到多個商品頁面（如天然氣→化肥）
+5. 完成後自動關閉 Chrome
+
+完全繞過 Cloudflare，無需手動驗證。
 </principle>
 
 </essential_principles>
@@ -87,50 +91,33 @@ Cross-correlation 結果解讀：
 
 <quick_start>
 
-**最快的方式：使用 Chrome CDP 抓取數據**
+**全自動模式：一鍵完成數據抓取、分析與視覺化**
+
+腳本會自動啟動 Chrome、抓取數據、關閉 Chrome，無需手動操作。
 
 **Step 1：安裝依賴**
 ```bash
 pip install requests websocket-client pandas numpy matplotlib scipy
 ```
 
-**Step 2：啟動 Chrome 調試模式**
-```bash
-# Windows
-"C:\Program Files\Google\Chrome\Application\chrome.exe" ^
-  --remote-debugging-port=9222 ^
-  --remote-allow-origins=* ^
-  --user-data-dir="%USERPROFILE%\.chrome-debug-profile" ^
-  "https://tradingeconomics.com/commodity/natural-gas"
-
-# macOS
-/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
-  --remote-debugging-port=9222 \
-  --remote-allow-origins=* \
-  --user-data-dir="$HOME/.chrome-debug-profile" \
-  "https://tradingeconomics.com/commodity/natural-gas"
-```
-
-**Step 3：等待頁面完全載入（圖表顯示），然後執行**
+**Step 2：全自動抓取數據**（自動啟動/關閉 Chrome）
 ```bash
 cd scripts
-python fetch_te_data.py --symbol natural-gas
-python fetch_te_data.py --symbol urea
+python fetch_te_data.py --symbol natural-gas --symbol urea
 ```
 
-**Step 4：執行因果假說分析**
+**Step 3：執行因果假說分析**
 ```bash
 python gas_fertilizer_analyzer.py \
-  --start 2025-08-01 \
-  --end 2026-02-01 \
-  --gas-symbol natural-gas \
-  --fert-symbol urea
+  --gas-file ../data/cache/natural-gas.csv \
+  --fert-file ../data/cache/urea.csv \
+  --output ../data/analysis_result.json
 ```
 
-**Step 5：生成視覺化圖表**
+**Step 4：生成視覺化圖表**（Bloomberg 風格）
 ```bash
-python visualize_shock_regimes.py \
-  --output ../../output/gas_fert_shock_$(date +%Y-%m-%d).png
+python visualize_shock_regimes.py
+# 自動輸出到: output/gas_fert_shock_YYYY-MM-DD.png
 ```
 
 **輸出範例**：
@@ -138,12 +125,21 @@ python visualize_shock_regimes.py \
 {
   "signal": "narrative_supported",
   "confidence": "medium",
-  "gas_shock": {"start": "2026-01-12", "peak": "2026-01-29", "return_pct": 85.4},
-  "fert_spike": {"start": "2026-01-20", "peak": "2026-01-31", "return_pct": 22.1},
-  "lead_lag": {"best_lag_days": 12, "corr": 0.41},
-  "interpretation": "天然氣 shock 後約 12 天化肥出現 spike，時序支持敘事"
+  "gas_shock_regimes": [
+    {"start": "2026-01-20", "peak": "2026-01-22", "regime_return_pct": 29.1}
+  ],
+  "fert_spike_regimes": [
+    {"start": "2025-10-27", "peak": "2025-10-27", "regime_return_pct": 0.0}
+  ],
+  "lead_lag_test": {
+    "best_lag_days_gas_leads_fert": 21,
+    "best_corr": 0.131
+  },
+  "interpretation": "天然氣領先化肥約 21 天，敘事有量化支撐"
 }
 ```
+
+**注意**：首次執行時，Chrome 會自動啟動並在背景抓取數據（約 60 秒），完成後自動關閉。
 
 </quick_start>
 
@@ -238,11 +234,11 @@ analyze-gas-fertilizer-contract-shock/
 </templates_index>
 
 <scripts_index>
-| Script                       | Command                              | Purpose                    |
-|------------------------------|--------------------------------------|----------------------------|
-| fetch_te_data.py             | `--symbol X`                         | CDP 爬取 TradingEconomics  |
-| gas_fertilizer_analyzer.py   | `--start DATE --end DATE`            | 完整分析                   |
-| visualize_shock_regimes.py   | `--output FILE`                      | 生成 shock regime 對比圖   |
+| Script                       | Command                                      | Purpose                    |
+|------------------------------|----------------------------------------------|----------------------------|
+| fetch_te_data.py             | `--symbol natural-gas --symbol urea`         | 全自動 CDP 爬取（自動啟動/關閉 Chrome） |
+| gas_fertilizer_analyzer.py   | `--gas-file X.csv --fert-file Y.csv`         | 完整三段式因果分析          |
+| visualize_shock_regimes.py   | （無參數，自動讀取快取）                      | Bloomberg 風格視覺化圖表    |
 </scripts_index>
 
 <input_schema>

@@ -1,4 +1,4 @@
-# Workflow: 快速檢查
+# Workflow: 快速檢查（全自動）
 
 <required_reading>
 無需額外閱讀，直接執行。
@@ -6,118 +6,150 @@
 
 <process>
 
-## Step 1: 快速確認最近狀態
+## Step 1: 全自動抓取數據
 
-使用預設參數，檢查最近 6 個月的 shock 狀態。
+腳本會自動啟動 Chrome、抓取數據、關閉 Chrome，無需手動操作。
 
-### 1.1 如果有快取數據
+### 1.1 如果有快取數據（12 小時內）
 
 ```bash
-cd skills/analyze-gas-fertilizer-contract-shock/scripts
-
-# 檢查快取是否有效（12 小時內）
-python gas_fertilizer_analyzer.py --quick --use-cache
+cd scripts
+# 直接執行分析（會使用快取）
+python gas_fertilizer_analyzer.py \
+  --gas-file ../data/cache/natural-gas.csv \
+  --fert-file ../data/cache/urea.csv \
+  --output ../data/analysis_result.json
 ```
 
 ### 1.2 如果需要更新數據
 
-**Step 1：啟動 Chrome CDP（若尚未啟動）**
+```bash
+cd scripts
+
+# 全自動抓取（自動啟動/關閉 Chrome，約 60 秒）
+python fetch_te_data.py --symbol natural-gas --symbol urea
+
+# 執行分析
+python gas_fertilizer_analyzer.py \
+  --gas-file ../data/cache/natural-gas.csv \
+  --fert-file ../data/cache/urea.csv \
+  --output ../data/analysis_result.json
+```
+
+### 1.3 強制更新（忽略快取）
 
 ```bash
-# Windows
-"C:\Program Files\Google\Chrome\Application\chrome.exe" ^
-  --remote-debugging-port=9222 ^
-  --remote-allow-origins=* ^
-  --user-data-dir="%USERPROFILE%\.chrome-debug-profile" ^
-  "https://tradingeconomics.com/commodity/natural-gas"
+python fetch_te_data.py --symbol natural-gas --symbol urea --force-refresh
 ```
 
-**Step 2：等待頁面載入後執行快速分析**
+---
+
+## Step 2: 解讀分析結果
+
+分析完成後會顯示：
+
+```
+分析完成！結果已儲存至: ../data/analysis_result.json
+Signal: narrative_supported (Confidence: medium)
+```
+
+### Signal 解讀
+
+| Signal | Confidence | 含義 |
+|--------|------------|------|
+| `narrative_supported` | `high` | 強力支持「天然氣暴漲→化肥飆價」敘事 |
+| `narrative_supported` | `medium` | 數據支持敘事，但相關性偏低 |
+| `narrative_weak` | `low` | 敘事較弱，化肥未明顯跟隨 |
+| `inconclusive` | `low` | 數據不足以判斷 |
+
+---
+
+## Step 3: 生成視覺化圖表（Bloomberg 風格）
 
 ```bash
-python gas_fertilizer_analyzer.py --quick --refresh
+python visualize_shock_regimes.py
+```
+
+**輸出**：`output/gas_fert_shock_YYYY-MM-DD.png`
+
+圖表包含：
+- 上圖：天然氣價格 + shock regimes（紅色標記）
+- 下圖：化肥價格 + spike regimes（黃色標記）
+- 標題顯示 signal、confidence、lead-lag 天數
+
+---
+
+## Step 4: 快速判斷
+
+```
+如果 signal == narrative_supported 且 best_lag > 0：
+  → 天然氣暴漲可能傳導至化肥，預期滯後 best_lag 天
+
+如果 signal == narrative_weak：
+  → 化肥價格可能受其他因素主導（庫存、需求、政策）
+
+如果 signal == inconclusive：
+  → 數據範圍不足，建議擴大時間範圍重新分析
 ```
 
 ---
 
-## Step 2: 解讀快速輸出
+## Step 5: 決定下一步
 
-快速模式輸出精簡結果：
+**若 signal 為 `narrative_supported`**：
+1. 查看詳細的 JSON 報告（`../data/analysis_result.json`）
+2. 關注 lead_lag 天數，預判化肥價格反應時間點
+3. 考慮對農業/肥料相關資產的配置調整
 
-```json
-{
-  "check_date": "2026-01-28",
-  "lookback_days": 180,
-  "gas_status": {
-    "current_z": 2.1,
-    "is_shock": false,
-    "recent_shock": {
-      "exists": true,
-      "last_date": "2026-01-29",
-      "days_ago": 0
-    }
-  },
-  "fert_status": {
-    "current_z": 1.5,
-    "is_spike": false,
-    "recent_spike": {
-      "exists": true,
-      "last_date": "2026-01-31",
-      "days_ago": 0
-    }
-  },
-  "quick_assessment": "gas_shock_recent_fert_following",
-  "recommendation": "建議執行完整分析以驗證因果關係"
-}
-```
-
----
-
-## Step 3: Quick Assessment 解讀
-
-| quick_assessment | 意義 | 建議行動 |
-|------------------|------|----------|
-| `no_shock` | 近期無天然氣 shock | 無需關注 |
-| `gas_shock_only` | 有 gas shock，但化肥未跟隨 | 觀察中 |
-| `gas_shock_recent_fert_following` | Gas shock 後化肥開始反應 | 執行完整分析 |
-| `both_shocked` | 兩者同時處於 shock | 執行完整分析 |
-| `fert_leads` | 化肥先動（異常） | 調查其他因素 |
-
----
-
-## Step 4: 決定下一步
-
-根據 quick_assessment 決定：
-
-- **無需關注**：`no_shock` → 結束
-- **持續觀察**：`gas_shock_only` → 設定提醒，幾天後再查
-- **深入分析**：其他 → 執行 `workflows/analyze.md`
+**若 signal 為 `narrative_weak`**：
+1. 調查其他可能的化肥驅動因素
+2. 設定監控頻率（每週檢查）
+3. 關注其他商品傳導路徑
 
 </process>
 
 <success_criteria>
 快速檢查完成時應有：
 
-- [ ] 天然氣當前 z-score 狀態
-- [ ] 化肥當前 z-score 狀態
-- [ ] 最近 shock/spike 日期（若有）
-- [ ] quick_assessment 判斷
+- [ ] 天然氣與化肥數據已抓取（或使用快取）
+- [ ] Signal 與 Confidence 判斷
+- [ ] Lead-lag 天數
+- [ ] Bloomberg 風格視覺化圖表
 - [ ] 下一步建議
 </success_criteria>
 
 <troubleshooting>
 
-### Chrome CDP 連線問題
+### Chrome 啟動失敗
 
-如果無法連接到 Chrome，請確認：
+**問題**：腳本報錯「找不到 Chrome」
 
-1. Chrome 已以調試模式啟動
-2. 端口 9222 可用：`curl -s http://127.0.0.1:9222/json`
-3. 沒有其他 Chrome 實例佔用該端口
+**解決**：
+1. 確認已安裝 Google Chrome
+2. 檢查 Chrome 路徑是否正確（預設路徑在 `fetch_te_data.py` 的 `CHROME_PATHS` 列表中）
 
-### 快取過期
+### WebSocket 連線失敗
 
-如果快取數據已過期（超過 12 小時），腳本會提示需要重新抓取。
-請確保 Chrome CDP 已啟動，然後使用 `--refresh` 參數。
+**問題**：`websocket._exceptions.WebSocketBadStatusException`
+
+**解決**：
+1. 關閉所有 Chrome 視窗後重試
+2. 如果已有 Chrome 調試實例，腳本會自動重用
+
+### Highcharts not found
+
+**問題**：提取數據時報錯 `Highcharts not found`
+
+**解決**：
+1. 頁面可能仍在載入，增加等待時間
+2. 如遇 Cloudflare 驗證，需要手動完成驗證後重試
+
+### 數據範圍太短
+
+**問題**：TradingEconomics 只返回 1 年數據
+
+**解決**：
+1. 這是 TradingEconomics 免費版的限制
+2. 對於長期分析，考慮使用 FRED 備援數據源
 
 </troubleshooting>
