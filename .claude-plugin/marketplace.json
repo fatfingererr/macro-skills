@@ -129,24 +129,6 @@
       ]
     },
     {
-      "name": "nickel-concentration-risk-analyzer",
-      "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
-      "version": "0.1.1",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/nickel-concentration-risk-analyzer",
-      "category": "event-scenario",
-      "tags": [
-        "鎳",
-        "供給集中度",
-        "原物料",
-        "採礦",
-        "地緣政治",
-        "情境分析"
-      ]
-    },
-    {
       "name": "monitor-etf-holdings-drawdown-risk",
       "description": "偵測「商品價格上漲、但對應實物 ETF/信託持倉卻下滑」的背離現象，並用多指標交叉驗證，評估是否存在實物供給緊張/交割壓力風險",
       "version": "0.1.0",
@@ -165,39 +147,21 @@
       ]
     },
     {
-      "name": "list-china-today-macro-news",
-      "description": "彙整今日中國宏觀經濟新聞消息，從華爾街日報、36氪等來源抓取並篩選宏觀相關新聞，輸出雜誌風格的新聞摘要。適用於交易/研究開盤前快速掌握中國宏觀動態。",
-      "version": "0.3.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/list-china-today-macro-news",
-      "category": "nowcasting",
-      "tags": [
-        "中國",
-        "宏觀經濟",
-        "新聞",
-        "華爾街日報",
-        "央行",
-        "利率"
-      ]
-    },
-    {
-      "name": "google-trends-ath-detector",
-      "description": "模擬真人操作瀏覽器抓取 Google Trends 數據，自動判定搜尋趨勢是否創下歷史新高（ATH）或出現異常飆升，並提供訊號分類。",
+      "name": "nickel-concentration-risk-analyzer",
+      "description": "以全球鎳供給結構為核心，量化各國的主導程度（例如印尼）、主要礦區供給量、以及政策配額/減產情境對全球供需平衡與價格非對稱的影響。",
       "version": "0.1.1",
       "author": {
         "name": "Ricky Wang"
       },
-      "source": "./skills/google-trends-ath-detector",
-      "category": "indicator-monitoring",
+      "source": "./skills/nickel-concentration-risk-analyzer",
+      "category": "event-scenario",
       "tags": [
-        "Google Trends",
-        "ATH",
-        "歷史新高",
-        "情緒指標",
-        "異常偵測",
-        "搜尋趨勢"
+        "鎳",
+        "供給集中度",
+        "原物料",
+        "採礦",
+        "地緣政治",
+        "情境分析"
       ]
     },
     {
@@ -219,6 +183,24 @@
       ]
     },
     {
+      "name": "google-trends-ath-detector",
+      "description": "模擬真人操作瀏覽器抓取 Google Trends 數據，自動判定搜尋趨勢是否創下歷史新高（ATH）或出現異常飆升，並提供訊號分類。",
+      "version": "0.1.1",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/google-trends-ath-detector",
+      "category": "indicator-monitoring",
+      "tags": [
+        "Google Trends",
+        "ATH",
+        "歷史新高",
+        "情緒指標",
+        "異常偵測",
+        "搜尋趨勢"
+      ]
+    },
+    {
       "name": "forecast-sector-relative-return-from-yield-spread",
       "description": "用美債殖利率曲線利差（如 2Y-10Y）建立領先關係，推估未來一段時間內成長股（Nasdaq 100）相對防禦股（Healthcare/XLV）的相對績效方向與幅度。",
       "version": "0.1.0",
@@ -234,6 +216,24 @@
         "相對報酬",
         "QQQ",
         "XLV"
+      ]
+    },
+    {
+      "name": "list-china-today-macro-news",
+      "description": "彙整今日中國宏觀經濟新聞消息，從華爾街日報、36氪等來源抓取並篩選宏觀相關新聞，輸出雜誌風格的新聞摘要。適用於交易/研究開盤前快速掌握中國宏觀動態。",
+      "version": "0.3.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/list-china-today-macro-news",
+      "category": "nowcasting",
+      "tags": [
+        "中國",
+        "宏觀經濟",
+        "新聞",
+        "華爾街日報",
+        "央行",
+        "利率"
       ]
     },
     {
@@ -345,24 +345,6 @@
       ]
     },
     {
-      "name": "detect-atr-squeeze-regime",
-      "description": "以 14 日指數平滑 ATR 偵測市場是否從秩序型趨勢轉為波動主導的擠壓（squeeze）行情，並輸出對技術位、停損、交易持有期的可行性評估。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/detect-atr-squeeze-regime",
-      "category": "indicator-monitoring",
-      "tags": [
-        "ATR",
-        "波動率",
-        "擠壓行情",
-        "停損管理",
-        "風險控制",
-        "技術分析"
-      ]
-    },
-    {
       "name": "demographic-fiscal-trap-analyzer",
       "description": "分析人口老化、債務動態、官僚膨脹與通膨稀釋交互作用下的「財政陷阱」風險，量化各國/地區的財政脆弱度並識別潛在的貨幣稀釋路徑",
       "version": "0.1.0",
@@ -378,6 +360,24 @@
         "債務動能",
         "通貨膨脹",
         "人口老化"
+      ]
+    },
+    {
+      "name": "detect-atr-squeeze-regime",
+      "description": "以 14 日指數平滑 ATR 偵測市場是否從秩序型趨勢轉為波動主導的擠壓（squeeze）行情，並輸出對技術位、停損、交易持有期的可行性評估。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/detect-atr-squeeze-regime",
+      "category": "indicator-monitoring",
+      "tags": [
+        "ATR",
+        "波動率",
+        "擠壓行情",
+        "停損管理",
+        "風險控制",
+        "技術分析"
       ]
     },
     {
@@ -446,24 +446,6 @@
       ]
     },
     {
-      "name": "analyze-jgb-insurer-superlong-flow",
-      "description": "從日本保險公司對長端/超長端 JGB 的淨買入(淨賣出) 時間序列，自動產出「本月是否創紀錄賣超、連續賣超月數、期間累積賣超」等結論。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/analyze-jgb-insurer-superlong-flow",
-      "category": "interest-rates",
-      "tags": [
-        "日本",
-        "JGB",
-        "保險公司",
-        "長債",
-        "淨買賣",
-        "JSDA"
-      ]
-    },
-    {
       "name": "analyze-move-risk-gauges-leadlag",
       "description": "用公開市場數據檢查「利率波動率（MOVE）是否對利率事件（如 JGB 殖利率變動）不恐慌，並且是否領先帶動 VIX / 信用利差走低」",
       "version": "0.1.0",
@@ -479,6 +461,24 @@
         "信用利差",
         "領先落後",
         "事件分析"
+      ]
+    },
+    {
+      "name": "analyze-jgb-insurer-superlong-flow",
+      "description": "從日本保險公司對長端/超長端 JGB 的淨買入(淨賣出) 時間序列，自動產出「本月是否創紀錄賣超、連續賣超月數、期間累積賣超」等結論。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-jgb-insurer-superlong-flow",
+      "category": "interest-rates",
+      "tags": [
+        "日本",
+        "JGB",
+        "保險公司",
+        "長債",
+        "淨買賣",
+        "JSDA"
       ]
     },
     {
@@ -572,24 +572,6 @@
       ]
     },
     {
-      "name": "analyze-copper-inventory-rebuild-signal",
-      "description": "用「庫存快速回補」作為短期警戒訊號，評估銅價是否接近短線高點，同時給出一個「長期是否偏便宜」的歷史分位數判讀。",
-      "version": "0.1.0",
-      "author": {
-        "name": "Ricky Wang"
-      },
-      "source": "./skills/analyze-copper-inventory-rebuild-signal",
-      "category": "commodity-sd",
-      "tags": [
-        "銅",
-        "庫存",
-        "SHFE",
-        "COMEX",
-        "期貨",
-        "技術分析"
-      ]
-    },
-    {
       "name": "analyze-copper-stock-resilience-dependency",
       "description": "用跨資產訊號（全球股市韌性 + 中國利率環境）評估銅價能否突破關卡或進入「回補/回踩」到支撐的機率與路徑",
       "version": "0.1.0",
@@ -605,6 +587,24 @@
         "中國利率",
         "關卡突破",
         "回補分析"
+      ]
+    },
+    {
+      "name": "analyze-copper-inventory-rebuild-signal",
+      "description": "用「庫存快速回補」作為短期警戒訊號，評估銅價是否接近短線高點，同時給出一個「長期是否偏便宜」的歷史分位數判讀。",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricky Wang"
+      },
+      "source": "./skills/analyze-copper-inventory-rebuild-signal",
+      "category": "commodity-sd",
+      "tags": [
+        "銅",
+        "庫存",
+        "SHFE",
+        "COMEX",
+        "期貨",
+        "技術分析"
       ]
     }
   ]
